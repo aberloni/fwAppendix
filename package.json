@@ -1,0 +1,20 @@
+{
+  "name": "com.ab.fwp.appendix",
+  "version": "0.1.0",
+  "displayName": "ab:appendix",
+  "description": "extending unity",
+  "keywords": [
+    "prototype",
+    "framework"
+  ],
+  "category": "tools",
+  "repository": {
+    "url": "https://github.com/Legogo/fwAppendix.git",
+    "type": "git"
+  },
+  "author": {
+    "name": "Andrei Berloni",
+    "email": "dev@andreberlemont.com",
+    "url": "http://www.andreberlemont.com"
+  }
+}
