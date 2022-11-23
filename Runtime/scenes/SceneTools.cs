@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace fpw.scenes
+namespace fwp.scenes
 {
     static public class SceneTools
     {
