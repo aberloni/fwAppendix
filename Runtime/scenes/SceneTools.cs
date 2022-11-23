@@ -35,6 +35,40 @@ namespace fwp.scenes
             }
         }
 
+
+        static public List<string> getScenesNamesOfCategory(string cat)
+        {
+            List<string> output = new List<string>();
+
+            //string[] scenes = HalperScene.getAllBuildSettingsScenes(false);
+            string[] scenes = HalperScene.getAssetScenesPaths();
+
+            if (scenes.Length <= 0)
+            {
+                Debug.LogWarning("no scenes ?");
+                return output;
+            }
+
+            for (int i = 0; i < scenes.Length; i++)
+            {
+                string path = scenes[i].ToLower();
+
+                if (path.Contains("/3rd")) continue;
+
+                if (!path.Contains(cat.ToLower())) continue;
+
+                string scName = scenes[i].Substring(scenes[i].LastIndexOf("/") + 1);
+
+                if (scName.EndsWith(".unity")) scName = scName.Substring(0, scName.IndexOf(".unity"));
+
+                output.Add(scName);
+            }
+
+            //Debug.Log($"found x{regionScenes.Count} regions");
+
+            return output;
+        }
+
     }
 
 }

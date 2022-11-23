@@ -84,7 +84,7 @@ namespace fwp.scenes
 
 		List<SceneProfil> getProfils(string cat)
 		{
-			List<string> names = refreshScenesNamesOfCategory(cat);
+			List<string> names = SceneTools.getScenesNamesOfCategory(cat);
 
 			//Debug.Log("category:" + cat+" has x"+names.Count);
 
@@ -124,39 +124,6 @@ namespace fwp.scenes
 			//if (newTab != (int)tabSelected) Debug.Log("changed tab ? " + tabSelected);
 
 			return newTab;
-		}
-
-		static private List<string> refreshScenesNamesOfCategory(string cat)
-		{
-			List<string> output = new List<string>();
-
-			//string[] scenes = HalperScene.getAllBuildSettingsScenes(false);
-			string[] scenes = HalperScene.getAssetScenesPaths();
-
-			if (scenes.Length <= 0)
-			{
-				Debug.LogWarning("no scenes ?");
-				return output;
-			}
-
-			for (int i = 0; i < scenes.Length; i++)
-			{
-				string path = scenes[i].ToLower();
-
-				if (path.Contains("/3rd")) continue;
-
-				if (!path.Contains(cat.ToLower())) continue;
-
-				string scName = scenes[i].Substring(scenes[i].LastIndexOf("/") + 1);
-
-				if (scName.EndsWith(".unity")) scName = scName.Substring(0, scName.IndexOf(".unity"));
-
-				output.Add(scName);
-			}
-
-			//Debug.Log($"found x{regionScenes.Count} regions");
-
-			return output;
 		}
 
 	}
