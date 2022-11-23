@@ -7,6 +7,7 @@ namespace fwp.scenes
 {
 	abstract public class WinEdBlueprintScenesProfiler : EditorWindow
 	{
+		List<string> paths = new List<string>();
 
 		string[] sections;
 		Dictionary<string, List<SceneProfil>> buttons;
@@ -19,7 +20,7 @@ namespace fwp.scenes
 
 		private void Update()
 		{
-			if (sections == null)
+			if (sections == null || buttons == null)
 			{
 				refreshLists(true);
 			}
@@ -27,7 +28,7 @@ namespace fwp.scenes
 
 		void OnGUI()
 		{
-			if (GUILayout.Button("refresh refs"))
+			if (GUILayout.Button("Scenes selector", halpers.HalperGuiStyle.getWinTitle()))
 			{
 				refreshLists(true);
 			}
@@ -36,6 +37,8 @@ namespace fwp.scenes
 			if (buttons == null) return;
 
 			//HalperPrefsEditor.drawToggle("upfold hierarchy", HalperPrefsEditor.ppref_editor_lock_upfold);
+
+			GUILayout.Label($"selector found a total of x{paths.Count} scenes in project");
 
 			GUILayout.Space(10f);
 
@@ -59,13 +62,15 @@ namespace fwp.scenes
 			GUILayout.EndScrollView();
 		}
 
-		void refreshLists(bool force = false)
+		protected void refreshLists(bool force = false)
 		{
 			if (buttons == null || force)
 			{
 				buttons = new Dictionary<string, List<SceneProfil>>();
 
 				sections = generateSections();
+
+				paths.Clear();
 
 				for (int i = 0; i < sections.Length; i++)
 				{
@@ -82,23 +87,26 @@ namespace fwp.scenes
 		}
 
 
-		List<SceneProfil> getProfils(string cat)
+		protected List<SceneProfil> getProfils(string cat)
 		{
-			List<string> names = SceneTools.getScenesNamesOfCategory(cat);
+			var cat_paths = SceneTools.getScenesNamesOfCategory(cat).ToArray();
 
 			//Debug.Log("category:" + cat+" has x"+names.Count);
 
 			List<SceneProfil> profils = new List<SceneProfil>();
-			for (int i = 0; i < names.Count; i++)
+			for (int i = 0; i < cat_paths.Length; i++)
 			{
-				SceneProfil sp = new SceneProfil(names[i]);
+				SceneProfil sp = new SceneProfil(cat_paths[i]);
 
 				//sp.loadDebug = EditorPrefs.GetBool(edLoadDebug);
 
 				sp.reload();
 
 				profils.Add(sp);
+
+				paths.Add(cat_paths[i]);
 			}
+
 			return profils;
 		}
 
