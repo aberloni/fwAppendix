@@ -80,7 +80,7 @@ namespace fwp.scenes
 			}
 
 
-			if (tabs == null)
+			if (tabs == null || force)
 			{
 				tabs = generateTabsDatas(sections);
 			}
