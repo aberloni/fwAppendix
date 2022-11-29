@@ -26,6 +26,9 @@ namespace fwp.scenes
 			}
 		}
 
+		/// <summary>
+		/// use draw() to add content
+		/// </summary>
 		void OnGUI()
 		{
 			if (GUILayout.Button("Scenes selector", halpers.HalperGuiStyle.getWinTitle()))
@@ -45,22 +48,41 @@ namespace fwp.scenes
 			tabActive = generateTabsHeader(tabActive, tabs);
 
 			string nm = sections[tabActive];
-			var section = buttons[nm];
+			var sectionContent = buttons[nm];
 
-			GUILayout.Label($"{nm} has x{section.Count} available scenes");
+			GUILayout.BeginHorizontal();
+			GUILayout.Label($"{nm} has x{sectionContent.Count} available scenes");
+			if(GUILayout.Button("ping folder"))
+            {
+				fwp.halpers.editor.HalperEditor.pingFolder(nm);
+            }
+			GUILayout.EndHorizontal();
+
+			GUILayout.Space(10f);
 
 			tabScroll = GUILayout.BeginScrollView(tabScroll);
 
-			for (int i = 0; i < section.Count; i++)
+			for (int i = 0; i < sectionContent.Count; i++)
 			{
-				if (GUILayout.Button(section[i].uid)) // each profil
+				if (GUILayout.Button(sectionContent[i].uid)) // each profil
 				{
 					//if (EditorPrefs.GetBool(edLoadDebug)) section[i].loadDebug = true;
-					section[i].editorLoad();
+					sectionContent[i].editorLoad();
 				}
 			}
+
 			GUILayout.EndScrollView();
+
+			draw();
 		}
+
+		/// <summary>
+		/// additionnal stuff within scrollview
+		/// </summary>
+		virtual protected void draw()
+        {
+
+        }
 
 		protected void refreshLists(bool force = false)
 		{
