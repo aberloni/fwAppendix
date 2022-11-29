@@ -43,13 +43,16 @@ namespace fwp.scenes
         }
 
 #if UNITY_EDITOR
-        public void editorLoad()
+        public void editorLoad(bool additive)
         {
             Debug.Log($"SceneProfil:editorLoad <b>{uid}</b>");
 
+            UnityEditor.SceneManagement.OpenSceneMode mode = UnityEditor.SceneManagement.OpenSceneMode.Single;
+            if (additive) mode = UnityEditor.SceneManagement.OpenSceneMode.Additive;
+
             //first load base scene
             string baseScene = layers[0];
-            SceneLoaderEditor.loadScene(baseScene, UnityEditor.SceneManagement.OpenSceneMode.Single);
+            SceneLoaderEditor.loadScene(baseScene, mode);
 
             //load additive others
             for (int i = 1; i < layers.Count; i++)

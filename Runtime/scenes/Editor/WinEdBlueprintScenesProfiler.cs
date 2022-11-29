@@ -64,11 +64,23 @@ namespace fwp.scenes
 
 			for (int i = 0; i < sectionContent.Count; i++)
 			{
+				GUILayout.BeginHorizontal();
 				if (GUILayout.Button(sectionContent[i].uid)) // each profil
 				{
 					//if (EditorPrefs.GetBool(edLoadDebug)) section[i].loadDebug = true;
-					sectionContent[i].editorLoad();
+					sectionContent[i].editorLoad(false);
 				}
+
+				bool present = fwp.halpers.HalperScene.isSceneLoaded(sectionContent[i].uid);
+				string label = present ? "-" : "+";
+
+				if (GUILayout.Button(label, GUILayout.Width(40f)))
+                {
+					if (!present) sectionContent[i].editorLoad(true);
+					else sectionContent[i].editorUnload();
+                }
+
+				GUILayout.EndHorizontal();
 			}
 
 			GUILayout.EndScrollView();

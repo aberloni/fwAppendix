@@ -6,6 +6,8 @@ using UnityEditor.SceneManagement;
 
 namespace fwp.scenes
 {
+	using fwp.halpers;
+
 	public class SceneLoaderEditor
 	{
 #if UNITY_EDITOR

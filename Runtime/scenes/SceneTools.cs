@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 namespace fwp.scenes
 {
+    using fwp.halpers;
+
     static public class SceneTools
     {
 

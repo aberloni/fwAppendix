@@ -6,6 +6,8 @@ using System;
 
 namespace fwp.scenes
 {
+    using fwp.halpers;
+
     /// <summary>
     /// object to provide a way to load sub-scenes
     /// </summary>
