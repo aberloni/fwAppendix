@@ -40,12 +40,18 @@ namespace fwp.scenes
             else layers.Clear();
 
             layers.Add(uid);
+
+            // more to come
+            // ...
+
+            //Debug.Log($"profil {uid} layers x{layers.Count}");
+            //for (int i = 0; i < layers.Count; i++) Debug.Log($"  - {layers[i]}");
         }
 
 #if UNITY_EDITOR
         public void editorLoad(bool additive)
         {
-            Debug.Log($"SceneProfil:editorLoad <b>{uid}</b>");
+            Debug.Log($"SceneProfil:editorLoad <b>{uid}</b> x{layers.Count} x{deps.Count}");
 
             UnityEditor.SceneManagement.OpenSceneMode mode = UnityEditor.SceneManagement.OpenSceneMode.Single;
             if (additive) mode = UnityEditor.SceneManagement.OpenSceneMode.Additive;

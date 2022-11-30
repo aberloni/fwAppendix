@@ -134,7 +134,7 @@ namespace fwp.scenes
 
 				//sp.loadDebug = EditorPrefs.GetBool(edLoadDebug);
 
-				sp.reload();
+				//sp.reload();
 
 				profils.Add(sp);
 
