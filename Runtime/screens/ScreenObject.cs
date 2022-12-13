@@ -75,7 +75,13 @@ namespace fwp.screens
         virtual public void reset()
         { }
 
+        private void Update()
+        {
+            menuUpdate();
+        }
+
         /// <summary>
+        /// must be udpated externaly
         /// update entry point
         /// </summary>
         virtual public void menuUpdate()

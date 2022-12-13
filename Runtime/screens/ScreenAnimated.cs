@@ -120,6 +120,7 @@ namespace fwp.screens
         }
 
         /// <summary>
+        /// called by external context
         /// for UI buttons
         /// </summary>
         public void actionClose()

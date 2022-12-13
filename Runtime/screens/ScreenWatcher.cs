@@ -75,7 +75,7 @@ namespace fwp.screens
 
 
 
-        protected IEnumerator resourceCreate()
+        IEnumerator resourceCreate()
         {
             bool loading = true;
 
@@ -96,7 +96,7 @@ namespace fwp.screens
             onCompletion?.Invoke();
         }
 
-        protected IEnumerator resourceOpen()
+        IEnumerator resourceOpen()
         {
             while (screen == null) yield return null;
 
@@ -106,7 +106,7 @@ namespace fwp.screens
             onCompletion?.Invoke();
         }
 
-        protected IEnumerator resourceClose()
+        IEnumerator resourceClose()
         {
             Debug.Log(" ... wait for closing ...");
             while (screen.isClosing()) yield return null;
@@ -117,7 +117,7 @@ namespace fwp.screens
             onCompletion?.Invoke();
         }
 
-        protected IEnumerator resourceDestroy()
+        IEnumerator resourceDestroy()
         {
             while (screen != null) yield return null;
 
