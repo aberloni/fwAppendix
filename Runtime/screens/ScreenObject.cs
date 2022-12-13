@@ -105,15 +105,26 @@ namespace fwp.screens
                 return canvas.toggleVisible(flag);
             }
 
-            transform.GetChild(0).gameObject.SetActive(flag);
-
+            if(transform.childCount > 0)
+            {
+                transform.GetChild(0).gameObject.SetActive(flag);
+            }
+            else
+            {
+                gameObject.SetActive(flag);
+            }
+            
             return flag;
         }
 
         virtual public bool isVisible()
         {
             if (canvas != null) return canvas.isVisible();
-            return transform.GetChild(0).gameObject.activeSelf;
+            if(transform.childCount > 0)
+            {
+                return transform.GetChild(0).gameObject.activeSelf;
+            }
+            return gameObject.activeSelf;
         }
 
 

@@ -32,7 +32,13 @@ namespace fwp.screens
             base.screenCreated();
 
             _animator = GetComponent<Animator>();
-            if (_animator == null) _animator = transform.GetChild(0).GetComponent<Animator>();
+            if (_animator == null)
+            {
+                if(transform.childCount > 0)
+                {
+                    _animator = transform.GetChild(0).GetComponent<Animator>();
+                }
+            }
 
             //Debug.Assert(_animator != null, "screen animated animator missing ; voir avec andre");
 

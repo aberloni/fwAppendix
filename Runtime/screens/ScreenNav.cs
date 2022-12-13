@@ -39,30 +39,37 @@ namespace fwp.screens
 
         protected void update_input_keyboard()
         {
-            if (moveTimerDelay <= 0f)
+            if (moveTimerDelay > 0f) return;
+
+            bool any = Input.anyKey;
+
+            //Debug.Log("input:any ? " + any);
+
+            if(any) // key down !
             {
-                if(Input.anyKey)
-                {
-                    resetTimerDelay();
-
-                    Vector2 dir = Vector2.zero;
-
-                    if (Input.GetKeyUp(KeyCode.UpArrow)) dir.y = 1f;
-                    else if (Input.GetKeyUp(KeyCode.DownArrow)) dir.y = -1f;
-
-                    if (Input.GetKeyUp(KeyCode.LeftArrow)) dir.x = -1f;
-                    else if (Input.GetKeyUp(KeyCode.RightArrow)) dir.x = 1f;
-
-                    pressedDirection(dir);
-
-                    if (Input.GetKeyUp(KeyCode.Escape)) onBack?.Invoke();
-                }
+                
             }
+            else // key up !
+            {
+                Vector2 dir = Vector2.zero;
 
+                if (Input.GetKeyUp(KeyCode.UpArrow)) dir.y = 1f;
+                else if (Input.GetKeyUp(KeyCode.DownArrow)) dir.y = -1f;
+
+                if (Input.GetKeyUp(KeyCode.LeftArrow)) dir.x = -1f;
+                else if (Input.GetKeyUp(KeyCode.RightArrow)) dir.x = 1f;
+
+                pressedDirection(dir);
+
+                if (Input.GetKeyUp(KeyCode.Escape)) onBack?.Invoke();
+            }
+            
         }
 
         void pressedDirection(Vector2 dir)
         {
+            resetTimerDelay();
+
             if (dir.sqrMagnitude == 0f) return;
 
             if (dir.x > 0f) onPressedRight?.Invoke();
