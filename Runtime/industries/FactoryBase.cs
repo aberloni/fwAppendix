@@ -257,6 +257,34 @@ namespace fwp.industries
             Debug.Assert(actives.Count <= 0);
         }
 
+
+        /// <summary>
+        /// https://docs.microsoft.com/fr-fr/dotnet/api/system.type.isassignablefrom?view=net-5.0
+        /// </summary>
+        public bool isFactoSaveLinked()
+        {
+            //bool assign = factoryTargetType.IsAssignableFrom(typeof(ISaveSerializable));
+            bool assign = typeof(iSaveSerializable).IsAssignableFrom(getFactoryTargetType());
+            //Debug.Log(factoryTargetType + " => " + assign);
+            return assign;
+
+            /*
+            if (!hasCandidates()) return false;
+
+            IFactoryObject obj = null;
+            if (actives.Count > 0) obj = actives[0];
+            else if (inactives.Count > 0) obj = inactives[0];
+            else Debug.LogError("nope");
+
+            //bool assign = actives[0].GetType().IsAssignableFrom(typeof(ISaveSerializable));
+            bool assign = (obj as ISaveSerializable) != null;
+            Debug.Log(actives[0].GetType() + " vs " + typeof(ISaveSerializable)+" => "+assign);
+
+            return assign;
+            */
+        }
+
+
         string getStamp() => "<color=#3333aa>" + GetType() + "</color>";
 
         void log(string content)
