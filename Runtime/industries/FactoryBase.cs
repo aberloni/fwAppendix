@@ -267,7 +267,7 @@ namespace fwp.industries
 
     //public interface IFactory{}
 
-    public interface iFactoryObject : iIndusReference, ISaveSerializable
+    public interface iFactoryObject : iIndusReference, iSaveSerializable
     {
 
         string factoGetCandidateName();
@@ -287,7 +287,7 @@ namespace fwp.industries
         //string serialize();
     }
 
-    public interface ISaveSerializable
+    public interface iSaveSerializable
     {
         object generateSerialData(); // generate an objet to be saved
 

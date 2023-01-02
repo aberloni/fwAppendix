@@ -260,7 +260,5 @@ namespace fwp.industries
 
     public interface iIndusReference
     {
-
-
     }
 }
