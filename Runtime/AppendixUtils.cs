@@ -68,6 +68,12 @@ namespace fwp.appendix
 		/// 2023-01-02
 		/// </summary>
 
+		static public bool isSceneLoaded(string sceneName)
+		{
+			var scene = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByName(sceneName);
+			return scene.isLoaded;
+		}
+
 
 		static public bool checkIfCanBeLoaded(string sceneName)
 		{

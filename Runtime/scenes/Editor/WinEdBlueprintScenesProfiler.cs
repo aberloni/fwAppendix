@@ -31,15 +31,13 @@ namespace fwp.scenes
 		/// </summary>
 		void OnGUI()
 		{
-			if (GUILayout.Button("Scenes selector", halpers.HalperGuiStyle.getWinTitle()))
+			if (GUILayout.Button("Scenes selector", getWinTitle()))
 			{
 				refreshLists(true);
 			}
 
 			if (sections == null) return;
 			if (buttons == null) return;
-
-			//HalperPrefsEditor.drawToggle("upfold hierarchy", HalperPrefsEditor.ppref_editor_lock_upfold);
 
 			GUILayout.Label($"selector found a total of x{paths.Count} scenes in project");
 
@@ -54,7 +52,7 @@ namespace fwp.scenes
 			GUILayout.Label($"{nm} has x{sectionContent.Count} available scenes");
 			if(GUILayout.Button("ping folder"))
             {
-				fwp.halpers.editor.HalperEditor.pingFolder(nm);
+				pingFolder(nm);
             }
 			GUILayout.EndHorizontal();
 
@@ -71,7 +69,7 @@ namespace fwp.scenes
 					sectionContent[i].editorLoad(false);
 				}
 
-				bool present = fwp.halpers.HalperScene.isSceneLoaded(sectionContent[i].uid);
+				bool present = appendix.AppendixUtils.isSceneLoaded(sectionContent[i].uid);
 				string label = present ? "-" : "+";
 
 				if (GUILayout.Button(label, GUILayout.Width(40f)))
@@ -166,6 +164,45 @@ namespace fwp.scenes
 			//if (newTab != (int)tabSelected) Debug.Log("changed tab ? " + tabSelected);
 
 			return newTab;
+		}
+
+
+
+		static private GUIStyle gWinTitle;
+		static public GUIStyle getWinTitle()
+		{
+			if (gWinTitle == null)
+			{
+				gWinTitle = new GUIStyle();
+
+				gWinTitle.richText = true;
+				gWinTitle.alignment = TextAnchor.MiddleCenter;
+				gWinTitle.normal.textColor = Color.white;
+				gWinTitle.fontSize = 20;
+				gWinTitle.fontStyle = FontStyle.Bold;
+				gWinTitle.margin = new RectOffset(10, 10, 10, 10);
+				//gWinTitle.padding = new RectOffset(30, 30, 30, 30);
+
+			}
+
+			return gWinTitle;
+		}
+
+		/// <summary>
+		/// use : EditorGUIUtility.PingObject
+		/// </summary>
+		static public void pingFolder(string assetsPath)
+		{
+			string path = "Assets/" + assetsPath;
+
+			// Load object
+			UnityEngine.Object obj = AssetDatabase.LoadAssetAtPath(path, typeof(UnityEngine.Object));
+
+			// Select the object in the project folder
+			Selection.activeObject = obj;
+
+			// Also flash the folder yellow to highlight it
+			EditorGUIUtility.PingObject(obj);
 		}
 
 	}
