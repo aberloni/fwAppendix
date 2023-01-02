@@ -30,6 +30,16 @@ namespace fwp.appendix
 			return false;
 		}
 
+		static public bool isSceneOpened(string sceneName)
+		{
+			for (int i = 0; i < SceneManager.sceneCount; i++)
+			{
+				Scene sc = SceneManager.GetSceneAt(i);
+				if (sc.name == sceneName) return true;
+			}
+			return false;
+		}
+
 #if UNITY_EDITOR
 
 		static public string getBuildSettingsFullPathOfScene(string partName)

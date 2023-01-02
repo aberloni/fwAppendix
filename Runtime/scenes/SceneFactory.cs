@@ -6,8 +6,6 @@ using System;
 
 namespace fwp.scenes
 {
-    using fwp.halpers;
-
     /// <summary>
     /// object to provide a way to load sub-scenes
     /// </summary>
@@ -85,7 +83,7 @@ namespace fwp.scenes
         {
 
             //can't reload same scene
-            if (HalperScene.isSceneOpened(sceneLoad)) yield break;
+            if (appendix.AppendixUtils.isSceneOpened(sceneLoad)) yield break;
 
             AsyncOperation async = SceneManager.LoadSceneAsync(sceneLoad, LoadSceneMode.Additive);
             _asyncs.Add(async);
