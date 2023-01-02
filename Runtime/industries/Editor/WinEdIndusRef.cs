@@ -6,12 +6,12 @@ using System;
 
 namespace fwp.industries
 {
-    public class EdWinIndusRef : EditorWindow
+    public class WinEdIndusRef : EditorWindow
     {
-        [MenuItem("Tools/Monitoring/(window) indus ref")]
+        [MenuItem("Window/Industries/(window) indus ref", false, 1)]
         static void init()
         {
-            EditorWindow.GetWindow(typeof(EdWinIndusRef));
+            EditorWindow.GetWindow(typeof(WinEdIndusRef));
         }
 
         /// <summary>
@@ -23,6 +23,8 @@ namespace fwp.industries
         }
 
         Type[] refTypes;
+        bool[] toggleTypes;
+
         MonoBehaviour cursorMono = null;
 
         Vector2 _cursorPosition = Vector2.zero;
@@ -30,32 +32,44 @@ namespace fwp.industries
 
         Vector2 scroll;
 
+        GUIStyle foldTitle = new GUIStyle();
+
+        private void Update()
+        {
+            updateRefs();
+        }
+
+        void updateRefs(bool force = false)
+        {
+            if (refTypes == null || force)
+            {
+                refTypes = IndusReferenceMgr.getAllTypes();
+                toggleTypes = new bool[refTypes.Length];
+            }
+        }
+
         void OnGUI()
         {
             if (!Application.isPlaying)
             {
+                GUILayout.Label("at runtime only");
                 refTypes = null;
+                return;
             }
 
+            /*
             GUILayout.BeginHorizontal();
-
             GUILayout.Label(cursorPosition.ToString());
-
             if (cursorMono != null) GUILayout.Label(cursorMono.name.ToString());
             else GUILayout.Label("nothing close");
-
             GUILayout.EndHorizontal();
-
-            if (IndusReferenceMgr.hasAnyType() && refTypes == null)
-            {
-                refTypes = IndusReferenceMgr.getAllTypes();
-            }
+            */
 
             if (GUILayout.Button("uber refresh types list"))
             {
                 IndusReferenceMgr.edRefresh(); // ed window
                 IndusReferenceMgr.refreshAll();
-                refTypes = IndusReferenceMgr.getAllTypes();
+                updateRefs(true);
             }
 
             if (refTypes == null)
@@ -72,39 +86,44 @@ namespace fwp.industries
             scroll = GUILayout.BeginScrollView(scroll);
 
             GUILayout.Label("x" + refTypes.Length + " in facebook");
-            foreach (var typ in refTypes)
+            for (int i = 0; i < refTypes.Length; i++)
             {
-                EditorGUILayout.Separator();
-
-                GUILayout.BeginHorizontal();
-
-                List<iIndusReference> refs = IndusReferenceMgr.getGroupByType(typ);
-
-                GUILayout.Label(typ.ToString(), getCategoryBold());
-                GUILayout.Label("x" + refs.Count + " elmt(s)");
-
-                GUILayout.EndHorizontal();
-
-                foreach (var elmt in refs)
-                {
-                    if (elmt == null)
-                    {
-                        GUILayout.Label("null");
-                        continue;
-                    }
-
-                    GUILayout.BeginHorizontal();
-
-                    MonoBehaviour mono = elmt as MonoBehaviour;
-                    if (mono != null) EditorGUILayout.ObjectField(mono.name, mono, typeof(MonoBehaviour), true);
-                    else GUILayout.Label(elmt.GetType().ToString());
-
-                    GUILayout.EndHorizontal();
-                }
+                toggleTypes[i] = drawListType(refTypes[i], toggleTypes[i]);
             }
 
             GUILayout.EndScrollView();
             //EditorGUILayout.ObjectField("Title", objectHandle, typeof(objectClassName), true);
+        }
+
+        static private bool drawListType(Type typ, bool toggleState)
+        {
+            List<iIndusReference> refs = IndusReferenceMgr.getGroupByType(typ);
+
+            string nm = typ.ToString();
+            nm += " x" + refs.Count;
+
+            toggleState = EditorGUILayout.Foldout(toggleState, nm, true);
+
+            if (!toggleState) return false;
+
+            foreach (var elmt in refs)
+            {
+                if (elmt == null)
+                {
+                    GUILayout.Label("null");
+                    continue;
+                }
+
+                GUILayout.BeginHorizontal();
+
+                MonoBehaviour mono = elmt as MonoBehaviour;
+                if (mono != null) EditorGUILayout.ObjectField(mono.name, mono, typeof(MonoBehaviour), true);
+                else GUILayout.Label(elmt.GetType().ToString());
+
+                GUILayout.EndHorizontal();
+            }
+
+            return true;
         }
 
 

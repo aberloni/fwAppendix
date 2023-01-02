@@ -223,9 +223,13 @@ namespace fwp.industries
 
         static public List<T> getGroup<T>() where T : iIndusReference
         {
+            // check in facebook if it has the group
+            // by checking assignable type (not absolute type)
             if (!hasGroupType<T>())
             {
-                Debug.LogWarning("no group " + typeof(T) + " ?");
+                if(verbose)
+                    Debug.LogWarning("no group " + typeof(T) + " ?");
+
                 return null;
             }
 
