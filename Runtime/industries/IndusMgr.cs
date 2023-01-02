@@ -33,9 +33,8 @@ namespace fwp.industries
 
 			for (int i = 0; i < factos.Count; i++)
 			{
-				//if (!factos[i].isFactoSaveLinked()) continue;
-
-				output.Add(factos[i]);
+                if (!factos[i].isFactoSaveLinked()) continue;
+                output.Add(factos[i]);
 			}
 
 			//if (factos.Count <= 0) Debug.LogWarning("no facto present ?");
@@ -107,6 +106,11 @@ namespace fwp.industries
 
 			return fb;
 		}
+
+		static public void inject(FactoryBase facto)
+        {
+			factos.Add(facto);
+        }
 	}
 
 }

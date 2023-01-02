@@ -283,8 +283,7 @@ namespace fwp.industries
             return assign;
             */
         }
-
-
+    
         string getStamp() => "<color=#3333aa>" + GetType() + "</color>";
 
         void log(string content)
