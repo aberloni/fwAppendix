@@ -86,7 +86,11 @@ namespace fwp.industries
             return false;
         }
 
-        static public List<iIndusReference> fetchByType(Type tar, MonoBehaviour[] monos = null)
+        /// <summary>
+        /// generate a list of candidates, NOT using facebook
+        /// only fetching objects
+        /// </summary>
+        static private List<iIndusReference> fetchByType(Type tar, MonoBehaviour[] monos = null)
         {
             List<iIndusReference> output = new List<iIndusReference>();
 
