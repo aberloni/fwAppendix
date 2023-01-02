@@ -28,7 +28,7 @@ namespace fwp.screens
         /// </summary>
         public void setupForUiCamera()
         {
-            Camera uiCam = qh.gc<Camera>("camera-ui");
+            Camera uiCam = fwp.appendix.AppendixUtils.gc<Camera>("camera-ui");
             if (_mainCanvas.renderMode == RenderMode.ScreenSpaceOverlay)
             {
                 _mainCanvas.renderMode = RenderMode.ScreenSpaceCamera;
