@@ -1,19 +1,26 @@
+using System.Collections.Generic;
+
+
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 #if UNITY_EDITOR
+using UnityEditor;
 using UnityEditor.SceneManagement;
 #endif
 
 namespace fwp.scenes
 {
-	using fwp.halpers;
+	using fwp.appendix;
 
 	public class SceneLoaderEditor
 	{
+
+
 #if UNITY_EDITOR
 		static public void loadScene(string nm, OpenSceneMode mode = OpenSceneMode.Additive)
 		{
-			string path = HalperScene.getPathOfSceneInProject(nm);
+			string path = AppendixUtils.getPathOfSceneInProject(nm);
 			if (path.Length <= 0)
 			{
 				Debug.LogWarning($" no path for {nm} in build settings");
@@ -29,19 +36,19 @@ namespace fwp.scenes
 		{
 
 			// check if in build settings
-			if (!HalperScene.isSceneInBuildSettings(nm, true))
+			if (!AppendixUtils.isSceneInBuildSettings(nm, true))
 			{
 				//  if NOT add to build settings
 
 				if (forceAddToBuildSettings)
 				{
-					HalperScene.addSceneToBuildSettings(nm);
+					AppendixUtils.addSceneToBuildSettings(nm);
 					Debug.Log($"added {nm} was re-added to build settings");
 				}
 
 			}
 
-			string path = HalperScene.getBuildSettingsFullPathOfScene(nm);
+			string path = AppendixUtils.getBuildSettingsFullPathOfScene(nm);
 			if (path.Length <= 0)
 			{
 				Debug.LogWarning($" no path for {nm} in build settings");
@@ -50,7 +57,10 @@ namespace fwp.scenes
 
 			EditorSceneManager.OpenScene(path, mode);
 		}
+
+
 #endif
+
 	}
 
 }

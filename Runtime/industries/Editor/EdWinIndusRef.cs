@@ -4,9 +4,6 @@ using UnityEngine;
 using UnityEditor;
 using System;
 
-using fwp.halpers;
-using fwp.halpers.editor;
-
 public class EdWinIndusRef : EditorWindow
 {
     [MenuItem("Tools/Monitoring/(window) indus ref")]
@@ -30,23 +27,6 @@ public class EdWinIndusRef : EditorWindow
     Vector2 cursorPosition = Vector2.zero;
 
     Vector2 scroll;
-
-    void Update()
-    {
-        _cursorPosition = HalperMouse.world_position;
-        if (cursorPosition.sqrMagnitude != _cursorPosition.sqrMagnitude)
-        {
-            cursorPosition = _cursorPosition;
-
-            MonoBehaviour curMono = IndusReferenceMgr.getClosestToPosition(typeof(iIndusReference), cursorPosition);
-            if (curMono != cursorMono)
-            {
-                cursorMono = curMono;
-            }
-
-            Repaint();
-        }
-    }
 
     void OnGUI()
     {
@@ -98,7 +78,7 @@ public class EdWinIndusRef : EditorWindow
 
             List<iIndusReference> refs = IndusReferenceMgr.getGroupByType(typ);
 
-            GUILayout.Label(typ.ToString(), HalperGuiStyle.getCategoryBold());
+            GUILayout.Label(typ.ToString(), getCategoryBold());
             GUILayout.Label("x" + refs.Count + " elmt(s)");
             
             GUILayout.EndHorizontal();
@@ -124,4 +104,18 @@ public class EdWinIndusRef : EditorWindow
         GUILayout.EndScrollView();
         //EditorGUILayout.ObjectField("Title", objectHandle, typeof(objectClassName), true);
     }
+
+
+    static private GUIStyle gCategoryBold;
+    static public GUIStyle getCategoryBold()
+    {
+        if (gCategoryBold == null)
+        {
+            gCategoryBold = new GUIStyle();
+            gCategoryBold.normal.textColor = new Color(1f, 0.5f, 0.5f); // red ish
+            gCategoryBold.fontStyle = FontStyle.Bold;
+        }
+        return gCategoryBold;
+    }
+
 }

@@ -2,18 +2,27 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
-using fwp.halpers.editor;
 using System;
+
+using UnityEditor;
 
 namespace fwp.appendix.assembly
 {
 
     static public class AssemblyTools
     {
+        public static void ClearConsole()
+        {
+            var assembly = Assembly.GetAssembly(typeof(SceneView));
+            var type = assembly.GetType("UnityEditor.LogEntries");
+            var method = type.GetMethod("Clear");
+            method.Invoke(new object(), null);
+        }
+
         static void setAnimationViewSelection(GameObject obj)
         {
 
-            HalperEditor.ClearConsole();
+            ClearConsole();
 
             Type t = getAssemblyType("UnityEditor", "AnimationWindow");
             var windowList = invokeMethod("UnityEditor", "AnimationWindow", "GetAllAnimationWindows") as IList;
@@ -158,7 +167,7 @@ namespace fwp.appendix.assembly
 
         static public void search(string filter)
         {
-            HalperEditor.ClearConsole();
+            ClearConsole();
 
             //System.Reflection.Assembly[] ass = System.AppDomain.CurrentDomain.GetAssemblies();
             var ass = System.AppDomain.CurrentDomain.GetAssemblies();

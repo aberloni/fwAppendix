@@ -5,8 +5,6 @@ using UnityEngine.SceneManagement;
 
 namespace fwp.scenes
 {
-    using fwp.halpers;
-
     static public class SceneTools
     {
 
@@ -43,7 +41,7 @@ namespace fwp.scenes
             List<string> output = new List<string>();
 
             //string[] scenes = HalperScene.getAllBuildSettingsScenes(false);
-            string[] scenes = HalperScene.getAssetScenesPaths();
+            string[] scenes = appendix.AppendixUtils.getAssetScenesPaths();
 
             if (scenes.Length <= 0)
             {

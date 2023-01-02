@@ -10,8 +10,7 @@ using UnityEngine.UI;
 namespace fwp.screens
 {
     using fwp.scenes;
-    using fwp.halpers;
-
+    
     public class ScreenLoading : ScreenObject
     {
 
@@ -27,7 +26,7 @@ namespace fwp.screens
 
             string scName = "screen-loading";
 
-            if (!SceneLoader.isSceneAdded(scName) && HalperScene.checkIfCanBeLoaded(scName))
+            if (!SceneLoader.isSceneAdded(scName) && appendix.AppendixUtils.checkIfCanBeLoaded(scName))
             {
                 SceneManager.LoadSceneAsync(scName, LoadSceneMode.Additive);
             }
