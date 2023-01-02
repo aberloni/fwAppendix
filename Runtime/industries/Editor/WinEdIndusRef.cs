@@ -32,8 +32,6 @@ namespace fwp.industries
 
         Vector2 scroll;
 
-        GUIStyle foldTitle = new GUIStyle();
-
         private void Update()
         {
             updateRefs();
@@ -50,13 +48,6 @@ namespace fwp.industries
 
         void OnGUI()
         {
-            if (!Application.isPlaying)
-            {
-                GUILayout.Label("at runtime only");
-                refTypes = null;
-                return;
-            }
-
             /*
             GUILayout.BeginHorizontal();
             GUILayout.Label(cursorPosition.ToString());
@@ -65,27 +56,28 @@ namespace fwp.industries
             GUILayout.EndHorizontal();
             */
 
-            if (GUILayout.Button("uber refresh types list"))
+            if (refTypes == null)
+            {
+                GUILayout.Label("no types");
+                return;
+            }
+            if (refTypes.Length <= 0)
+            {
+                GUILayout.Label("facebook has 0 type(s)");
+                return;
+            }
+
+            GUILayout.Label("x" + refTypes.Length + " in facebook");
+
+            if (GUILayout.Button("refresh known list"))
             {
                 IndusReferenceMgr.edRefresh(); // ed window
                 IndusReferenceMgr.refreshAll();
                 updateRefs(true);
             }
 
-            if (refTypes == null)
-            {
-                GUILayout.Label("no types, plz refresh");
-                return;
-            }
-            if (refTypes.Length <= 0)
-            {
-                GUILayout.Label("types count 0, plz refresh");
-                return;
-            }
-
             scroll = GUILayout.BeginScrollView(scroll);
 
-            GUILayout.Label("x" + refTypes.Length + " in facebook");
             for (int i = 0; i < refTypes.Length; i++)
             {
                 toggleTypes[i] = drawListType(refTypes[i], toggleTypes[i]);

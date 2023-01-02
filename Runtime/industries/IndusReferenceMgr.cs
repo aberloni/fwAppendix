@@ -211,6 +211,14 @@ namespace fwp.industries
             }
         }
 
+        static public void injectTypes(Type[] tars)
+        {
+            for (int i = 0; i < tars.Length; i++)
+            {
+                injectType(tars[i]);
+            }
+        }
+
         static public List<iIndusReference> getGroupByType(Type tar)
         {
             List<iIndusReference> output = new List<iIndusReference>();
