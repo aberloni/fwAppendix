@@ -104,6 +104,7 @@ namespace fwp.industries
             Debug.Assert(obj != null, $"{GetType()}&{_factoryTargetType} no object to load at path : " + path);
 
             obj = GameObject.Instantiate(obj);
+            Debug.Log(getStamp() + " created:" + obj, obj);
 
             GameObject go = obj as GameObject;
 
@@ -129,28 +130,28 @@ namespace fwp.industries
         /// </summary>
         public iFactoryObject extract(string subType)
         {
-            //will add an item in inactive
-            //and go on
-            if (inactives.Count <= 0)
-            {
-                Debug.Log(getStamp() + " extract:: recycling possible ? <b>nope</b> , creating a new one");
-                create(subType);
-            }
-
             iFactoryObject obj = null;
 
-            // search in available pool
-            for (int i = 0; i < inactives.Count; i++)
+            //will add an item in inactive
+            //and go on
+            if (inactives.Count > 0)
             {
-                if (inactives[i].factoGetCandidateName() == subType)
+
+                // search in available pool
+                for (int i = 0; i < inactives.Count; i++)
                 {
-                    obj = inactives[i];
+                    if (inactives[i].factoGetCandidateName() == subType)
+                    {
+                        obj = inactives[i];
+                    }
                 }
+
             }
 
             // none available, create a new one
             if (obj == null)
             {
+                Debug.Log(getStamp() + " no " + subType + " available (x" + inactives.Count + ") creating one");
                 obj = create(subType);
             }
 
@@ -297,6 +298,10 @@ namespace fwp.industries
     public interface iFactoryObject : iIndusReference, iSaveSerializable
     {
 
+        /// <summary>
+        /// the actual name of the object to instantiate
+        /// Resources/{facto}/{CandidateName}
+        /// </summary>
         string factoGetCandidateName();
 
         /// <summary>

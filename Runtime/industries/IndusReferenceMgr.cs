@@ -12,6 +12,8 @@ namespace fwp.industries
     /// </summary>
     static public class IndusReferenceMgr
     {
+        static public bool verbose = false;
+
         /// <summary>
         /// it knows EVERYBODY
         /// </summary>
@@ -19,7 +21,7 @@ namespace fwp.industries
 
         static public void edRefresh()
         {
-            Debug.LogWarning("editor refresh of facebook");
+            Debug.LogWarning("(indus ref) editor, refresh of facebook");
 
             refreshAll();
         }
@@ -31,7 +33,8 @@ namespace fwp.industries
         {
             MonoBehaviour[] monos = GameObject.FindObjectsOfType<MonoBehaviour>();
 
-            Debug.Log(getStamp() + " checking x" + facebook.Count + " types against x" + monos.Length + " monos");
+            if(verbose)
+                Debug.Log(getStamp() + " checking x" + facebook.Count + " types against x" + monos.Length + " monos");
 
             foreach (var kp in facebook)
             {
@@ -115,7 +118,8 @@ namespace fwp.industries
             var output = fetchByType(tar, monos);
             facebook[tar] = output;
 
-            Debug.Log($"{getStamp()} group refresh <{tar}> x" + output.Count);
+            if (verbose)
+                Debug.Log($"{getStamp()} group refresh <{tar}> x" + output.Count);
 
             return output;
         }
@@ -125,10 +129,14 @@ namespace fwp.industries
         /// </summary>
         static public List<T> refreshGroup<T>(MonoBehaviour[] monos = null) where T : iIndusReference
         {
-            List<iIndusReference> iir = refreshGroupByType(typeof(T), monos);
-
-            List<T> output = iir as List<T>;
-            Debug.Assert(output != null, $"no list (x{iir.Count}) for group of type : {typeof(T)}");
+            List<T> output = new List<T>();
+            
+            var list = refreshGroupByType(typeof(T), monos);
+            for (int i = 0; i < list.Count; i++)
+            {
+                var cand = (T)list[i];
+                output.Add(cand);
+            }
 
             return output;
         }
@@ -156,7 +164,8 @@ namespace fwp.industries
 
             facebook[assoc].Remove(target);
 
-            Debug.Log("removed " + target + " from " + assoc + " x" + facebook[assoc].Count);
+            if (verbose)
+                Debug.Log("removed " + target + " from " + assoc + " x" + facebook[assoc].Count);
         }
 
         /// <summary>
