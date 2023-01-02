@@ -128,7 +128,7 @@ namespace fwp.industries
             List<iIndusReference> iir = refreshGroupByType(typeof(T), monos);
 
             List<T> output = iir as List<T>;
-            Debug.Assert(output != null);
+            Debug.Assert(output != null, $"no list (x{iir.Count}) for group of type : {typeof(T)}");
 
             return output;
         }
