@@ -34,7 +34,7 @@ namespace fwp.scenes
         /// <summary>
         /// pile de toutes les scènes qui seront a charger au runtime
         /// </summary>
-        public void reload()
+        virtual public void reload()
         {
             if (layers == null) layers = new List<string>();
             else layers.Clear();

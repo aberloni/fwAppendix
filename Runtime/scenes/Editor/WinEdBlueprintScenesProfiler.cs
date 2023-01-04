@@ -5,6 +5,12 @@ using UnityEditor;
 
 namespace fwp.scenes
 {
+	/// <summary>
+	/// how to use :
+	/// - inherite of this class to have your own window
+	/// - implement sections names for tabs
+	/// - you can override generateProfil to use some specific SceneProfil
+	/// </summary>
 	abstract public class WinEdBlueprintScenesProfiler : EditorWindow
 	{
 		List<string> paths = new List<string>();
@@ -128,7 +134,7 @@ namespace fwp.scenes
 			List<SceneProfil> profils = new List<SceneProfil>();
 			for (int i = 0; i < cat_paths.Length; i++)
 			{
-				SceneProfil sp = new SceneProfil(cat_paths[i]);
+				SceneProfil sp = generateProfil(cat_paths[i]);
 
 				//sp.loadDebug = EditorPrefs.GetBool(edLoadDebug);
 
@@ -141,6 +147,11 @@ namespace fwp.scenes
 
 			return profils;
 		}
+
+		virtual protected SceneProfil generateProfil(string uid)
+        {
+			return new SceneProfil(uid);
+        }
 
 		static public GUIContent[] generateTabsDatas(string[] labels)
 		{
