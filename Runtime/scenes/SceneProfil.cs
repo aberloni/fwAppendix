@@ -51,7 +51,7 @@ namespace fwp.scenes
 #if UNITY_EDITOR
         public void editorLoad(bool additive)
         {
-            Debug.Log($"SceneProfil:editorLoad <b>{uid}</b> x{layers.Count} x{deps.Count}");
+            Debug.Log($"SceneProfil:editorLoad <b>{uid}</b> ; layers x{layers.Count} & deps x{deps.Count}");
 
             UnityEditor.SceneManagement.OpenSceneMode mode = UnityEditor.SceneManagement.OpenSceneMode.Single;
             if (additive) mode = UnityEditor.SceneManagement.OpenSceneMode.Additive;
