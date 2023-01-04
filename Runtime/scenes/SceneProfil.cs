@@ -51,6 +51,8 @@ namespace fwp.scenes
 #if UNITY_EDITOR
         public void editorLoad(bool additive)
         {
+            reload();
+
             Debug.Log($"SceneProfil:editorLoad <b>{uid}</b> ; layers x{layers.Count} & deps x{deps.Count}");
 
             UnityEditor.SceneManagement.OpenSceneMode mode = UnityEditor.SceneManagement.OpenSceneMode.Single;
@@ -78,6 +80,8 @@ namespace fwp.scenes
 
         public void editorUnload()
         {
+            reload();
+
             //SceneManager.UnloadSceneAsync(layers[0]);
             var sc = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByName(layers[0]);
             UnityEditor.SceneManagement.EditorSceneManager.CloseScene(sc, true);
@@ -86,6 +90,7 @@ namespace fwp.scenes
 
         public void buildLoad(System.Action<Scene> onLoadedCompleted)
         {
+            reload();
 
             SceneLoader.loadScenes(deps.ToArray(), (Scene[] scs) =>
             {
@@ -110,6 +115,8 @@ namespace fwp.scenes
 
         public void buildUnload(System.Action onUnloadCompleted)
         {
+            reload();
+
             Debug.Log(GetType()+" : " + uid + " is <b>unloading</b>");
 
             SceneLoader.unloadScenes(layers.ToArray(), onUnloadCompleted);
