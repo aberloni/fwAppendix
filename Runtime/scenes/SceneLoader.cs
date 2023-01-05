@@ -188,6 +188,7 @@ namespace fwp.scenes
                 if (doActiveSceneNameContains(sceneName))
                 {
                     Debug.LogWarning(sceneName + " is current active scene, need to load it ?");
+                    output.Add(SceneManager.GetActiveScene());
                     continue;
                 }
 
@@ -207,40 +208,34 @@ namespace fwp.scenes
                 filtered.Add(sceneName);
             }
 
+            Debug.Log(getStamp() + " filtered x" + filtered.Count + " out of given x" + sceneNames.Length);
+
             for (int i = 0; i < filtered.Count; i++)
             {
                 string sceneName = filtered[i];
-
-                // check if scene is already there/loading
-                Scene? tarSCene = getLoadingScene(sceneName);
-
-                if (tarSCene != null)
+                
+                StartCoroutine(processLoadScene(filtered[i], (Scene sc) =>
                 {
-                    Debug.LogWarning("  <b>" + sceneName + "</b> is already loading, skipping");
+                    output.Add(sc);
 
-                    output.Add(tarSCene.Value);
-                }
-                else
-                {
+                    filtered.Remove(sc.name);
 
-                    //Debug.Log("  <b>" + sceneName + "</b> is already loading, skipping");
-
-                    StartCoroutine(processLoadScene(filtered[i], (Scene sc) =>
-                    {
-                        output.Add(sc);
-
-                        filtered.Remove(sc.name);
-
-                        Debug.Log("   ... loader : " + sc.name + " is done (remaining ? x" + filtered.Count + ")");
-                    }));
-
-                }
+                    Debug.Log(getStamp() + " scene : " + sc.name + " is done (remaining ? x" + filtered.Count + ")");
+                }));
 
             }
 
-            //int cnt = filtered.Count;
-            while(filtered.Count > 0)
+            Debug.Log(getStamp() + " now waiting for x" + filtered.Count + " scenes to be loaded");
+
+            int cnt = filtered.Count;
+            while (filtered.Count > 0)
             {
+                if(cnt != filtered.Count)
+                {
+                    cnt = filtered.Count;
+                    Debug.Log(" ... remaining x" + cnt);
+                }
+
                 yield return null;
             }
 
