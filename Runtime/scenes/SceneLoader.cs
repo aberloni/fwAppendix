@@ -213,7 +213,9 @@ namespace fwp.scenes
             for (int i = 0; i < filtered.Count; i++)
             {
                 string sceneName = filtered[i];
-                
+
+                //Debug.Log(getStamp() + " what about ? " + sceneName, this);
+
                 StartCoroutine(processLoadScene(filtered[i], (Scene sc) =>
                 {
                     output.Add(sc);

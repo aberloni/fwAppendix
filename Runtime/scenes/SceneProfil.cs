@@ -36,16 +36,11 @@ namespace fwp.scenes
         /// </summary>
         virtual public void reload()
         {
-            if (layers == null) layers = new List<string>();
-            else layers.Clear();
+            layers.Clear();
+            deps.Clear();
 
+            // main concerned scene
             layers.Add(uid);
-
-            // more to come
-            // ...
-
-            //Debug.Log($"profil {uid} layers x{layers.Count}");
-            //for (int i = 0; i < layers.Count; i++) Debug.Log($"  - {layers[i]}");
         }
 
 #if UNITY_EDITOR
