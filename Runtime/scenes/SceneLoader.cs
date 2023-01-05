@@ -178,7 +178,7 @@ namespace fwp.scenes
 
             List<string> filtered = new List<string>();
 
-            List<Scene> output = new List<Scene>();
+            List<Scene> output = new List<Scene>(); // list of all scene to return when done
 
             for (int i = 0; i < sceneNames.Length; i++)
             {
@@ -210,25 +210,31 @@ namespace fwp.scenes
             for (int i = 0; i < filtered.Count; i++)
             {
                 string sceneName = filtered[i];
+
+                // check if scene is already there/loading
                 Scene? tarSCene = getLoadingScene(sceneName);
 
                 if (tarSCene != null)
                 {
-                    Debug.LogWarning("  <b>" + sceneName + "</b> is currently loading, skipping loading of that scene");
+                    Debug.LogWarning("  <b>" + sceneName + "</b> is already loading, skipping");
 
                     output.Add(tarSCene.Value);
-
-                    continue;
                 }
-
-                StartCoroutine(processLoadScene(filtered[i], (Scene sc) =>
+                else
                 {
-                    output.Add(sc);
 
-                    filtered.Remove(sc.name);
+                    //Debug.Log("  <b>" + sceneName + "</b> is already loading, skipping");
 
-                    Debug.Log("   ... loader : " + sc.name + " is done (" + output.Count + "/" + filtered.Count + ")");
-                }));
+                    StartCoroutine(processLoadScene(filtered[i], (Scene sc) =>
+                    {
+                        output.Add(sc);
+
+                        filtered.Remove(sc.name);
+
+                        Debug.Log("   ... loader : " + sc.name + " is done (remaining ? x" + filtered.Count + ")");
+                    }));
+
+                }
 
             }
 
@@ -238,7 +244,7 @@ namespace fwp.scenes
                 yield return null;
             }
 
-            Debug.Log(getStamp() + " is <b>done loading</b>", this);
+            Debug.Log(getStamp() + " is <b>done loading</b> , output x"+output.Count, this);
 
             //needed so that all new objects loaded have time to exec build()
             //ca fait un effet de bord quand on unload le screen dans la frame où il est généré
