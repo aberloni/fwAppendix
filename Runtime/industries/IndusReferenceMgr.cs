@@ -145,6 +145,10 @@ namespace fwp.industries
             return output;
         }
 
+        /// <summary>
+        /// if type is not declared facebook will add it AND fetch
+        /// </summary>
+        /// <param name="target"></param>
         static public void injectObject(iIndusReference target)
         {
             Debug.Assert(target != null);
@@ -153,7 +157,10 @@ namespace fwp.industries
 
             if (tar == null)
             {
-                Debug.LogWarning(getStamp() + " no assoc type for target " + target + " , can't inject");
+                //Debug.LogWarning(getStamp() + " no assoc type for target " + target + " , can't inject");
+
+                //this will also fetch all of this type
+                injectType(target.GetType());
             }
             else if (facebook[tar].IndexOf(target) < 0) // already subbed ?
             {
@@ -204,6 +211,7 @@ namespace fwp.industries
 
         /// <summary>
         /// add a specific type and its solved list to facebook
+        /// if type is not declared in facebook, it will add it AND fetch
         /// </summary>
         static public void injectType(Type tar)
         {
@@ -212,6 +220,8 @@ namespace fwp.industries
             {
                 Debug.Log($"{getStamp()} adding new group to facebook : <b>{tar}</b>");
                 facebook.Add(tar, new List<iIndusReference>());
+
+                fetchByType(tar);
             }
         }
 
