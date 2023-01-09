@@ -218,10 +218,11 @@ namespace fwp.industries
             var assoc = getAssocType(tar);
             if (assoc == null)
             {
-                Debug.Log($"{getStamp()} adding new group to facebook : <b>{tar}</b>");
                 facebook.Add(tar, new List<iIndusReference>());
+                Debug.Log($"{getStamp()} facebook added type : <b>{tar}</b>");
 
                 fetchByType(tar);
+                Debug.Log($"{getStamp()} found x{facebook[tar].Count} ref(s) after adding type : <b>{tar}</b>");
             }
         }
 
