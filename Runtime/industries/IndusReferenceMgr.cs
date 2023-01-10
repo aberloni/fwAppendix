@@ -163,9 +163,7 @@ namespace fwp.industries
         {
             Debug.Assert(target != null);
 
-            //Type tar = getAssocType(target);
-
-            if (targetType == null)
+            if(!hasAssocType(targetType))
             {
                 //Debug.LogWarning(getStamp() + " no assoc type for target " + target + " , can't inject");
 
@@ -179,6 +177,11 @@ namespace fwp.industries
 
         }
 
+        /// <summary>
+        /// incomplete
+        /// only remove the first compatible type
+        /// should remove in ALL compatible types ?
+        /// </summary>
         static public void removeObject(iIndusReference target)
         {
             var assoc = getAssocType(target);
@@ -192,12 +195,8 @@ namespace fwp.industries
         /// <summary>
         /// assignable definition : https://www.geeksforgeeks.org/c-sharp-type-isassignablefromtype-method/
         /// </summary>
-        static Type getAssocType(iIndusReference target)
-        {
-            Type tar = target.GetType();
-            return getAssocType(tar);
-        }
-
+        static Type getAssocType(iIndusReference target) => getAssocType(target.GetType());
+        
         static Type getAssocType(Type tar)
         {
             // must search for compatible type, NOT the type of target
@@ -219,21 +218,25 @@ namespace fwp.industries
             return null;
         }
 
+        static bool hasAssocType(Type tar)
+        {
+            return facebook.ContainsKey(tar);
+        }
+
         /// <summary>
         /// add a specific type and its solved list to facebook
         /// if type is not declared in facebook, it will add it AND fetch
         /// </summary>
         static public void injectType(Type tar)
         {
-            var assoc = getAssocType(tar);
-            if (assoc == null)
-            {
-                facebook.Add(tar, new List<iIndusReference>());
-                Debug.Log($"{getStamp()} facebook added type : <b>{tar}</b>");
+            //var assoc = getAssocType(tar);
+            if (hasAssocType(tar)) return;
 
-                fetchByType(tar);
-                Debug.Log($"{getStamp()} found x{facebook[tar].Count} ref(s) after adding type : <b>{tar}</b>");
-            }
+            facebook.Add(tar, new List<iIndusReference>());
+            Debug.Log($"{getStamp()} facebook added type : <b>{tar}</b>");
+
+            fetchByType(tar);
+            Debug.Log($"{getStamp()} found x{facebook[tar].Count} ref(s) after adding type : <b>{tar}</b>");
         }
 
         static public void injectTypes(Type[] tars)
