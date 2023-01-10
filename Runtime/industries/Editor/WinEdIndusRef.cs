@@ -46,6 +46,11 @@ namespace fwp.industries
                 return;
             }
 
+            if (GUILayout.Button("refresh types(s)"))
+            {
+                updateRefs(true);
+            }
+
             if (refTypes.Length <= 0)
             {
                 GUILayout.Label("facebook has 0 type(s)");
