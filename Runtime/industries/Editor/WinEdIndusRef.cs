@@ -14,14 +14,6 @@ namespace fwp.industries
             EditorWindow.GetWindow(typeof(WinEdIndusRef));
         }
 
-        /// <summary>
-        /// called on window creation
-        /// </summary>
-        void OnEnabled()
-        {
-            refTypes = IndusReferenceMgr.getAllTypes();
-        }
-
         Type[] refTypes;
         bool[] toggleTypes;
 
@@ -48,19 +40,12 @@ namespace fwp.industries
 
         void OnGUI()
         {
-            /*
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(cursorPosition.ToString());
-            if (cursorMono != null) GUILayout.Label(cursorMono.name.ToString());
-            else GUILayout.Label("nothing close");
-            GUILayout.EndHorizontal();
-            */
-
             if (refTypes == null)
             {
                 GUILayout.Label("no types");
                 return;
             }
+
             if (refTypes.Length <= 0)
             {
                 GUILayout.Label("facebook has 0 type(s)");
@@ -69,11 +54,9 @@ namespace fwp.industries
 
             GUILayout.Label("x" + refTypes.Length + " in facebook");
 
-            if (GUILayout.Button("refresh known list"))
+            if (GUILayout.Button("refresh list(s)"))
             {
-                IndusReferenceMgr.edRefresh(); // ed window
                 IndusReferenceMgr.refreshAll();
-                updateRefs(true);
             }
 
             scroll = GUILayout.BeginScrollView(scroll);
