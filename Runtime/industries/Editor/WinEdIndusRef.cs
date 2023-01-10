@@ -25,7 +25,7 @@ namespace fwp.industries
         Type[] refTypes;
         bool[] toggleTypes;
 
-        MonoBehaviour cursorMono = null;
+        //MonoBehaviour cursorMono = null;
 
         Vector2 _cursorPosition = Vector2.zero;
         Vector2 cursorPosition = Vector2.zero;

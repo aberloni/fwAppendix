@@ -146,25 +146,35 @@ namespace fwp.industries
         }
 
         /// <summary>
-        /// if type is not declared facebook will add it AND fetch
+        /// auto file object in matching category
         /// </summary>
         /// <param name="target"></param>
-        static public void injectObject(iIndusReference target)
+        static public void injectObject(iIndusReference target) => injectObject(target, target.GetType());
+
+        /// <summary>
+        /// meant to specify what category to store the object
+        /// </summary>
+        static public void injectObject<T>(iIndusReference target) where T : iIndusReference => injectObject(target, typeof(T));
+
+        /// <summary>
+        /// if type is not declared facebook will add it AND fetch
+        /// </summary>
+        static public void injectObject(iIndusReference target, Type targetType)
         {
             Debug.Assert(target != null);
 
-            Type tar = getAssocType(target);
+            //Type tar = getAssocType(target);
 
-            if (tar == null)
+            if (targetType == null)
             {
                 //Debug.LogWarning(getStamp() + " no assoc type for target " + target + " , can't inject");
 
                 //this will also fetch all of this type
-                injectType(target.GetType());
+                injectType(targetType);
             }
-            else if (facebook[tar].IndexOf(target) < 0) // already subbed ?
+            else if (facebook[targetType].IndexOf(target) < 0) // already subbed ?
             {
-                facebook[tar].Add(target);
+                facebook[targetType].Add(target);
             }
 
         }
