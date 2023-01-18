@@ -186,6 +186,14 @@ namespace fwp.industries
         {
             var assoc = getAssocType(target);
 
+            if (assoc == null)
+            {
+                if (verbose)
+                    Debug.LogWarning("trying to remove object " + target + " by no assoc type found ?");
+
+                return;
+            }
+
             facebook[assoc].Remove(target);
 
             if (verbose)
