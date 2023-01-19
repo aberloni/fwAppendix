@@ -40,6 +40,7 @@ namespace fwp.scenes
 		{
 			if (GUILayout.Button("Scenes selector", getWinTitle()))
 			{
+				Debug.Log("force refresh");
 				refreshLists(true);
 			}
 
@@ -173,48 +174,31 @@ namespace fwp.scenes
 			}
 		}
 
-		/// <summary>
-		/// remove some pattern
-		/// </summary>
-		virtual protected bool checkPathIgnore(string path)
-        {
-			return false;
-        }
-
 		protected List<SceneProfil> getProfils(string cat)
 		{
-			Dictionary<string, List<string>> data = new Dictionary<string, List<string>>();
+			List<SceneProfil> profils = new List<SceneProfil>();
 
 			// works with Contains
 			var cat_paths = SceneTools.getScenesPathsOfCategory(cat);
 
             Debug.Log("category:" + cat + " paths x" + cat_paths.Count);
 
-			foreach(string path in cat_paths)
+            foreach (string path in cat_paths)
             {
-				if (checkPathIgnore(path))
-				{
-					Debug.Log("ignored : " + path);
-					continue;
+				SceneProfil sp = generateProfil(path);
+				if(sp.isValid())
+                {
+					bool found = false;
+
+					foreach(var profil in profils)
+                    {
+						if (profil.match(sp))
+							found = true;
+                    }
+
+					if(!found)
+						profils.Add(sp);
 				}
-
-				string uid = extractUid(path);
-
-				if (!data.ContainsKey(uid))
-				{
-					data.Add(uid, new List<string>());
-				}
-
-				data[uid].Add(path);
-			}
-
-			SceneProfil sp;
-
-			List<SceneProfil> profils = new List<SceneProfil>();
-			foreach(var kp in data)
-            {
-				sp = generateProfil(kp.Key, kp.Value);
-				profils.Add(sp);
 			}
 
 			return profils;
@@ -230,28 +214,8 @@ namespace fwp.scenes
 			return null;
         }
 
-		/// <summary>
-		/// beeing able to solve uids differently
-		/// like : scene-name_layer => scene-name
-		/// </summary>
-		virtual protected string extractUid(string path)
-        {
-			path = SceneTools.removePathBeforeFile(path);
-
-			// scene-name_layer => scene-name
-			if (path.IndexOf('_') > 0)
-            {
-				return path.Substring(0, path.IndexOf('_'));
-            }
-
-			return path;
-        }
-
-		virtual protected SceneProfil generateProfil(string uid, List<string> paths)
-        {
-			return new SceneProfil(uid, paths);
-        }
-
+		abstract protected SceneProfil generateProfil(string uid);
+        
 		static public GUIContent[] generateTabsDatas(string[] labels)
 		{
 			GUIContent[] modeLabels = new GUIContent[labels.Length];

@@ -11,14 +11,51 @@ namespace fwp.scenes
     /// </summary>
     public class SceneProfil
     {
-        public string uid;
+        public string uid = string.Empty;
 
         public List<string> layers = new List<string>();
         public List<string> deps = new List<string>();
 
         Scene[] _buffScenes;
 
-        public SceneProfil(string uid, List<string> paths)
+        /// <summary>
+        /// ingame, want to load a scene
+        /// </summary>
+        public SceneProfil(string uid)
+        {
+            uid = extractUid(uid);
+
+            var paths = getPaths(uid);
+
+            // filter paths
+
+            //Debug.Log(GetType()+" : "+ uid);
+
+            for (int i = 0; i < paths.Count; i++)
+            {
+                //Debug.Log(paths[i]);
+
+                if(checkPathIgnore(paths[i]))
+                {
+                    //Debug.Log("ignored: " + paths[i]);
+                    paths.RemoveAt(i);
+                    i--;
+                }
+            }
+
+            if (paths.Count <= 0) return;
+
+            setup(uid, paths);
+        }
+
+        public bool match(SceneProfil sp)
+        {
+            return sp.uid == uid;
+        }
+
+        public bool isValid() => this.uid.Length > 0;
+
+        void setup(string uid, List<string> paths)
         {
             if (uid.ToLower().Contains("SceneManagement"))
             {
@@ -26,7 +63,10 @@ namespace fwp.scenes
                 return;
             }
 
+            //makes it valid
             this.uid = uid;
+
+            Debug.Assert(paths.Count > 0, uid + " needs paths");
 
             for (int i = 0; i < paths.Count; i++)
             {
@@ -36,6 +76,37 @@ namespace fwp.scenes
             this.layers = paths;
 
             solveDeps();
+        }
+
+        virtual protected List<string> getPaths(string uid)
+        {
+            var paths = SceneTools.getScenesPathsOfCategory(uid);
+            return paths;
+        }
+
+        /// <summary>
+        /// remove some pattern
+        /// </summary>
+        virtual protected bool checkPathIgnore(string path)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// beeing able to solve uids differently
+        /// like : scene-name_layer => scene-name
+        /// </summary>
+        virtual protected string extractUid(string path)
+        {
+            path = SceneTools.removePathBeforeFile(path);
+
+            // scene-name_layer => scene-name
+            if (path.IndexOf('_') > 0)
+            {
+                return path.Substring(0, path.IndexOf('_'));
+            }
+
+            return path;
         }
 
         /// <summary>
@@ -86,9 +157,18 @@ namespace fwp.scenes
         {
             solveDeps();
 
-            //SceneManager.UnloadSceneAsync(layers[0]);
-            var sc = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByName(layers[0]);
-            UnityEditor.SceneManagement.EditorSceneManager.CloseScene(sc, true);
+            for (int i = 0; i < layers.Count; i++)
+            {
+                SceneLoaderEditor.unloadScene(layers[i]);
+            }
+
+            for (int i = 0; i < deps.Count; i++)
+            {
+                SceneLoaderEditor.unloadScene(deps[i]);
+            }
+
+            //var sc = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByName(layers[0]);
+            //UnityEditor.SceneManagement.EditorSceneManager.CloseScene(sc, true);
         }
 #endif
 
