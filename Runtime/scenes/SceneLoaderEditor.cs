@@ -58,6 +58,11 @@ namespace fwp.scenes
 			EditorSceneManager.OpenScene(path, mode);
 		}
 
+		static public void unloadScene(string nm)
+        {
+			var sc = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByName(nm);
+			EditorSceneManager.CloseScene(sc, true);
+		}
 
 #endif
 

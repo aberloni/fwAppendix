@@ -18,7 +18,7 @@ namespace fwp.scenes
 
         Scene[] _buffScenes;
 
-        public SceneProfil(string uid)
+        public SceneProfil(string uid, List<string> paths)
         {
             if (uid.ToLower().Contains("SceneManagement"))
             {
@@ -28,31 +28,34 @@ namespace fwp.scenes
 
             this.uid = uid;
 
-            reload();
+            for (int i = 0; i < paths.Count; i++)
+            {
+                paths[i] = SceneTools.removePathBeforeFile(paths[i]);
+            }
+
+            this.layers = paths;
+
+            solveDeps();
         }
 
         /// <summary>
         /// pile de toutes les scènes qui seront a charger au runtime
         /// </summary>
-        virtual public void reload()
+        virtual public void solveDeps()
         {
-            layers.Clear();
             deps.Clear();
+        }
 
-            // all scenes with base uid
-            var paths = SceneTools.getScenesNamesOfCategory(uid);
-
-            for (int i = 0; i < paths.Count; i++)
-            {
-                layers.Add(paths[i]);
-            }
-            
+        public bool isLoaded()
+        {
+            if (layers.Count <= 0) return false;
+            return SceneManager.GetSceneByName(layers[0]).isLoaded;
         }
 
 #if UNITY_EDITOR
         public void editorLoad(bool additive)
         {
-            reload();
+            solveDeps();
 
             Debug.Log($"SceneProfil:editorLoad <b>{uid}</b> ; layers x{layers.Count} & deps x{deps.Count}");
 
@@ -78,10 +81,10 @@ namespace fwp.scenes
             //lock by editor toggle
             //HalperEditor.upfoldNodeHierarchy();
         }
-
+        
         public void editorUnload()
         {
-            reload();
+            solveDeps();
 
             //SceneManager.UnloadSceneAsync(layers[0]);
             var sc = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByName(layers[0]);
@@ -91,7 +94,7 @@ namespace fwp.scenes
 
         public void buildLoad(System.Action<Scene> onLoadedCompleted)
         {
-            reload();
+            solveDeps();
 
             SceneLoader.loadScenes(deps.ToArray(), (Scene[] scs) =>
             {
@@ -116,7 +119,7 @@ namespace fwp.scenes
 
         public void buildUnload(System.Action onUnloadCompleted)
         {
-            reload();
+            solveDeps();
 
             Debug.Log(GetType()+" : " + uid + " is <b>unloading</b>");
 
@@ -131,7 +134,7 @@ namespace fwp.scenes
             return _buffScenes[0];
         }
 
-        virtual public string editor_getButtonName() => uid;
+        virtual public string editor_getButtonName() => uid+" (x"+layers.Count+")";
 
         /// <summary>
         /// EDITOR
@@ -151,6 +154,7 @@ namespace fwp.scenes
         {
             return true;
         }
+
     }
 
 }

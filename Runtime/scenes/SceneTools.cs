@@ -35,8 +35,11 @@ namespace fwp.scenes
             }
         }
 
-
-        static public List<string> getScenesNamesOfCategory(string cat)
+        /// <summary>
+        /// returns path relative to unity project (starts with assets/)
+        /// remove sys to remove part of the path outside of unity
+        /// </summary>
+        static public List<string> getScenesPathsOfCategory(string cat, bool removeExt = true)
         {
             List<string> output = new List<string>();
 
@@ -51,22 +54,60 @@ namespace fwp.scenes
 
             for (int i = 0; i < scenes.Length; i++)
             {
-                string path = scenes[i].ToLower();
+                string pathLower = scenes[i].ToLower();
 
-                if (path.Contains("/3rd")) continue;
+                if (pathLower.Contains("/3rd")) continue;
 
-                if (!path.Contains(cat.ToLower())) continue;
+                if (!pathLower.Contains(cat.ToLower())) continue;
 
-                string scName = scenes[i].Substring(scenes[i].LastIndexOf("/") + 1);
+                string path = scenes[i];
+                if (removeExt) path = removeUnityExt(path);
+                output.Add(path);
+            }
 
-                if (scName.EndsWith(".unity")) scName = scName.Substring(0, scName.IndexOf(".unity"));
+            //Debug.Log($"found x{regionScenes.Count} regions");
 
+            return output;
+        }
+
+        static public string removePathBeforeFile(string path)
+        {
+            return path.Substring(path.LastIndexOf("/") + 1);
+        }
+
+        static public string removeUnityExt(string path)
+        {
+            if (path.EndsWith(".unity")) path = path.Substring(0, path.IndexOf(".unity"));
+            return path;
+        }
+
+        /// <summary>
+        /// only returns scene names
+        /// </summary>
+        static public List<string> getScenesNamesOfCategory(string cat)
+        {
+            List<string> paths = getScenesPathsOfCategory(cat);
+            List<string> output = new List<string>();
+
+            foreach(string path in paths)
+            {
+                // remove path
+                string scName = removePathBeforeFile(path);
+
+                // remove ext, jic
+                scName = removeUnityExt(scName);
                 output.Add(scName);
             }
 
             //Debug.Log($"found x{regionScenes.Count} regions");
 
             return output;
+        }
+
+        static public bool isSceneLoaded(string sceneName)
+        {
+            var scene = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByName(sceneName);
+            return scene.isLoaded;
         }
 
     }
