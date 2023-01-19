@@ -39,8 +39,14 @@ namespace fwp.scenes
             layers.Clear();
             deps.Clear();
 
-            // main concerned scene
-            layers.Add(uid);
+            // all scenes with base uid
+            var paths = SceneTools.getScenesNamesOfCategory(uid);
+
+            for (int i = 0; i < paths.Count; i++)
+            {
+                layers.Add(paths[i]);
+            }
+            
         }
 
 #if UNITY_EDITOR
@@ -124,6 +130,8 @@ namespace fwp.scenes
 
             return _buffScenes[0];
         }
+
+        virtual public string editor_getButtonName() => uid;
 
         /// <summary>
         /// EDITOR

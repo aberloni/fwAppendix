@@ -69,12 +69,15 @@ namespace fwp.scenes
 			for (int i = 0; i < sectionContent.Count; i++)
 			{
 				GUILayout.BeginHorizontal();
-				if (GUILayout.Button(sectionContent[i].uid)) // each profil
+
+				// scene button
+				if (GUILayout.Button(sectionContent[i].editor_getButtonName())) // each profil
 				{
 					//if (EditorPrefs.GetBool(edLoadDebug)) section[i].loadDebug = true;
 					sectionContent[i].editorLoad(false);
 				}
 
+				// add/remove buttons
 				bool present = appendix.AppendixUtils.isSceneLoaded(sectionContent[i].uid);
 				string label = present ? "-" : "+";
 
@@ -124,21 +127,26 @@ namespace fwp.scenes
 			}
 		}
 
-
 		protected List<SceneProfil> getProfils(string cat)
 		{
+			// works with Contains
 			var cat_paths = SceneTools.getScenesNamesOfCategory(cat).ToArray();
 
 			//Debug.Log("category:" + cat+" has x"+names.Count);
+			
+			List<string> uids = new List<string>();
+            for (int i = 0; i < cat_paths.Length; i++)
+            {
+				string uid = extractUid(cat_paths[i]);
+				if (!uids.Contains(uid)) uids.Add(uid);
+			}
+
+			SceneProfil sp;
 
 			List<SceneProfil> profils = new List<SceneProfil>();
-			for (int i = 0; i < cat_paths.Length; i++)
+			for (int i = 0; i < uids.Count; i++)
 			{
-				SceneProfil sp = generateProfil(cat_paths[i]);
-
-				//sp.loadDebug = EditorPrefs.GetBool(edLoadDebug);
-
-				//sp.reload();
+				sp = generateProfil(uids[i]);
 
 				profils.Add(sp);
 
@@ -147,6 +155,21 @@ namespace fwp.scenes
 
 			return profils;
 		}
+
+		/// <summary>
+		/// beeing able to solve uids differently
+		/// like : scene-name_layer => scene-name
+		/// </summary>
+		virtual protected string extractUid(string path)
+        {
+			// scene-name_layer => scene-name
+			if (path.IndexOf('_') > 0)
+            {
+				return path.Substring(0, path.IndexOf('_'));
+            }
+
+			return path;
+        }
 
 		virtual protected SceneProfil generateProfil(string uid)
         {
