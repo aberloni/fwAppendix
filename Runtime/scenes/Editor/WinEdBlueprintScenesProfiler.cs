@@ -14,6 +14,8 @@ namespace fwp.scenes
 	/// </summary>
 	abstract public class WinEdBlueprintScenesProfiler : EditorWindow
 	{
+		public bool verbose = false;
+
 		List<string> paths = new List<string>();
 
 		string[] sections;
@@ -181,7 +183,8 @@ namespace fwp.scenes
 			// works with Contains
 			var cat_paths = SceneTools.getScenesPathsOfCategory(cat);
 
-            Debug.Log("category:" + cat + " paths x" + cat_paths.Count);
+			if(verbose)
+				Debug.Log("category:" + cat + " paths x" + cat_paths.Count);
 
             foreach (string path in cat_paths)
             {
@@ -199,13 +202,16 @@ namespace fwp.scenes
 					if(!found)
                     {
 						profils.Add(sp);
-						Debug.Log(sp.uid);
-					}
+
+						if (verbose)
+							Debug.Log(sp.uid);
+                    }
 						
 				}
 			}
 
-			Debug.Log("solved x" + profils.Count + " profiles");
+			if (verbose)
+				Debug.Log("solved x" + profils.Count + " profiles");
 
 			return profils;
 		}
