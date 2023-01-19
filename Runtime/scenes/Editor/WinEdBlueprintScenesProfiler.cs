@@ -127,6 +127,14 @@ namespace fwp.scenes
 			}
 		}
 
+		/// <summary>
+		/// remove some pattern
+		/// </summary>
+		virtual protected bool checkPathIgnore(string path)
+        {
+			return false;
+        }
+
 		protected List<SceneProfil> getProfils(string cat)
 		{
 			// works with Contains
@@ -137,6 +145,8 @@ namespace fwp.scenes
 			List<string> uids = new List<string>();
             for (int i = 0; i < cat_paths.Length; i++)
             {
+				if (checkPathIgnore(cat_paths[i])) continue;
+
 				string uid = extractUid(cat_paths[i]);
 				if (!uids.Contains(uid)) uids.Add(uid);
 			}
