@@ -197,9 +197,15 @@ namespace fwp.scenes
                     }
 
 					if(!found)
+                    {
 						profils.Add(sp);
+						Debug.Log(sp.uid);
+					}
+						
 				}
 			}
+
+			Debug.Log("solved x" + profils.Count + " profiles");
 
 			return profils;
 		}

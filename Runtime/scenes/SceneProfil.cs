@@ -73,9 +73,37 @@ namespace fwp.scenes
                 paths[i] = SceneTools.removePathBeforeFile(paths[i]);
             }
 
-            this.layers = paths;
+            this.layers = reorderLayers(paths);
 
             solveDeps();
+        }
+
+        virtual protected List<string> reorderLayers(List<string> paths)
+        {
+            // this will take the main scene
+            // and push it front of array
+            // to be loaded first
+
+            int index = -1;
+            for (int i = 0; i < paths.Count; i++)
+            {
+                if(paths[i] == uid)
+                {
+                    index = i;
+                }
+            }
+
+            List<string> output = new List<string>();
+
+            if (index > 0)
+            {
+                paths.Remove(uid);
+                output.Add(uid);
+            }
+            
+            output.AddRange(paths);
+
+            return output;
         }
 
         virtual protected List<string> getPaths(string uid)
