@@ -109,6 +109,7 @@ namespace fwp.scenes
         virtual protected List<string> getPaths(string uid)
         {
             var paths = SceneTools.getScenesPathsOfCategory(uid);
+            //var paths = SceneTools.getScenesPathsOfCategory(uid);
             return paths;
         }
 

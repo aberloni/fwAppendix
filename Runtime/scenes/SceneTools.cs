@@ -51,18 +51,26 @@ namespace fwp.scenes
             return path;
         }
 
-        /// <summary>
-        /// returns path relative to unity project (starts with assets/)
-        /// remove sys to remove part of the path outside of unity
-        /// </summary>
-        static public List<string> getScenesPathsOfCategory(string cat, bool removeExt = true)
-        {
-            List<string> output = new List<string>();
+		/// <summary>
+		/// returns path relative to unity project (starts with assets/)
+		/// remove sys to remove part of the path outside of unity
+		/// </summary>
+		static public List<string> getScenesPathsOfCategory(string cat, bool removeExt = true)
+		{
+			string[] scenes = new string[0];
 
-            string[] scenes = getAllBuildSettingsScenes(false);
-            //string[] scenes = getAssetScenesPaths();
+#if UNITY_EDITOR
+			// must use assetdatabase when !runtime
+			if (Application.isPlaying) scenes = getAllBuildSettingsScenes(false);
+			else scenes = getAssetScenesPaths();
+#else
+			// in build, use build settings list
+			scenes = getAllBuildSettingsScenes(false);
+#endif
 
-            if (scenes.Length <= 0)
+			List<string> output = new List<string>();
+
+			if (scenes.Length <= 0)
             {
                 Debug.LogWarning("no scenes ?");
                 return output;
