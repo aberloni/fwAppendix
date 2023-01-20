@@ -26,7 +26,7 @@ namespace fwp.screens
 
             string scName = "screen-loading";
 
-            if (!SceneLoader.isSceneAdded(scName) && appendix.AppendixUtils.checkIfCanBeLoaded(scName))
+            if (!SceneLoader.isSceneAdded(scName) && SceneTools.checkIfCanBeLoaded(scName))
             {
                 SceneManager.LoadSceneAsync(scName, LoadSceneMode.Additive);
             }

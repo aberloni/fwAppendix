@@ -20,7 +20,7 @@ namespace fwp.scenes
 #if UNITY_EDITOR
 		static public void loadScene(string nm, OpenSceneMode mode = OpenSceneMode.Additive)
 		{
-			string path = AppendixUtils.getPathOfSceneInProject(nm);
+			string path = SceneTools.getPathOfSceneInProject(nm);
 			if (path.Length <= 0)
 			{
 				Debug.LogWarning($" no path for {nm} in build settings");
@@ -36,19 +36,19 @@ namespace fwp.scenes
 		{
 
 			// check if in build settings
-			if (!AppendixUtils.isSceneInBuildSettings(nm, true))
+			if (!SceneTools.isSceneInBuildSettings(nm, true))
 			{
 				//  if NOT add to build settings
 
 				if (forceAddToBuildSettings)
 				{
-					AppendixUtils.addSceneToBuildSettings(nm);
+					SceneTools.addSceneToBuildSettings(nm);
 					Debug.Log($"added {nm} was re-added to build settings");
 				}
 
 			}
 
-			string path = AppendixUtils.getBuildSettingsFullPathOfScene(nm);
+			string path = SceneTools.getBuildSettingsFullPathOfScene(nm);
 			if (path.Length <= 0)
 			{
 				Debug.LogWarning($" no path for {nm} in build settings");

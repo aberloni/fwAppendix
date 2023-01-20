@@ -83,7 +83,7 @@ namespace fwp.scenes
         {
 
             //can't reload same scene
-            if (appendix.AppendixUtils.isSceneOpened(sceneLoad)) yield break;
+            if (SceneTools.isSceneOpened(sceneLoad)) yield break;
 
             AsyncOperation async = SceneManager.LoadSceneAsync(sceneLoad, LoadSceneMode.Additive);
             _asyncs.Add(async);
