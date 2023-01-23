@@ -25,10 +25,24 @@ namespace fwp.scenes
 		GUIContent[] tabs;
 		Vector2 tabScroll;
 
-		abstract protected string[] generateSections();
+        private void OnEnable()
+        {
+			//Debug.Log("enable !");
+			//refreshLists(true);
+        }
+
+        private void OnValidate()
+        {
+			//refreshLists(true);
+        }
+
+        abstract protected string[] generateSections();
 
 		private void Update()
 		{
+			if (Application.isPlaying)
+					return;
+
 			if (sections == null || buttons == null)
 			{
 				refreshLists(true);
@@ -45,6 +59,12 @@ namespace fwp.scenes
 				Debug.Log("force refresh");
 				refreshLists(true);
 			}
+
+			if (Application.isPlaying)
+            {
+				GUILayout.Label("not during runtime");
+				return;
+            }
 
 			if (sections == null) return;
 			if (buttons == null) return;
@@ -154,6 +174,8 @@ namespace fwp.scenes
 
 		protected void refreshLists(bool force = false)
 		{
+			Debug.Log("refresh ? " + force);
+
 			if (buttons == null || force)
 			{
 				buttons = new Dictionary<string, List<SceneProfil>>();
