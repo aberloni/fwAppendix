@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System;
 
 namespace fwp.scenes
 {
@@ -184,7 +185,7 @@ namespace fwp.scenes
         
         public void editorUnload()
         {
-            solveDeps();
+            //solveDeps();
 
             for (int i = 0; i < layers.Count; i++)
             {
@@ -201,29 +202,64 @@ namespace fwp.scenes
         }
 #endif
 
-        public void buildLoad(System.Action<Scene> onLoadedCompleted)
+        public void buildLoad(Action<Scene> onLoadedCompleted)
         {
-            solveDeps();
+            //solveDeps();
 
-            SceneLoader.loadScenes(deps.ToArray(), (Scene[] scs) =>
+            loadDeps(() =>
             {
-                SceneLoader.loadScenes(layers.ToArray(),
-                (Scene[] scs) =>
+                loadLayers((Scene mainScene) =>
                 {
-                    if (scs.Length <= 0)
-                    {
-                        Debug.LogError("no scenes returned ?");
-                        for (int i = 0; i < layers.Count; i++)
-                        {
-                            Debug.Log("  " + layers[i]);
-                        }
-                    }
-
-                    _buffScenes = scs;
-                    onLoadedCompleted?.Invoke(extractMainScene());
+                    onLoadedCompleted?.Invoke(mainScene);
                 });
             });
 
+        }
+
+        void loadDeps(Action onCompletion)
+        {
+            if (deps.Count <= 0)
+            {
+                Debug.LogWarning("deps array is empty ?");
+                onCompletion?.Invoke();
+                return;
+            }
+
+            Debug.Log("loading deps x" + deps.Count);
+
+            SceneLoader.loadScenes(deps.ToArray(), (Scene[] scs) =>
+            {
+                onCompletion?.Invoke();
+            });
+        }
+
+        void loadLayers(Action<Scene> onCompletion)
+        {
+
+            if (layers.Count <= 0)
+            {
+                Debug.LogWarning("layers array is empty ?");
+                onCompletion?.Invoke(default(Scene));
+                return;
+            }
+
+            Debug.Log("loading layers x" + deps.Count);
+
+            SceneLoader.loadScenes(layers.ToArray(),
+            (Scene[] scs) =>
+            {
+                if (scs.Length <= 0)
+                {
+                    Debug.LogError("no scenes returned ?");
+                    for (int i = 0; i < layers.Count; i++)
+                    {
+                        Debug.Log("  " + layers[i]);
+                    }
+                }
+
+                _buffScenes = scs;
+                onCompletion?.Invoke(extractMainScene());
+            });
         }
 
         public void buildUnload(System.Action onUnloadCompleted)
