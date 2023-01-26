@@ -54,9 +54,20 @@ namespace fwp.industries
         public bool hasCandidates() => actives.Count > 0 || inactives.Count > 0;
         public bool hasCandidates(int countCheck) => (actives.Count + inactives.Count) >= countCheck;
 
+        /// <summary>
+        /// just transfert list
+        /// </summary>
         public List<iFactoryObject> getActives()
         {
             return actives;
+        }
+
+        /// <summary>
+        /// only for debug
+        /// </summary>
+        public iFactoryObject[] getInactives()
+        {
+            return inactives.ToArray();
         }
 
         public List<T> getActives<T>() where T : iFactoryObject
@@ -189,7 +200,7 @@ namespace fwp.industries
             {
                 inactives.Add(candid);
 
-                IndusReferenceMgr.removeObject(candid);
+                IndusReferenceMgr.removeObject(candid); // rem facebook
             }
 
             // move recycled object into facto scene
@@ -197,9 +208,10 @@ namespace fwp.industries
             if (comp != null)
             {
                 comp.transform.SetParent(null);
-                //comp.gameObject.SetActive(false);
 
-                comp.enabled = false;
+                // do something more ?
+                //comp.gameObject.SetActive(false);
+                //comp.enabled = false;
 
                 /*
                 //https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager.MoveGameObjectToScene.html

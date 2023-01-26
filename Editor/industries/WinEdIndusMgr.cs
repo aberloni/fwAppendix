@@ -68,16 +68,35 @@ namespace fwp.industries
             //EditorGUILayout.ObjectField("Title", objectHandle, typeof(objectClassName), true);
         }
 
-        static private bool drawFacto(FactoryBase facto, bool toggleState)
+        bool drawFacto(FactoryBase facto, bool toggleState)
         {
-            var refs = facto.getActives();
+            toggleState = EditorGUILayout.Foldout(toggleState, facto.GetType().ToString(), true);
 
-            string nm = facto.ToString();
-            nm += " x" + refs.Count;
+            if (toggleState)
+            {
 
-            toggleState = EditorGUILayout.Foldout(toggleState, nm, true);
+                if (GUILayout.Button("recycle actives"))
+                {
+                    facto.recycleAll();
+                }
 
-            if (!toggleState) return false;
+                drawFactoList(facto.getActives().ToArray());
+                drawFactoList(facto.getInactives());
+
+            }
+
+            return toggleState;
+        }
+
+        void drawFactoList(iFactoryObject[] refs)
+        {
+            if(refs.Length <= 0)
+            {
+                GUILayout.Label("nothing to list");
+                return;
+            }
+
+            GUILayout.Label(refs[0].GetType() + " x" + refs.Length);
 
             foreach (var elmt in refs)
             {
@@ -95,8 +114,6 @@ namespace fwp.industries
 
                 GUILayout.EndHorizontal();
             }
-
-            return true;
         }
 
 
