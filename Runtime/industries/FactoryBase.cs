@@ -200,6 +200,8 @@ namespace fwp.industries
             {
                 inactives.Add(candid);
 
+                candid.factoRecycle();
+
                 IndusReferenceMgr.removeObject(candid); // rem facebook
             }
 
@@ -238,12 +240,14 @@ namespace fwp.industries
 
                 log(" :: inject :: " + candid + " :: ↑" + actives.Count + "/ ↓" + inactives.Count);
 
-                //candid.factoMaterialize();
+                candid.factoMaterialize();
+
                 MonoBehaviour cmp = candid as MonoBehaviour;
                 if (cmp != null) cmp.enabled = true;
 
                 IndusReferenceMgr.injectObject(candid);
             }
+
         }
 
         /// <summary>
@@ -317,6 +321,7 @@ namespace fwp.industries
         string factoGetCandidateName();
 
         /// <summary>
+        /// when object is added to factory lists
         /// this is called when object is recycled
         /// describe recycling process
         /// +must tell factory
@@ -324,6 +329,7 @@ namespace fwp.industries
         void factoRecycle();
 
         /// <summary>
+        /// when object is added to factory lists
         /// this is called when factory provide this object
         /// describe activation
         /// called when added to actives
