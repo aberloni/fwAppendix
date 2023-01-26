@@ -305,16 +305,18 @@ namespace fwp.industries
         string factoGetCandidateName();
 
         /// <summary>
+        /// this is called when object is recycled
         /// describe recycling process
         /// +must tell factory
         /// </summary>
-        //void factoRecycle();
+        void factoRecycle();
 
         /// <summary>
+        /// this is called when factory provide this object
         /// describe activation
         /// called when added to actives
         /// </summary>
-        //void factoMaterialize();
+        void factoMaterialize();
 
         //string serialize();
     }
