@@ -12,9 +12,14 @@ namespace fwp.industries
 	{
 		static private List<FactoryBase> factos = new List<FactoryBase>();
 
+		/// <summary>
+		/// for debug only
+		/// </summary>
+		static public FactoryBase[] getAllFactories() => factos.ToArray();
+
 		static public void recycleEverything()
 		{
-			Debug.Log("Facto:recycle all");
+			Debug.Log("Facto  :  recycle all");
 			foreach (var facto in factos)
 			{
 				facto.recycleAll();

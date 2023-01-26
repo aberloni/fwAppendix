@@ -56,7 +56,7 @@ namespace fwp.scenes
 		{
 			if (GUILayout.Button("Scenes selector", getWinTitle()))
 			{
-				Debug.Log("force refresh");
+				//Debug.Log("force refresh");
 				refreshLists(true);
 			}
 
