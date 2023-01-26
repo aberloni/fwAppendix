@@ -241,10 +241,14 @@ namespace fwp.industries
             if (hasAssocType(tar)) return;
 
             facebook.Add(tar, new List<iIndusReference>());
-            Debug.Log($"{getStamp()} facebook added type : <b>{tar}</b>");
+
+            if(verbose)
+                Debug.Log($"{getStamp()} facebook added type : <b>{tar}</b>");
 
             fetchByType(tar);
-            Debug.Log($"{getStamp()} found x{facebook[tar].Count} ref(s) after adding type : <b>{tar}</b>");
+
+            if (verbose)
+                Debug.Log($"{getStamp()} found x{facebook[tar].Count} ref(s) after adding type : <b>{tar}</b>");
         }
 
         static public void injectTypes(Type[] tars)

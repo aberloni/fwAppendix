@@ -45,7 +45,7 @@ namespace fwp.scenes
 
 			if (sections == null || buttons == null)
 			{
-				refreshLists(true);
+				refreshLists();
 			}
 		}
 
@@ -174,9 +174,10 @@ namespace fwp.scenes
 
 		protected void refreshLists(bool force = false)
 		{
-			Debug.Log("refresh ? " + force);
+			if(force)
+				Debug.Log(GetType() + " force refreshing content");
 
-			if (buttons == null || force)
+            if (buttons == null || force)
 			{
 				buttons = new Dictionary<string, List<SceneProfil>>();
 
