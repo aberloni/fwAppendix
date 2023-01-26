@@ -188,14 +188,14 @@ namespace fwp.industries
         public void recycle(iFactoryObject candid)
         {
             bool present = actives.IndexOf(candid) >= 0;
-            Debug.Assert(present, candid + " is not in actives array ?");
+            //Debug.Assert(present, candid + " is not in actives array ?");
             if (present)
             {
                 actives.Remove(candid);
             }
 
             present = inactives.IndexOf(candid) >= 0;
-            Debug.Assert(!present, candid + " must not be already in inactives");
+            //Debug.Assert(!present, candid + " must not be already in inactives");
             if (!present)
             {
                 inactives.Add(candid);
@@ -305,7 +305,9 @@ namespace fwp.industries
 
         void log(string content)
         {
+#if UNITY_EDITOR || industries
             Debug.Log(getStamp() + content);
+#endif
         }
     }
 
