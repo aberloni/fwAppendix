@@ -89,6 +89,7 @@ namespace fwp.industries
         /// <summary>
         /// generate a list of candidates, NOT using facebook
         /// only fetching objects
+        /// NOT OPTI if no monos are provided
         /// </summary>
         static private List<iIndusReference> fetchByType(Type tar, MonoBehaviour[] monos = null)
         {

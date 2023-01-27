@@ -108,12 +108,12 @@ namespace fwp.scenes
             onFeedersCompleted?.Invoke();
         }
 
-        public Coroutine asyncUnloadScenes(string[] sceneNames, Action onComplete = null)
+        public Coroutine asyncUnloadScenes(string[] sceneNames, Action onComplete = null, float onCompletionDelay = 0f)
         {
-            return StartCoroutine(processUnload(sceneNames, onComplete));
+            return StartCoroutine(processUnload(sceneNames, onComplete, onCompletionDelay));
         }
 
-        IEnumerator processUnload(string[] sceneNames, Action onComplete = null)
+        IEnumerator processUnload(string[] sceneNames, Action onComplete = null, float onCompletionDelay = 0f)
         {
             List<AsyncOperation> asyncsToUnload = new List<AsyncOperation>();
 
@@ -158,17 +158,28 @@ namespace fwp.scenes
                 yield return null;
             }
 
+            if(onCompletionDelay > 0f)
+            {
+                while (onCompletionDelay > 0f)
+                {
+                    onCompletionDelay -= Time.deltaTime;
+                    yield return null;
+                }
+
+                yield return null;
+            }
+            
             if (onComplete != null) onComplete();
 
             GameObject.Destroy(gameObject);
         }
 
-        public Coroutine asyncLoadScenes(string[] sceneNames, Action<Scene[]> onComplete = null)
+        public Coroutine asyncLoadScenes(string[] sceneNames, Action<Scene[]> onComplete = null, float delayOnCompletion = 0f)
         {
-            return StartCoroutine(processLoadScenes(sceneNames, onComplete));
+            return StartCoroutine(processLoadScenes(sceneNames, onComplete, delayOnCompletion));
         }
 
-        IEnumerator processLoadScenes(string[] sceneNames, Action<Scene[]> onComplete = null)
+        IEnumerator processLoadScenes(string[] sceneNames, Action<Scene[]> onComplete = null, float delayOnCompletion = 0f)
         {
             //Debug.Log(getStamp() + " ... processing " + sceneNames.Length + " scenes", transform);
 
@@ -249,8 +260,23 @@ namespace fwp.scenes
             //avant qu'on setup des trucs dans l'écran faut que tlm ai fait son build
             yield return null;
 
+            // create a arbitrary delay in loading
+            if(delayOnCompletion > 0f)
+            {
+                while(delayOnCompletion > 0f)
+                {
+                    delayOnCompletion -= Time.deltaTime;
+                    yield return null;
+                }
+
+                // just for show
+                yield return null;
+            }
+
+            // callback result
             if (onComplete != null) onComplete(output.ToArray());
 
+            // remove loader
             GameObject.Destroy(gameObject);
         }
 
@@ -313,18 +339,18 @@ namespace fwp.scenes
 
 
 
-        static public SceneLoader loadScene(string nm, Action<Scene> onComplete = null)
+        static public SceneLoader loadScene(string nm, Action<Scene> onComplete = null, float onCompletionDelay = 0f)
         {
             return loadScenes(new string[] { nm }, (Scene[] scs) =>
             {
                 Debug.Assert(scs.Length > 0, "scenes array is empty ? "+nm);
                 onComplete?.Invoke(scs[0]);
-            });
+            }, onCompletionDelay);
         }
-        static public SceneLoader loadScenes(string[] nms, Action<Scene[]> onComplete = null)
+        static public SceneLoader loadScenes(string[] nms, Action<Scene[]> onComplete = null, float onCompletionDelay = 0f)
         {
             var loader = createLoader();
-            loader.asyncLoadScenes(nms, onComplete);
+            loader.asyncLoadScenes(nms, onComplete, onCompletionDelay);
             return loader;
         }
 

@@ -229,6 +229,8 @@ namespace fwp.scenes
         }
 #endif
 
+        virtual protected float getDebugLoadDelay() => 0f;
+
         public void buildLoad(Action<Scene> onLoadedCompleted)
         {
             //solveDeps();
@@ -254,10 +256,16 @@ namespace fwp.scenes
 
             Debug.Log("loading deps x" + deps.Count);
 
+            float delay = 0f;
+
+#if UNITY_EDITOR
+            delay = getDebugLoadDelay();
+#endif
+
             SceneLoader.loadScenes(deps.ToArray(), (Scene[] scs) =>
             {
                 onCompletion?.Invoke();
-            });
+            }, delay);
         }
 
         void loadLayers(Action<Scene> onCompletion)
