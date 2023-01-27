@@ -41,8 +41,8 @@ namespace fwp.scenes
 
         private void OnEnable()
         {
-			//Debug.Log("enable !");
-			//refreshLists(true);
+            //Debug.Log("enable !");
+            refreshLists(true);
         }
 
         private void OnValidate()
@@ -61,14 +61,25 @@ namespace fwp.scenes
 			if (force)
 				Debug.Log(GetType() + " force refreshing content");
 
-			if (sections == null || force)
-			{
-				sections = new Dictionary<string, List<SceneSubFolder>>();
-
+			if(tabsLabels == null || force)
+            {
+				tabActive = 0;
 				tabsLabels = generateSections();
 
 				if (force)
-					Debug.Log("tabs x"+tabsLabels.Length);
+					Debug.Log("tabs x" + tabsLabels.Length);
+
+				tabs = new GUIContent[tabsLabels.Length];
+
+				for (int i = 0; i < tabs.Length; i++)
+                {
+					tabs[i] = new GUIContent(tabsLabels[i]);
+                }
+			}
+
+			if (sections == null || force)
+			{
+				sections = new Dictionary<string, List<SceneSubFolder>>();
 
 				for (int i = 0; i < tabsLabels.Length; i++)
 				{
@@ -119,7 +130,7 @@ namespace fwp.scenes
 
 			GUILayout.Space(10f);
 
-			tabActive = generateTabsHeader(tabActive, tabs);
+			tabActive = drawTabsHeader(tabActive, tabs);
 
 			string nm = tabsLabels[tabActive];
 			var subList = sections[nm];
@@ -330,7 +341,7 @@ namespace fwp.scenes
 			return modeLabels;
 		}
 
-		static public int generateTabsHeader(int tabSelected, GUIContent[] tabs)
+		static public int drawTabsHeader(int tabSelected, GUIContent[] tabs)
 		{
 			//GUIStyle gs = new GUIStyle(GUI.skin.button)
 			//int newTab = GUILayout.Toolbar((int)tabSelected, modeLabels, "LargeButton", GUILayout.Width(toolbarWidth), GUILayout.ExpandWidth(true));
