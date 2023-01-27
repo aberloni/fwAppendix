@@ -162,43 +162,48 @@ namespace fwp.industries
         /// </summary>
         static public void injectObject(iIndusReference target, Type targetType)
         {
-            Debug.Assert(target != null);
+            Debug.Assert(target != null, "do not inject null object ?");
 
             if(!hasAssocType(targetType))
             {
-                //Debug.LogWarning(getStamp() + " no assoc type for target " + target + " , can't inject");
-
-                //this will also fetch all of this type
+                // this will also fetch all of this type
+                // it seems that findobjectoftype can't find target during awake
                 injectType(targetType);
             }
-            else if (facebook[targetType].IndexOf(target) < 0) // already subbed ?
+            
+            if (facebook[targetType].IndexOf(target) < 0) // already subbed ?
             {
                 facebook[targetType].Add(target);
+
+                if (verbose)
+                    Debug.Log("added ref : "+target+" of type " + targetType);
             }
 
         }
 
         /// <summary>
-        /// incomplete
-        /// only remove the first compatible type
-        /// should remove in ALL compatible types ?
+        /// should remove object in ALL list where it's located
         /// </summary>
         static public void removeObject(iIndusReference target)
         {
-            var assoc = getAssocType(target);
-
-            if (assoc == null)
+            
+            var list = getAssocTypes(target);
+            if(list.Count <= 0)
             {
                 if (verbose)
                     Debug.LogWarning("trying to remove object " + target + " by no assoc type found ?");
-
                 return;
             }
 
-            facebook[assoc].Remove(target);
+            for (int i = 0; i < list.Count; i++)
+            {
+                var assoc = list[i];
 
-            if (verbose)
-                Debug.Log("removed " + target + " from " + assoc + " x" + facebook[assoc].Count);
+                facebook[assoc].Remove(target);
+
+                if (verbose)
+                    Debug.Log("removed " + target + " from " + assoc + " x" + facebook[assoc].Count);
+            }
         }
 
         /// <summary>
@@ -225,6 +230,22 @@ namespace fwp.industries
             }
 
             return null;
+        }
+
+        static List<Type> getAssocTypes(iIndusReference target) => getAssocTypes(target.GetType());
+        static List<Type> getAssocTypes(Type tar)
+        {
+            List<Type> output = new List<Type>();
+            foreach (var kp in facebook)
+            {
+                bool ass = kp.Key.IsAssignableFrom(tar);
+                if (ass)
+                {
+                    output.Add(kp.Key);
+                }
+            }
+
+            return output;
         }
 
         static bool hasAssocType(Type tar)
