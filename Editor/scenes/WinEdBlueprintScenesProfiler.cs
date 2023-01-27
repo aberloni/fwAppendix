@@ -227,7 +227,7 @@ namespace fwp.scenes
 
 			Dictionary<string, List<SceneProfil>> list = new Dictionary<string, List<SceneProfil>>();
 
-			Debug.Log("sorting x" + profils.Count + " profiles");
+			//Debug.Log("sorting x" + profils.Count + " profiles");
 
 			foreach(SceneProfil profil in profils)
 			{
@@ -235,7 +235,7 @@ namespace fwp.scenes
 
 				if (!list.ContainsKey(parent))
 				{
-					Debug.Log("added " + parent);
+					//Debug.Log("added " + parent);
 					list.Add(parent, new List<SceneProfil>());
 				}
 				list[parent].Add(profil);
@@ -254,7 +254,7 @@ namespace fwp.scenes
 				output.Add(sub);
             }
 
-			Debug.Log("solved x" + output.Count + " subs");
+			//Debug.Log("solved x" + output.Count + " subs");
 
 			return output;
 		}

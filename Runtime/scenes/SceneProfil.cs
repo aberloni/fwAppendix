@@ -28,7 +28,7 @@ namespace fwp.scenes
             {
                 string _path = path;
 
-                Debug.Log(path);
+                //Debug.Log(path);
 
                 // remove scene name
                 _path = _path.Substring(0, _path.LastIndexOf('/'));
