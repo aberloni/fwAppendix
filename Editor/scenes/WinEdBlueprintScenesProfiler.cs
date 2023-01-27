@@ -3,10 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using System;
 
 namespace fwp.scenes
 {
 	/// <summary>
+	/// 
+	/// give a list of folder to target (tab names)
+	/// search within folder all scenes
+	/// separate scenes with same parent folder
+	/// 
 	/// how to use :
 	/// - inherite of this class to have your own window
 	/// - implement sections names for tabs
@@ -16,14 +22,22 @@ namespace fwp.scenes
 	{
 		public bool verbose = false;
 
-		List<string> paths = new List<string>();
-
-		string[] sections;
-		Dictionary<string, List<SceneProfil>> buttons;
+		//List<string> paths = new List<string>();
 
 		int tabActive = 0;
+		string[] tabsLabels;
 		GUIContent[] tabs;
 		Vector2 tabScroll;
+
+		// le contenu a générer des tabs
+		Dictionary<string, List<SceneSubFolder>> sections = null;
+
+		public class SceneSubFolder
+        {
+			public string folderName;
+			public List<SceneProfil> scenes;
+			public bool toggled;
+		}
 
         private void OnEnable()
         {
@@ -36,14 +50,47 @@ namespace fwp.scenes
 			//refreshLists(true);
         }
 
+		/// <summary>
+		/// return all tabs names
+		/// also will be base for paths searching
+		/// </summary>
         abstract protected string[] generateSections();
+
+		protected void refreshLists(bool force = false)
+		{
+			if (force)
+				Debug.Log(GetType() + " force refreshing content");
+
+			if (sections == null || force)
+			{
+				sections = new Dictionary<string, List<SceneSubFolder>>();
+
+				tabsLabels = generateSections();
+
+				if (force)
+					Debug.Log("tabs x"+tabsLabels.Length);
+
+				for (int i = 0; i < tabsLabels.Length; i++)
+				{
+					var tabContent = solveTabFolder(tabsLabels[i]);
+					sections.Add(tabsLabels[i], tabContent);
+				}
+
+				if(force)
+                {
+					Debug.Log("sections x" + sections.Count);
+				}
+					
+			}
+
+		}
 
 		private void Update()
 		{
 			if (Application.isPlaying)
 					return;
 
-			if (sections == null || buttons == null)
+			if (sections == null)
 			{
 				refreshLists();
 			}
@@ -67,68 +114,69 @@ namespace fwp.scenes
             }
 
 			if (sections == null) return;
-			if (buttons == null) return;
 
-			GUILayout.Label($"selector found a total of x{paths.Count} scenes in project");
+			//GUILayout.Label($"selector found a total of x{paths.Count} scenes in project");
 
 			GUILayout.Space(10f);
 
 			tabActive = generateTabsHeader(tabActive, tabs);
 
-			string nm = sections[tabActive];
-			var profils = buttons[nm];
+			string nm = tabsLabels[tabActive];
+			var subList = sections[nm];
 
 			GUILayout.BeginHorizontal();
-			GUILayout.Label($"{nm} has x{profils.Count} available scenes");
+			
+			GUILayout.Label($"{nm} has x{subList.Count} sub-sections");
+
 			if(GUILayout.Button("ping folder"))
             {
 				pingFolder(nm);
             }
+
 			GUILayout.EndHorizontal();
 
 			GUILayout.Space(10f);
 
 			tabScroll = GUILayout.BeginScrollView(tabScroll);
 
-			//var openedProfil = getOpenedProfil();
+            //var openedProfil = getOpenedProfil();
 
-			foreach(var profil in profils)
-			{
-				GUILayout.BeginHorizontal();
+            for (int i = 0; i < subList.Count; i++)
+            {
+				SceneSubFolder section = subList[i];
 
-				// scene button
-				if (GUILayout.Button(profil.editor_getButtonName())) // each profil
-				{
-					//if (EditorPrefs.GetBool(edLoadDebug)) section[i].loadDebug = true;
-					profil.editorLoad(false);
-				}
-
-				// add/remove buttons
-				bool present = SceneTools.isEditorSceneLoaded(profil.uid);
-				string label = present ? "-" : "+";
-
-				if (GUILayout.Button(label, GUILayout.Width(40f)))
+				// sub folder
+				section.toggled = EditorGUILayout.Foldout(section.toggled, section.folderName, true);
+				
+				if(section.toggled)
                 {
-					if (!present) profil.editorLoad(true);
-					else profil.editorUnload();
-                }
+					foreach (var profil in section.scenes)
+					{
 
-				GUILayout.EndHorizontal();
+						GUILayout.BeginHorizontal();
 
-				/*
-				if(openedProfil == profil)
-                {
-					EditorGUILayout.Space(10f);
+						// scene button
+						if (GUILayout.Button(profil.editor_getButtonName())) // each profil
+						{
+							//if (EditorPrefs.GetBool(edLoadDebug)) section[i].loadDebug = true;
+							profil.editorLoad(false);
+						}
 
-                    for (int i = 0; i < profil.layers.Count; i++)
-                    {
-						drawButtonSceneSteam(profil.layers[i], profil.layers[i]);
+						// add/remove buttons
+						bool present = SceneTools.isEditorSceneLoaded(profil.uid);
+						string label = present ? "-" : "+";
+
+						if (GUILayout.Button(label, GUILayout.Width(40f)))
+						{
+							if (!present) profil.editorLoad(true);
+							else profil.editorUnload();
+						}
+
+						GUILayout.EndHorizontal();
+
 					}
-
-					EditorGUILayout.Space(10f);
 				}
-				*/
-
+				
 			}
 
 			GUILayout.EndScrollView();
@@ -172,31 +220,43 @@ namespace fwp.scenes
 
 		}
 
-		protected void refreshLists(bool force = false)
-		{
-			if(force)
-				Debug.Log(GetType() + " force refreshing content");
+		List<SceneSubFolder> solveTabFolder(string tabName)
+        {
 
-            if (buttons == null || force)
+			List<SceneProfil> profils = getProfils(tabName);
+
+			Dictionary<string, List<SceneProfil>> list = new Dictionary<string, List<SceneProfil>>();
+
+			Debug.Log("sorting x" + profils.Count + " profiles");
+
+			foreach(SceneProfil profil in profils)
 			{
-				buttons = new Dictionary<string, List<SceneProfil>>();
+				string parent = profil.parentFolder;
 
-				sections = generateSections();
-
-				paths.Clear();
-
-				for (int i = 0; i < sections.Length; i++)
+				if (!list.ContainsKey(parent))
 				{
-					var list = getProfils(sections[i]);
-					buttons.Add(sections[i], list);
+					Debug.Log("added " + parent);
+					list.Add(parent, new List<SceneProfil>());
 				}
+				list[parent].Add(profil);
 			}
 
+			List<SceneSubFolder> output = new List<SceneSubFolder>();
 
-			if (tabs == null || force)
-			{
-				tabs = generateTabsDatas(sections);
-			}
+			foreach (var kp in list)
+            {
+				SceneSubFolder sub = new SceneSubFolder();
+				
+				sub.toggled = true;
+
+				sub.folderName = kp.Key;
+				sub.scenes = kp.Value;
+				output.Add(sub);
+            }
+
+			Debug.Log("solved x" + output.Count + " subs");
+
+			return output;
 		}
 
 		protected List<SceneProfil> getProfils(string cat)
@@ -241,11 +301,16 @@ namespace fwp.scenes
 
 		public SceneProfil getOpenedProfil()
         {
-			var category = buttons[sections[tabActive]];
+			var category = sections[tabsLabels[tabActive]];
+
 			foreach(var profil in category)
 			{
-				if (profil.isLoaded()) return profil;
+				foreach(var sp in profil.scenes)
+                {
+					if (sp.isLoaded()) return sp;
+				}
             }
+
 			return null;
         }
 

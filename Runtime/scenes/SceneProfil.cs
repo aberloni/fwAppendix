@@ -14,10 +14,31 @@ namespace fwp.scenes
     {
         public string uid = string.Empty;
 
+        public string path;
+
+        //these are only scene names (no ext, no path)
         public List<string> layers = new List<string>();
         public List<string> deps = new List<string>();
 
         Scene[] _buffScenes;
+
+        public string parentFolder
+        {
+            get
+            {
+                string _path = path;
+
+                Debug.Log(path);
+
+                // remove scene name
+                _path = _path.Substring(0, _path.LastIndexOf('/'));
+
+                // remove everything up to folder parent
+                _path = _path.Substring(_path.LastIndexOf('/')+1);
+
+                return _path;
+            }
+        }
 
         /// <summary>
         /// ingame, want to load a scene
@@ -67,10 +88,16 @@ namespace fwp.scenes
             //makes it valid
             this.uid = uid;
 
+            // default
+            path = paths[0];
+
             Debug.Assert(paths.Count > 0, uid + " needs paths");
 
             for (int i = 0; i < paths.Count; i++)
             {
+                // keep shortest path
+                if (path.Length > paths[i].Length) path = paths[i];
+
                 paths[i] = SceneTools.removePathBeforeFile(paths[i]);
             }
 

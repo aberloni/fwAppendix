@@ -55,7 +55,7 @@ namespace fwp.scenes
 		/// returns path relative to unity project (starts with assets/)
 		/// remove sys to remove part of the path outside of unity
 		/// </summary>
-		static public List<string> getScenesPathsOfCategory(string cat, bool removeExt = true)
+		static public List<string> getScenesPathsOfCategory(string folderContains, bool removeExt = true)
 		{
 			string[] scenes = new string[0];
 
@@ -80,9 +80,9 @@ namespace fwp.scenes
             {
                 string pathLower = scenes[i].ToLower();
 
-                if (pathLower.Contains("/3rd")) continue;
+                //if (pathLower.Contains("/3rd")) continue;
 
-                if (!pathLower.Contains(cat.ToLower())) continue;
+                if (!pathLower.Contains(folderContains.ToLower())) continue;
 
                 string path = scenes[i];
                 if (removeExt) path = removeUnityExt(path);
