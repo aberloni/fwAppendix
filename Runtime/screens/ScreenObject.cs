@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -40,12 +43,26 @@ namespace fwp.screens
 
         }
 
-        private void Start()
+        IEnumerator Start()
         {
             screenSetup();
+
+            yield return null;
+
+            if(UnityEngine.SceneManagement.SceneManager.GetActiveScene() == gameObject.scene)
+            {
+                Debug.LogWarning("automatic debug opening", this);
+
+                screenOpenDebug();
+            }
         }
 
         virtual protected void screenSetup()
+        {
+
+        }
+
+        virtual protected void screenOpenDebug()
         {
 
         }

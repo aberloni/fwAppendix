@@ -45,16 +45,11 @@ namespace fwp.screens
             openedAnimatedScreens.Add(this);
         }
 
-        virtual protected bool autoOpeningOnSetup() => true;
-
-        protected override void screenSetup()
+        protected override void screenOpenDebug()
         {
-            base.screenSetup();
+            base.screenOpenDebug();
 
-            if (autoOpeningOnSetup())
-            {
-                openAnimated();
-            }
+            openAnimated();
         }
 
         protected override void onScreenDestruction()
