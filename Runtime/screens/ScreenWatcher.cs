@@ -14,9 +14,29 @@ namespace fwp.screens
 
         static public ScreenWatcher create(string targetScreen, Action onOpened = null, Action onCompletion = null)
         {
-            ScreenWatcher tsw = new GameObject("{temp-" + UnityEngine.Random.Range(0, 10000) + "}").AddComponent<ScreenWatcher>();
-            tsw.launch(targetScreen, onOpened, onCompletion);
-            return tsw;
+            ScreenWatcher tsw = getExisting(targetScreen);
+
+            if (tsw == null)
+            {
+                tsw = new GameObject("{temp-" + UnityEngine.Random.Range(0, 10000) + "}").AddComponent<ScreenWatcher>();
+                tsw.launch(targetScreen, onOpened, onCompletion);
+
+                return tsw;
+            }
+
+            Debug.LogWarning($"another watcher exists for screen <b>{targetScreen}</b>", tsw);
+
+            return null;
+        }
+
+        static protected ScreenWatcher getExisting(string targetScreen)
+        {
+            ScreenWatcher[] watchers = GameObject.FindObjectsOfType<ScreenWatcher>();
+            for (int i = 0; i < watchers.Length; i++)
+            {
+                if (watchers[i].isWatching(targetScreen)) return watchers[i];
+            }
+            return null;
         }
 
         protected string tarScreen;
@@ -37,6 +57,10 @@ namespace fwp.screens
             return this;
         }
 
+        public bool isWatching(string targetScreen)
+        {
+            return tarScreen == targetScreen;
+        }
 
         IEnumerator globalProcess()
         {
