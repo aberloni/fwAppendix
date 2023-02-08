@@ -199,7 +199,11 @@ namespace fwp.screens
 
             if (so != null)
             {
+                // show
                 changeScreenVisibleState(nm, true, filterName);
+                
+                onComplete?.Invoke(so);
+
                 return so;
             }
 
