@@ -40,8 +40,8 @@ namespace fwp.screens
         }
 
         protected string tarScreen;
-        protected Action onOpened;
-        protected Action onCompletion;
+        protected Action onScreenOpened;
+        protected Action onWatchCompletion;
 
         public ScreenAnimated screen;
 
@@ -49,8 +49,8 @@ namespace fwp.screens
         {
             tarScreen = targetScreen;
 
-            this.onOpened = onOpened;
-            this.onCompletion = onCompletion;
+            this.onScreenOpened = onOpened;
+            this.onWatchCompletion = onCompletion;
 
             StartCoroutine(globalProcess());
 
@@ -72,34 +72,38 @@ namespace fwp.screens
 
             Debug.Log(" ... waiting for creation ...");
 
-            co = StartCoroutine(resourceCreate());
+            co = StartCoroutine(resourceCreate(()=> { co = null; }));
             while (co != null) yield return null;
 
             Debug.Log(" ... waiting for opening ...");
 
-            co = StartCoroutine(resourceOpen());
+            co = StartCoroutine(resourceOpen(() => { co = null; }));
             while (co != null) yield return null;
-            onOpened?.Invoke();
+            onScreenOpened?.Invoke();
 
             Debug.Log(" ... waiting for closing ...");
 
-            co = StartCoroutine(resourceClose());
+            co = StartCoroutine(resourceClose(() => { co = null; }));
             while (co != null) yield return null;
 
             Debug.Log(" ... waiting for removal ...");
 
-            co = StartCoroutine(resourceDestroy());
+            co = StartCoroutine(resourceDestroy(() => { co = null; }));
             while (co != null) yield return null;
-
-            onCompletion?.Invoke();
+            
+            onWatchCompletion?.Invoke();
 
             //remove watcher
             GameObject.Destroy(gameObject);
         }
 
+        private void OnDestroy()
+        {
+            //onWatchCompletion?.Invoke();
+        }
 
 
-        IEnumerator resourceCreate()
+        IEnumerator resourceCreate(Action onCompletion)
         {
             bool loading = true;
 
@@ -120,7 +124,7 @@ namespace fwp.screens
             onCompletion?.Invoke();
         }
 
-        IEnumerator resourceOpen()
+        IEnumerator resourceOpen(Action onCompletion)
         {
             while (screen == null) yield return null;
 
@@ -130,7 +134,7 @@ namespace fwp.screens
             onCompletion?.Invoke();
         }
 
-        IEnumerator resourceClose()
+        IEnumerator resourceClose(Action onCompletion)
         {
             Debug.Log(" ... wait for closing ...");
             while (screen.isClosing()) yield return null;
@@ -141,7 +145,7 @@ namespace fwp.screens
             onCompletion?.Invoke();
         }
 
-        IEnumerator resourceDestroy()
+        IEnumerator resourceDestroy(Action onCompletion)
         {
             while (screen != null) yield return null;
 
