@@ -45,11 +45,23 @@ namespace fwp.screens
             openedAnimatedScreens.Add(this);
         }
 
-        protected override void screenOpenDebug()
+        protected override void screenSetup()
         {
-            base.screenOpenDebug();
+            base.screenSetup();
 
-            openAnimated();
+            if (debugAutoOpen())
+            {
+                openAnimated();
+            }
+        }
+
+        /// <summary>
+        /// this context doesn't take into account any loading flow
+        /// this MIGHT BE needed for context where engine needs to do stuff before opening
+        /// </summary>
+        virtual protected bool debugAutoOpen()
+        {
+            return true;
         }
 
         protected override void onScreenDestruction()
