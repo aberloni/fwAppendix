@@ -42,7 +42,7 @@ namespace fwp.scenes
         private void OnEnable()
         {
             //Debug.Log("enable !");
-            refreshLists(true);
+            refreshLists();
         }
 
         private void OnValidate()
