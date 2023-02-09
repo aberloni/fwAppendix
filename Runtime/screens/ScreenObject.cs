@@ -49,12 +49,15 @@ namespace fwp.screens
 
             yield return null;
 
-            if(UnityEngine.SceneManagement.SceneManager.GetActiveScene() == gameObject.scene)
+            if (isActiveScene())
             {
-                Debug.LogWarning("automatic debug opening", this);
-
-                screenOpenDebug();
+                screenSetupDebug();
             }
+        }
+
+        bool isActiveScene()
+        {
+            return UnityEngine.SceneManagement.SceneManager.GetActiveScene() == gameObject.scene;
         }
 
         virtual protected void screenSetup()
@@ -62,9 +65,9 @@ namespace fwp.screens
 
         }
 
-        virtual protected void screenOpenDebug()
+        virtual protected void screenSetupDebug()
         {
-
+            Debug.LogWarning("screen debug setup", this);
         }
 
         public ScreenModCanvas getModCanvas()

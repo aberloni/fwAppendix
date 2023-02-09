@@ -49,7 +49,7 @@ namespace fwp.screens
         {
             base.screenSetup();
 
-            if (debugAutoOpen())
+            if (isAutoOpenDuringSetup())
             {
                 openAnimated();
             }
@@ -59,7 +59,7 @@ namespace fwp.screens
         /// this context doesn't take into account any loading flow
         /// this MIGHT BE needed for context where engine needs to do stuff before opening
         /// </summary>
-        virtual protected bool debugAutoOpen()
+        virtual protected bool isAutoOpenDuringSetup()
         {
             return true;
         }
