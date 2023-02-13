@@ -111,7 +111,7 @@ namespace fwp.screens
             {
                 loading = false;
                 this.screen = (ScreenAnimated)screen;
-                Debug.Assert(this.screen != null, "null screen ? not animated screen ?");
+                Debug.Assert(this.screen != null, $"null screen, target:{tarScreen} ? not animated screen ?");
 
                 //Debug.Log($"{resourceName} screen opened");
 
