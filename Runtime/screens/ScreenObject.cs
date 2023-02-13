@@ -34,6 +34,11 @@ namespace fwp.screens
 
         void Awake()
         {
+            if(type == ScreensManager.ScreenType.undefined)
+            {
+                Debug.LogWarning("integration:missing screen type", this);
+            }
+
             ScreensManager.subScreen(this);
             screenCreated();
         }

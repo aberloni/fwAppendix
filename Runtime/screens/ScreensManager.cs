@@ -165,6 +165,9 @@ namespace fwp.screens
             }
         }
 
+        /// <summary>
+        /// deprecated
+        /// </summary>
         static bool checkCompatibility(string nm)
         {
             string[] nms = System.Enum.GetNames(typeof(ScreenType));
@@ -188,12 +191,6 @@ namespace fwp.screens
         static public ScreenObject open(string nm, string filterName = "", Action<ScreenObject> onComplete = null)
         {
             Debug.Log($"{getStamp()} | opening screen of name : <b>{nm}</b> , filter ? {filterName}");
-
-            if(!checkCompatibility(nm))
-            {
-                onComplete?.Invoke(null);
-                return null;
-            }
 
             ScreenObject so = getScreen(nm);
 
@@ -307,12 +304,6 @@ namespace fwp.screens
         static protected void loadMissingScreen(string screenName, Action<ScreenObject> onComplete)
         {
             ScreenLoading.showLoadingScreen();
-
-            if(!checkCompatibility(screenName))
-            {
-                onComplete?.Invoke(null);
-                return;
-            }
 
             // first search if already exists
             ScreenObject so = getScreen(screenName);
