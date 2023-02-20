@@ -53,7 +53,8 @@ namespace fwp.appendix.user
 
 
 #if UNITY_EDITOR
-        static void setEdBool(string uid, bool val)
+
+        static public void setEdBool(string uid, bool val)
         {
             EditorPrefs.SetBool(uid, val);
             logEd(uid, val);

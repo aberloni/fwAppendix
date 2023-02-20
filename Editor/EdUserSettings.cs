@@ -10,6 +10,8 @@ using UnityEditor;
 namespace fwp.appendix.user
 {
 
+#if UNITY_EDITOR
+
     static public class EdUserSettings
     {
 
@@ -43,4 +45,5 @@ namespace fwp.appendix.user
 
     }
 
+#endif
 }
