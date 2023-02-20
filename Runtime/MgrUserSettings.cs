@@ -10,82 +10,102 @@ namespace fwp.appendix.user
 {
     static public class MgrUserSettings
     {
-
-        static public void setEdBool(string uid, bool val)
+        static public void setBool(string uid, bool val)
         {
-#if UNITY_EDITOR
-            EditorPrefs.SetBool(uid, val);
-#endif
+            PlayerPrefs.SetFloat(uid, val ? 1f : 0f);
+            logApp(uid, val);
+        }
+        static public bool getBool(string uid) => PlayerPrefs.GetFloat(uid, 1f) > 0f;
 
-            log(uid, val);
+        static public void setFloat(string uid, float val)
+        {
+            PlayerPrefs.SetFloat(uid, val);
+            logApp(uid, val);
+        }
+
+        static public float getFloat(string uid, float def)
+        {
+            return PlayerPrefs.GetFloat(uid, def);
+        }
+
+        static public int getInt(string uid, int def)
+        {
+            return PlayerPrefs.GetInt(uid, def);
+        }
+
+        static public void setInt(string uid, int val)
+        {
+            PlayerPrefs.SetInt(uid, val);
+            logApp(uid, val);
+        }
+
+
+        static public string getString(string uid, string def)
+        {
+            return PlayerPrefs.GetString(uid, def);
+        }
+
+        static public void setString(string uid, string val)
+        {
+            PlayerPrefs.SetString(uid, val);
+            logApp(uid, val);
+        }
+
+
+#if UNITY_EDITOR
+        static void setEdBool(string uid, bool val)
+        {
+            EditorPrefs.SetBool(uid, val);
+            logEd(uid, val);
         }
 
         static public bool getEdBool(string uid)
         {
-#if UNITY_EDITOR
             return EditorPrefs.GetBool(uid, false);
-#else
-            return false;
-#endif
         }
 
 
         static public void setEdFloat(string uid, float val)
         {
-#if UNITY_EDITOR
             EditorPrefs.SetFloat(uid, val);
-#endif
-
-            log(uid, val);
+            logEd(uid, val);
         }
 
         static public float getEdFloat(string uid, float def)
         {
-#if UNITY_EDITOR
             return EditorPrefs.GetFloat(uid, def);
-#else
-            return 0f;
-#endif
         }
 
         static public int getEdInt(string uid, int def)
         {
-#if UNITY_EDITOR
             return EditorPrefs.GetInt(uid, def);
-#else
-            return 0;
-#endif
         }
 
         static public void setEdInt(string uid, int val)
         {
-#if UNITY_EDITOR
             EditorPrefs.SetInt(uid, val);
-#endif
-
-            log(uid, val);
+            logEd(uid, val);
         }
 
 
         static public string getEdString(string uid, string def)
         {
-#if UNITY_EDITOR
             return EditorPrefs.GetString(uid, def);
-#else
-            return string.Empty;
-#endif
         }
 
         static public void setEdString(string uid, string val)
         {
-#if UNITY_EDITOR
             EditorPrefs.SetString(uid, val);
+            logEd(uid, val);
+        }
 #endif
 
-            log(uid, val);
+        static void logApp(string uid, object val)
+        {
+            Debug.Log("UserSet:" + uid + ":" + val);
         }
 
-        static void log(string uid, object val)
+        static void logEd(string uid, object val)
         {
             Debug.Log("edUserSet:" + uid + ":" + val);
         }
