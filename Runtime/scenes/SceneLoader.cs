@@ -198,7 +198,13 @@ namespace fwp.scenes
 
                 //unity flags scenes as loaded after frame 1
                 //need to wait for when the scene is already present
-                while (Time.frameCount < 2) yield return null;
+                while (Time.frameCount < 2)
+                {
+                    if (verbose)
+                        Debug.Log(getStamp() + $" @frame {Time.frameCount}", this);
+
+                    yield return null;
+                }
             }
 
 
