@@ -11,6 +11,7 @@ namespace fwp.screens
     /// </summary>
     public class ScreenWatcher : MonoBehaviour
     {
+        public bool verbose = false;
 
         static public ScreenWatcher create(string targetScreen, Action onOpened = null, Action onCompletion = null)
         {
@@ -75,23 +76,27 @@ namespace fwp.screens
 
             Coroutine co = null;
 
-            Debug.Log(" ... waiting for creation ...");
+            if(verbose)
+                Debug.Log(" ... waiting for creation ...");
 
             co = StartCoroutine(resourceCreate(()=> { co = null; }));
             while (co != null) yield return null;
 
-            Debug.Log(" ... waiting for opening ...");
+            if (verbose)
+                Debug.Log(" ... waiting for opening ...");
 
             co = StartCoroutine(resourceOpen(() => { co = null; }));
             while (co != null) yield return null;
             onScreenOpened?.Invoke();
 
-            Debug.Log(" ... waiting for closing ...");
+            if (verbose)
+                Debug.Log(" ... waiting for closing ...");
 
             co = StartCoroutine(resourceClose(() => { co = null; }));
             while (co != null) yield return null;
 
-            Debug.Log(" ... waiting for removal ...");
+            if (verbose)
+                Debug.Log(" ... waiting for removal ...");
 
             co = StartCoroutine(resourceDestroy(() => { co = null; }));
             while (co != null) yield return null;
@@ -123,7 +128,9 @@ namespace fwp.screens
                 Debug.Assert(screen != null);
             });
 
-            Debug.Log(" ... waiting for screen to be loaded ...");
+            if (verbose)
+                Debug.Log(" ... waiting for screen to be loaded ...");
+
             while (loading) yield return null;
 
             onCompletion?.Invoke();
@@ -141,10 +148,14 @@ namespace fwp.screens
 
         IEnumerator resourceClose(Action onCompletion)
         {
-            Debug.Log(" ... wait for closing ...");
+            if (verbose)
+                Debug.Log(" ... wait for closing ...");
+
             while (screen.isClosing()) yield return null;
 
-            Debug.Log(" ... wait while still flagged as opened ...");
+            if (verbose)
+                Debug.Log(" ... wait while still flagged as opened ...");
+
             while (screen.isOpen()) yield return null;
 
             onCompletion?.Invoke();
