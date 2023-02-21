@@ -60,6 +60,8 @@ namespace fwp.screens
             }
         }
 
+        public Scene getScene() => gameObject.scene;
+
         protected bool isActiveScene()
         {
             return UnityEngine.SceneManagement.SceneManager.GetActiveScene() == gameObject.scene;

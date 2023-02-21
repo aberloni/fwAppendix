@@ -62,6 +62,11 @@ namespace fwp.screens
             return tarScreen == targetScreen;
         }
 
+        public void interrupt()
+        {
+            screen.closeAnimated();
+        }
+
         IEnumerator globalProcess()
         {
             yield return null;

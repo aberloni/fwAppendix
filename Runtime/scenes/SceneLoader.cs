@@ -15,6 +15,8 @@ namespace fwp.scenes
 {
     public class SceneLoader : MonoBehaviour
     {
+        static public bool verbose = false;
+
         static public List<SceneLoader> loaders = new List<SceneLoader>();
 
         protected List<Coroutine> queries = new List<Coroutine>();
@@ -23,6 +25,9 @@ namespace fwp.scenes
 
         private void Awake()
         {
+            if (verbose)
+                Debug.Log("sceneloader:loader created:"+name, this);
+
             //Debug.Log(EngineObject.getStamp(this) + " created");
             loaders.Add(this);
         }
@@ -36,11 +41,13 @@ namespace fwp.scenes
         static protected SceneLoader createLoader()
         {
             GameObject go = new GameObject("[loader(" + Random.Range(0, 1000) + ")]");
+
             DontDestroyOnLoad(go);
 
             return go.AddComponent<SceneLoader>();
         }
 
+        [System.Obsolete]
         static protected bool checkForFilteredScenes()
         {
             string[] filter = { "ui", "screen", "resource", "level" };
@@ -181,11 +188,22 @@ namespace fwp.scenes
 
         IEnumerator processLoadScenes(string[] sceneNames, Action<Scene[]> onComplete = null, float delayOnCompletion = 0f)
         {
-            //Debug.Log(getStamp() + " ... processing " + sceneNames.Length + " scenes", transform);
+            if(verbose)
+                Debug.Log(getStamp() + " ... processing " + sceneNames.Length + " scenes", transform);
 
-            //unity flags scenes as loaded after frame 1
-            //need to wait for when the scene is already present
-            while (Time.frameCount < 2) yield return null;
+            if(Time.frameCount < 2)
+            {
+                if (verbose)
+                    Debug.Log(getStamp() + " ... waiting for frame 2 ...", this);
+
+                //unity flags scenes as loaded after frame 1
+                //need to wait for when the scene is already present
+                while (Time.frameCount < 2) yield return null;
+            }
+
+
+            if (verbose)
+                Debug.Log(getStamp() + $" ... now filtering x{sceneNames.Length} scene names", this);
 
             List<string> filtered = new List<string>();
 
@@ -219,7 +237,8 @@ namespace fwp.scenes
                 filtered.Add(sceneName);
             }
 
-            Debug.Log(getStamp() + " filtered x" + filtered.Count + " out of given x" + sceneNames.Length);
+            if(verbose)
+                Debug.Log(getStamp() + " filtered x" + filtered.Count + " out of given x" + sceneNames.Length);
 
             for (int i = 0; i < filtered.Count; i++)
             {
@@ -233,12 +252,15 @@ namespace fwp.scenes
 
                     filtered.Remove(sc.name);
 
-                    Debug.Log(getStamp() + " scene : " + sc.name + " is done (remaining ? x" + filtered.Count + ")");
+                    if(verbose)
+                        Debug.Log(getStamp() + " scene : " + sc.name + " is done (remaining ? x" + filtered.Count + ")");
+
                 }));
 
             }
 
-            Debug.Log(getStamp() + " now waiting for x" + filtered.Count + " scenes to be loaded");
+            if(verbose)
+                Debug.Log(getStamp() + " now waiting for x" + filtered.Count + " scenes to be loaded");
 
             int cnt = filtered.Count;
             while (filtered.Count > 0)
