@@ -322,9 +322,8 @@ namespace fwp.scenes
                 yield break;
             }
 
-#if UNITY_EDITOR
-            Debug.Log(getStamp() + "  L <b>" + sceneLoad + "</b> loading ... ");
-#endif
+            if (verbose)
+                Debug.Log(getStamp() + "  L <b>" + sceneLoad + "</b> loading ... ");
 
             AsyncOperation async = SceneManager.LoadSceneAsync(sceneLoad, LoadSceneMode.Additive);
             while (!async.isDone)
@@ -333,12 +332,13 @@ namespace fwp.scenes
                 //Debug.Log(sceneLoad + " "+async.progress);
             }
 
-            Debug.Log(getStamp() + "  L <b>" + sceneLoad + "</b> async is done ... ");
+            if(verbose)
+                Debug.Log(getStamp() + "  L <b>" + sceneLoad + "</b> async is done ... ");
 
             Scene sc = SceneManager.GetSceneByName(sceneLoad);
             while (!sc.isLoaded) yield return null;
-
-            Debug.Log(getStamp() + "  L <b>" + sceneLoad + "</b> at loaded state ... ");
+            if (verbose)
+                Debug.Log(getStamp() + "  L <b>" + sceneLoad + "</b> at loaded state ... ");
 
             cleanScene(sc);
 
@@ -352,7 +352,8 @@ namespace fwp.scenes
 
             //ResourceManager.reload(); // add resources if any
 
-            Debug.Log(getStamp() + " ... '<b>" + sceneLoad + "</b>' loaded");
+            if(verbose)
+                Debug.Log(getStamp() + " ... '<b>" + sceneLoad + "</b>' loaded");
 
             yield return null;
 
@@ -411,7 +412,9 @@ namespace fwp.scenes
                 Scene sc = getLoadedScene(nms[i]);
                 if (sc.isLoaded)
                 {
-                    Debug.Log("unloading : " + sc.name);
+                    if(verbose)
+                        Debug.Log("unloading : " + sc.name);
+
                     SceneManager.UnloadSceneAsync(nms[i]);
                 }
             }
@@ -431,7 +434,9 @@ namespace fwp.scenes
 
         static public void unloadSceneByExactName(string sceneName)
         {
-            Debug.Log("unloading <b>" + sceneName + "</b>");
+            if(verbose)
+                Debug.Log("unloading <b>" + sceneName + "</b>");
+
             SceneManager.UnloadSceneAsync(sceneName);
         }
 
@@ -451,7 +456,9 @@ namespace fwp.scenes
         {
             if (obj.name.StartsWith("~"))
             {
-                Debug.Log("   <b>removing guide</b> of name : " + obj.name, obj);
+                if(verbose)
+                    Debug.Log("   <b>removing guide</b> of name : " + obj.name, obj);
+
                 GameObject.Destroy(obj.gameObject);
                 return true;
             }
