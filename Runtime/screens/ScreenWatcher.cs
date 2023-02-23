@@ -42,28 +42,27 @@ namespace fwp.screens
 
         protected string tarScreen;
 
-        protected Action<ScreenObject> onScreenCreated;
+        protected Action onScreenCreated;
         protected Action onScreenOpened;
 
         protected Action onWatchCompletion;
 
         public ScreenAnimated screen;
 
-        public ScreenWatcher launch(string targetScreen, Action onOpened = null, Action onCompletion = null)
+        public ScreenWatcher launch(string targetScreen, 
+            Action onCreated = null,
+            Action onOpened = null, 
+            Action onCompletion = null)
         {
             tarScreen = targetScreen;
 
+            this.onScreenCreated = onCreated;
             this.onScreenOpened = onOpened;
             this.onWatchCompletion = onCompletion;
 
             StartCoroutine(globalProcess());
 
             return this;
-        }
-
-        public void subCreation(Action<ScreenObject> onCreated)
-        {
-            onScreenCreated += onCreated;
         }
 
         public bool isWatching(string targetScreen)
@@ -87,10 +86,14 @@ namespace fwp.screens
             if(verbose)
                 Debug.Log(" ... waiting for creation ...");
 
-            co = StartCoroutine(resourceCreate(()=> { co = null; }));
-            while (co != null) yield return null;
+            co = StartCoroutine(resourceCreate(()=> {
 
-            onScreenCreated?.Invoke(screen);
+                onScreenCreated?.Invoke();
+
+                co = null;
+            }));
+
+            while (co != null) yield return null;
 
             if (verbose)
                 Debug.Log(" ... waiting for opening ...");
