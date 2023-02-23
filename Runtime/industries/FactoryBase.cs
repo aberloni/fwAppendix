@@ -9,6 +9,8 @@ namespace fwp.industries
     /// </summary>
     abstract public class FactoryBase
     {
+        static public bool verbose = false;
+
         //List<FactoryObject> pool = new List<FactoryObject>();
         protected List<iFactoryObject> actives = new List<iFactoryObject>();
         List<iFactoryObject> inactives = new List<iFactoryObject>();
@@ -31,7 +33,7 @@ namespace fwp.industries
 
         public void refresh()
         {
-            Debug.Log(getStamp() + " refresh");
+            log("refresh()");
 
             actives.Clear();
             inactives.Clear();
@@ -43,10 +45,7 @@ namespace fwp.industries
                 inject(presents[i] as iFactoryObject);
             }
 
-            if (!Application.isPlaying)
-            {
-                Debug.Log($"[ed] x{actives.Count}");
-            }
+            log("refresh:after x{actives.Count}");
         }
 
         //abstract public System.Type getChildrenType();
@@ -162,7 +161,7 @@ namespace fwp.industries
             // none available, create a new one
             if (obj == null)
             {
-                Debug.Log(getStamp() + " no " + subType + " available (x" + inactives.Count + ") creating one");
+                log("no " + subType + " available (x" + inactives.Count + ") creating one");
                 obj = create(subType);
             }
 
@@ -187,14 +186,17 @@ namespace fwp.industries
         /// </summary>
         public void recycle(iFactoryObject candid)
         {
-            bool present = actives.IndexOf(candid) >= 0;
+            bool dirty = false;
+
+            bool present = actives.Contains(candid);
             //Debug.Assert(present, candid + " is not in actives array ?");
             if (present)
             {
                 actives.Remove(candid);
+                dirty = true;
             }
 
-            present = inactives.IndexOf(candid) >= 0;
+            present = inactives.Contains(candid);
             //Debug.Assert(!present, candid + " must not be already in inactives");
             if (!present)
             {
@@ -203,6 +205,8 @@ namespace fwp.industries
                 //candid.factoRecycle();
 
                 IndusReferenceMgr.removeObject(candid); // rem facebook
+
+                dirty = true;
             }
 
             // move recycled object into facto scene
@@ -223,7 +227,8 @@ namespace fwp.industries
                 */
             }
 
-            log(" :: recycle :: " + candid + " :: ↑" + actives.Count + "/ ↓" + inactives.Count);
+            if(dirty)
+                log(" :: recycle :: " + candid + " :: ↑" + actives.Count + "/ ↓" + inactives.Count);
         }
 
         /// <summary>
@@ -232,13 +237,18 @@ namespace fwp.industries
         /// </summary>
         public void inject(iFactoryObject candid)
         {
-            inactives.Remove(candid);
+            bool dirty = false;
 
+            if(inactives.Contains(candid))
+            {
+                inactives.Remove(candid);
+
+                dirty = true;
+            }
+            
             if (actives.IndexOf(candid) < 0)
             {
                 actives.Add(candid);
-
-                log(" :: inject :: " + candid + " :: ↑" + actives.Count + "/ ↓" + inactives.Count);
 
                 //candid.factoMaterialize();
 
@@ -246,8 +256,12 @@ namespace fwp.industries
                 if (cmp != null) cmp.enabled = true;
 
                 IndusReferenceMgr.injectObject(candid);
+
+                dirty = true;
             }
 
+            if(dirty)
+                log("inject :: " + candid + " :: ↑" + actives.Count + "/ ↓" + inactives.Count);
         }
 
         /// <summary>
@@ -261,7 +275,7 @@ namespace fwp.industries
 
         public void recycleAll()
         {
-            Debug.Log(getStamp() + " recycleAll");
+            log("recycleAll()");
 
             List<iFactoryObject> cands = new List<iFactoryObject>();
             cands.AddRange(actives);
@@ -305,8 +319,12 @@ namespace fwp.industries
 
         void log(string content)
         {
+
 #if UNITY_EDITOR || industries
-            Debug.Log(getStamp() + content);
+            bool showLog = verbose;
+
+            if(showLog)
+                Debug.Log(getStamp() + content);
 #endif
         }
     }

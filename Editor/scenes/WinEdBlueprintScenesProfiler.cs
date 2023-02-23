@@ -170,7 +170,8 @@ namespace fwp.scenes
 						if (GUILayout.Button(profil.editor_getButtonName())) // each profil
 						{
 							//if (EditorPrefs.GetBool(edLoadDebug)) section[i].loadDebug = true;
-							profil.editorLoad(false);
+							//profil.editorLoad(false);
+							onEditorSceneCall(profil, true, false);
 						}
 
 						// add/remove buttons
@@ -179,8 +180,8 @@ namespace fwp.scenes
 
 						if (GUILayout.Button(label, GUILayout.Width(40f)))
 						{
-							if (!present) profil.editorLoad(true);
-							else profil.editorUnload();
+							if (!present) onEditorSceneCall(profil, true, true);
+							else onEditorSceneCall(profil, false);
 						}
 
 						GUILayout.EndHorizontal();
@@ -193,6 +194,23 @@ namespace fwp.scenes
 			GUILayout.EndScrollView();
 
 			draw();
+		}
+
+		/// <summary>
+		/// additive only for loading
+		/// </summary>
+		virtual protected void onEditorSceneCall(SceneProfil profil, bool mustLoad, bool additive = false)
+        {
+
+			if(mustLoad)
+            {
+				profil.editorLoad(additive);
+			}
+            else
+            {
+				profil.editorUnload();
+            }
+
 		}
 
 		/// <summary>
