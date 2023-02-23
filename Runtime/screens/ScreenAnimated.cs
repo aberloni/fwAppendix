@@ -45,9 +45,9 @@ namespace fwp.screens
             openedAnimatedScreens.Add(this);
         }
 
-        protected override void screenSetup()
+        protected override void screenSetupLate()
         {
-            base.screenSetup();
+            base.screenSetupLate();
 
             if (isAutoOpenDuringSetup())
             {

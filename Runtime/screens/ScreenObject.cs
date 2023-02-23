@@ -50,6 +50,7 @@ namespace fwp.screens
 
         IEnumerator Start()
         {
+            // setup will trigger auto opening and setupBeforeOpening
             screenSetup();
 
             yield return null;
@@ -58,6 +59,10 @@ namespace fwp.screens
             {
                 screenSetupDebug();
             }
+
+            yield return null;
+
+            screenSetupLate();
         }
 
         public Scene getScene() => gameObject.scene;
@@ -75,6 +80,11 @@ namespace fwp.screens
         virtual protected void screenSetupDebug()
         {
             Debug.LogWarning("screen debug setup", this);
+        }
+
+        virtual protected void screenSetupLate()
+        {
+
         }
 
         public ScreenModCanvas getModCanvas()

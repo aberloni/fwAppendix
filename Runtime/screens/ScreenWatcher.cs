@@ -89,6 +89,7 @@ namespace fwp.screens
 
             co = StartCoroutine(resourceCreate(()=> { co = null; }));
             while (co != null) yield return null;
+
             onScreenCreated?.Invoke(screen);
 
             if (verbose)
