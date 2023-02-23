@@ -60,6 +60,9 @@ namespace fwp.screens
                 screenSetupDebug();
             }
 
+            // for screen watcher order
+            yield return null;
+            yield return null;
             yield return null;
 
             screenSetupLate();
