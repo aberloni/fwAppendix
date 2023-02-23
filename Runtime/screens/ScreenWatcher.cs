@@ -13,14 +13,15 @@ namespace fwp.screens
     {
         public bool verbose = false;
 
-        static public ScreenWatcher create(string targetScreen, Action onOpened = null, Action onCompletion = null)
+        static public ScreenWatcher create(string targetScreen, 
+            Action onCreated = null, Action onOpened = null, Action onCompletion = null)
         {
             ScreenWatcher tsw = getExisting(targetScreen);
 
             if (tsw == null)
             {
                 tsw = new GameObject("{temp-" + UnityEngine.Random.Range(0, 10000) + "}").AddComponent<ScreenWatcher>();
-                tsw.launch(targetScreen, onOpened, onCompletion);
+                tsw.launch(targetScreen, onCreated, onOpened, onCompletion);
 
                 return tsw;
             }
