@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -33,8 +33,7 @@ namespace fwp.industries
         {
             MonoBehaviour[] monos = GameObject.FindObjectsOfType<MonoBehaviour>();
 
-            if(verbose)
-                Debug.Log(getStamp() + " checking x" + facebook.Count + " types against x" + monos.Length + " monos");
+            log("refreshAll() checking x" + facebook.Count + " types against x" + monos.Length + " monos");
 
             foreach (var kp in facebook)
             {
@@ -123,8 +122,7 @@ namespace fwp.industries
             var output = fetchByType(tar, monos);
             facebook[tar] = output;
 
-            if (verbose)
-                Debug.Log($"{getStamp()} group refresh <{tar}> x" + output.Count);
+            log($"group refresh <{tar}> x" + output.Count);
 
             return output;
         }
@@ -175,8 +173,7 @@ namespace fwp.industries
             {
                 facebook[targetType].Add(target);
 
-                if (verbose)
-                    Debug.Log("added ref : "+target+" of type " + targetType);
+                log("inject :: type:" + targetType + " & ref : " + target + " :: ↑" + facebook[targetType].Count);
             }
 
         }
@@ -192,17 +189,17 @@ namespace fwp.industries
             {
                 if (verbose)
                     Debug.LogWarning("trying to remove object " + target + " by no assoc type found ?");
+
                 return;
             }
 
             for (int i = 0; i < list.Count; i++)
             {
-                var assoc = list[i];
+                var targetType = list[i];
 
-                facebook[assoc].Remove(target);
+                facebook[targetType].Remove(target);
 
-                if (verbose)
-                    Debug.Log("removed " + target + " from " + assoc + " x" + facebook[assoc].Count);
+                log("recycle :: type:" + targetType + " & ref : " + target + " :: ↑" + facebook[targetType].Count);
             }
         }
 
@@ -264,13 +261,11 @@ namespace fwp.industries
 
             facebook.Add(tar, new List<iIndusReference>());
 
-            if(verbose)
-                Debug.Log($"{getStamp()} facebook added type : <b>{tar}</b>");
+            log($"{getStamp()} facebook added type : <b>{tar}</b>");
 
             fetchByType(tar);
 
-            if (verbose)
-                Debug.Log($"{getStamp()} found x{facebook[tar].Count} ref(s) after adding type : <b>{tar}</b>");
+            log($"{getStamp()} found x{facebook[tar].Count} ref(s) after adding type : <b>{tar}</b>");
         }
 
         static public void injectTypes(Type[] tars)
@@ -338,7 +333,18 @@ namespace fwp.industries
             return closest as MonoBehaviour;
         }
 
-        static string getStamp() => "~indus:";
+        static string getStamp() => "<color=#3333aa>~IndusReference</color>";
+        
+        static void log(string content)
+        {
+
+#if UNITY_EDITOR || industries
+            bool showLog = verbose;
+
+            if (showLog)
+                Debug.Log(getStamp() + content);
+#endif
+        }
     }
 
     public interface iIndusReference
