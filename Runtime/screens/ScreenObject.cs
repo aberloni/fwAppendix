@@ -48,8 +48,18 @@ namespace fwp.screens
 
         }
 
+        /// <summary>
+        /// stay true until hypotetic engine is ready
+        /// </summary>
+        virtual protected bool delayEngineCheck()
+        {
+            return false;
+        }
+
         IEnumerator Start()
         {
+            while (delayEngineCheck()) yield return null;
+
             // setup will trigger auto opening and setupBeforeOpening
             screenSetup();
 
