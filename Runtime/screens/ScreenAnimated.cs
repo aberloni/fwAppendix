@@ -40,6 +40,11 @@ namespace fwp.screens
                 }
             }
 
+            if(!hasValidAnimator())
+            {
+                Debug.LogWarning(getStamp() + " animator is NOT VALID");
+            }
+
             //Debug.Assert(_animator != null, "screen animated animator missing ; voir avec andre");
 
             openedAnimatedScreens.Add(this);
@@ -93,6 +98,13 @@ namespace fwp.screens
             toggleVisible(false); // hide for setup
         }
 
+        bool hasValidAnimator()
+        {
+            if (_animator == null) return false;
+            if (_animator.runtimeAnimatorController == null) return false;
+            return true;
+        }
+
         IEnumerator processAnimatingOpening()
         {
             setupBeforeOpening();
@@ -101,7 +113,7 @@ namespace fwp.screens
 
             ScreenLoading.hideLoadingScreen(); // laby screen, now animating open screen
 
-            if (_animator != null)
+            if (hasValidAnimator())
             {
                 _animator.SetBool(PARAM_OPEN, true);
 
@@ -171,7 +183,7 @@ namespace fwp.screens
             yield return null;
             yield return null;
 
-            if (_animator != null)
+            if (hasValidAnimator())
             {
                 _animator.SetBool(PARAM_OPEN, false);
 
