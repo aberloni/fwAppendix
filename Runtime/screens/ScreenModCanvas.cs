@@ -37,11 +37,16 @@ namespace fwp.screens
             
         }
 
+        public bool hasCanvas()
+        {
+            return _mainCanvas != null;
+        }
 
         public Canvas getDefaultCanvas()
         {
             return _mainCanvas;
         }
+
         public Canvas getCanvasByName(string nm)
         {
             for (int i = 0; i < _canvas.Length; i++)

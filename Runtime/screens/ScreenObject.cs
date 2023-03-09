@@ -18,7 +18,7 @@ namespace fwp.screens
     public class ScreenObject : MonoBehaviour
     {
         public bool verbose = false;
-        public string getStamp() => "<color=white>screen</color>:"+name;
+        public string getStamp() => "<color=white>screen</color>:" + name;
 
         public ScreensManager.ScreenType type;
         public ScreensManager.ScreenTags tags;
@@ -30,7 +30,15 @@ namespace fwp.screens
 
         ScreenNav nav;
 
-        ScreenModCanvas canvas; // use getter
+        ScreenModCanvas _canvas;
+        public ScreenModCanvas canvas
+        {
+            get
+            {
+                if (_canvas == null) _canvas = new ScreenModCanvas(this);
+                return _canvas;
+            }
+        }
 
         void Awake()
         {
@@ -100,12 +108,6 @@ namespace fwp.screens
 
         }
 
-        public ScreenModCanvas getModCanvas()
-        {
-            if (canvas == null) canvas = new ScreenModCanvas(this);
-            return canvas;
-        }
-
         public void subNavDirection(Action down, Action up, Action left, Action right)
         {
             if (nav == null) nav = new ScreenNav();
@@ -150,10 +152,12 @@ namespace fwp.screens
 
         virtual protected bool toggleVisible(bool flag)
         {
-            if (canvas != null)
+            if(canvas.hasCanvas())
             {
                 return canvas.toggleVisible(flag);
             }
+
+            //fallback
 
             if(transform.childCount > 0)
             {
