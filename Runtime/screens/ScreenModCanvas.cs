@@ -108,7 +108,7 @@ namespace fwp.screens
 
             Debug.Assert(screen != null, screenName + " is not ui related");
 
-            return screen.getModCanvas().getCanvasByName(canvasName);
+            return screen.canvas.getCanvasByName(canvasName);
         }
 
     }
