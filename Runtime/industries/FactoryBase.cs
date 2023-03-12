@@ -350,12 +350,9 @@ namespace fwp.industries
         string factoGetCandidateName();
 
         /// <summary>
-        /// when object is added to factory lists
-        /// this is called when object is recycled
-        /// describe recycling process
-        /// +must tell factory
+        /// needed when the factory triggers a global recycle
         /// </summary>
-        //void factoRecycle();
+        void factoRecycle();
 
         /// <summary>
         /// when object is added to factory lists
