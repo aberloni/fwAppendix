@@ -190,10 +190,18 @@ namespace fwp.industries
             return com.GetComponent<T>();
         }
 
+        void recycleInternal(iFactoryObject candid)
+        {
+            if(recycle(candid))
+            {
+                candid.factoRecycle();
+            }
+        }
+
         /// <summary>
         /// indiquer a la factory qu'un objet a changé d'état de recyclage
         /// </summary>
-        public void recycle(iFactoryObject candid)
+        public bool recycle(iFactoryObject candid)
         {
             bool dirty = false;
 
@@ -211,6 +219,7 @@ namespace fwp.industries
             {
                 inactives.Add(candid);
 
+                // DO NOT, inf loop
                 //candid.factoRecycle();
 
                 IndusReferenceMgr.removeObject(candid); // rem facebook
@@ -236,8 +245,10 @@ namespace fwp.industries
                 */
             }
 
-            if(dirty)
+            if (dirty)
                 log(" :: recycle :: " + candid + " :: ↑" + actives.Count + "/ ↓" + inactives.Count);
+
+            return dirty;
         }
 
         /// <summary>
@@ -289,9 +300,12 @@ namespace fwp.industries
             List<iFactoryObject> cands = new List<iFactoryObject>();
             cands.AddRange(actives);
 
+            // use INTERNAL to avoid inf loops
+
             for (int i = 0; i < cands.Count; i++)
             {
-                recycle(cands[i]);
+                recycleInternal(cands[i]);
+                //recycle(cands[i]);
             }
 
             Debug.Assert(actives.Count <= 0);
@@ -350,7 +364,8 @@ namespace fwp.industries
         string factoGetCandidateName();
 
         /// <summary>
-        /// needed when the factory triggers a global recycle
+        /// not called if app ask for a recycle
+        /// only during event when factory is told to recycling everything
         /// </summary>
         void factoRecycle();
 
