@@ -12,7 +12,7 @@ namespace fwp.industries
         static public bool verbose = false;
 
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("Window/Indutries/factory verbose")]
+        [UnityEditor.MenuItem("Window/Industries/(verbose) factory")]
         static public void toggleVerbose()
         {
             verbose = !verbose;
