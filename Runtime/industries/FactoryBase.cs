@@ -11,6 +11,15 @@ namespace fwp.industries
     {
         static public bool verbose = false;
 
+#if UNITY_EDITOR
+        [UnityEditor.MenuItem("Window/Indutries/factory verbose")]
+        static public void toggleVerbose()
+        {
+            verbose = !verbose;
+            Debug.LogWarning("toggling verbose for factories : "+verbose);
+        }
+#endif
+
         //List<FactoryObject> pool = new List<FactoryObject>();
         protected List<iFactoryObject> actives = new List<iFactoryObject>();
         List<iFactoryObject> inactives = new List<iFactoryObject>();
