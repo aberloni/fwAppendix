@@ -35,13 +35,15 @@ namespace fwp.screens
             {
                 tsw = new GameObject("{temp-" + UnityEngine.Random.Range(0, 10000) + "}").AddComponent<ScreenWatcher>();
                 //tsw.launch(targetScreen, onCreated, onOpened, onCompletion);
-
-                return tsw;
+            }
+            else
+            {
+                Debug.LogWarning($"another watcher exists for screen <b>{targetScreen}</b>", tsw);
             }
 
-            Debug.LogWarning($"another watcher exists for screen <b>{targetScreen}</b>", tsw);
+            Debug.Assert(tsw != null, "no watcher for " + targetScreen);
 
-            return null;
+            return tsw;
         }
 
         static protected ScreenWatcher getExisting(string targetScreen)
