@@ -13,15 +13,28 @@ namespace fwp.screens
     {
         public bool verbose = false;
 
-        static public ScreenWatcher create(string targetScreen, 
-            Action onCreated = null, Action onOpened = null, Action onCompletion = null)
+        static public ScreenWatcher create(string closeScreen, string targetScreen, Action onCreated = null)
+        {
+            ScreenWatcher tsw = generate(targetScreen);
+            tsw.closeAndLaunch(closeScreen, targetScreen, onCreated);
+            return tsw;
+        }
+
+        static public ScreenWatcher create(string targetScreen, Action onCreated = null, Action onOpened = null, Action onCompletion = null)
+        {
+            ScreenWatcher tsw = generate(targetScreen);
+            tsw.launch(targetScreen, onCreated, onOpened, onCompletion);
+            return tsw;
+        }
+
+        static ScreenWatcher generate(string targetScreen)
         {
             ScreenWatcher tsw = getExisting(targetScreen);
 
             if (tsw == null)
             {
                 tsw = new GameObject("{temp-" + UnityEngine.Random.Range(0, 10000) + "}").AddComponent<ScreenWatcher>();
-                tsw.launch(targetScreen, onCreated, onOpened, onCompletion);
+                //tsw.launch(targetScreen, onCreated, onOpened, onCompletion);
 
                 return tsw;
             }
@@ -50,26 +63,34 @@ namespace fwp.screens
 
         public ScreenAnimated screen;
 
+        public ScreenWatcher closeAndLaunch(string closeScreen, string targetScreen, Action onCreated = null)
+        {
+            tarScreen = targetScreen;
+
+            this.onScreenCreated = onCreated;
+            this.onScreenOpened = null;
+            this.onWatchCompletion = null;
+
+            StartCoroutine(closeProcess(closeScreen, () =>
+            {
+                StartCoroutine(globalProcess());
+            }));
+
+            return this;
+        }
+
         public ScreenWatcher launch(string targetScreen, 
             Action onCreated = null,
             Action onOpened = null, 
-            Action onCompletion = null,
-            string closeScreen = null)
+            Action onCompletion = null)
         {
             tarScreen = targetScreen;
 
             this.onScreenCreated = onCreated;
             this.onScreenOpened = onOpened;
             this.onWatchCompletion = onCompletion;
-
-            if(closeScreen != null)
-            {
-                StartCoroutine(closeProcess(closeScreen));
-            }
-            else
-            {
-                StartCoroutine(globalProcess());
-            }
+            
+            StartCoroutine(globalProcess());
             
             return this;
         }
@@ -85,7 +106,7 @@ namespace fwp.screens
         }
 
 
-        IEnumerator closeProcess(string toClose)
+        IEnumerator closeProcess(string toClose, Action onCompletion)
         {
             yield return null;
             
@@ -102,9 +123,9 @@ namespace fwp.screens
                 yield return null;
             }
 
-            yield return null;
+            onCompletion?.Invoke();
 
-            StartCoroutine(globalProcess());
+            //StartCoroutine(globalProcess());
         }
 
         IEnumerator globalProcess()
