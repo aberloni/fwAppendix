@@ -5,6 +5,10 @@ using UnityEngine.UI;
 
 /// <summary>
 /// to call loading screen before everything else put <EngineLoadingScreenFeeder> in startup scene
+/// 
+/// by default screen cannot be displayed
+/// it must be created by using the runtimeInit call
+/// when it's created the system will be able to use show/hide routines
 /// </summary>
 
 namespace fwp.screens
@@ -19,6 +23,9 @@ namespace fwp.screens
         Camera cam;
         public Text txt;
 
+        /// <summary>
+        /// must be called by hand
+        /// </summary>
         //[RuntimeInitializeOnLoadMethod]
         static public void runetimeInit()
         {

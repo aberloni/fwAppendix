@@ -53,7 +53,8 @@ namespace fwp.screens
         public ScreenWatcher launch(string targetScreen, 
             Action onCreated = null,
             Action onOpened = null, 
-            Action onCompletion = null)
+            Action onCompletion = null,
+            string closeScreen = null)
         {
             tarScreen = targetScreen;
 
@@ -61,8 +62,15 @@ namespace fwp.screens
             this.onScreenOpened = onOpened;
             this.onWatchCompletion = onCompletion;
 
-            StartCoroutine(globalProcess());
-
+            if(closeScreen != null)
+            {
+                StartCoroutine(closeProcess(closeScreen));
+            }
+            else
+            {
+                StartCoroutine(globalProcess());
+            }
+            
             return this;
         }
 
@@ -74,6 +82,29 @@ namespace fwp.screens
         public void interrupt()
         {
             screen.closeAnimated();
+        }
+
+
+        IEnumerator closeProcess(string toClose)
+        {
+            yield return null;
+            
+            var screen = ScreensManager.getScreen(toClose);
+            var screenAnim = screen as ScreenAnimated;
+
+            if(screenAnim != null)
+            {
+                screenAnim.closeAnimated();
+            }
+
+            while(screen != null)
+            {
+                yield return null;
+            }
+
+            yield return null;
+
+            StartCoroutine(globalProcess());
         }
 
         IEnumerator globalProcess()
