@@ -30,7 +30,7 @@ namespace fwp.industries
         {
             _factoryTargetType = getFactoryTargetType();
 
-            IndusReferenceMgr.injectType(_factoryTargetType);
+            IndusReferenceMgr.instance.injectType(_factoryTargetType);
 
             if (!Application.isPlaying) refresh();
         }
@@ -222,7 +222,7 @@ namespace fwp.industries
                 // DO NOT, inf loop
                 //candid.factoRecycle();
 
-                IndusReferenceMgr.removeObject(candid); // rem facebook
+                IndusReferenceMgr.instance.removeObject(candid); // rem facebook
 
                 dirty = true;
             }
@@ -275,7 +275,7 @@ namespace fwp.industries
                 MonoBehaviour cmp = candid as MonoBehaviour;
                 if (cmp != null) cmp.enabled = true;
 
-                IndusReferenceMgr.injectObject(candid);
+                IndusReferenceMgr.instance.injectObject(candid);
 
                 dirty = true;
             }

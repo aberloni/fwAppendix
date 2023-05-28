@@ -8,7 +8,7 @@ namespace fwp.industries
 	/// <summary>
 	/// manager of all FACTORIES
 	/// </summary>
-	static public class IndusMgr
+	static public class FactoriesMgr
 	{
 		static private List<FactoryBase> factos = new List<FactoryBase>();
 

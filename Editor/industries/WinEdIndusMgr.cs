@@ -31,7 +31,7 @@ namespace fwp.industries
         {
             if(factos == null || force)
             {
-                factos = IndusMgr.getAllFactories();
+                factos = FactoriesMgr.getAllFactories();
                 toggleSections = new bool[factos.Length];
             }
         }

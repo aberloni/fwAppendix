@@ -33,7 +33,7 @@ namespace fwp.industries
         {
             if (refTypes == null || force)
             {
-                refTypes = IndusReferenceMgr.getAllTypes();
+                refTypes = IndusReferenceMgr.instance.getAllTypes();
                 toggleTypes = new bool[refTypes.Length];
             }
         }
@@ -61,7 +61,7 @@ namespace fwp.industries
 
             if (GUILayout.Button("refresh list(s)"))
             {
-                IndusReferenceMgr.refreshAll();
+                IndusReferenceMgr.instance.refreshAll();
             }
 
             scroll = GUILayout.BeginScrollView(scroll);
@@ -77,7 +77,7 @@ namespace fwp.industries
 
         static private bool drawListType(Type typ, bool toggleState)
         {
-            List<iIndusReference> refs = IndusReferenceMgr.getGroupByType(typ);
+            List<iIndusReference> refs = IndusReferenceMgr.instance.getGroupByType(typ);
 
             string nm = typ.ToString();
             nm += " x" + refs.Count;
