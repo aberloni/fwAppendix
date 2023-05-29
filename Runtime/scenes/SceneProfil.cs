@@ -101,16 +101,19 @@ namespace fwp.scenes
                 paths[i] = SceneTools.removePathBeforeFile(paths[i]);
             }
 
+            // push main scene first
             this.layers = reorderLayers(paths);
 
             solveDeps();
         }
 
+        /// <summary>
+        /// this will take the main scene
+        /// and push it front of array
+        /// to be loaded first
+        /// </summary>
         virtual protected List<string> reorderLayers(List<string> paths)
         {
-            // this will take the main scene
-            // and push it front of array
-            // to be loaded first
 
             int index = -1;
             for (int i = 0; i < paths.Count; i++)
@@ -235,11 +238,14 @@ namespace fwp.scenes
         {
             //solveDeps();
 
+            Debug.Log(getStamp() + " builload");
+
             loadDeps(() =>
             {
-                loadLayers((Scene mainScene) =>
+                loadLayers(() =>
                 {
-                    onLoadedCompleted?.Invoke(mainScene);
+                    Scene parentScene = extractMainScene();
+                    onLoadedCompleted?.Invoke(parentScene);
                 });
             });
 
@@ -249,12 +255,12 @@ namespace fwp.scenes
         {
             if (deps.Count <= 0)
             {
-                Debug.LogWarning("deps array is empty ?");
-                onCompletion?.Invoke();
+                Debug.LogWarning(getStamp()+" deps array is empty ?");
+                onCompletion.Invoke();
                 return;
             }
 
-            Debug.Log("loading deps x" + deps.Count);
+            Debug.Log(getStamp() + " loading deps x" + deps.Count);
 
             float delay = 0f;
 
@@ -264,44 +270,47 @@ namespace fwp.scenes
 
             SceneLoader.loadScenes(deps.ToArray(), (Scene[] scs) =>
             {
-                onCompletion?.Invoke();
+                onCompletion.Invoke();
             }, delay);
         }
 
-        void loadLayers(Action<Scene> onCompletion)
+        void loadLayers(Action onCompletion)
         {
 
             if (layers.Count <= 0)
             {
-                Debug.LogWarning("layers array is empty ?");
-                onCompletion?.Invoke(default(Scene));
+                Debug.LogWarning(getStamp() + " layers array is empty ?");
+                onCompletion.Invoke();
                 return;
             }
 
-            Debug.Log("loading layers x" + deps.Count);
+            Debug.Log(getStamp()+" loading layers x" + layers.Count);
 
-            SceneLoader.loadScenes(layers.ToArray(),
-            (Scene[] scs) =>
-            {
-                if (scs.Length <= 0)
+            SceneLoader.loadScenes(layers.ToArray(), (Scene[] scs) =>
                 {
-                    Debug.LogError("no scenes returned ?");
-                    for (int i = 0; i < layers.Count; i++)
+                    if (scs.Length <= 0)
                     {
-                        Debug.Log("  " + layers[i]);
+                        Debug.LogError("no scenes returned ?");
+                        for (int i = 0; i < layers.Count; i++)
+                        {
+                            Debug.Log("  " + layers[i]);
+                        }
                     }
-                }
 
-                _buffScenes = scs;
-                onCompletion?.Invoke(extractMainScene());
-            });
+                    _buffScenes = scs;
+
+                    //Scene main = extractMainScene();
+                    //Debug.Assert(main.IsValid(), getStamp()+" extracted scene : " + main + " is not valid");
+
+                    onCompletion.Invoke();
+                });
         }
 
         public void buildUnload(System.Action onUnloadCompleted)
         {
             solveDeps();
 
-            Debug.Log(GetType()+" : " + uid + " is <b>unloading</b>");
+            Debug.Log(getStamp()+" : " + uid + " is <b>unloading</b>");
 
             SceneLoader.unloadScenes(layers.ToArray(), onUnloadCompleted);
         }
@@ -335,6 +344,15 @@ namespace fwp.scenes
             return true;
         }
 
+        public string stringify()
+        {
+            return path + "#" + uid;
+        }
+
+        string getStamp()
+        {
+            return "{SceneProfil} " + stringify();
+        }
     }
 
 }

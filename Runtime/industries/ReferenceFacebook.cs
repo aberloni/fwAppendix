@@ -12,7 +12,7 @@ namespace fwp.industries
     /// <summary>
     /// manage a dictionary of assoc between a given Type and all objects associated with it
     /// </summary>
-    public class ReferenceFacebook<FaceType> where FaceType : class
+    abstract public class ReferenceFacebook<FaceType> where FaceType : class
     {
         public bool verbose = false;
 
