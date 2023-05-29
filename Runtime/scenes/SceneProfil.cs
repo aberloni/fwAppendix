@@ -12,7 +12,7 @@ namespace fwp.scenes
     /// </summary>
     public class SceneProfil
     {
-        public string uid = string.Empty;
+        public string uid = string.Empty; // is a category, base path
 
         public string path;
 
@@ -25,13 +25,15 @@ namespace fwp.scenes
         /// <summary>
         /// ingame, want to load a scene
         /// </summary>
-        public SceneProfil(string sceneUid)
+        public SceneProfil(string categoryUid)
         {
-            uid = extractUid(sceneUid);
-            Debug.Assert(uid.Length > 0, "empty uid ? given : "+ sceneUid);
+            this.uid = string.Empty; // invalid
 
-            var paths = getPaths(uid);
-            Debug.Assert(paths.Count > 0, "empty paths[] ? uid : " + uid);
+            categoryUid = extractUid(categoryUid);
+            Debug.Assert(categoryUid.Length > 0, "empty uid ? given : "+ categoryUid);
+
+            var paths = getPaths(categoryUid);
+            Debug.Assert(paths.Count > 0, "empty paths[] ? uid : " + categoryUid);
 
             // filter paths
 
@@ -49,13 +51,13 @@ namespace fwp.scenes
 
             if (paths.Count <= 0)
             {
-                Debug.LogWarning(uid + " has no remaining paths after filtering ?");
+                Debug.LogWarning(categoryUid + " has no remaining paths after filtering ?");
                 return;
             }
 
             //Debug.Log(getStamp() + " created");
 
-            setup(uid, paths);
+            this.uid = setup(categoryUid, paths);
         }
 
         public string parentFolder
@@ -83,21 +85,21 @@ namespace fwp.scenes
 
         public bool isValid() => this.uid.Length > 0;
 
-        void setup(string uid, List<string> paths)
+        string setup(string setupUid, List<string> paths)
         {
             if (uid.ToLower().Contains("SceneManagement"))
             {
                 Debug.LogError("invalid uid : " + uid);
-                return;
+                return string.Empty;
             }
 
-            //makes it valid
-            this.uid = uid;
+            // prebuff for paths fetching
+            this.uid = setupUid;
 
             // default
             path = paths[0];
 
-            Debug.Assert(paths.Count > 0, uid + " needs paths");
+            Debug.Assert(paths.Count > 0, setupUid + " needs paths");
 
             for (int i = 0; i < paths.Count; i++)
             {
@@ -111,6 +113,8 @@ namespace fwp.scenes
             this.layers = reorderLayers(paths);
 
             solveDeps();
+
+            return setupUid; // length>0 makes it valid
         }
 
         /// <summary>

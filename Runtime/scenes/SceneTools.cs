@@ -80,7 +80,11 @@ namespace fwp.scenes
             {
                 string pathLower = scenes[i].ToLower();
 
-                //if (pathLower.Contains("/3rd")) continue;
+				//if (pathLower.Contains("/3rd")) continue;
+
+				// remove _layer after scene prefix
+				// sim-a_lol -> sim-a
+				//pathLower = pathLower.Split("_")[0];
 
                 if (!pathLower.Contains(folderContains.ToLower())) continue;
 
