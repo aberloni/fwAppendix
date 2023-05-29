@@ -22,36 +22,18 @@ namespace fwp.scenes
 
         Scene[] _buffScenes;
 
-        public string parentFolder
-        {
-            get
-            {
-                string _path = path;
-
-                //Debug.Log(path);
-
-                // remove scene name
-                _path = _path.Substring(0, _path.LastIndexOf('/'));
-
-                // remove everything up to folder parent
-                _path = _path.Substring(_path.LastIndexOf('/')+1);
-
-                return _path;
-            }
-        }
-
         /// <summary>
         /// ingame, want to load a scene
         /// </summary>
-        public SceneProfil(string uid)
+        public SceneProfil(string sceneUid)
         {
-            uid = extractUid(uid);
+            uid = extractUid(sceneUid);
+            Debug.Assert(uid.Length > 0, "empty uid ? given : "+ sceneUid);
 
             var paths = getPaths(uid);
+            Debug.Assert(paths.Count > 0, "empty paths[] ? uid : " + uid);
 
             // filter paths
-
-            //Debug.Log(GetType()+" : "+ uid);
 
             for (int i = 0; i < paths.Count; i++)
             {
@@ -65,9 +47,33 @@ namespace fwp.scenes
                 }
             }
 
-            if (paths.Count <= 0) return;
+            if (paths.Count <= 0)
+            {
+                Debug.LogWarning(uid + " has no remaining paths after filtering ?");
+                return;
+            }
+
+            //Debug.Log(getStamp() + " created");
 
             setup(uid, paths);
+        }
+
+        public string parentFolder
+        {
+            get
+            {
+                string _path = path;
+
+                //Debug.Log(path);
+
+                // remove scene name
+                _path = _path.Substring(0, _path.LastIndexOf('/'));
+
+                // remove everything up to folder parent
+                _path = _path.Substring(_path.LastIndexOf('/') + 1);
+
+                return _path;
+            }
         }
 
         public bool match(SceneProfil sp)
@@ -346,7 +352,9 @@ namespace fwp.scenes
 
         public string stringify()
         {
-            return path + "#" + uid;
+            string output = uid;
+            if(!string.IsNullOrEmpty(path)) output += " & " + path;
+            return output;
         }
 
         string getStamp()
