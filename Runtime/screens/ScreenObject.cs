@@ -17,16 +17,34 @@ namespace fwp.screens
     /// </summary>
     public class ScreenObject : MonoBehaviour
     {
+        const string screenPrefix = "screen-";
+
         public bool verbose = false;
         public string getStamp() => "<color=white>screen</color>:" + name;
 
-        public ScreensManager.ScreenType type;
-        public ScreensManager.ScreenTags tags;
+        public enum ScreenType
+        {
+            none = 0,
+            menu, // nothing running in background
+            overlay, // ingame overlays
+        }
 
-        [Tooltip("won't be hidden for specific ingame situations")]
-        public bool sticky = false; // can't be hidden
+        /// <summary>
+        /// cumulative states for screens
+        /// </summary>
+        [System.Flags]
+        public enum ScreenTags
+        {
+            none = 0,
+            pauseIngameUpdate       = 1, // screen that pauses gameplay
+            blockIngameInput        = 2,  // screen that lock inputs
+            stickyVisibility        = 4,  // can't be hidden
+            stickyPersistance       = 8, // can't be unloaded
+            hideOtherLayerOnShow    = 16,
+        };
 
-        public bool dontHideOtherOnShow = false; // won't close other non sticky screen when showing
+        public ScreenType type;
+        public ScreenTags tags;
 
         ScreenNav nav;
 
@@ -42,7 +60,7 @@ namespace fwp.screens
 
         void Awake()
         {
-            if(type == ScreensManager.ScreenType.undefined)
+            if(type == ScreenType.none)
             {
                 Debug.LogWarning("integration:missing screen type", this);
             }
@@ -87,6 +105,8 @@ namespace fwp.screens
         }
 
         public Scene getScene() => gameObject.scene;
+
+        public bool isSticky() => tags.HasFlag(ScreenTags.stickyVisibility);
 
         protected bool isActiveScene()
         {
@@ -221,7 +241,7 @@ namespace fwp.screens
         {
             //Debug.Log("  <color=white>hide()</color> <b>" + name + "</b>");
 
-            if (sticky)
+            if (tags.HasFlag(ScreenTags.stickyVisibility))
             {
                 //Debug.LogWarning("    can't hide " + name + " because is setup as sticky");
                 return;
@@ -253,7 +273,7 @@ namespace fwp.screens
         public void unload() => unload(false);
         public void unload(bool force = false)
         {
-            if (!force && sticky)
+            if (!force && tags.HasFlag(ScreenTags.stickyPersistance))
             {
                 Debug.LogWarning("can't unload sticky scenes : " + gameObject.scene.name);
                 return;
@@ -281,6 +301,9 @@ namespace fwp.screens
             ScreensManager.open(ScreensManager.ScreenNameGenerics.home);
         }
 
+        /// <summary>
+        /// screen_[name]
+        /// </summary>
         public string extractName()
         {
             string[] split = name.Split('_'); // (screen_xxx)
@@ -289,6 +312,7 @@ namespace fwp.screens
 
         public bool isScreenOfSceneName(string nm)
         {
+            //Debug.Log(nm + " vs " + gameObject.scene.name);
             return gameObject.scene.name.EndsWith(nm);
         }
 
@@ -300,10 +324,15 @@ namespace fwp.screens
             ScreensManager.unsubScreen(this);
         }
 
+        /// <summary>
+        /// to toggle all screens that are not leader
+        /// </summary>
         public void setStandby(ScreenObject leader)
         {
+            // no leader = visible
             bool visi = leader == null;
             
+            // is this screen leader
             if(leader != null)
                 visi = leader == this;
 
@@ -318,5 +347,15 @@ namespace fwp.screens
             return "\n  isVisible ? " + isVisible();
         }
 
+        // SHKS
+
+        static public ScreenWatcher callScreen(ScreenOverlay screen, Action onCompletion)
+            => callScreen(screen, null, null, onCompletion);
+
+        static public ScreenWatcher callScreen(ScreenOverlay screen,
+            Action onCreated = null, Action onOpened = null, Action onClosed = null)
+        {
+            return ScreenWatcher.create(screenPrefix + screen.ToString(), onCreated, onOpened, onClosed);
+        }
     }
 }

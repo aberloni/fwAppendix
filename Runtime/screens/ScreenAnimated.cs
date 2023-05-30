@@ -193,17 +193,22 @@ namespace fwp.screens
             }
 
             evtClosingAnimationCompleted();
-
-            unload();
         }
 
         /// <summary>
         /// après l'anim de fermeture
         /// </summary>
-        virtual protected void evtClosingAnimationCompleted()
+        void evtClosingAnimationCompleted()
         {
             _opened = false; // jic
             _coprocClosing = null;
+
+            onClosingAnimationCompleted();
+        }
+
+        virtual protected void onClosingAnimationCompleted()
+        {
+            unload();
         }
 
         /// <summary>
@@ -221,9 +226,23 @@ namespace fwp.screens
         /// </summary>
         virtual protected bool isInteractable() => _opened;
 
+        /// <summary>
+        /// search from all opened screens
+        /// </summary>
         static public ScreenAnimated getScreen(string screenName)
         {
             ScreenAnimated[] scs = GameObject.FindObjectsOfType<ScreenAnimated>();
+            for (int i = 0; i < scs.Length; i++)
+            {
+                if (scs[i].isScreenOfSceneName(screenName)) return scs[i];
+            }
+            return null;
+        }
+        static public T getScreen<T>(string screenName) where T : ScreenAnimated
+        {
+            T[] scs = GameObject.FindObjectsOfType<T>();
+            if (scs.Length <= 0) Debug.LogWarning("no screen <" + typeof(T) + "> present");
+
             for (int i = 0; i < scs.Length; i++)
             {
                 if (scs[i].isScreenOfSceneName(screenName)) return scs[i];

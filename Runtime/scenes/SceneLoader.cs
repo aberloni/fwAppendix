@@ -612,9 +612,9 @@ namespace fwp.scenes
             {
                 string path = SceneUtility.GetScenePathByBuildIndex(i);
 
-                //Debug.Log(path);
-
                 if (path.Contains(sceneLoad)) checkIfExists = true;
+
+                //Debug.Log(path);
             }
 
             return checkIfExists;

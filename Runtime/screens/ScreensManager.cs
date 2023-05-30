@@ -14,24 +14,6 @@ namespace fwp.screens
 
         static protected List<ScreenObject> screens = new List<ScreenObject>();
 
-        public enum ScreenType
-        {
-            undefined,
-            menu,
-            overlay, // ingame overlays
-        }
-
-        /// <summary>
-        /// cumulative states for screens
-        /// </summary>
-        [System.Flags]
-        public enum ScreenTags
-        {
-            none = 0,
-            pauseIngameUpdate = 1, // screen that pauses gameplay
-            blockIngameInput = 2 // screen that lock inputs
-        };
-
         //usual screen names
         public enum ScreenNameGenerics
         {
@@ -65,7 +47,7 @@ namespace fwp.screens
             screens.AddRange(GameObject.FindObjectsOfType<ScreenObject>());
         }
 
-        static public bool hasOpenScreenOfType(ScreenType type)
+        static public bool hasOpenScreenOfType(ScreenObject.ScreenType type)
         {
             ScreenObject so = getOpenedScreen();
             if (so == null) return false;
@@ -79,7 +61,7 @@ namespace fwp.screens
         static public ScreenObject getOpenedScreen()
         {
             if (screens == null) return null;
-            return screens.Select(x => x).Where(x => !x.sticky && x.isVisible()).FirstOrDefault();
+            return screens.Select(x => x).Where(x => x.isVisible()).FirstOrDefault();
         }
 
         /// <summary>
@@ -92,7 +74,7 @@ namespace fwp.screens
 
             for (int i = 0; i < screens.Count; i++)
             {
-                if (!screens[i].sticky && screens[i].isVisible())
+                if (screens[i].isVisible())
                 {
                     return screens[i];
                 }
@@ -170,7 +152,7 @@ namespace fwp.screens
         /// </summary>
         static bool checkCompatibility(string nm)
         {
-            string[] nms = System.Enum.GetNames(typeof(ScreenType));
+            string[] nms = System.Enum.GetNames(typeof(ScreenObject.ScreenType));
             for (int i = 0; i < nms.Length; i++)
             {
                 if (nm.StartsWith(nms[i])) return true;
@@ -231,7 +213,7 @@ namespace fwp.screens
                 return;
             }
 
-            bool hideOthers = !selected.dontHideOtherOnShow;
+            bool hideOthers = selected.tags.HasFlag(ScreenObject.ScreenTags.hideOtherLayerOnShow);
 
             //Debug.Log(selected.name + " visibilty to " + state+" (filter ? "+containsFilter+" | dont hide other ? "+selected.dontHideOtherOnShow+" => hide others ? "+hideOthers+")");
 
@@ -290,11 +272,15 @@ namespace fwp.screens
             }
         }
 
+        /// <summary>
+        /// leader will be the only screen visible
+        /// only works for overlays
+        /// </summary>
         static public void setStandby(ScreenObject leader)
         {
             for (int i = 0; i < screens.Count; i++)
             {
-                if(screens[i].type == ScreenType.overlay)
+                if(screens[i].type == ScreenObject.ScreenType.overlay)
                 {
                     screens[i].setStandby(leader);
                 }
