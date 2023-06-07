@@ -463,11 +463,17 @@ namespace fwp.scenes
                 return true;
             }
 
+            int safe = 999;
             int i = 0;
-            while (i < obj.childCount)
+            while (i < obj.childCount && safe > 0)
             {
-                if (!removeGuides(obj.GetChild(i))) i++;
+                var child = obj.GetChild(i);
+                if (!removeGuides(child))
+                {
+                    i++;
+                }
             }
+            Debug.Assert(safe > 0, "safe! while removing guides");
 
             return false;
         }
