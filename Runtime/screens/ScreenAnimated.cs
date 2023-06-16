@@ -252,7 +252,7 @@ namespace fwp.screens
 
         static public ScreenAnimated toggleScreen(string scNameToOpen)
         {
-            ScreenObject so = ScreensManager.getScreen(scNameToOpen);
+            ScreenObject so = ScreensManager.getOpenedScreen(scNameToOpen);
             Debug.Log(so);
 
             ScreenAnimated sa = so as ScreenAnimated;

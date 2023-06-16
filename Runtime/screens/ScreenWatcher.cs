@@ -112,7 +112,7 @@ namespace fwp.screens
         {
             yield return null;
             
-            var screen = ScreensManager.getScreen(toClose);
+            var screen = ScreensManager.getOpenedScreen(toClose);
             var screenAnim = screen as ScreenAnimated;
 
             if(screenAnim != null)

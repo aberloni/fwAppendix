@@ -104,7 +104,7 @@ namespace fwp.screens
 
         static public Canvas getCanvas(string screenName, string canvasName)
         {
-            ScreenObject screen = (ScreenObject)ScreensManager.getScreen(screenName);
+            ScreenObject screen = (ScreenObject)ScreensManager.getOpenedScreen(screenName);
 
             Debug.Assert(screen != null, screenName + " is not ui related");
 

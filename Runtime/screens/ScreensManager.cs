@@ -11,6 +11,7 @@ namespace fwp.screens
 
     public class ScreensManager
     {
+        static public bool verbose = false;
 
         static protected List<ScreenObject> screens = new List<ScreenObject>();
 
@@ -109,12 +110,9 @@ namespace fwp.screens
         /// to return the screen if already open
         /// to call the screen use open() flow instead
         /// </summary>
-        static public ScreenObject getScreen(ScreenNameGenerics nm)
-        {
-            return getScreen(nm.ToString());
-        }
-        static public ScreenObject getScreen(System.Enum enu) => getScreen(enu.ToString());
-        static public ScreenObject getScreen(string nm)
+        static public ScreenObject getOpenedScreen(ScreenNameGenerics nm) => getOpenedScreen(nm.ToString());
+        static public ScreenObject getOpenedScreen(System.Enum enu) => getOpenedScreen(enu.ToString());
+        static public ScreenObject getOpenedScreen(string nm)
         {
             if(screens.Count <= 0)
             {
@@ -123,23 +121,21 @@ namespace fwp.screens
             }
 
             ScreenObject so = screens.Select(x => x).Where(x => x.isScreenOfSceneName(nm)).FirstOrDefault();
-
+            
+            /*
             if (so == null)
             {
                 Debug.LogWarning($"{getStamp()} getScreen({nm}) <color=red>no screen that END WITH that name</color> (screens count : {screens.Count})");
-
-                for (int i = 0; i < screens.Count; i++)
-                {
-                    Debug.Log("  #"+i+","+screens[i]);
-                }
+                for (int i = 0; i < screens.Count; i++) Debug.Log("  #"+i+","+screens[i]);
             }
+            */
 
             return so;
         }
 
         static public void unloadScreen(string nm)
         {
-            ScreenObject so = getScreen(nm);
+            ScreenObject so = getOpenedScreen(nm);
             if (so != null)
             {
                 Debug.Log("unloading screen | asked name : " + nm);
@@ -172,12 +168,14 @@ namespace fwp.screens
         /// </summary>
         static public ScreenObject open(string nm, string filterName = "", Action<ScreenObject> onComplete = null)
         {
-            Debug.Log($"{getStamp()} | opening screen of name : <b>{nm}</b> , filter ? {filterName}");
-
-            ScreenObject so = getScreen(nm);
-
+            
+            // already present ?
+            ScreenObject so = getOpenedScreen(nm);
             if (so != null)
             {
+                if(verbose)
+                    Debug.Log($"{getStamp()} | open:<b>{nm}</b> ({filterName}) | already present, changing visibility");
+
                 // show
                 changeScreenVisibleState(nm, true, filterName);
                 
@@ -186,7 +184,10 @@ namespace fwp.screens
                 return so;
             }
 
-            //si le screen existe pas on essaye de le load
+            if(verbose)
+                Debug.Log($"{getStamp()} | open:<b>{nm}</b> ({filterName}) | not already present, load");
+
+            // not present : try to load it
             loadMissingScreen(nm, delegate (ScreenObject loadedScreen)
             {
                 //Debug.Log("  ... missing screen '" + nm + "' is now loaded, opening");
@@ -206,10 +207,10 @@ namespace fwp.screens
 
             //Debug.Log("opening " + scName + " (filter ? " + filter + ")");
 
-            ScreenObject selected = getScreen(scName);
+            ScreenObject selected = getOpenedScreen(scName);
             if (selected == null)
             {
-                Debug.LogWarning("trying to change visibility of screen " + scName + " but this ScreenObject doesn't exist");
+                Debug.LogWarning($"changeScreenVisibleState:{scName} : this ScreenObject doesn't exist ?");
                 return;
             }
 
@@ -292,18 +293,19 @@ namespace fwp.screens
             ScreenLoading.showLoadingScreen();
 
             // first search if already exists
-            ScreenObject so = getScreen(screenName);
+            ScreenObject so = getOpenedScreen(screenName);
             if (so != null)
             {
                 onComplete(so);
                 return;
             }
 
-            Debug.Log("screen to open : <b>" + screenName + "</b> is not loaded");
+            if(verbose)
+                Debug.Log("loadMissingScreen | screen to open : <b>" + screenName + "</b>");
 
             SceneLoader.queryScene(screenName, delegate (Scene sc)
             {
-                so = getScreen(screenName);
+                so = getOpenedScreen(screenName);
                 if (so == null)
                 {
                     Debug.LogError(getStamp() + " | end of screen loading (name given : " + screenName + ") but no <ScreenObject> returned");
