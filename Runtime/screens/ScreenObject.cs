@@ -17,9 +17,10 @@ namespace fwp.screens
     /// </summary>
     public class ScreenObject : MonoBehaviour
     {
+        static public bool verbose = false;
+
         const string screenPrefix = "screen-";
 
-        public bool verbose = false;
         public string getStamp() => "<color=white>screen</color>:" + name;
 
         public enum ScreenType
@@ -172,7 +173,9 @@ namespace fwp.screens
 
         virtual protected bool toggleVisible(bool flag)
         {
-            if(canvas.hasCanvas())
+            Debug.Log(getStamp() + " toggle visible : " + flag);
+            
+            if (canvas.hasCanvas())
             {
                 return canvas.toggleVisible(flag);
             }
@@ -231,7 +234,7 @@ namespace fwp.screens
 
             transform.position = Vector3.zero;
 
-            toggleVisible(true);
+            toggleVisible(true); // specific case : show instant
 
             //Debug.Log(name + " -> show");
         }
@@ -264,7 +267,7 @@ namespace fwp.screens
                 //ou qu'il y a une seule camera ppale et qu'il faut aligner les choses à 0f
                 transform.position = Vector3.down * 3000f;
 
-                toggleVisible(false);
+                toggleVisible(false); // specific case : force hide
 
                 return true;
             }
@@ -338,7 +341,7 @@ namespace fwp.screens
             if(leader != null)
                 visi = leader == this;
 
-            toggleVisible(visi);
+            toggleVisible(visi); // standby logic
         }
 
         virtual protected void onScreenDestruction()

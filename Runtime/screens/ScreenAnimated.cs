@@ -49,8 +49,7 @@ namespace fwp.screens
 
             openedAnimatedScreens.Add(this);
 
-            // make it invisible by default (but still active)
-            toggleVisible(false);
+            toggleVisible(false); // creation : make it invisible by default (but still active)
         }
 
         protected override void screenSetupLate()
@@ -98,7 +97,7 @@ namespace fwp.screens
 
         virtual protected void setupBeforeOpening()
         {
-            toggleVisible(false); // hide for setup
+            //toggleVisible(false); // setup : hide before setup-ing
         }
 
         bool hasValidAnimator()
@@ -112,7 +111,7 @@ namespace fwp.screens
         {
             setupBeforeOpening();
 
-            toggleVisible(true);
+            toggleVisible(true); // opening : just before animating (after setup)
 
             ScreenLoading.hideLoadingScreen(); // laby screen, now animating open screen
 
@@ -140,7 +139,7 @@ namespace fwp.screens
         {
             _coprocOpening = null;
 
-            toggleVisible(true); // jic
+            toggleVisible(true); // opening animation done : jic
 
             _opened = true;
 
