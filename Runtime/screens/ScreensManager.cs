@@ -190,11 +190,6 @@ namespace fwp.screens
             // not present : try to load it
             loadMissingScreen(nm, delegate (ScreenObject loadedScreen)
             {
-                //Debug.Log("  ... missing screen '" + nm + "' is now loaded, opening");
-
-                loadedScreen.onScreenLoaded();
-                //changeScreenVisibleState(nm, true, filterName);
-
                 onComplete?.Invoke(loadedScreen);
             });
 

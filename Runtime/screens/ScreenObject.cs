@@ -72,7 +72,8 @@ namespace fwp.screens
 
         virtual protected void screenCreated()
         {
-
+            // at this abstract level, keep whatever is setup in editor
+            //hide(); // default state is : not visible
         }
 
         /// <summary>
@@ -212,14 +213,6 @@ namespace fwp.screens
 
         [ContextMenu("hide")]
         protected void ctxm_hide() { forceHide(); }
-
-        /// <summary>
-        /// when loaded
-        /// </summary>
-        virtual public void onScreenLoaded()
-        {
-            showInstant(); // default is opening
-        }
 
         public void show() => showInstant();
         public void hide() => hideInstant();
