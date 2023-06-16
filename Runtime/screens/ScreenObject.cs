@@ -178,7 +178,8 @@ namespace fwp.screens
             }
 
             //fallback
-
+            // this is not good : it's best to no deactivate the screenobject mono
+            /*
             if(transform.childCount > 0)
             {
                 transform.GetChild(0).gameObject.SetActive(flag);
@@ -187,7 +188,8 @@ namespace fwp.screens
             {
                 gameObject.SetActive(flag);
             }
-            
+            */
+
             return flag;
         }
 

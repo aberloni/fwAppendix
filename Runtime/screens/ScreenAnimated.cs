@@ -48,6 +48,9 @@ namespace fwp.screens
             //Debug.Assert(_animator != null, "screen animated animator missing ; voir avec andre");
 
             openedAnimatedScreens.Add(this);
+
+            // make it invisible by default (but still active)
+            toggleVisible(false);
         }
 
         protected override void screenSetupLate()
