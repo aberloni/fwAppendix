@@ -257,7 +257,7 @@ namespace fwp.scenes
         {
             //solveDeps();
 
-            Debug.Log(getStamp() + " builload");
+            if(verbose) Debug.Log(getStamp() + " builload");
 
             loadDeps(() =>
             {
@@ -279,7 +279,11 @@ namespace fwp.scenes
                 return;
             }
 
-            Debug.Log(getStamp() + " loading deps x" + deps.Count);
+            if (verbose)
+            {
+                Debug.Log(getStamp() + " loading deps x" + deps.Count);
+                for (int i = 0; i < deps.Count; i++) Debug.Log(getStamp() + " dep:" + deps[i]);
+            }
 
             float delay = 0f;
 
@@ -303,7 +307,11 @@ namespace fwp.scenes
                 return;
             }
 
-            Debug.Log(getStamp()+" loading layers x" + layers.Count);
+            if (verbose)
+            {
+                Debug.Log(getStamp() + " loading layers x" + layers.Count);
+                for (int i = 0; i < layers.Count; i++) Debug.Log(getStamp() + " layer:" + layers[i]);
+            }
 
             SceneLoader.loadScenes(layers.ToArray(), (Scene[] scs) =>
                 {
