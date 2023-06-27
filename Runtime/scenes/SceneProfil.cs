@@ -12,6 +12,8 @@ namespace fwp.scenes
     /// </summary>
     public class SceneProfil
     {
+        static public bool verbose = false;
+
         public string uid = string.Empty; // is a category, base path
 
         public string path;
@@ -198,24 +200,29 @@ namespace fwp.scenes
         {
             solveDeps();
 
-            Debug.Log($"SceneProfil:editorLoad <b>{uid}</b> ; layers x{layers.Count} & deps x{deps.Count}");
+            if(verbose) Debug.Log($"SceneProfil:editorLoad <b>{uid}</b> ; layers x{layers.Count} & deps x{deps.Count}");
 
             UnityEditor.SceneManagement.OpenSceneMode mode = UnityEditor.SceneManagement.OpenSceneMode.Single;
             if (additive) mode = UnityEditor.SceneManagement.OpenSceneMode.Additive;
 
+            
+
             //first load base scene
             string baseScene = layers[0];
+            if (verbose) Debug.Log($"SceneProfil:loading base scene {baseScene}");
             SceneLoaderEditor.loadScene(baseScene, mode);
 
             //load additive others
             for (int i = 1; i < layers.Count; i++)
             {
+                if (verbose) Debug.Log($"SceneProfil:loading layer:{layers[i]}");
                 SceneLoaderEditor.loadScene(layers[i]);
             }
 
             //load deps
             for (int i = 0; i < deps.Count; i++)
             {
+                if (verbose) Debug.Log($"SceneProfil:loading layer:{deps[i]}");
                 SceneLoaderEditor.loadScene(deps[i]);
             }
 
@@ -226,6 +233,8 @@ namespace fwp.scenes
         public void editorUnload()
         {
             //solveDeps();
+            
+            if (verbose) Debug.Log($"SceneProfil:unload");
 
             for (int i = 0; i < layers.Count; i++)
             {
