@@ -174,7 +174,8 @@ namespace fwp.screens
 
         virtual protected bool toggleVisible(bool flag)
         {
-            Debug.Log(getStamp() + " toggle visible : " + flag);
+            if(verbose)
+                Debug.Log(getStamp() + "    toggle visible : " + flag);
             
             if (canvas.hasCanvas())
             {

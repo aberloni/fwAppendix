@@ -139,7 +139,8 @@ namespace fwp.screens
         {
             _coprocOpening = null;
 
-            toggleVisible(true); // opening animation done : jic
+            // this is done before "open animation"
+            //toggleVisible(true); // opening animation done : jic
 
             _opened = true;
 
