@@ -122,7 +122,7 @@ namespace fwp.screens
 
         virtual protected void screenSetupDebug()
         {
-            Debug.LogWarning("screen debug setup", this);
+            Debug.LogWarning(getStamp()+ " screenSetupDebug()", this);
         }
 
         virtual protected void screenSetupLate()
@@ -341,7 +341,7 @@ namespace fwp.screens
         virtual protected void onScreenDestruction()
         { }
 
-        public string stringify()
+        virtual public string stringify()
         {
             return "\n  isVisible ? " + isVisible();
         }

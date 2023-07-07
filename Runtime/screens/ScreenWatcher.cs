@@ -33,7 +33,7 @@ namespace fwp.screens
 
             if (tsw == null)
             {
-                tsw = new GameObject("{temp-" + UnityEngine.Random.Range(0, 10000) + "}").AddComponent<ScreenWatcher>();
+                tsw = new GameObject("{watcher-" + UnityEngine.Random.Range(0, 10000) + "}").AddComponent<ScreenWatcher>();
                 //tsw.launch(targetScreen, onCreated, onOpened, onCompletion);
             }
             else

@@ -280,8 +280,15 @@ namespace fwp.scenes
                 yield return null;
             }
 
-            Debug.Log(getStamp() + " is <b>done loading</b> , output x"+output.Count, this);
-
+            if(verbose)
+            {
+                Debug.Log(getStamp() + " is <b>done loading</b> , output x" + output.Count, this);
+                for (int i = 0; i < output.Count; i++)
+                {
+                    Debug.Log("#" + i + " ? " + output[i]);
+                }
+            }
+            
             //needed so that all new objects loaded have time to exec build()
             //ca fait un effet de bord quand on unload le screen dans la frame où il est généré
             //la callback de sortie du EngineLoader peut demander l'écran qu'on vient de load pour en faire un truc :shrug:
