@@ -32,11 +32,27 @@ namespace fwp.scenes
 		// le contenu a générer des tabs
 		Dictionary<string, List<SceneSubFolder>> sections = null;
 
+		string _filter = string.Empty;
+
 		public class SceneSubFolder
         {
 			public string folderName;
 			public List<SceneProfil> scenes;
 			public bool toggled;
+			public bool hasContent(string filter)
+			{
+				if(filter.Length <= 0)
+					return scenes.Count > 0;
+
+				int cnt = 0;
+                for (int i = 0; i < scenes.Count; i++)
+                {
+					if (scenes[i].uid.Contains(filter))
+						cnt++;
+                }
+
+				return cnt > 0;
+			}
 		}
 
         private void OnEnable()
@@ -132,68 +148,140 @@ namespace fwp.scenes
 
 			tabActive = drawTabsHeader(tabActive, tabs);
 
-			string nm = tabsLabels[tabActive];
-			var subList = sections[nm];
+			drawFilterField();
+			
+			tabScroll = GUILayout.BeginScrollView(tabScroll);
+
+            //var openedProfil = getOpenedProfil();
+
+			GUILayout.EndScrollView();
+
+			draw();
+		}
+
+		void drawFilterField()
+        {
 
 			GUILayout.BeginHorizontal();
-			
-			GUILayout.Label($"{nm} has x{subList.Count} sub-sections");
 
-			if(GUILayout.Button("ping folder"))
-            {
-				pingFolder(nm);
-            }
+			GUILayout.Label("filter", GUILayout.Width(50f));
+			_filter = GUILayout.TextArea(_filter);
+
+			if (GUILayout.Button("clear", GUILayout.Width(50f)))
+				_filter = string.Empty;
 
 			GUILayout.EndHorizontal();
 
 			GUILayout.Space(10f);
 
-			tabScroll = GUILayout.BeginScrollView(tabScroll);
-
-            //var openedProfil = getOpenedProfil();
-
-            for (int i = 0; i < subList.Count; i++)
+			if(_filter.Length <= 0)
             {
-				SceneSubFolder section = subList[i];
+				drawTogglableSections(tabActive);
+            }
+            else
+            {
+				solveSectionFiltered(tabActive);
 
-				// sub folder
-				section.toggled = EditorGUILayout.Foldout(section.toggled, section.folderName, true);
-				
-				if(section.toggled)
-                {
-					foreach (var profil in section.scenes)
-					{
-
-						GUILayout.BeginHorizontal();
-
-						// scene button
-						if (GUILayout.Button(profil.editor_getButtonName())) // each profil
-						{
-							//if (EditorPrefs.GetBool(edLoadDebug)) section[i].loadDebug = true;
-							//profil.editorLoad(false);
-							onEditorSceneCall(profil, true, false);
-						}
-
-						// add/remove buttons
-						bool present = SceneTools.isEditorSceneLoaded(profil.uid);
-						string label = present ? "-" : "+";
-
-						if (GUILayout.Button(label, GUILayout.Width(40f)))
-						{
-							if (!present) onEditorSceneCall(profil, true, true);
-							else onEditorSceneCall(profil, false);
-						}
-
-						GUILayout.EndHorizontal();
-
-					}
-				}
-				
 			}
 
-			GUILayout.EndScrollView();
+		}
 
-			draw();
+		void drawTogglableSections(int tabIndex)
+        {
+
+			string nm = tabsLabels[tabIndex];
+			var subList = sections[nm];
+
+			GUILayout.BeginHorizontal();
+
+			GUILayout.Label($"{nm} has x{subList.Count} sub-sections");
+
+			if (GUILayout.Button("ping folder"))
+			{
+				pingFolder(nm);
+			}
+
+			GUILayout.EndHorizontal();
+
+			for (int i = 0; i < subList.Count; i++)
+			{
+				SceneSubFolder section = subList[i];
+				if (!section.hasContent(_filter))
+				{
+					GUILayout.Label(section.folderName);
+				}
+				else
+				{
+
+					// sub folder
+					section.toggled = EditorGUILayout.Foldout(section.toggled, section.folderName + " (x" + section.scenes.Count + ")", true);
+
+					if (section.toggled)
+					{
+						foreach (var profil in section.scenes)
+						{
+							drawSceneLine(profil);
+						}
+					}
+
+				}
+
+			}
+		}
+
+		void solveSectionFiltered(int tabIndex)
+		{
+
+			string nm = tabsLabels[tabIndex];
+			var subList = sections[nm];
+
+			List<SceneProfil> profils = new List<SceneProfil>();
+			for (int i = 0; i < subList.Count; i++)
+            {
+                for (int j = 0; j < subList[i].scenes.Count; j++)
+                {
+					if (subList[i].scenes[j].uid.Contains(_filter))
+						profils.Add(subList[i].scenes[j]);
+                }
+            }
+
+            for (int i = 0; i < profils.Count; i++)
+            {
+				drawSceneLine(profils[i]);
+            }
+		}
+
+		void drawSceneLine(SceneProfil profil)
+        {
+
+			if(_filter.Length > 0)
+            {
+				if (!profil.uid.Contains(_filter))
+					return;
+			}
+			
+			GUILayout.BeginHorizontal();
+
+			// scene button
+			if (GUILayout.Button(profil.editor_getButtonName())) // each profil
+			{
+				//if (EditorPrefs.GetBool(edLoadDebug)) section[i].loadDebug = true;
+				//profil.editorLoad(false);
+				onEditorSceneCall(profil, true, false);
+			}
+
+			// add/remove buttons
+			bool present = SceneTools.isEditorSceneLoaded(profil.uid);
+			string label = present ? "-" : "+";
+
+			if (GUILayout.Button(label, GUILayout.Width(40f)))
+			{
+				if (!present) onEditorSceneCall(profil, true, true);
+				else onEditorSceneCall(profil, false);
+			}
+
+			GUILayout.EndHorizontal();
+
 		}
 
 		/// <summary>
