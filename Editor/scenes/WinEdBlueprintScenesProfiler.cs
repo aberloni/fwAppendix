@@ -35,10 +35,21 @@ namespace fwp.scenes
 		string _filter = string.Empty;
 
 		public class SceneSubFolder
-        {
+		{
 			public string folderName;
 			public List<SceneProfil> scenes;
-			public bool toggled;
+			public bool toggled
+			{
+				set
+				{
+					EditorPrefs.SetBool(folderName, value);
+				}
+				get
+                {
+					return EditorPrefs.GetBool(folderName, false);
+                }
+			}	
+
 			public bool hasContent(string filter)
 			{
 				if(filter.Length <= 0)
