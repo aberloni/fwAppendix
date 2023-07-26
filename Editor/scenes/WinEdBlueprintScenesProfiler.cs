@@ -163,7 +163,15 @@ namespace fwp.scenes
 			
 			tabScroll = GUILayout.BeginScrollView(tabScroll);
 
-            //var openedProfil = getOpenedProfil();
+			if (_filter.Length <= 0)
+			{
+				drawTogglableSections(tabActive);
+			}
+			else
+			{
+				solveSectionFiltered(tabActive);
+
+			}
 
 			GUILayout.EndScrollView();
 
@@ -184,16 +192,6 @@ namespace fwp.scenes
 			GUILayout.EndHorizontal();
 
 			GUILayout.Space(10f);
-
-			if(_filter.Length <= 0)
-            {
-				drawTogglableSections(tabActive);
-            }
-            else
-            {
-				solveSectionFiltered(tabActive);
-
-			}
 
 		}
 
