@@ -10,6 +10,8 @@ namespace fwp.appendix.user
 {
     static public class MgrUserSettings
     {
+        static public bool verbose = false;
+
         static public void setBool(string uid, bool val)
         {
             PlayerPrefs.SetFloat(uid, val ? 1f : 0f);
@@ -103,12 +105,14 @@ namespace fwp.appendix.user
 
         static void logApp(string uid, object val)
         {
-            Debug.Log("UserSet:" + uid + ":" + val);
+            if(verbose)
+                Debug.Log("UserSet:" + uid + ":" + val);
         }
 
         static void logEd(string uid, object val)
         {
-            Debug.Log("edUserSet:" + uid + ":" + val);
+            if(verbose)
+                Debug.Log("edUserSet:" + uid + ":" + val);
         }
 
     }
