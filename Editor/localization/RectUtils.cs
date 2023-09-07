@@ -56,8 +56,8 @@ namespace fwp.localization
                 newPosition.y + topHandle * .5f + bottomHandle * .5f);
 
 
-            newPosition = Handles.FreeMoveHandle(newPosition, Quaternion.identity, capSize, new Vector3(newSize.x, newSize.y, 0.1f), capFunc);
-
+            //newPosition = Handles.FreeMoveHandle(newPosition, Quaternion.identity, capSize, new Vector3(newSize.x, newSize.y, 0.1f), capFunc);
+            newPosition = Handles.FreeMoveHandle(newPosition, capSize, new Vector3(newSize.x, newSize.y, 0.1f), capFunc);
 
             return new Rect(newPosition.x, newPosition.y, newSize.x, newSize.y);
         }

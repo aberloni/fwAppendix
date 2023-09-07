@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using System;
@@ -260,6 +262,8 @@ namespace fwp.scenes
             }
 		}
 
+		const float btnSymbWidth = 40f;
+
 		void drawSceneLine(SceneProfil profil)
         {
 
@@ -279,11 +283,17 @@ namespace fwp.scenes
 				onEditorSceneCall(profil, true, false);
 			}
 
+			if (GUILayout.Button(">", GUILayout.Width(btnSymbWidth)))
+			{
+				pingScene(profil.path);
+			}
+
+
 			// add/remove buttons
 			bool present = SceneTools.isEditorSceneLoaded(profil.uid);
 			string label = present ? "-" : "+";
 
-			if (GUILayout.Button(label, GUILayout.Width(40f)))
+			if (GUILayout.Button(label, GUILayout.Width(btnSymbWidth)))
 			{
 				if (!present) onEditorSceneCall(profil, true, true);
 				else onEditorSceneCall(profil, false);
@@ -317,34 +327,6 @@ namespace fwp.scenes
         {
 
         }
-
-		void drawButtonSceneSteam(string label, string path)
-        {
-
-			GUILayout.BeginHorizontal(GUILayout.Width(200f));
-
-			// scene button
-			if (GUILayout.Button(label)) // each profil
-			{
-				SceneLoaderEditor.loadScene(path);
-			}
-
-			// add/remove buttons
-			bool present = SceneTools.isEditorSceneLoaded(path);
-			label = present ? "-" : "+";
-
-			if (GUILayout.Button(label, GUILayout.Width(40f)))
-			{
-				if (!present) SceneLoaderEditor.loadScene(path);
-				else
-				{
-					SceneLoaderEditor.unloadScene(path);
-				}
-			}
-
-			GUILayout.EndHorizontal();
-
-		}
 
 		List<SceneSubFolder> solveTabFolder(string tabName)
         {
@@ -488,21 +470,70 @@ namespace fwp.scenes
 			return gWinTitle;
 		}
 
+		const string pathAssetFolderPrefix = "Assets";
+		const string pathAssetExtension = ".asset";
+		const string pathSceneExtension = ".unity";
+
+		static public void pingScene(string path)
+        {
+
+			if (!path.StartsWith(pathAssetFolderPrefix)) path = System.IO.Path.Combine(pathAssetFolderPrefix, path);
+            if (!path.EndsWith(pathAssetExtension)) path = path + pathSceneExtension;
+
+            //Debug.Log("pinging (scene) @ " + path);
+
+			var guid = AssetDatabase.GUIDFromAssetPath(path);
+			//Debug.Log(guid);
+
+			var uObj = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
+			Selection.activeObject = uObj;
+
+			var id = uObj.GetInstanceID();
+			EditorGUIUtility.PingObject(id);
+		}
+
 		/// <summary>
 		/// use : EditorGUIUtility.PingObject
 		/// </summary>
 		static public void pingFolder(string assetsPath)
 		{
-			string path = "Assets/" + assetsPath;
+            if (!assetsPath.StartsWith(pathAssetFolderPrefix)) assetsPath = System.IO.Path.Combine(pathAssetFolderPrefix, assetsPath);
+
+			/*
+            if (assetsPath.StartsWith(pathAssetFolderPrefix))
+			{
+				assetsPath = assetsPath.Replace(pathAssetFolderPrefix, string.Empty);
+				if (assetsPath.StartsWith("/")) assetsPath = assetsPath.Substring(1);
+			}
+			*/
+
+			//if (!assetsPath.EndsWith("/")) assetsPath = assetsPath + "/";
+			//if (!assetsPath.EndsWith(pathAssetExtension)) assetsPath = assetsPath + pathAssetExtension;
+
+			//Debug.Log("pinging : " + assetsPath);
+
+			var guid = AssetDatabase.GUIDFromAssetPath(assetsPath);
+			//Debug.Log(guid);
 
 			// Load object
-			UnityEngine.Object obj = AssetDatabase.LoadAssetAtPath(path, typeof(UnityEngine.Object));
+			// https://docs.unity3d.com/ScriptReference/AssetDatabase.LoadAssetAtPath.html
+			// must include Assets/
+			var asset = AssetDatabase.LoadAssetAtPath(assetsPath, typeof(UnityEngine.Object));
+
+			Debug.Assert(asset != null, "no asset @ " + assetsPath);
+
+			if (asset == null)
+				return;
+
+			UnityEngine.Object uObj = (UnityEngine.Object)asset;
+
+			Debug.Assert(uObj != null, "can't cast to unity object");
 
 			// Select the object in the project folder
-			Selection.activeObject = obj;
+			Selection.activeObject = uObj;
 
 			// Also flash the folder yellow to highlight it
-			EditorGUIUtility.PingObject(obj);
+			EditorGUIUtility.PingObject(uObj);
 		}
 
 	}
