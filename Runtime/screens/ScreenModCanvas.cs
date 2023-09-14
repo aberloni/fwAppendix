@@ -95,8 +95,13 @@ namespace fwp.screens
 
         public bool isVisible()
         {
+            if (_canvas == null)
+                return false;
+
             for (int i = 0; i < _canvas.Length; i++)
             {
+                if (_canvas[i] == null) continue;
+
                 if (_canvas[i].enabled) return true;
             }
             return false;
