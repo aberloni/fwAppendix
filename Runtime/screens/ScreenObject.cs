@@ -122,7 +122,7 @@ namespace fwp.screens
 
         virtual protected void screenSetupDebug()
         {
-            Debug.LogWarning(getStamp()+ " screenSetupDebug()", this);
+            log("screenSetupDebug()");
         }
 
         virtual protected void screenSetupLate()
@@ -344,6 +344,26 @@ namespace fwp.screens
         virtual public string stringify()
         {
             return "\n  isVisible ? " + isVisible();
+        }
+
+        protected void logw(string ct)
+        {
+#if UNITY_EDITOR
+            if (verbose)
+            {
+                Debug.LogWarning(getStamp() + "  !> " + ct, this);
+            }
+#endif
+        }
+
+        protected void log(string ct)
+        {
+#if UNITY_EDITOR
+            if(verbose)
+            {
+                Debug.Log(getStamp() + "  ?> " + ct, this);
+            }
+#endif
         }
 
         // SHKS
