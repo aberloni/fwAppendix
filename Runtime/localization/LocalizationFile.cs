@@ -170,7 +170,7 @@ namespace fwp.localization
             }
 
             //dans la trad on a des | pour faire des \n
-            output = output.Replace(CsvParser.CELL_LINE_BREAK.ToString(), System.Environment.NewLine);
+            output = output.Replace(ParserStatics.CELL_LINE_BREAK.ToString(), System.Environment.NewLine);
 
             return output;
         }

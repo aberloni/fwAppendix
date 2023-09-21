@@ -198,7 +198,7 @@ namespace fwp.localization
 
             //content
             rawLine = rawLines[2];
-            buffLine = LocalizationManager.getContent(rawLine, true);
+            buffLine = LocalizationManager.get().getContent(rawLine, true);
 
             Debug.Log("  generated subtitle line #" + rawLine + " [" + timecode_start + " , " + timecode_end + "]   : " + buffLine);
         }

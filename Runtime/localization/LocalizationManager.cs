@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
-using System.Globalization;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -9,14 +8,8 @@ using UnityEditor;
 
 namespace fwp.localization
 {
-    public enum IsoLanguages
-    {
-        en, fr, de, es, it, po, ru, zh
-    }
-
     /// <summary>
-    /// Manager qui s'occupe de la loca
-    /// 
+    /// Manager qui s'occupe de la loca au editor/runtime
     /// 
     /// https://developer.nintendo.com/group/development/g1kr9vj6/forums/english/-/gts_message_boards/thread/269684575#636486
     /// 
@@ -25,48 +18,44 @@ namespace fwp.localization
     /// </summary>
     public class LocalizationManager
     {
+        static protected LocalizationManager instance;
+
+        /// <summary>
+        /// must be created in context
+        /// </summary>
+        static public LocalizationManager get()
+        {
+            if (instance == null) new LocalizationManager();
+            return instance;
+        }
+
         //au runtime il  faut que les candidates s'inscrivent !
         static public List<iLanguageChangeReact> reacts = new List<iLanguageChangeReact>();
 
-        //static public string PREF_CURRENT_LANGUAGE = "pref_lang";
         public const string LANG_PREFIX = "lang";
 
         public const IsoLanguages languageFallback = IsoLanguages.en; // si la langue du system est pas supportée
 
         static public IsoLanguages[] allSupportedLanguages = new IsoLanguages[]
         {
-    IsoLanguages.en,
-    IsoLanguages.fr,
-    IsoLanguages.de,
-    IsoLanguages.es,
-    IsoLanguages.it
-            //IsoLanguages.zh
+            IsoLanguages.en, IsoLanguages.fr, IsoLanguages.de, IsoLanguages.es, IsoLanguages.it
         };
 
+        /// <summary>
+        /// subfolder within Resources/
+        /// </summary>
         public const string folder_localization = "localization/";
+        
+        /// <summary>
+        /// where all txt files is located in the project
+        /// </summary>
         public const string path_resource_localization = "Resources/" + folder_localization;
-
-        static protected LocalizationManager manager;
-
-        static public LocalizationManager get()
-        {
-            if (manager == null) create();
-            return manager;
-        }
-
-        static public LocalizationManager create()
-        {
-            manager = new LocalizationManager();
-            return manager;
-        }
-
 
         LocalizationFile[] lang_files;
 
-        //public Action<string> onLanguageChange;
-
         public LocalizationManager()
         {
+            instance = this;
 
             //CultureInfo.GetCultureInfo(CultureTypes.NeutralCultures)
 
@@ -80,6 +69,15 @@ namespace fwp.localization
 
             //remonte les erreurs
             //checkIntegrity();
+        }
+
+        /// <summary>
+        /// must implem a way to solve sheet labels
+        /// can be extended with custom sheets
+        /// </summary>
+        virtual public LocaDataSheetsIdLabel getSheetLabels()
+        {
+            return null;
         }
 
         protected void loadFiles()
@@ -188,23 +186,40 @@ namespace fwp.localization
             return null;
         }
 
-        static public string getContent(string id, bool warning = false)
+        /// <summary>
+        /// tries a getContent
+        /// if fails return default value (en ?)
+        /// </summary>
+        public string getContentSafe(string id, bool warning = false)
         {
-            if (manager == null) manager = create();
+            string output = getContent(id);
+            if(output.Length <= 0)
+            {
+                output = getContent(id, languageFallback, warning);
+            }
 
+            if(output.Length <= 0)
+            {
+                Debug.LogError("could not safe get content : " + id);
+                return string.Empty;
+            }
+
+            return output;
+        }
+
+        public string getContent(string id, bool warning = false)
+        {
             IsoLanguages lang = getSavedIsoLanguage();
 
-            LocalizationFile file = manager.getFileByLang(lang.ToString());
+            LocalizationFile file = instance.getFileByLang(lang.ToString());
             Debug.Assert(file != null, "no file found for language : " + lang);
 
             return file.getContentById(id, warning);
         }
 
-        static public string getContent(string id, IsoLanguages filterLang, bool warning = true)
+        public string getContent(string id, IsoLanguages filterLang, bool warning = true)
         {
-            if (manager == null) manager = create();
-
-            LocalizationFile file = manager.getFileByLang(filterLang.ToString());
+            LocalizationFile file = instance.getFileByLang(filterLang.ToString());
             Debug.Assert(file != null, "no file found for language : " + filterLang);
 
             return file.getContentById(id, warning);
@@ -295,9 +310,13 @@ namespace fwp.localization
             return languageFallback;
         }
 
+        /// <summary>
+        /// in : language
+        /// out : label of language
+        /// </summary>
         static public string isoToLabel(IsoLanguages lang)
         {
-            return getContent("menu_" + lang.ToString());
+            return instance?.getContent("menu_" + lang.ToString());
         }
 
         static string sysToIsoString(SystemLanguage sys) => sysToIso(sys).ToString();
@@ -354,35 +373,6 @@ namespace fwp.localization
             return lang;
         }
 
-#if UNITY_EDITOR
-        [MenuItem("Tools/Localization/ppref/de")] public static void pprefDE() => editor_switchLanguage(IsoLanguages.de, false);
-        [MenuItem("Tools/Localization/ppref/en")] public static void pprefEN() => editor_switchLanguage(IsoLanguages.en, false);
-        [MenuItem("Tools/Localization/ppref/es")] public static void pprefES() => editor_switchLanguage(IsoLanguages.es, false);
-        [MenuItem("Tools/Localization/ppref/fr")] public static void pprefFR() => editor_switchLanguage(IsoLanguages.fr, false);
-        [MenuItem("Tools/Localization/ppref/it")] public static void pprefIT() => editor_switchLanguage(IsoLanguages.it, false);
-        [MenuItem("Tools/Localization/ppref/po")] public static void pprefPO() => editor_switchLanguage(IsoLanguages.po, false);
-        [MenuItem("Tools/Localization/ppref/ru")] public static void pprefRU() => editor_switchLanguage(IsoLanguages.ru, false);
-        [MenuItem("Tools/Localization/ppref/cn")] public static void pprefZH() => editor_switchLanguage(IsoLanguages.zh, false);
-
-        [MenuItem("Tools/Localization/swap/deu")] public static void swapDE() => editor_switchLanguage(IsoLanguages.de);
-        [MenuItem("Tools/Localization/swap/eng")] public static void swapEN() => editor_switchLanguage(IsoLanguages.en);
-        [MenuItem("Tools/Localization/swap/esp")] public static void swapES() => editor_switchLanguage(IsoLanguages.es);
-        [MenuItem("Tools/Localization/swap/fre")] public static void swapFR() => editor_switchLanguage(IsoLanguages.fr);
-        [MenuItem("Tools/Localization/swap/ita")] public static void swapIT() => editor_switchLanguage(IsoLanguages.it);
-        [MenuItem("Tools/Localization/swap/por")] public static void swapPO() => editor_switchLanguage(IsoLanguages.po);
-        [MenuItem("Tools/Localization/swap/rus")] public static void swapRU() => editor_switchLanguage(IsoLanguages.ru);
-        [MenuItem("Tools/Localization/swap/chi")] public static void swapZH() => editor_switchLanguage(IsoLanguages.zh);
-
-        public static void editor_switchLanguage(IsoLanguages newLang, bool swap = true) => setSavedLanguage(newLang, swap);
-#endif
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public interface iLanguageChangeReact
-    {
-        void onLanguageChange(string lang);
     }
 
 }

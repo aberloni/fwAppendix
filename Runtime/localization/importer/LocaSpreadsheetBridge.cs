@@ -22,6 +22,8 @@ namespace fwp.localization
     public class LocaSpreadsheetBridge : MonoBehaviour
     {
 
+        public const string sheetUrlPrefix = "https://docs.google.com/spreadsheets/d/";
+
         /// <summary>
         /// returns raw text from exported file
         /// </summary>
@@ -30,7 +32,7 @@ namespace fwp.localization
             //string[] split = null;
 
             //you can get this url within the publishing settings
-            string ssheetUrl = "https://docs.google.com/spreadsheets/d/" + file_id + "/export?format=csv";
+            string ssheetUrl = sheetUrlPrefix + file_id + "/export?format=csv";
 
             if (sheet_id.Length > 0) ssheetUrl += "&gid=" + sheet_id;
 

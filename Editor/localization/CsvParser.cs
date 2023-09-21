@@ -7,20 +7,15 @@ using System.Text;
 /// MAISONNNN
 /// </summary>
 
-namespace fwp.localization
+namespace fwp.localization.editor
 {
     public class CsvParser
     {
-        public const int HEADER_SKIP_LINE_COUNT = 3;
-        public const char SPREAD_LINE_BREAK = '@';
-        public const char CELL_LINE_BREAK = '|';
-        public const char SPREAD_CELL_SEPARATOR = ',';
-        public const char SPREAD_CELL_ESCAPE_VALUE = '"';
-
         string originalRaw;
 
         public struct CsvLine
         {
+            public string raw;
             public List<string> cell;
 
             public string logify()
@@ -28,13 +23,16 @@ namespace fwp.localization
                 string output = string.Empty;
                 for (int i = 0; i < cell.Count; i++)
                 {
-                    if (i > 0) output += SPREAD_CELL_SEPARATOR;
+                    if (i > 0) output += ParserStatics.SPREAD_CELL_SEPARATOR;
                     output += cell[i];
                 }
                 return output;
             }
         }
 
+        /// <summary>
+        /// each line is a variant of localization/language
+        /// </summary>
         public List<CsvLine> lines = new List<CsvLine>();
 
         public CsvParser(string raw)
@@ -42,11 +40,12 @@ namespace fwp.localization
             originalRaw = raw;
             //Debug.Log(raw);
 
-            string[] rawLines = raw.Split(new char[] { SPREAD_LINE_BREAK }, System.StringSplitOptions.RemoveEmptyEntries);
-            for (int i = HEADER_SKIP_LINE_COUNT; i < rawLines.Length; i++)
+            string[] rawLines = raw.Split(new char[] { ParserStatics.SPREAD_LINE_BREAK }, System.StringSplitOptions.RemoveEmptyEntries);
+            for (int i = ParserStatics.HEADER_SKIP_LINE_COUNT; i < rawLines.Length; i++)
             {
                 CsvLine line = new CsvLine();
                 line.cell = new List<string>();
+                line.raw = rawLines[i];
 
                 string[] split = cellsSeparator(rawLines[i]);
 
@@ -65,7 +64,8 @@ namespace fwp.localization
                 if (cntCellWithContent > 1) lines.Add(line);
             }
 
-            Debug.Log("csv solved x" + lines.Count);
+            if(ExportLocalisationToGoogleForm.verbose)
+                Debug.Log("csv solved x" + lines.Count);
         }
 
         string[] cellsSeparator(string lineRaw)
@@ -80,12 +80,12 @@ namespace fwp.localization
             {
                 char cur = lineRaw[i];
 
-                if (cur == SPREAD_CELL_ESCAPE_VALUE) // "
+                if (cur == ParserStatics.SPREAD_CELL_ESCAPE_VALUE) // "
                 {
                     inValue = !inValue;
                 }
 
-                if (cur == SPREAD_CELL_SEPARATOR && !inValue)
+                if (cur == ParserStatics.SPREAD_CELL_SEPARATOR && !inValue)
                 {
                     cells.Add(sb.ToString());
                     sb.Clear();
@@ -132,7 +132,7 @@ namespace fwp.localization
 
                 if (isCharLineBreak(cur.ToString()))
                 {
-                    cur = inCellValue ? CELL_LINE_BREAK : SPREAD_LINE_BREAK;
+                    cur = inCellValue ? ParserStatics.CELL_LINE_BREAK : ParserStatics.SPREAD_LINE_BREAK;
                 }
 
                 sb[i] = cur;
