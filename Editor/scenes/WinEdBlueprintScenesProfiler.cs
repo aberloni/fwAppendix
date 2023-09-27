@@ -9,6 +9,8 @@ using System;
 
 namespace fwp.scenes
 {
+	using fwp.appendix.user;
+
 	/// <summary>
 	/// 
 	/// give a list of folder to target (tab names)
@@ -34,8 +36,11 @@ namespace fwp.scenes
 		// le contenu a générer des tabs
 		Dictionary<string, List<SceneSubFolder>> sections = null;
 
+		
 		string _filter = string.Empty;
 
+		const string _pref_autoAdd = "scenesAutoAdd";
+		
 		public class SceneSubFolder
 		{
 			public string folderName;
@@ -157,7 +162,7 @@ namespace fwp.scenes
 			tabActive = drawTabsHeader(tabActive, tabs);
 
 			drawFilterField();
-			
+
 			tabScroll = GUILayout.BeginScrollView(tabScroll);
 
 			if (_filter.Length <= 0)
@@ -172,6 +177,7 @@ namespace fwp.scenes
 
 			GUILayout.EndScrollView();
 
+			GUILayout.Space(10f);
 			draw();
 		}
 
@@ -275,7 +281,7 @@ namespace fwp.scenes
 			{
 				//if (EditorPrefs.GetBool(edLoadDebug)) section[i].loadDebug = true;
 				//profil.editorLoad(false);
-				onEditorSceneCall(profil, true, false, !Application.isPlaying);
+				onEditorSceneCall(profil, true, false);
 			}
 
 			if (GUILayout.Button(">", GUILayout.Width(btnSymbWidth)))
@@ -301,12 +307,12 @@ namespace fwp.scenes
 		/// <summary>
 		/// additive only for loading
 		/// </summary>
-		virtual protected void onEditorSceneCall(SceneProfil profil, bool mustLoad, bool additive = false, bool forceAddBuildSettings = false)
+		virtual protected void onEditorSceneCall(SceneProfil profil, bool mustLoad, bool additive = false)
         {
 
 			if(mustLoad)
             {
-				profil.editorLoad(additive, forceAddBuildSettings);
+				profil.editorLoad(additive, MgrUserSettings.getEdBool(_pref_autoAdd));
 			}
             else
             {
@@ -321,7 +327,9 @@ namespace fwp.scenes
 		virtual protected void draw()
         {
 
-        }
+			EdUserSettings.drawBool("Auto build settings", _pref_autoAdd);
+
+		}
 
 		List<SceneSubFolder> solveTabFolder(string tabName)
         {
