@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
+using System.Linq;
+
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.SceneManagement;
+#endif
 
 namespace fwp.scenes
 {
@@ -26,6 +32,7 @@ namespace fwp.scenes
 
         /// <summary>
         /// ingame, want to load a scene
+        /// force add is not available in builds
         /// </summary>
         public SceneProfil(string categoryUid)
         {
@@ -34,23 +41,8 @@ namespace fwp.scenes
             categoryUid = extractUid(categoryUid);
             Debug.Assert(categoryUid.Length > 0, "empty uid ? given : "+ categoryUid);
 
-            var paths = getPaths(categoryUid);
-            Debug.Assert(paths.Count > 0, "empty paths[] ? uid : " + categoryUid);
-
-            // filter paths
-
-            for (int i = 0; i < paths.Count; i++)
-            {
-                //Debug.Log(paths[i]);
-
-                if(checkPathIgnore(paths[i]))
-                {
-                    //Debug.Log("ignored: " + paths[i]);
-                    paths.RemoveAt(i);
-                    i--;
-                }
-            }
-
+            var paths = filterAllPaths(categoryUid, true);
+            
             if (paths.Count <= 0)
             {
                 Debug.LogWarning(categoryUid + " has no remaining paths after filtering ?");
@@ -60,6 +52,32 @@ namespace fwp.scenes
             //Debug.Log(getStamp() + " created");
 
             this.uid = setup(categoryUid, paths);
+        }
+
+        /// <summary>
+        /// extract all suited scenes from assetdatabase
+        /// </summary>
+        List<string> filterAllPaths(string categoryUid, bool removeExt = false)
+        {
+
+            var paths = getPaths(categoryUid, removeExt);
+            Debug.Assert(paths.Count > 0, "empty paths[] ? uid : " + categoryUid);
+
+            // filter paths
+
+            for (int i = 0; i < paths.Count; i++)
+            {
+                //Debug.Log(paths[i]);
+
+                if (checkPathIgnore(paths[i]))
+                {
+                    //Debug.Log("ignored: " + paths[i]);
+                    paths.RemoveAt(i);
+                    i--;
+                }
+            }
+
+            return paths;
         }
 
         public string parentFolder
@@ -149,9 +167,12 @@ namespace fwp.scenes
             return output;
         }
 
-        virtual protected List<string> getPaths(string uid)
+        /// <summary>
+        /// force add = force adding all target scene into build settings
+        /// </summary>
+        virtual protected List<string> getPaths(string uid, bool removeExt = false)
         {
-            var paths = SceneTools.getScenesPathsOfCategory(uid);
+            var paths = SceneTools.getScenesPathsOfCategory(uid, removeExt);
             //var paths = SceneTools.getScenesPathsOfCategory(uid);
             return paths;
         }
@@ -195,9 +216,58 @@ namespace fwp.scenes
             return SceneManager.GetSceneByName(layers[0]).isLoaded;
         }
 
-#if UNITY_EDITOR
-        public void editorLoad(bool additive)
+        void forceAddToBuildSettings()
         {
+#if UNITY_EDITOR
+            List<EditorBuildSettingsScene> tmp = new List<EditorBuildSettingsScene>();
+
+            // keep existing
+            if(EditorBuildSettings.scenes != null)
+            {
+                if(EditorBuildSettings.scenes.Length > 0)
+                    tmp.AddRange(EditorBuildSettings.scenes);
+            }
+            
+            //var scenes = SceneTools.getProjectAssetScenesPaths();
+            var scenes = filterAllPaths(uid, false); // force adding, NEED extensions
+
+            foreach (string path in scenes)
+            {
+                // no duplicates
+                if (tmp.Exists(x => x.path == path))
+                {
+                    if (verbose)
+                        Debug.LogWarning("duplicate, skipping");
+
+                    continue;
+                }
+
+                // /! path NEEDS extension
+                tmp.Add(new EditorBuildSettingsScene(path, true));
+            }
+
+            if(tmp.Count > 0)
+            {
+                EditorBuildSettings.scenes = tmp.ToArray();
+
+                for (int i = 0; i < EditorBuildSettings.scenes.Length; i++)
+                {
+                    Debug.Log("#" + i + " => " + EditorBuildSettings.scenes[i].path);
+                }
+
+                if(verbose)
+                    Debug.Log("forced added scenes to build settings : x" + EditorBuildSettings.scenes.Length);
+            }
+
+#endif
+        }
+
+#if UNITY_EDITOR
+        public void editorLoad(bool additive, bool forceAddBuildSettings = false)
+        {
+            // first check that scenes are added to build settings ?
+            if (forceAddBuildSettings) forceAddToBuildSettings();
+
             solveDeps();
 
             if(verbose) Debug.Log($"SceneProfil:editorLoad <b>{uid}</b> ; layers x{layers.Count} & deps x{deps.Count}");
@@ -257,7 +327,8 @@ namespace fwp.scenes
         {
             //solveDeps();
 
-            if(verbose) Debug.Log(getStamp() + " builload");
+
+            if (verbose) Debug.Log(getStamp() + " builload");
 
             loadDeps(() =>
             {

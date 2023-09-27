@@ -74,16 +74,11 @@ namespace fwp.scenes
             refreshLists();
         }
 
-        private void OnValidate()
-        {
-			//refreshLists(true);
-        }
-
 		/// <summary>
 		/// return all tabs names
 		/// also will be base for paths searching
 		/// </summary>
-        abstract protected string[] generateSections();
+        abstract protected string[] generateTabs();
 
 		protected void refreshLists(bool force = false)
 		{
@@ -93,10 +88,10 @@ namespace fwp.scenes
 			if(tabsLabels == null || force)
             {
 				tabActive = 0;
-				tabsLabels = generateSections();
+				tabsLabels = generateTabs();
 
-				if (force)
-					Debug.Log("tabs x" + tabsLabels.Length);
+				if (force && verbose)
+					Debug.Log("tabs labels x" + tabsLabels.Length);
 
 				tabs = new GUIContent[tabsLabels.Length];
 
@@ -112,13 +107,13 @@ namespace fwp.scenes
 
 				for (int i = 0; i < tabsLabels.Length; i++)
 				{
-					var tabContent = solveTabFolder(tabsLabels[i]);
+					List<SceneSubFolder> tabContent = solveTabFolder(tabsLabels[i]);
 					sections.Add(tabsLabels[i], tabContent);
 				}
 
-				if(force)
+				if(force && verbose)
                 {
-					Debug.Log("sections x" + sections.Count);
+					Debug.Log("sub folder sections x" + sections.Count);
 				}
 					
 			}
@@ -280,7 +275,7 @@ namespace fwp.scenes
 			{
 				//if (EditorPrefs.GetBool(edLoadDebug)) section[i].loadDebug = true;
 				//profil.editorLoad(false);
-				onEditorSceneCall(profil, true, false);
+				onEditorSceneCall(profil, true, false, !Application.isPlaying);
 			}
 
 			if (GUILayout.Button(">", GUILayout.Width(btnSymbWidth)))
@@ -306,12 +301,12 @@ namespace fwp.scenes
 		/// <summary>
 		/// additive only for loading
 		/// </summary>
-		virtual protected void onEditorSceneCall(SceneProfil profil, bool mustLoad, bool additive = false)
+		virtual protected void onEditorSceneCall(SceneProfil profil, bool mustLoad, bool additive = false, bool forceAddBuildSettings = false)
         {
 
 			if(mustLoad)
             {
-				profil.editorLoad(additive);
+				profil.editorLoad(additive, forceAddBuildSettings);
 			}
             else
             {
@@ -330,7 +325,6 @@ namespace fwp.scenes
 
 		List<SceneSubFolder> solveTabFolder(string tabName)
         {
-
 			List<SceneProfil> profils = getProfils(tabName);
 
 			Dictionary<string, List<SceneProfil>> list = new Dictionary<string, List<SceneProfil>>();
@@ -372,7 +366,7 @@ namespace fwp.scenes
 			List<SceneProfil> profils = new List<SceneProfil>();
 
 			// works with Contains
-			var cat_paths = SceneTools.getScenesPathsOfCategory(cat);
+			var cat_paths = SceneTools.getScenesPathsOfCategory(cat, true);
 
 			if(verbose)
 				Debug.Log("category:" + cat + " paths x" + cat_paths.Count);

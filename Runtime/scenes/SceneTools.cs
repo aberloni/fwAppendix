@@ -55,14 +55,22 @@ namespace fwp.scenes
 		/// returns path relative to unity project (starts with assets/)
 		/// remove sys to remove part of the path outside of unity
 		/// </summary>
-		static public List<string> getScenesPathsOfCategory(string folderContains, bool removeExt = true)
+		static public List<string> getScenesPathsOfCategory(string folderContains, bool removeExt = false)
 		{
 			string[] scenes = new string[0];
 
 #if UNITY_EDITOR
+
 			// must use assetdatabase when !runtime
-			if (Application.isPlaying) scenes = getAllBuildSettingsScenes(false);
-			else scenes = getAssetScenesPaths();
+			if (Application.isPlaying)
+			{
+				scenes = getAllBuildSettingsScenes(false);
+			}
+			else
+            {
+				scenes = getProjectAssetScenesPaths();
+			}
+
 #else
 			// in build, use build settings list
 			scenes = getAllBuildSettingsScenes(false);
@@ -104,7 +112,7 @@ namespace fwp.scenes
 		/// </summary>
 		static public List<string> getScenesNamesOfCategory(string cat)
         {
-            List<string> paths = getScenesPathsOfCategory(cat);
+            List<string> paths = getScenesPathsOfCategory(cat, true);
             List<string> output = new List<string>();
 
             foreach(string path in paths)
@@ -113,7 +121,8 @@ namespace fwp.scenes
                 string scName = removePathBeforeFile(path);
 
                 // remove ext, jic
-                scName = removeUnityExt(scName);
+                //scName = removeUnityExt(scName);
+
                 output.Add(scName);
             }
 
@@ -229,7 +238,7 @@ namespace fwp.scenes
 		{
 			string fullName = getBuildSettingsSceneFullName(sceneName);
 
-			string[] paths = getAssetScenesPaths();
+			string[] paths = getProjectAssetScenesPaths();
 
 			for (int i = 0; i < paths.Length; i++)
 			{
@@ -288,7 +297,11 @@ namespace fwp.scenes
 			return string.Empty;
 		}
 
-		static public string[] getAssetScenesPaths()
+		/// <summary>
+		/// fetch all scene present in database
+		/// this should return all scene in projet
+		/// </summary>
+		static public string[] getProjectAssetScenesPaths()
 		{
 			string[] paths = AssetDatabase.FindAssets("t:Scene");
 
