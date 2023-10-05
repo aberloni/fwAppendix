@@ -78,18 +78,25 @@ namespace fwp.screens
             openedAnimatedScreens.Remove(this);
         }
 
+        /// <summary>
+        /// do not call this if the screen is already opening ?
+        /// this will be ignored if screen is already in opening process
+        /// </summary>
         public void openAnimated()
         {
             if (verbose) Debug.Log(getStamp() + " open animating TAB : " + name, transform);
 
             //already animating ?
-            if (_coprocOpening != null)
+
+            if (isOpening())
             {
-#if UNITY_EDITOR
-                Debug.LogError(getStamp() + " => open animated => coroutine d'opening tourne déjà ?");
-#else
-      Debug.LogWarning(getStamp() + " => open animated => coroutine d'opening tourne déjà ?");
-#endif
+                if (verbose)
+                {
+                    Debug.LogWarning(getStamp() + " => open animated => coroutine d'opening tourne déjà ?");
+                    Debug.LogWarning(getStamp() + " trying to re-open the same screen during it's opening ?");
+                }
+
+                return;
             }
 
             _coprocOpening = StartCoroutine(processAnimatingOpening());
