@@ -22,7 +22,7 @@ namespace fwp.scenes
 	/// - implement sections names for tabs
 	/// - you can override generateProfil to use some specific SceneProfil
 	/// </summary>
-	abstract public class WinEdBlueprintScenesProfiler : EditorWindow
+	abstract public class WinEdBlueprintScenesProfiler : EdWinRefreshable
 	{
 		public bool verbose = false;
 
@@ -73,25 +73,25 @@ namespace fwp.scenes
 			}
 		}
 
-        private void OnEnable()
-        {
-            //Debug.Log("enable !");
-            refreshLists();
-        }
-
 		/// <summary>
 		/// return all tabs names
 		/// also will be base for paths searching
 		/// </summary>
-        abstract protected string[] generateTabs();
-
-		protected void refreshLists(bool force = false)
-		{
+		abstract protected string[] generateTabs();
+		
+        protected override void refresh(bool force = false)
+        {
 			if (force)
 				Debug.Log(GetType() + " force refreshing content");
 
-			if(tabsLabels == null || force)
-            {
+			refreshLists(force);
+		}
+
+		void refreshLists(bool force = false)
+        {
+
+			if (tabsLabels == null || force)
+			{
 				tabActive = 0;
 				tabsLabels = generateTabs();
 
@@ -101,9 +101,9 @@ namespace fwp.scenes
 				tabs = new GUIContent[tabsLabels.Length];
 
 				for (int i = 0; i < tabs.Length; i++)
-                {
+				{
 					tabs[i] = new GUIContent(tabsLabels[i]);
-                }
+				}
 			}
 
 			if (sections == null || force)
@@ -116,11 +116,11 @@ namespace fwp.scenes
 					sections.Add(tabsLabels[i], tabContent);
 				}
 
-				if(force && verbose)
-                {
+				if (force && verbose)
+				{
 					Debug.Log("sub folder sections x" + sections.Count);
 				}
-					
+
 			}
 
 		}
@@ -132,7 +132,7 @@ namespace fwp.scenes
 
 			if (sections == null)
 			{
-				refreshLists();
+				refresh();
 			}
 		}
 
@@ -144,7 +144,7 @@ namespace fwp.scenes
 			if (GUILayout.Button("Scenes selector", getWinTitle()))
 			{
 				//Debug.Log("force refresh");
-				refreshLists(true);
+				refresh(true);
 			}
 
 			if (Application.isPlaying)
@@ -301,7 +301,6 @@ namespace fwp.scenes
 			}
 
 			GUILayout.EndHorizontal();
-
 		}
 
 		/// <summary>
@@ -324,11 +323,11 @@ namespace fwp.scenes
 		/// <summary>
 		/// additionnal stuff within scrollview
 		/// </summary>
-		virtual protected void draw()
+		override protected void draw()
         {
+			base.draw();
 
 			EdUserSettings.drawBool("Auto build settings", _pref_autoAdd);
-
 		}
 
 		List<SceneSubFolder> solveTabFolder(string tabName)
