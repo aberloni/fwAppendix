@@ -28,7 +28,14 @@ namespace fwp.scenes
 
 		//List<string> paths = new List<string>();
 
-		int tabActive = 0;
+		const string _editor__profiler_tab = "tab_scene_profiler";
+
+		int tabActive
+		{
+			get => MgrUserSettings.getEdInt(_editor__profiler_tab, 0);
+			set => MgrUserSettings.setEdInt(_editor__profiler_tab, value);
+		}
+
 		string[] tabsLabels;
 		GUIContent[] tabs;
 		Vector2 tabScroll;
@@ -36,11 +43,11 @@ namespace fwp.scenes
 		// le contenu a générer des tabs
 		Dictionary<string, List<SceneSubFolder>> sections = null;
 
-		
+
 		string _filter = string.Empty;
 
 		const string _pref_autoAdd = "scenesAutoAdd";
-		
+
 		public class SceneSubFolder
 		{
 			public string folderName;
@@ -52,22 +59,22 @@ namespace fwp.scenes
 					EditorPrefs.SetBool(folderName, value);
 				}
 				get
-                {
+				{
 					return EditorPrefs.GetBool(folderName, false);
-                }
-			}	
+				}
+			}
 
 			public bool hasContent(string filter)
 			{
-				if(filter.Length <= 0)
+				if (filter.Length <= 0)
 					return scenes.Count > 0;
 
 				int cnt = 0;
-                for (int i = 0; i < scenes.Count; i++)
-                {
+				for (int i = 0; i < scenes.Count; i++)
+				{
 					if (scenes[i].uid.Contains(filter))
 						cnt++;
-                }
+				}
 
 				return cnt > 0;
 			}
@@ -78,9 +85,9 @@ namespace fwp.scenes
 		/// also will be base for paths searching
 		/// </summary>
 		abstract protected string[] generateTabs();
-		
-        protected override void refresh(bool force = false)
-        {
+
+		protected override void refresh(bool force = false)
+		{
 			if (force)
 				Debug.Log(GetType() + " force refreshing content");
 
@@ -88,7 +95,7 @@ namespace fwp.scenes
 		}
 
 		void refreshLists(bool force = false)
-        {
+		{
 
 			if (tabsLabels == null || force)
 			{
@@ -128,7 +135,7 @@ namespace fwp.scenes
 		private void Update()
 		{
 			if (Application.isPlaying)
-					return;
+				return;
 
 			if (sections == null)
 			{
@@ -148,10 +155,10 @@ namespace fwp.scenes
 			}
 
 			if (Application.isPlaying)
-            {
+			{
 				GUILayout.Label("not during runtime");
 				return;
-            }
+			}
 
 			if (sections == null) return;
 
@@ -159,7 +166,11 @@ namespace fwp.scenes
 
 			GUILayout.Space(10f);
 
-			tabActive = drawTabsHeader(tabActive, tabs);
+			int _active = drawTabsHeader(tabActive, tabs);
+			if (_active != tabActive)
+			{
+				tabActive = _active;
+			}
 
 			drawFilterField();
 
@@ -182,7 +193,7 @@ namespace fwp.scenes
 		}
 
 		void drawFilterField()
-        {
+		{
 
 			GUILayout.BeginHorizontal();
 
@@ -199,7 +210,7 @@ namespace fwp.scenes
 		}
 
 		void drawTogglableSections(int tabIndex)
-        {
+		{
 
 			string nm = tabsLabels[tabIndex];
 			var subList = sections[nm];
@@ -249,31 +260,31 @@ namespace fwp.scenes
 
 			List<SceneProfil> profils = new List<SceneProfil>();
 			for (int i = 0; i < subList.Count; i++)
-            {
-                for (int j = 0; j < subList[i].scenes.Count; j++)
-                {
+			{
+				for (int j = 0; j < subList[i].scenes.Count; j++)
+				{
 					if (subList[i].scenes[j].uid.Contains(_filter))
 						profils.Add(subList[i].scenes[j]);
-                }
-            }
+				}
+			}
 
-            for (int i = 0; i < profils.Count; i++)
-            {
+			for (int i = 0; i < profils.Count; i++)
+			{
 				drawSceneLine(profils[i]);
-            }
+			}
 		}
 
 		const float btnSymbWidth = 40f;
 
 		void drawSceneLine(SceneProfil profil)
-        {
+		{
 
-			if(_filter.Length > 0)
-            {
+			if (_filter.Length > 0)
+			{
 				if (!profil.uid.Contains(_filter))
 					return;
 			}
-			
+
 			GUILayout.BeginHorizontal();
 
 			// scene button
@@ -307,16 +318,16 @@ namespace fwp.scenes
 		/// additive only for loading
 		/// </summary>
 		virtual protected void onEditorSceneCall(SceneProfil profil, bool mustLoad, bool additive = false)
-        {
+		{
 
-			if(mustLoad)
-            {
+			if (mustLoad)
+			{
 				profil.editorLoad(additive, MgrUserSettings.getEdBool(_pref_autoAdd));
 			}
-            else
-            {
+			else
+			{
 				profil.editorUnload();
-            }
+			}
 
 		}
 
@@ -324,21 +335,21 @@ namespace fwp.scenes
 		/// additionnal stuff within scrollview
 		/// </summary>
 		override protected void draw()
-        {
+		{
 			base.draw();
 
 			EdUserSettings.drawBool("Auto build settings", _pref_autoAdd);
 		}
 
 		List<SceneSubFolder> solveTabFolder(string tabName)
-        {
+		{
 			List<SceneProfil> profils = getProfils(tabName);
 
 			Dictionary<string, List<SceneProfil>> list = new Dictionary<string, List<SceneProfil>>();
 
 			//Debug.Log("sorting x" + profils.Count + " profiles");
 
-			foreach(SceneProfil profil in profils)
+			foreach (SceneProfil profil in profils)
 			{
 				string parent = profil.parentFolder;
 
@@ -353,15 +364,15 @@ namespace fwp.scenes
 			List<SceneSubFolder> output = new List<SceneSubFolder>();
 
 			foreach (var kp in list)
-            {
+			{
 				SceneSubFolder sub = new SceneSubFolder();
-				
+
 				sub.toggled = true;
 
 				sub.folderName = kp.Key;
 				sub.scenes = kp.Value;
 				output.Add(sub);
-            }
+			}
 
 			//Debug.Log("solved x" + output.Count + " subs");
 
@@ -375,30 +386,30 @@ namespace fwp.scenes
 			// works with Contains
 			var cat_paths = SceneTools.getScenesPathsOfCategory(cat, true);
 
-			if(verbose)
+			if (verbose)
 				Debug.Log("category:" + cat + " paths x" + cat_paths.Count);
 
-            foreach (string path in cat_paths)
-            {
+			foreach (string path in cat_paths)
+			{
 				SceneProfil sp = generateProfil(path);
-				if(sp.isValid())
-                {
+				if (sp.isValid())
+				{
 					bool found = false;
 
-					foreach(var profil in profils)
-                    {
+					foreach (var profil in profils)
+					{
 						if (profil.match(sp))
 							found = true;
-                    }
+					}
 
-					if(!found)
-                    {
+					if (!found)
+					{
 						profils.Add(sp);
 
 						if (verbose)
 							Debug.Log(sp.uid);
-                    }
-						
+					}
+
 				}
 			}
 
@@ -409,22 +420,22 @@ namespace fwp.scenes
 		}
 
 		public SceneProfil getOpenedProfil()
-        {
+		{
 			var category = sections[tabsLabels[tabActive]];
 
-			foreach(var profil in category)
+			foreach (var profil in category)
 			{
-				foreach(var sp in profil.scenes)
-                {
+				foreach (var sp in profil.scenes)
+				{
 					if (sp.isLoaded()) return sp;
 				}
-            }
+			}
 
 			return null;
-        }
+		}
 
 		abstract protected SceneProfil generateProfil(string uid);
-        
+
 		static public GUIContent[] generateTabsDatas(string[] labels)
 		{
 			GUIContent[] modeLabels = new GUIContent[labels.Length];
@@ -471,17 +482,16 @@ namespace fwp.scenes
 			return gWinTitle;
 		}
 
-		const string pathAssetFolderPrefix = "Assets";
 		const string pathAssetExtension = ".asset";
 		const string pathSceneExtension = ".unity";
 
 		static public void pingScene(string path)
-        {
+		{
 
 			if (!path.StartsWith(pathAssetFolderPrefix)) path = System.IO.Path.Combine(pathAssetFolderPrefix, path);
-            if (!path.EndsWith(pathAssetExtension)) path = path + pathSceneExtension;
+			if (!path.EndsWith(pathAssetExtension)) path = path + pathSceneExtension;
 
-            //Debug.Log("pinging (scene) @ " + path);
+			//Debug.Log("pinging (scene) @ " + path);
 
 			var guid = AssetDatabase.GUIDFromAssetPath(path);
 			//Debug.Log(guid);
@@ -492,51 +502,6 @@ namespace fwp.scenes
 			var id = uObj.GetInstanceID();
 			EditorGUIUtility.PingObject(id);
 		}
-
-		/// <summary>
-		/// use : EditorGUIUtility.PingObject
-		/// </summary>
-		static public void pingFolder(string assetsPath)
-		{
-            if (!assetsPath.StartsWith(pathAssetFolderPrefix)) assetsPath = System.IO.Path.Combine(pathAssetFolderPrefix, assetsPath);
-
-			/*
-            if (assetsPath.StartsWith(pathAssetFolderPrefix))
-			{
-				assetsPath = assetsPath.Replace(pathAssetFolderPrefix, string.Empty);
-				if (assetsPath.StartsWith("/")) assetsPath = assetsPath.Substring(1);
-			}
-			*/
-
-			//if (!assetsPath.EndsWith("/")) assetsPath = assetsPath + "/";
-			//if (!assetsPath.EndsWith(pathAssetExtension)) assetsPath = assetsPath + pathAssetExtension;
-
-			//Debug.Log("pinging : " + assetsPath);
-
-			var guid = AssetDatabase.GUIDFromAssetPath(assetsPath);
-			//Debug.Log(guid);
-
-			// Load object
-			// https://docs.unity3d.com/ScriptReference/AssetDatabase.LoadAssetAtPath.html
-			// must include Assets/
-			var asset = AssetDatabase.LoadAssetAtPath(assetsPath, typeof(UnityEngine.Object));
-
-			Debug.Assert(asset != null, "no asset @ " + assetsPath);
-
-			if (asset == null)
-				return;
-
-			UnityEngine.Object uObj = (UnityEngine.Object)asset;
-
-			Debug.Assert(uObj != null, "can't cast to unity object");
-
-			// Select the object in the project folder
-			Selection.activeObject = uObj;
-
-			// Also flash the folder yellow to highlight it
-			EditorGUIUtility.PingObject(uObj);
-		}
-
 	}
 
 }

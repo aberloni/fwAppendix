@@ -113,15 +113,15 @@ namespace fwp.localization.editor
         }
 
         [MenuItem("Localization/import/generate only EN")]
-        static protected void gen_only_en()
+        static void gen_only_en()
         {
             trad_file_generate(IsoLanguages.en);
         }
 
         [MenuItem("Localization/import/download AND generate")]
-        static protected void ssheet_down_n_generate(LocalizationManager mgr)
+        static void ssheet_down_n_generate()
         {
-            ssheet_import(mgr.getSheetLabels());
+            ssheet_import(LocalizationManager.get().getSheetLabels());
             trad_files_generation();
         }
 

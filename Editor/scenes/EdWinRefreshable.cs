@@ -133,18 +133,25 @@ abstract public class EdWinRefreshable : EditorWindow
         }
     }
 
+    public const string pathAssetFolderPrefix = "Assets";
+
     /// <summary>
     /// use : EditorGUIUtility.PingObject
     /// </summary>
     static public void pingFolder(string assetsPath)
     {
-        string path = "Assets/" + assetsPath;
+        if (!assetsPath.StartsWith(pathAssetFolderPrefix))
+            assetsPath = System.IO.Path.Combine(pathAssetFolderPrefix, assetsPath);
+
+        //string path = "Assets/" + assetsPath;
 
         // Load object
-        UnityEngine.Object obj = AssetDatabase.LoadAssetAtPath(path, typeof(UnityEngine.Object));
+        // https://docs.unity3d.com/ScriptReference/AssetDatabase.LoadAssetAtPath.html
+        // must include Assets/
+        UnityEngine.Object obj = AssetDatabase.LoadAssetAtPath(assetsPath, typeof(UnityEngine.Object));
         if (obj == null)
         {
-            Debug.LogWarning("ping failed @" + path);
+            Debug.LogWarning("ping failed @" + assetsPath);
             return;
         }
 
