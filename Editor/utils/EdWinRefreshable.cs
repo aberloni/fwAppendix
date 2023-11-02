@@ -3,15 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using UnityEditor;
+using fwp.appendix;
 
 /// <summary>
+/// PROVIDE:
+/// refresh, update, draw
+/// 
 /// meant to provide a way to force refresh of a window
 /// and encapsulate the refresh content event
 /// </summary>
-abstract public class EdWinRefreshable : EditorWindow
+abstract public class EdWinRefreshable : EdWinFilterable
 {
 
     bool _refresh = false;
+
+    virtual protected bool isDrawableAtRuntime() => true;
 
     private void OnEnable()
     {
@@ -29,7 +35,7 @@ abstract public class EdWinRefreshable : EditorWindow
         update();
 
         if (!Application.isPlaying)
-            updateOfftime();
+            updateEditime();
         else
             updateRuntime();
     }
@@ -37,12 +43,16 @@ abstract public class EdWinRefreshable : EditorWindow
     virtual protected void update()
     { }
 
-    virtual protected void updateOfftime()
+    virtual protected void updateEditime()
     { }
 
     virtual protected void updateRuntime()
     { }
 
+    /// <summary>
+    /// ask for a refresh
+    /// (ie during GUI phase)
+    /// </summary>
     protected void primeRefresh() => _refresh = true;
 
     abstract protected void refresh(bool force = false);
@@ -57,16 +67,26 @@ abstract public class EdWinRefreshable : EditorWindow
             refresh(true);
         }
 
+        if(!isDrawableAtRuntime())
+        {
+            GUILayout.Label("not @ runtime");
+            return;
+        }
+
         draw();
     }
 
+    /// <summary>
+    /// content to draw in editor window
+    /// after window title
+    /// </summary>
     virtual protected void draw()
     {
 
     }
 
-
     /// <summary>
+    /// helper
     /// generic button drawer
     /// </summary>
     static public bool drawButton(string label)
@@ -83,7 +103,11 @@ abstract public class EdWinRefreshable : EditorWindow
         return output;
     }
 
-    static bool drawButtonReference(string label, GameObject select)
+    /// <summary>
+    /// helper
+    /// draw button that react to presence of an object
+    /// </summary>
+    static public bool drawButtonReference(string label, GameObject select)
     {
         bool output = false;
 
@@ -97,6 +121,9 @@ abstract public class EdWinRefreshable : EditorWindow
         return output;
     }
 
+    /// <summary>
+    /// draw a label with speficic style
+    /// </summary>
     static public void drawSectionTitle(string label, float spaceMargin = 20f, int leftMargin = 10)
     {
         if(spaceMargin > 0f)
@@ -133,15 +160,13 @@ abstract public class EdWinRefreshable : EditorWindow
         }
     }
 
-    public const string pathAssetFolderPrefix = "Assets";
-
     /// <summary>
     /// use : EditorGUIUtility.PingObject
     /// </summary>
     static public void pingFolder(string assetsPath)
     {
-        if (!assetsPath.StartsWith(pathAssetFolderPrefix))
-            assetsPath = System.IO.Path.Combine(pathAssetFolderPrefix, assetsPath);
+        if (!assetsPath.StartsWith(GuiHelpers.pathAssetFolderPrefix))
+            assetsPath = System.IO.Path.Combine(GuiHelpers.pathAssetFolderPrefix, assetsPath);
 
         //string path = "Assets/" + assetsPath;
 
