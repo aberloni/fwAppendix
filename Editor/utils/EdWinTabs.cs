@@ -26,7 +26,13 @@ abstract public class EdWinTabs : EdWinRefreshable
 
     public struct WinTabState
     {
-        public string label;
+        public string path;
+        
+        /// <summary>
+        /// only use for display
+        /// </summary>
+        public string label => path.Substring(path.LastIndexOf("/")+1);
+
         public System.Func<bool> drawCallback;
         public Vector2 scroll;
     }
@@ -98,7 +104,8 @@ abstract public class EdWinTabs : EdWinRefreshable
         foreach (var tabTuple in data)
         {
             var tab = new WinTabState();
-            tab.label = tabTuple.Item1;
+            tab.path = tabTuple.Item1;
+
             tab.drawCallback = tabTuple.Item2;
 
             if (state.tabs == null)

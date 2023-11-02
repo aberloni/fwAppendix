@@ -41,7 +41,7 @@ namespace fwp.appendix
             if (!path.StartsWith(pathAssetFolderPrefix)) path = System.IO.Path.Combine(pathAssetFolderPrefix, path);
             if (!path.EndsWith(pathAssetExtension)) path = path + pathSceneExtension;
 
-            //Debug.Log("pinging (scene) @ " + path);
+            Debug.Log("pinging (scene) @ " + path);
 
             var guid = AssetDatabase.GUIDFromAssetPath(path);
             //Debug.Log(guid);

@@ -82,7 +82,7 @@ namespace fwp.scenes
             // each possible labels into sub folder blob
             for (int i = 0; i < state.tabs.Count; i++)
             {
-                var lbl = state.tabs[i].label;
+                var lbl = state.tabs[i].path;
                 List<SceneSubFolder> tabContent = solveTabFolder(lbl);
                 sections.Add(lbl, tabContent);
             }
@@ -216,7 +216,7 @@ namespace fwp.scenes
 
 		public SceneProfil getOpenedProfil()
 		{
-			var category = sections[tabsState.tabs[tabActive].label];
+			var category = sections[tabsState.tabs[tabActive].path];
 
 			foreach (var profil in category)
 			{
