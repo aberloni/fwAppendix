@@ -33,25 +33,30 @@ namespace fwp.scenes
         /// <summary>
         /// ingame, want to load a scene
         /// force add is not available in builds
+        /// if given scene name 
+        /// (true)  have prefix before : context_name_layer
+        /// (false) or just : name_layer
         /// </summary>
-        public SceneProfil(string categoryUid)
+        public SceneProfil(string categoryUid, bool hasContextInName = false)
         {
             this.uid = string.Empty; // invalid
 
-            categoryUid = extractUid(categoryUid);
-            Debug.Assert(categoryUid.Length > 0, "empty uid ? given : "+ categoryUid);
+            string solvedCategoryUid = extractUid(categoryUid, hasContextInName);
+            Debug.Assert(solvedCategoryUid.Length > 0, "empty uid ? given : "+ solvedCategoryUid);
 
-            var paths = filterAllPaths(categoryUid, true);
+            Debug.Log(categoryUid + " ? " + solvedCategoryUid);
+
+            var paths = filterAllPaths(solvedCategoryUid, true);
             
             if (paths.Count <= 0)
             {
-                Debug.LogWarning(categoryUid + " has no remaining paths after filtering ?");
+                Debug.LogWarning(solvedCategoryUid + " has no remaining paths after filtering ?");
                 return;
             }
 
             //Debug.Log(getStamp() + " created");
 
-            this.uid = setup(categoryUid, paths);
+            this.uid = setup(solvedCategoryUid, paths);
         }
 
         /// <summary>
@@ -187,18 +192,53 @@ namespace fwp.scenes
 
         /// <summary>
         /// beeing able to solve uids differently
+        /// scene name must always be the last or the n-1
         /// like : scene-name_layer => scene-name
+        /// 
+        /// bool context : if scene name have prefix
+        /// context_scene_layer => context_scene
         /// </summary>
-        virtual protected string extractUid(string path)
+        virtual protected string extractUid(string path, bool hasContext)
         {
             path = SceneTools.removePathBeforeFile(path);
 
-            // scene-name_layer => scene-name
-            if (path.IndexOf('_') > 0)
+            Debug.Log(hasContext + "&"+path);
+
+            string[] split = path.Split('_');
+            int underscoreCount = split.Length - 1;
+
+            if (underscoreCount > 2)
+                hasContext = true;
+
+            if(!hasContext)
             {
-                return path.Substring(0, path.IndexOf('_'));
+                // scene-name_layer => scene-name
+                // only one _ present
+                if (underscoreCount == 1)
+                {
+                    path = path.Substring(0, path.IndexOf('_'));
+                }
+
+                return path;
             }
 
+            // context
+            if (underscoreCount > 0)
+            {
+                // context_name
+                
+                // rem context prefix
+                path = path.Substring(path.IndexOf('_')+1);
+
+                // context_name_layer
+                // has layer ? 
+                if (underscoreCount > 1)
+                {
+                    // rem layer
+                    path = path.Substring(0, path.LastIndexOf('_'));
+                }
+            }
+            
             return path;
         }
 
