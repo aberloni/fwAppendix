@@ -63,7 +63,7 @@ abstract public class EdWinRefreshable : EdWinFilterable
     {
         if (GUILayout.Button(getWindowTitle(), QuickEditorViewStyles.getWinTitle()))
         {
-            Debug.Log("clicked refresh");
+            Debug.Log("clicked "+GetType()+" window title");
             refresh(true);
         }
 

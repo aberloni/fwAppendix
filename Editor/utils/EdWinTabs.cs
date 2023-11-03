@@ -82,6 +82,8 @@ abstract public class EdWinTabs : EdWinRefreshable
 
     protected override void refresh(bool force = false)
     {
+        //base.refresh(force);
+
         if(force || editime.tabsContent.Length <= 0)
         {
             var data = generateTabsEditor();

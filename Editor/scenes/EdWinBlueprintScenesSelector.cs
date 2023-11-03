@@ -64,9 +64,6 @@ namespace fwp.scenes
 		{
 			base.refresh(force);
 
-			if (force)
-				Debug.Log(GetType() + " force refreshing content");
-
 			var state = tabsState;
 
             if (state != null && sections == null || force)

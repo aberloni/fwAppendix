@@ -44,7 +44,7 @@ namespace fwp.scenes
             string solvedCategoryUid = extractUid(categoryUid, hasContextInName);
             Debug.Assert(solvedCategoryUid.Length > 0, "empty uid ? given : "+ solvedCategoryUid);
 
-            Debug.Log(categoryUid + " ? " + solvedCategoryUid);
+            //Debug.Log(categoryUid + " ? " + solvedCategoryUid);
 
             var paths = filterAllPaths(solvedCategoryUid, true);
             
@@ -202,7 +202,7 @@ namespace fwp.scenes
         {
             path = SceneTools.removePathBeforeFile(path);
 
-            Debug.Log(hasContext + "&"+path);
+            //Debug.Log(hasContext + "&"+path);
 
             string[] split = path.Split('_');
             int underscoreCount = split.Length - 1;
