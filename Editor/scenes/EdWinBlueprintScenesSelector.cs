@@ -68,6 +68,9 @@ namespace fwp.scenes
 
             if (state != null && sections == null || force)
 			{
+				if (verbose)
+					Debug.Log("refresh sections");
+
                 sections = new Dictionary<string, List<SceneSubFolder>>();
                 injectSubSections(state);
 			}

@@ -24,7 +24,7 @@ abstract public class EdWinTabs : EdWinRefreshable
         set => MgrUserSettings.setEdInt(_editor__profiler_tab, value);
     }
 
-    public struct WinTabState
+    public class WinTabState
     {
         public string path;
         
@@ -86,12 +86,16 @@ abstract public class EdWinTabs : EdWinRefreshable
 
         if(force || editime.tabsContent.Length <= 0)
         {
+            if (verbose) Debug.Log("refresh tabs editor");
+
             var data = generateTabsEditor();
             editime = generateState(data);
 
             data = generateTabsRuntime();
             if(data != null)
             {
+                if (verbose) Debug.Log("refresh tabs runtime");
+
                 runtime = generateState(data);
             }
             
@@ -156,6 +160,7 @@ abstract public class EdWinTabs : EdWinRefreshable
             if (tab.drawCallback != null)
             {
                 tab.scroll = GUILayout.BeginScrollView(tab.scroll);
+                //Debug.Log(tab.scroll);
 
                 // draw gui
                 result = tab.drawCallback.Invoke();
