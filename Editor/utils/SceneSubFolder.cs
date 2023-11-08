@@ -36,8 +36,6 @@ public class SceneSubFolder
     {
         projectPath = basePath;
         this.folderName = folderName;
-
-        toggled = true;
     }
 
     public bool hasContent(string filter)
@@ -96,7 +94,7 @@ public class SceneSubFolder
     {
         GUILayout.BeginHorizontal();
 
-        if (GUILayout.Button("?", GUILayout.Width(GuiHelpers.btnSymbWidth)))
+        if (GUILayout.Button("?", GUILayout.Width(GuiHelpers.btnSymbWidthSmall)))
         {
             logSceneDetails(profil);
         }

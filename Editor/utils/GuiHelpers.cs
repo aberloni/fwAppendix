@@ -8,6 +8,7 @@ namespace fwp.appendix
     static public class GuiHelpers
     {
 
+        public const float btnSymbWidthSmall = 30f;
         public const float btnSymbWidth = 40f;
 
         static private GUIStyle gWinTitle;
