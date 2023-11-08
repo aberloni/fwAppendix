@@ -77,9 +77,29 @@ public class SceneSubFolder
 
     }
 
+    virtual protected void logSceneDetails(SceneProfil profil)
+    {
+        Debug.Log(profil.uid);
+
+        Debug.Log("layers x" + profil.layers.Count);
+        foreach (var elmt in profil.layers)
+            Debug.Log(elmt);
+
+        Debug.Log("deps x" + profil.deps.Count);
+        foreach (var dep in profil.deps)
+            Debug.Log(dep);
+
+        GuiHelpers.pingScene(profil.path);
+    }
+
     virtual protected void drawSceneLine(SceneProfil profil)
     {
         GUILayout.BeginHorizontal();
+
+        if (GUILayout.Button("?", GUILayout.Width(GuiHelpers.btnSymbWidth)))
+        {
+            logSceneDetails(profil);
+        }
 
         // scene button
         if (GUILayout.Button(profil.editor_getButtonName())) // each profil
@@ -88,12 +108,6 @@ public class SceneSubFolder
             //profil.editorLoad(false);
             onEditorSceneCall(profil, true, false);
         }
-
-        if (GUILayout.Button(">", GUILayout.Width(GuiHelpers.btnSymbWidth)))
-        {
-            GuiHelpers.pingScene(profil.path);
-        }
-
 
         // add/remove buttons
         bool present = SceneTools.isEditorSceneLoaded(profil.uid);

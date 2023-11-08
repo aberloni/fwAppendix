@@ -64,7 +64,7 @@ namespace fwp.scenes
 		{
 			base.refresh(force);
 
-			var state = tabsState;
+			var state = tabsState; // getter edit/runtime tabs
 
             if (state != null && sections == null || force)
 			{
