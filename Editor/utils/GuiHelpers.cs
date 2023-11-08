@@ -10,6 +10,7 @@ namespace fwp.appendix
 
         public const float btnSymbWidthSmall = 30f;
         public const float btnSymbWidth = 40f;
+        public const float btnLabelWidth = 100f;
 
         static private GUIStyle gWinTitle;
         static public GUIStyle getWinTitle()

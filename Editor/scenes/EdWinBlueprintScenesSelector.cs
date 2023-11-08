@@ -110,10 +110,18 @@ namespace fwp.scenes
 
 			GUILayout.Label($"{tabLabel} has x{subList.Count} sub-sections");
 
-			if (GUILayout.Button("ping folder"))
+			if (GUILayout.Button("ping folder", GUILayout.Width(GuiHelpers.btnLabelWidth)))
 			{
 				pingFolder(Path.Combine(rootPath(), tabLabel));
 			}
+
+			if(GUILayout.Button("upfold all", GUILayout.Width(GuiHelpers.btnLabelWidth)))
+            {
+                for (int i = 0; i < subList.Count; i++)
+                {
+					subList[i].toggled = false;
+                }
+            }
 
 			GUILayout.EndHorizontal();
 
