@@ -28,4 +28,8 @@ public class EdWinFilterable : EditorWindow
         GUILayout.EndHorizontal();
     }
 
+    protected void log(string content)
+    {
+        if (verbose) Debug.Log(GetType() + " @ " + content);
+    }
 }

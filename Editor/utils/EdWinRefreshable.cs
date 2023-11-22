@@ -57,6 +57,16 @@ namespace fwp.utils.editor
         /// </summary>
         protected void primeRefresh() => _refresh = true;
 
+        protected void refreshByTitle()
+        {
+            verbose = true;
+            
+            log("title-click");
+
+            refresh(true);
+            verbose = false;
+        }
+
         abstract protected void refresh(bool force = false);
 
         abstract protected string getWindowTitle();
@@ -65,8 +75,7 @@ namespace fwp.utils.editor
         {
             if (GUILayout.Button(getWindowTitle(), QuickEditorViewStyles.getWinTitle()))
             {
-                Debug.Log("clicked " + GetType() + " window title");
-                refresh(true);
+                refreshByTitle();
             }
 
             if (!isDrawableAtRuntime())

@@ -80,26 +80,33 @@ namespace fwp.utils.editor
         /// </summary>
         virtual public (string, System.Func<bool>)[] generateTabsRuntime() => null;
 
-        public void selectDefaultTab() => tabActive = 0;
+        public void selectDefaultTab()
+        {
+            tabActive = 0;
+            log("selected tab : " + tabActive);
+        }
+
         public void selectTab(int index) => tabActive = index;
 
         protected override void refresh(bool force = false)
         {
+            // abstract method
             //base.refresh(force);
 
             if (force || editime.tabsContent.Length <= 0)
             {
-                if (verbose) Debug.Log("refresh tabs editor");
+                
 
                 var data = generateTabsEditor();
                 editime = generateState(data);
 
+                log("refresh-ed editor tabs (x" + editime.tabs.Count+")");
+
                 data = generateTabsRuntime();
                 if (data != null)
                 {
-                    if (verbose) Debug.Log("refresh tabs runtime");
-
                     runtime = generateState(data);
+                    log("refresh-ed runtime tabs (x" + runtime.tabs.Count + ")");
                 }
 
                 selectDefaultTab();
@@ -121,6 +128,8 @@ namespace fwp.utils.editor
                     state.tabs = new List<WinTabState>();
 
                 state.tabs.Add(tab);
+
+                log("added tab -> " + tab.label);
             }
 
             // store stuff for unity drawing
