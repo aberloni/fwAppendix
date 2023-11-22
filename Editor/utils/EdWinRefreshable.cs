@@ -23,7 +23,20 @@ namespace fwp.utils.editor
 
         private void OnEnable()
         {
-            refresh(true);
+            // https://forum.unity.com/threads/editorwindow-how-to-tell-when-returned-to-editor-mode-from-play-mode.541578/
+            EditorApplication.playModeStateChanged += reactPlayModeState;
+            //LogPlayModeState(PlayModeStateChange.EnteredEditMode);
+            refresh();
+        }
+
+        private void OnDisable()
+        {
+            EditorApplication.playModeStateChanged -= reactPlayModeState;
+        }
+
+        virtual protected void reactPlayModeState(PlayModeStateChange state)
+        {
+            //Debug.Log(state);
         }
 
         private void Update()

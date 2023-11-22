@@ -224,7 +224,7 @@ namespace fwp.scenes
 
 		public SceneProfil getOpenedProfil()
 		{
-			var category = sections[tabsState.tabs[tabActive].path];
+			var category = sections[tabsState.tabs[tabsState.tabActive].path];
 
 			foreach (var profil in category)
 			{

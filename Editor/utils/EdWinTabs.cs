@@ -5,6 +5,7 @@ using UnityEngine;
 namespace fwp.utils.editor
 {
     using fwp.appendix.user;
+    using UnityEditor;
 
     /// <summary>
     /// PROVIDE:
@@ -18,12 +19,6 @@ namespace fwp.utils.editor
         public const float btnSize = 40f;
 
         const string _editor__profiler_tab = "tab_scene_profiler";
-
-        protected int tabActive
-        {
-            get => MgrUserSettings.getEdInt(_editor__profiler_tab, 0);
-            set => MgrUserSettings.setEdInt(_editor__profiler_tab, value);
-        }
 
         public class WinTabState
         {
@@ -40,6 +35,18 @@ namespace fwp.utils.editor
 
         public class WinTabsState
         {
+            const int defaultTab = 0;
+
+            public int tabActive
+            {
+                get => MgrUserSettings.getEdInt(_editor__profiler_tab + "_" + uid, defaultTab);
+                set
+                {
+                    MgrUserSettings.setEdInt(_editor__profiler_tab + "_" + uid, value);
+                    Debug.Log(uid+"?"+value);
+                }
+            }
+
             public List<WinTabState> tabs;
 
             public GUIContent[] tabsContent; // util for unity drawing
@@ -59,63 +66,90 @@ namespace fwp.utils.editor
                 }
 
             }
+
+            string uid;
+
+            public WinTabsState(string uid)
+            {
+                this.uid = uid;
+                //tabActive = 0;
+            }
+
+            public string getUid() => uid;
         }
 
-        WinTabsState editime;
-        WinTabsState runtime;
+        WinTabsState stateEditime;
+        WinTabsState stateRuntime;
 
-        protected WinTabsState tabsState => Application.isPlaying ? runtime : editime;
+        protected WinTabsState tabsState => Application.isPlaying ? stateRuntime : stateEditime;
 
         /// <summary>
         /// what tabs to draw !runtime
         /// tab label, gui draw callback
-        /// returns true to draw additionnal content
+        /// return : true to draw additionnal content
         /// </summary>
         abstract public (string, System.Func<bool>)[] generateTabsEditor();
 
         /// <summary>
         /// what to draw @runtime
-        /// default is nothing
-        /// returns true to draw additionnal content
+        /// default is same as edit time
+        /// return null : to draw nothing
+        /// func return true : to draw additionnal content
         /// </summary>
-        virtual public (string, System.Func<bool>)[] generateTabsRuntime() => null;
+        virtual public (string, System.Func<bool>)[] generateTabsRuntime() 
+            => new (string, System.Func<bool>)[0];
 
         public void selectDefaultTab()
         {
-            tabActive = 0;
-            log("selected tab : " + tabActive);
+            tabsState.tabActive = 0;
         }
 
-        public void selectTab(int index) => tabActive = index;
+        public void selectTab(int index) => tabsState.tabActive = index;
+
+        protected override void reactPlayModeState(PlayModeStateChange state)
+        {
+            base.reactPlayModeState(state);
+
+            switch(state)
+            {
+                //case PlayModeStateChange.ExitingPlayMode:
+                //case PlayModeStateChange.EnteredEditMode:
+                    
+            }
+        }
 
         protected override void refresh(bool force = false)
         {
             // abstract method
             //base.refresh(force);
 
-            if (force || editime.tabsContent.Length <= 0)
+            if (force || stateEditime == null || stateEditime.tabsContent.Length <= 0)
             {
-                
-
                 var data = generateTabsEditor();
-                editime = generateState(data);
+                stateEditime = generateState("editor", data);
 
-                log("refresh-ed editor tabs (x" + editime.tabs.Count+")");
+                log("refresh-ed editor tabs (x" + stateEditime.tabs.Count + ")");
 
+                stateRuntime = null;
                 data = generateTabsRuntime();
-                if (data != null)
+                if(data != null)
                 {
-                    runtime = generateState(data);
-                    log("refresh-ed runtime tabs (x" + runtime.tabs.Count + ")");
+                    if (data.Length > 0)
+                    {
+                        stateRuntime = generateState("runtime", data);
+                        log("refresh-ed runtime tabs (x" + stateRuntime.tabs.Count + ")");
+                    }
+                    else
+                    {
+                        stateRuntime = stateEditime;
+                    }
                 }
-
-                selectDefaultTab();
             }
         }
 
-        WinTabsState generateState((string, System.Func<bool>)[] data)
+        WinTabsState generateState(string uid, (string, System.Func<bool>)[] data)
         {
-            WinTabsState state = new WinTabsState();
+            WinTabsState state = new WinTabsState(uid);
 
             foreach (var tabTuple in data)
             {
@@ -142,10 +176,12 @@ namespace fwp.utils.editor
         {
             base.draw();
 
-            int currTabIndex = tabActive;
+            var _state = tabsState;
 
-            //Debug.Log(tabIndex);
-            var _state = Application.isPlaying ? runtime : editime;
+            if (_state == null)
+                return;
+
+            int currTabIndex = _state.tabActive;
 
             bool result = false;
 
@@ -168,7 +204,7 @@ namespace fwp.utils.editor
                 if (_tabIndex < 0)
                     return;
 
-                if(_tabIndex >= _state.tabs.Count)
+                if (_tabIndex >= _state.tabs.Count)
                 {
                     Debug.LogWarning(_tabIndex + " oob ? " + _state.tabs.Count);
                     return;
