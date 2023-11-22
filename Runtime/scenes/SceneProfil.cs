@@ -285,11 +285,15 @@ namespace fwp.scenes
 
             if (tmp.Count > 0)
             {
+                //assign
                 EditorBuildSettings.scenes = tmp.ToArray();
 
-                for (int i = 0; i < EditorBuildSettings.scenes.Length; i++)
+                if(verbose)
                 {
-                    Debug.Log("#" + i + " => " + EditorBuildSettings.scenes[i].path);
+                    for (int i = 0; i < EditorBuildSettings.scenes.Length; i++)
+                    {
+                        Debug.Log("#" + i + " => " + EditorBuildSettings.scenes[i].path);
+                    }
                 }
 
                 if (verbose)
@@ -397,8 +401,7 @@ namespace fwp.scenes
             delay = getDebugLoadDelay();
 #endif
 
-            var depsPaths = getPaths(deps);
-            SceneLoader.loadScenes(depsPaths, (Scene[] scs) =>
+            SceneLoader.loadScenes(getPaths(deps), (Scene[] scs) =>
             {
                 onCompletion.Invoke();
             }, delay);
