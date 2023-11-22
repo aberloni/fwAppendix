@@ -25,8 +25,8 @@ namespace fwp.scenes
         public string path;
 
         //these are only scene names (no ext, no path)
-        public List<string> layers = new List<string>();
-        public List<string> deps = new List<string>();
+        public List<SceneAssoc> layers;
+        public List<SceneAssoc> deps;
 
         Scene[] _buffScenes;
 
@@ -42,12 +42,14 @@ namespace fwp.scenes
             this.uid = string.Empty; // invalid
 
             string solvedCategoryUid = extractUid(categoryUid, hasContextInName);
-            Debug.Assert(solvedCategoryUid.Length > 0, "empty uid ? given : "+ solvedCategoryUid);
+            Debug.Assert(solvedCategoryUid.Length > 0, "empty uid ? given : " + solvedCategoryUid);
+
+            if (verbose) Debug.Log(categoryUid + " ? " + uid + " solved ? " + solvedCategoryUid);
 
             //Debug.Log(categoryUid + " ? " + solvedCategoryUid);
 
             var paths = filterAllPaths(solvedCategoryUid, true);
-            
+
             if (paths.Count <= 0)
             {
                 Debug.LogWarning(solvedCategoryUid + " has no remaining paths after filtering ?");
@@ -135,7 +137,17 @@ namespace fwp.scenes
             }
 
             // push main scene first
-            this.layers = reorderLayers(paths);
+            paths = reorderLayers(paths);
+
+            if (layers == null) layers = new List<SceneAssoc>();
+            layers.Clear();
+
+            foreach (var p in paths)
+            {
+                var assoc = new SceneAssoc();
+                assoc.path = p;
+                layers.Add(assoc);
+            }
 
             solveDeps();
 
@@ -153,7 +165,7 @@ namespace fwp.scenes
             int index = -1;
             for (int i = 0; i < paths.Count; i++)
             {
-                if(paths[i] == uid)
+                if (paths[i] == uid)
                 {
                     index = i;
                 }
@@ -166,7 +178,7 @@ namespace fwp.scenes
                 paths.Remove(uid);
                 output.Add(uid);
             }
-            
+
             output.AddRange(paths);
 
             return output;
@@ -191,6 +203,9 @@ namespace fwp.scenes
         }
 
         /// <summary>
+        /// trying to extract uid aka "context{_scene}" from path
+        /// everything but suffix
+        /// 
         /// beeing able to solve uids differently
         /// scene name must always be the last or the n-1
         /// like : scene-name_layer => scene-name
@@ -204,42 +219,23 @@ namespace fwp.scenes
 
             //Debug.Log(hasContext + "&"+path);
 
+            // context => sub
+            // context_sub
+            // context_sub_suffix
+
             string[] split = path.Split('_');
             int underscoreCount = split.Length - 1;
 
-            if (underscoreCount > 2)
-                hasContext = true;
-
-            if(!hasContext)
+            if(underscoreCount >= 2)
             {
-                // scene-name_layer => scene-name
-                // only one _ present
-                if (underscoreCount == 1)
-                {
-                    path = path.Substring(0, path.IndexOf('_'));
-                }
-
+                return path.Substring(0, path.LastIndexOf("_"));
+            }
+            else if(underscoreCount == 1)
+            {
                 return path;
             }
 
-            // context
-            if (underscoreCount > 0)
-            {
-                // context_name
-                
-                // rem context prefix
-                path = path.Substring(path.IndexOf('_')+1);
-
-                // context_name_layer
-                // has layer ? 
-                if (underscoreCount > 1)
-                {
-                    // rem layer
-                    path = path.Substring(0, path.LastIndexOf('_'));
-                }
-            }
-            
-            return path;
+            return split[0];
         }
 
         /// <summary>
@@ -247,13 +243,14 @@ namespace fwp.scenes
         /// </summary>
         virtual public void solveDeps()
         {
+            if (deps == null) deps = new List<SceneAssoc>();
             deps.Clear();
         }
 
         public bool isLoaded()
         {
             if (layers.Count <= 0) return false;
-            return SceneManager.GetSceneByName(layers[0]).isLoaded;
+            return SceneManager.GetSceneByName(layers[0].handle.name).isLoaded;
         }
 
         void forceAddToBuildSettings()
@@ -262,12 +259,12 @@ namespace fwp.scenes
             List<EditorBuildSettingsScene> tmp = new List<EditorBuildSettingsScene>();
 
             // keep existing
-            if(EditorBuildSettings.scenes != null)
+            if (EditorBuildSettings.scenes != null)
             {
-                if(EditorBuildSettings.scenes.Length > 0)
+                if (EditorBuildSettings.scenes.Length > 0)
                     tmp.AddRange(EditorBuildSettings.scenes);
             }
-            
+
             //var scenes = SceneTools.getProjectAssetScenesPaths();
             var scenes = filterAllPaths(uid, false); // force adding, NEED extensions
 
@@ -286,7 +283,7 @@ namespace fwp.scenes
                 tmp.Add(new EditorBuildSettingsScene(path, true));
             }
 
-            if(tmp.Count > 0)
+            if (tmp.Count > 0)
             {
                 EditorBuildSettings.scenes = tmp.ToArray();
 
@@ -295,7 +292,7 @@ namespace fwp.scenes
                     Debug.Log("#" + i + " => " + EditorBuildSettings.scenes[i].path);
                 }
 
-                if(verbose)
+                if (verbose)
                     Debug.Log("forced added scenes to build settings : x" + EditorBuildSettings.scenes.Length);
             }
 
@@ -310,15 +307,13 @@ namespace fwp.scenes
 
             solveDeps();
 
-            if(verbose) Debug.Log($"SceneProfil:editorLoad <b>{uid}</b> ; layers x{layers.Count} & deps x{deps.Count}");
+            if (verbose) Debug.Log($"SceneProfil:editorLoad <b>{uid}</b> ; layers x{layers.Count} & deps x{deps.Count}");
 
             UnityEditor.SceneManagement.OpenSceneMode mode = UnityEditor.SceneManagement.OpenSceneMode.Single;
             if (additive) mode = UnityEditor.SceneManagement.OpenSceneMode.Additive;
 
-            
-
             //first load base scene
-            string baseScene = layers[0];
+            string baseScene = layers[0].path;
             if (verbose) Debug.Log($"SceneProfil:loading base scene {baseScene}");
             SceneLoaderEditor.loadScene(baseScene, mode);
 
@@ -326,34 +321,34 @@ namespace fwp.scenes
             for (int i = 1; i < layers.Count; i++)
             {
                 if (verbose) Debug.Log($"SceneProfil:loading layer:{layers[i]}");
-                SceneLoaderEditor.loadScene(layers[i]);
+                SceneLoaderEditor.loadScene(layers[i].path);
             }
 
             //load deps
             for (int i = 0; i < deps.Count; i++)
             {
                 if (verbose) Debug.Log($"SceneProfil:loading layer:{deps[i]}");
-                SceneLoaderEditor.loadScene(deps[i]);
+                SceneLoaderEditor.loadScene(deps[i].path);
             }
 
             //lock by editor toggle
             //HalperEditor.upfoldNodeHierarchy();
         }
-        
+
         public void editorUnload()
         {
             //solveDeps();
-            
+
             if (verbose) Debug.Log($"SceneProfil:unload");
 
             for (int i = 0; i < layers.Count; i++)
             {
-                SceneLoaderEditor.unloadScene(layers[i]);
+                SceneLoaderEditor.unloadScene(layers[i].path);
             }
 
             for (int i = 0; i < deps.Count; i++)
             {
-                SceneLoaderEditor.unloadScene(deps[i]);
+                SceneLoaderEditor.unloadScene(deps[i].path);
             }
 
             //var sc = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByName(layers[0]);
@@ -363,7 +358,7 @@ namespace fwp.scenes
 
         virtual protected float getDebugLoadDelay() => 0f;
 
-        public void buildLoad(Action<Scene> onLoadedCompleted)
+        public void buildLoad(Action<SceneProfil> onLoadedCompleted)
         {
             //solveDeps();
 
@@ -375,7 +370,7 @@ namespace fwp.scenes
                 loadLayers(() =>
                 {
                     Scene parentScene = extractMainScene();
-                    onLoadedCompleted?.Invoke(parentScene);
+                    onLoadedCompleted?.Invoke(this);
                 });
             });
 
@@ -385,7 +380,7 @@ namespace fwp.scenes
         {
             if (deps.Count <= 0)
             {
-                Debug.LogWarning(getStamp()+" deps array is empty ?");
+                Debug.LogWarning(getStamp() + " deps array is empty ?");
                 onCompletion.Invoke();
                 return;
             }
@@ -402,7 +397,8 @@ namespace fwp.scenes
             delay = getDebugLoadDelay();
 #endif
 
-            SceneLoader.loadScenes(deps.ToArray(), (Scene[] scs) =>
+            var depsPaths = getPaths(deps);
+            SceneLoader.loadScenes(depsPaths, (Scene[] scs) =>
             {
                 onCompletion.Invoke();
             }, delay);
@@ -424,7 +420,8 @@ namespace fwp.scenes
                 for (int i = 0; i < layers.Count; i++) Debug.Log(getStamp() + " layer:" + layers[i]);
             }
 
-            SceneLoader.loadScenes(layers.ToArray(), (Scene[] scs) =>
+            var layersPaths = getPaths(layers);
+            SceneLoader.loadScenes(layersPaths, (Scene[] scs) =>
                 {
                     if (scs.Length <= 0)
                     {
@@ -435,6 +432,7 @@ namespace fwp.scenes
                         }
                     }
 
+                    // keep all loaded scenes
                     _buffScenes = scs;
 
                     //Scene main = extractMainScene();
@@ -448,9 +446,10 @@ namespace fwp.scenes
         {
             solveDeps();
 
-            Debug.Log(getStamp()+" : " + uid + " is <b>unloading</b>");
+            Debug.Log(getStamp() + " : " + uid + " is <b>unloading</b>");
 
-            SceneLoader.unloadScenes(layers.ToArray(), onUnloadCompleted);
+            var layersPaths = getPaths(layers);
+            SceneLoader.unloadScenes(layersPaths, onUnloadCompleted);
         }
 
         public Scene extractMainScene()
@@ -461,7 +460,7 @@ namespace fwp.scenes
             return _buffScenes[0];
         }
 
-        virtual public string editor_getButtonName() => uid+" (x"+layers.Count+")";
+        virtual public string editor_getButtonName() => uid + " (x" + layers.Count + ")";
 
         /// <summary>
         /// EDITOR
@@ -482,10 +481,22 @@ namespace fwp.scenes
             return true;
         }
 
+
+        public string[] getPaths(List<SceneAssoc> assocs)
+        {
+            string[] paths = new string[assocs.Count];
+            for (int i = 0; i < assocs.Count; i++)
+            {
+                paths[i] = assocs[i].path;
+            }
+            return paths;
+        }
+
+
         public string stringify()
         {
             string output = uid;
-            if(!string.IsNullOrEmpty(path)) output += " & " + path;
+            if (!string.IsNullOrEmpty(path)) output += " & " + path;
             return output;
         }
 
@@ -495,4 +506,10 @@ namespace fwp.scenes
         }
     }
 
+}
+
+public struct SceneAssoc
+{
+    public string path;
+    public Scene handle;
 }

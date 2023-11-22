@@ -10,75 +10,75 @@ using UnityEditor.SceneManagement;
 
 namespace fwp.scenes
 {
-	using fwp.appendix;
-	using fwp.appendix.user;
+    using fwp.appendix;
+    using fwp.appendix.user;
 
-	/// <summary>
-	/// 
-	/// FEED:
-	/// base pathsub section
-	/// 
-	/// PROVIDE:
-	/// buttons to open SceneProfil
-	/// 
-	/// give a list of folder to target (tab names)
-	/// search within folder all scenes
-	/// separate scenes with same parent folder
-	/// 
-	/// how to use :
-	/// - inherite of this class to have your own window
-	/// - implement sections names for tabs
-	/// - you can override generateProfil to use some specific SceneProfil
-	/// </summary>
-	abstract public class EdWinBlueprintScenesSelector : fwp.utils.editor.EdWinTabs
-	{
-		/// <summary>
-		/// assoc btw tab label and some sub bolbs
-		/// tab label
-		/// sub folder scene profiles[]
-		/// </summary>
-		Dictionary<string, List<SceneSubFolder>> sections = null;
+    /// <summary>
+    /// 
+    /// FEED:
+    /// base pathsub section
+    /// 
+    /// PROVIDE:
+    /// buttons to open SceneProfil
+    /// 
+    /// give a list of folder to target (tab names)
+    /// search within folder all scenes
+    /// separate scenes with same parent folder
+    /// 
+    /// how to use :
+    /// - inherite of this class to have your own window
+    /// - implement sections names for tabs
+    /// - you can override generateProfil to use some specific SceneProfil
+    /// </summary>
+    abstract public class EdWinBlueprintScenesSelector : fwp.utils.editor.EdWinTabs
+    {
+        /// <summary>
+        /// assoc btw tab label and some sub bolbs
+        /// tab label
+        /// sub folder scene profiles[]
+        /// </summary>
+        Dictionary<string, List<SceneSubFolder>> sections = null;
 
-		/// <summary>
-		/// can be replaced by different way to handle scene profil
-		/// </summary>
+        /// <summary>
+        /// can be replaced by different way to handle scene profil
+        /// </summary>
         virtual protected SceneProfil generateProfil(string uid)
-		{
-			return new SceneProfil(uid);
-		}
+        {
+            return new SceneProfil(uid);
+        }
 
-		/// <summary>
-		/// can be replaced by different way to hande subs
-		/// </summary>
-		virtual protected SceneSubFolder generateSub(string folder)
-		{
-			return new SceneSubFolder(rootPath(), folder);
-		}
+        /// <summary>
+        /// can be replaced by different way to hande subs
+        /// </summary>
+        virtual protected SceneSubFolder generateSub(string folder)
+        {
+            return new SceneSubFolder(rootPath(), folder);
+        }
 
         /// <summary>
         /// path/to/tabs folder
         /// </summary>
         virtual protected string rootPath() => string.Empty;
 
-		protected override void refresh(bool force = false)
-		{
-			base.refresh(force);
+        protected override void refresh(bool force = false)
+        {
+            base.refresh(force);
 
-			var state = tabsState; // getter edit/runtime tabs
+            var state = tabsState; // getter edit/runtime tabs
 
             if (state != null && sections == null || force)
-			{
-				if (verbose)
-					Debug.Log("refresh sections");
+            {
+                if (verbose)
+                    Debug.Log("refresh sections");
 
                 sections = new Dictionary<string, List<SceneSubFolder>>();
                 injectSubSections(state);
-			}
+            }
 
-		}
+        }
 
-		void injectSubSections(WinTabsState state)
-		{
+        void injectSubSections(WinTabsState state)
+        {
             // each possible labels into sub folder blob
             for (int i = 0; i < state.tabs.Count; i++)
             {
@@ -98,40 +98,40 @@ namespace fwp.scenes
         {
             base.updateEditime();
 
-			if (sections == null)
-				refresh();
-		}
+            if (sections == null)
+                refresh();
+        }
 
-		protected bool drawSubs(string tabLabel)
-		{
-			var subList = sections[tabLabel];
+        protected bool drawSubs(string tabLabel)
+        {
+            var subList = sections[tabLabel];
 
-			GUILayout.BeginHorizontal();
+            GUILayout.BeginHorizontal();
 
-			GUILayout.Label($"{tabLabel} has x{subList.Count} sub-sections");
+            GUILayout.Label($"{tabLabel} has x{subList.Count} sub-sections");
 
-			if (GUILayout.Button("ping folder", GUILayout.Width(GuiHelpers.btnLabelWidth)))
-			{
-				pingFolder(Path.Combine(rootPath(), tabLabel));
-			}
+            if (GUILayout.Button("ping folder", GUILayout.Width(GuiHelpers.btnLabelWidth)))
+            {
+                pingFolder(Path.Combine(rootPath(), tabLabel));
+            }
 
-			if(GUILayout.Button("upfold all", GUILayout.Width(GuiHelpers.btnLabelWidth)))
+            if (GUILayout.Button("upfold all", GUILayout.Width(GuiHelpers.btnLabelWidth)))
             {
                 for (int i = 0; i < subList.Count; i++)
                 {
-					subList[i].toggled = false;
+                    subList[i].toggled = false;
                 }
             }
 
-			GUILayout.EndHorizontal();
+            GUILayout.EndHorizontal();
 
-			for (int i = 0; i < subList.Count; i++)
-			{
-				subList[i].drawSection(filter);
-			}
+            for (int i = 0; i < subList.Count; i++)
+            {
+                subList[i].drawSection(filter);
+            }
 
-			return false;
-		}
+            return false;
+        }
 
         /// <summary>
         /// additionnal stuff under tabs zone
@@ -140,103 +140,104 @@ namespace fwp.scenes
         {
             base.drawAdditionnal();
 
-			SceneSubFolder.drawAutoAdd();
+            SceneSubFolder.drawAutoAdd();
         }
 
-		List<SceneSubFolder> solveTabFolder(string tabName)
-		{
-			List<SceneProfil> profils = getProfils(tabName);
+        List<SceneSubFolder> solveTabFolder(string tabName)
+        {
+            List<SceneProfil> profils = getProfils(tabName);
 
-			Dictionary<string, List<SceneProfil>> list = new Dictionary<string, List<SceneProfil>>();
+            Dictionary<string, List<SceneProfil>> list = new Dictionary<string, List<SceneProfil>>();
 
-			//Debug.Log("sorting x" + profils.Count + " profiles");
+            //Debug.Log("sorting x" + profils.Count + " profiles");
 
-			foreach (SceneProfil profil in profils)
-			{
-				string parent = profil.parentFolder;
+            foreach (SceneProfil profil in profils)
+            {
+                string parent = profil.parentFolder;
 
-				if (!list.ContainsKey(parent))
-				{
-					//Debug.Log("added " + parent);
-					list.Add(parent, new List<SceneProfil>());
-				}
-				list[parent].Add(profil);
-			}
+                if (!list.ContainsKey(parent))
+                {
+                    //Debug.Log("added " + parent);
+                    list.Add(parent, new List<SceneProfil>());
+                }
+                list[parent].Add(profil);
+            }
 
-			List<SceneSubFolder> output = new List<SceneSubFolder>();
+            List<SceneSubFolder> output = new List<SceneSubFolder>();
 
-			foreach (var kp in list)
-			{
-				SceneSubFolder sub = generateSub(kp.Key);
+            foreach (var kp in list)
+            {
+                SceneSubFolder sub = generateSub(kp.Key);
 
-				sub.scenes = kp.Value;
+                sub.scenes = kp.Value;
 
-				output.Add(sub);
-			}
+                output.Add(sub);
+            }
 
-			//Debug.Log("solved x" + output.Count + " subs");
+            //Debug.Log("solved x" + output.Count + " subs");
 
-			return output;
-		}
+            return output;
+        }
 
-		/// <summary>
-		/// génère tout les profiles qui sont de la categorie
-		/// </summary>
-		protected List<SceneProfil> getProfils(string category)
-		{
-			List<SceneProfil> profils = new List<SceneProfil>();
+        /// <summary>
+        /// génère tout les profiles qui sont de la categorie
+        /// </summary>
+        protected List<SceneProfil> getProfils(string category)
+        {
+            List<SceneProfil> profils = new List<SceneProfil>();
 
-			// works with Contains
-			var cat_paths = SceneTools.getScenesPathsOfCategory(category, true);
+            // works with Contains
+            var cat_paths = SceneTools.getScenesPathsOfCategory(category, true);
 
-			if (verbose)
-				Debug.Log("category:" + category + " paths x" + cat_paths.Count);
+            if (verbose)
+                Debug.Log("category:" + category + " paths x" + cat_paths.Count);
 
-			foreach (string path in cat_paths)
-			{
-				SceneProfil sp = generateProfil(path);
-				if (sp.isValid())
-				{
-					bool found = false;
-					
-					foreach (var profil in profils)
-					{
-						if (profil.match(sp))
-							found = true;
-					}
+            foreach (string path in cat_paths)
+            {
+                SceneProfil sp = generateProfil(path);
+                if (sp.isValid())
+                {
+                    bool found = false;
 
-					if (!found)
-					{
-						profils.Add(sp);
+                    if (verbose) Debug.Log("searching ... " + sp.uid);
 
-						if (verbose)
-							Debug.Log(sp.uid);
-					}
+                    foreach (var profil in profils)
+                    {
+                        if (profil.match(sp))
+                            found = true;
+                    }
 
-				}
-			}
+                    if (!found)
+                    {
+                        profils.Add(sp);
 
-			if (verbose)
-				Debug.Log("solved x" + profils.Count + " profiles");
+                        if (verbose) Debug.Log("+ " + sp.uid);
+                    }
 
-			return profils;
-		}
+                }
+            }
 
-		public SceneProfil getOpenedProfil()
-		{
-			var category = sections[tabsState.tabs[tabsState.tabActive].path];
+            if (verbose)
+                Debug.Log("solved x" + profils.Count + " profiles");
 
-			foreach (var profil in category)
-			{
-				foreach (var sp in profil.scenes)
-				{
-					if (sp.isLoaded()) return sp;
-				}
-			}
+            return profils;
+        }
 
-			return null;
-		}
+        public SceneProfil getOpenedProfil()
+        {
+            var category = sections[tabsState.tabs[tabsState.tabActive].path];
 
-	}
+            foreach (var profil in category)
+            {
+                foreach (var sp in profil.scenes)
+                {
+                    if (sp.isLoaded()) return sp;
+                }
+            }
+
+            return null;
+        }
+
+    }
 
 }
