@@ -298,7 +298,7 @@ namespace fwp.screens
             if(verbose)
                 Debug.Log("loadMissingScreen | screen to open : <b>" + screenName + "</b>");
 
-            SceneLoader.queryScene(screenName, delegate (Scene sc)
+            SceneLoader.queryScene(screenName, (assoc) =>
             {
                 so = getOpenedScreen(screenName);
                 if (so == null)

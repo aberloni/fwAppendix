@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
-using System.Linq;
 
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.SceneManagement;
 #endif
 
 namespace fwp.scenes
@@ -25,10 +23,10 @@ namespace fwp.scenes
         public string path;
 
         //these are only scene names (no ext, no path)
-        public List<SceneAssoc> layers;
-        public List<SceneAssoc> deps;
+        public List<string> layers;
+        public List<string> deps;
 
-        Scene[] _buffScenes;
+        List<SceneAssoc> assocs = new List<SceneAssoc>();
 
         /// <summary>
         /// ingame, want to load a scene
@@ -139,15 +137,10 @@ namespace fwp.scenes
             // push main scene first
             paths = reorderLayers(paths);
 
-            if (layers == null) layers = new List<SceneAssoc>();
+            if (layers == null) layers = new List<string>();
             layers.Clear();
 
-            foreach (var p in paths)
-            {
-                var assoc = new SceneAssoc();
-                assoc.path = p;
-                layers.Add(assoc);
-            }
+            layers.AddRange(paths);
 
             solveDeps();
 
@@ -243,14 +236,14 @@ namespace fwp.scenes
         /// </summary>
         virtual public void solveDeps()
         {
-            if (deps == null) deps = new List<SceneAssoc>();
+            if (deps == null) deps = new List<string>();
             deps.Clear();
         }
 
         public bool isLoaded()
         {
             if (layers.Count <= 0) return false;
-            return SceneManager.GetSceneByName(layers[0].handle.name).isLoaded;
+            return SceneManager.GetSceneByName(layers[0]).isLoaded;
         }
 
         void forceAddToBuildSettings()
@@ -317,7 +310,7 @@ namespace fwp.scenes
             if (additive) mode = UnityEditor.SceneManagement.OpenSceneMode.Additive;
 
             //first load base scene
-            string baseScene = layers[0].path;
+            string baseScene = layers[0];
             if (verbose) Debug.Log($"SceneProfil:loading base scene {baseScene}");
             SceneLoaderEditor.loadScene(baseScene, mode);
 
@@ -325,14 +318,14 @@ namespace fwp.scenes
             for (int i = 1; i < layers.Count; i++)
             {
                 if (verbose) Debug.Log($"SceneProfil:loading layer:{layers[i]}");
-                SceneLoaderEditor.loadScene(layers[i].path);
+                SceneLoaderEditor.loadScene(layers[i]);
             }
 
             //load deps
             for (int i = 0; i < deps.Count; i++)
             {
                 if (verbose) Debug.Log($"SceneProfil:loading layer:{deps[i]}");
-                SceneLoaderEditor.loadScene(deps[i].path);
+                SceneLoaderEditor.loadScene(deps[i]);
             }
 
             //lock by editor toggle
@@ -347,12 +340,12 @@ namespace fwp.scenes
 
             for (int i = 0; i < layers.Count; i++)
             {
-                SceneLoaderEditor.unloadScene(layers[i].path);
+                SceneLoaderEditor.unloadScene(layers[i]);
             }
 
             for (int i = 0; i < deps.Count; i++)
             {
-                SceneLoaderEditor.unloadScene(deps[i].path);
+                SceneLoaderEditor.unloadScene(deps[i]);
             }
 
             //var sc = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByName(layers[0]);
@@ -384,7 +377,7 @@ namespace fwp.scenes
         {
             if (deps.Count <= 0)
             {
-                Debug.LogWarning(getStamp() + " deps array is empty ?");
+                //Debug.LogWarning(getStamp() + " deps array is empty ?");
                 onCompletion.Invoke();
                 return;
             }
@@ -401,7 +394,7 @@ namespace fwp.scenes
             delay = getDebugLoadDelay();
 #endif
 
-            SceneLoader.loadScenes(getPaths(deps), (Scene[] scs) =>
+            SceneLoader.loadScenes(deps.ToArray(), (SceneAssoc[] scs) =>
             {
                 onCompletion.Invoke();
             }, delay);
@@ -423,8 +416,7 @@ namespace fwp.scenes
                 for (int i = 0; i < layers.Count; i++) Debug.Log(getStamp() + " layer:" + layers[i]);
             }
 
-            var layersPaths = getPaths(layers);
-            SceneLoader.loadScenes(layersPaths, (Scene[] scs) =>
+            SceneLoader.loadScenes(layers.ToArray(), (SceneAssoc[] scs) =>
                 {
                     if (scs.Length <= 0)
                     {
@@ -435,9 +427,8 @@ namespace fwp.scenes
                         }
                     }
 
-                    // keep all loaded scenes
-                    _buffScenes = scs;
-
+                    assocs.AddRange(scs);
+                    
                     //Scene main = extractMainScene();
                     //Debug.Assert(main.IsValid(), getStamp()+" extracted scene : " + main + " is not valid");
 
@@ -451,50 +442,18 @@ namespace fwp.scenes
 
             Debug.Log(getStamp() + " : " + uid + " is <b>unloading</b>");
 
-            var layersPaths = getPaths(layers);
-            SceneLoader.unloadScenes(layersPaths, onUnloadCompleted);
+            SceneLoader.unloadScenes(layers.ToArray(), onUnloadCompleted);
         }
 
         public Scene extractMainScene()
         {
-            Debug.Assert(_buffScenes.Length > 0, "buff scenes must not be empty here");
-            Debug.Assert(_buffScenes[0].IsValid());
+            Debug.Assert(assocs.Count > 0, "buff scenes must not be empty here");
+            Debug.Assert(assocs[0].handle.isLoaded);
 
-            return _buffScenes[0];
+            return assocs[0].handle;
         }
 
         virtual public string editor_getButtonName() => uid + " (x" + layers.Count + ")";
-
-        /// <summary>
-        /// EDITOR
-        /// make sure all related scenes are present in build settings
-        /// </summary>
-        void forcePresenceBuildSettings()
-        {
-
-        }
-
-        /// <summary>
-        /// RUNTIME
-        /// est-ce que ce profil est dispo dans les builds settings
-        /// </summary>
-        /// <returns></returns>
-        bool isAvailableInBuild()
-        {
-            return true;
-        }
-
-
-        public string[] getPaths(List<SceneAssoc> assocs)
-        {
-            string[] paths = new string[assocs.Count];
-            for (int i = 0; i < assocs.Count; i++)
-            {
-                paths[i] = assocs[i].path;
-            }
-            return paths;
-        }
-
 
         public string stringify()
         {

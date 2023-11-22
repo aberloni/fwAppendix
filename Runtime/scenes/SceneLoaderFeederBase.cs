@@ -9,7 +9,7 @@ namespace fwp.scenes
     public class SceneLoaderFeederBase : MonoBehaviour
     {
         protected List<string> scene_names;
-        protected SceneLoader feeding;
+        protected SceneLoaderRunner runner;
 
         /// <summary>
         /// starts feed process
@@ -24,7 +24,7 @@ namespace fwp.scenes
             //Debug.Log(EngineObject.getStamp(this) + " now feeding "+nms.Length+" names", transform);
             //for (int i = 0; i < nms.Length; i++) { Debug.Log("  L " + nms[i]);}
 
-            feeding = SceneLoader.loadScenes(nms, delegate (Scene[] scs)
+            runner = SceneLoader.loadScenes(nms, (assocs) => 
             {
                 //Debug.Log("feed destroy");
                 GameObject.Destroy(this);
@@ -33,11 +33,11 @@ namespace fwp.scenes
 
         private void OnDestroy()
         {
-            feeding = null;
+            runner = null;
             //Debug.Log(EngineObject.getStamp(this) + " done feeding !");
         }
 
-        public bool isFeeding() { return feeding != null; }
+        public bool isFeeding() { return runner != null; }
 
         virtual protected string[] solveNames()
         {
