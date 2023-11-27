@@ -229,10 +229,15 @@ namespace fwp.industries
 
             // move recycled object into facto scene
             MonoBehaviour comp = candid as MonoBehaviour;
-            if (comp != null)
-            {
-                comp.transform.SetParent(null);
 
+            // edge case where recycling is called when destroying the object
+            if (!IsNullOrDestroyed(comp))
+            {
+                if(comp.transform != null)
+                {
+                    comp.transform.SetParent(null);
+                }
+                
                 // do something more ?
                 //comp.gameObject.SetActive(false);
                 //comp.enabled = false;
@@ -350,6 +355,22 @@ namespace fwp.industries
                 Debug.Log(getStamp() + content);
 #endif
         }
+
+
+        /// <summary>
+        /// https://forum.unity.com/threads/how-to-check-if-a-gameobject-is-being-destroyed.1030849/
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static bool IsNullOrDestroyed(System.Object obj)
+        {
+            if (object.ReferenceEquals(obj, null)) return true;
+
+            if (obj is UnityEngine.Object) return (obj as UnityEngine.Object) == null;
+
+            return false;
+        }
+
     }
 
     //public interface IFactory{}

@@ -203,7 +203,11 @@ namespace fwp.utils.editor
 
                 if (_tabIndex >= _state.tabs.Count)
                 {
-                    Debug.LogWarning(_tabIndex + " oob ? " + _state.tabs.Count);
+                    if(verbose)
+                        Debug.LogWarning(_tabIndex + " oob ? " + _state.tabs.Count);
+                    
+                    selectTab(0);
+
                     return;
                 }
 
