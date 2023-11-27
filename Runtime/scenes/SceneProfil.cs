@@ -20,7 +20,29 @@ namespace fwp.scenes
 
         public string uid = string.Empty; // is a category, base path
 
-        public string path;
+        public string profilPath; // path to folder of uid
+
+        /// <summary>
+        /// returns path without scene folder
+        /// </summary>
+        public string parentPath
+        {
+            get
+            {
+                string _path = profilPath;
+
+                // remove scene name
+                _path = _path.Substring(0, _path.LastIndexOf('/'));
+
+                return _path;
+            }
+        }
+
+        /// <summary>
+        /// returns the name of the parent folder
+        /// </summary>
+        public string parentFolder
+            => parentPath.Substring(parentPath.LastIndexOf('/') + 1);
 
         //these are only scene names (no ext, no path)
         public List<string> layers;
@@ -29,6 +51,7 @@ namespace fwp.scenes
         List<SceneAssoc> assocs = new List<SceneAssoc>();
 
         /// <summary>
+        /// categoryUid is uniq PATH to scenes
         /// ingame, want to load a scene
         /// force add is not available in builds
         /// if given scene name 
@@ -42,11 +65,12 @@ namespace fwp.scenes
             string solvedCategoryUid = extractUid(categoryUid, hasContextInName);
             Debug.Assert(solvedCategoryUid.Length > 0, "empty uid ? given : " + solvedCategoryUid);
 
-            if (verbose) Debug.Log(categoryUid + " ? " + uid + " solved ? " + solvedCategoryUid);
+            if (verbose) Debug.Log("UID | cat ? "+ categoryUid + " -> solved ? " + solvedCategoryUid);
 
             //Debug.Log(categoryUid + " ? " + solvedCategoryUid);
 
-            var paths = filterAllPaths(solvedCategoryUid, true);
+            //var paths = filterAllPaths(solvedCategoryUid, true);
+            var paths = filterAllPaths(categoryUid, true);
 
             if (paths.Count <= 0)
             {
@@ -55,6 +79,13 @@ namespace fwp.scenes
             }
 
             //Debug.Log(getStamp() + " created");
+
+            profilPath = categoryUid;
+
+            if (verbose)
+            {
+                Debug.Log(categoryUid + " path @ " + profilPath);
+            }
 
             this.uid = setup(solvedCategoryUid, paths);
         }
@@ -85,24 +116,6 @@ namespace fwp.scenes
             return paths;
         }
 
-        public string parentFolder
-        {
-            get
-            {
-                string _path = path;
-
-                //Debug.Log(path);
-
-                // remove scene name
-                _path = _path.Substring(0, _path.LastIndexOf('/'));
-
-                // remove everything up to folder parent
-                _path = _path.Substring(_path.LastIndexOf('/') + 1);
-
-                return _path;
-            }
-        }
-
         public bool match(SceneProfil sp)
         {
             return sp.uid == uid;
@@ -112,6 +125,9 @@ namespace fwp.scenes
 
         string setup(string setupUid, List<string> paths)
         {
+            if (verbose)
+                Debug.Log("setup(" + setupUid + ") paths x" + paths.Count);
+
             if (uid.ToLower().Contains("SceneManagement"))
             {
                 Debug.LogError("invalid uid : " + uid);
@@ -121,16 +137,10 @@ namespace fwp.scenes
             // prebuff for paths fetching
             this.uid = setupUid;
 
-            // default
-            path = paths[0];
-
             Debug.Assert(paths.Count > 0, setupUid + " needs paths");
 
             for (int i = 0; i < paths.Count; i++)
             {
-                // keep shortest path
-                if (path.Length > paths[i].Length) path = paths[i];
-
                 paths[i] = SceneTools.removePathBeforeFile(paths[i]);
             }
 
@@ -139,8 +149,9 @@ namespace fwp.scenes
 
             if (layers == null) layers = new List<string>();
             layers.Clear();
-
             layers.AddRange(paths);
+
+            if (verbose) Debug.Log("layers x" + layers.Count);
 
             solveDeps();
 
@@ -219,11 +230,11 @@ namespace fwp.scenes
             string[] split = path.Split('_');
             int underscoreCount = split.Length - 1;
 
-            if(underscoreCount >= 2)
+            if (underscoreCount >= 2)
             {
                 return path.Substring(0, path.LastIndexOf("_"));
             }
-            else if(underscoreCount == 1)
+            else if (underscoreCount == 1)
             {
                 return path;
             }
@@ -281,7 +292,7 @@ namespace fwp.scenes
                 //assign
                 EditorBuildSettings.scenes = tmp.ToArray();
 
-                if(verbose)
+                if (verbose)
                 {
                     for (int i = 0; i < EditorBuildSettings.scenes.Length; i++)
                     {
@@ -428,7 +439,7 @@ namespace fwp.scenes
                     }
 
                     assocs.AddRange(scs);
-                    
+
                     //Scene main = extractMainScene();
                     //Debug.Assert(main.IsValid(), getStamp()+" extracted scene : " + main + " is not valid");
 
@@ -458,7 +469,7 @@ namespace fwp.scenes
         public string stringify()
         {
             string output = uid;
-            if (!string.IsNullOrEmpty(path)) output += " & " + path;
+            if (!string.IsNullOrEmpty(profilPath)) output += " & " + profilPath;
             return output;
         }
 

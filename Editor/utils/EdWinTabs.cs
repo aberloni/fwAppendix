@@ -43,7 +43,7 @@ namespace fwp.utils.editor
                 set
                 {
                     MgrUserSettings.setEdInt(_editor__profiler_tab + "_" + uid, value);
-                    Debug.Log(uid+"?"+value);
+                    //Debug.Log(uid+"?"+value);
                 }
             }
 
@@ -110,12 +110,9 @@ namespace fwp.utils.editor
         {
             base.reactPlayModeState(state);
 
-            switch(state)
-            {
-                //case PlayModeStateChange.ExitingPlayMode:
-                //case PlayModeStateChange.EnteredEditMode:
-                    
-            }
+            //case PlayModeStateChange.ExitingPlayMode:
+            //case PlayModeStateChange.EnteredEditMode:
+                
         }
 
         protected override void refresh(bool force = false)

@@ -50,15 +50,17 @@ namespace fwp.scenes
         /// <summary>
         /// can be replaced by different way to hande subs
         /// </summary>
-        virtual protected SceneSubFolder generateSub(string folder)
+        virtual protected SceneSubFolder generateSub(string profilUid)
         {
-            return new SceneSubFolder(rootPath(), folder);
+            return new SceneSubFolder(profilUid);
         }
 
-        /// <summary>
-        /// path/to/tabs folder
-        /// </summary>
-        virtual protected string rootPath() => string.Empty;
+        protected override void refreshByTitle()
+        {
+            SceneProfil.verbose = true;
+            base.refreshByTitle();
+            SceneProfil.verbose = false;
+        }
 
         protected override void refresh(bool force = false)
         {
@@ -112,7 +114,7 @@ namespace fwp.scenes
 
             if (GUILayout.Button("ping folder", GUILayout.Width(GuiHelpers.btnLabelWidth)))
             {
-                pingFolder(Path.Combine(rootPath(), tabLabel));
+                pingFolder(Path.Combine(tabLabel));
             }
 
             if (GUILayout.Button("upfold all", GUILayout.Width(GuiHelpers.btnLabelWidth)))
@@ -151,9 +153,10 @@ namespace fwp.scenes
 
             //Debug.Log("sorting x" + profils.Count + " profiles");
 
+            // all profil will be matched based on the parent path
             foreach (SceneProfil profil in profils)
             {
-                string parent = profil.parentFolder;
+                string parent = profil.parentPath;
 
                 if (!list.ContainsKey(parent))
                 {
@@ -170,6 +173,8 @@ namespace fwp.scenes
                 SceneSubFolder sub = generateSub(kp.Key);
 
                 sub.scenes = kp.Value;
+
+                if(verbose) Debug.Log(sub.stringify());
 
                 output.Add(sub);
             }

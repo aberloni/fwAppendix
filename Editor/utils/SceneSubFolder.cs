@@ -9,6 +9,7 @@ using static System.Collections.Specialized.BitVector32;
 
 /// <summary>
 /// gather all scenes profiles for a specific folder
+/// scenes[] will be override externaly
 /// permet de regrouper les sceneprofil dans un même container
 /// </summary>
 public class SceneSubFolder
@@ -32,10 +33,16 @@ public class SceneSubFolder
         }
     }
 
-    public SceneSubFolder(string basePath, string folderName)
+    public SceneSubFolder(string folderPath)
     {
-        projectPath = basePath;
-        this.folderName = folderName;
+        projectPath = folderPath;
+
+        if (projectPath.Length <= 0)
+        {
+            Debug.LogWarning("no base path given ?");
+        }
+
+        folderName = folderPath.Substring(folderPath.LastIndexOf("/")+1);
     }
 
     public bool hasContent(string filter)
@@ -87,7 +94,7 @@ public class SceneSubFolder
         foreach (var dep in profil.deps)
             Debug.Log(dep);
 
-        GuiHelpers.pingScene(profil.path);
+        GuiHelpers.pingScene(profil.profilPath);
     }
 
     virtual protected void drawSceneLine(SceneProfil profil)
@@ -120,6 +127,11 @@ public class SceneSubFolder
         GUILayout.EndHorizontal();
     }
 
+    virtual public string stringify()
+    {
+        return "@path:" + projectPath + " @folder:" + folderName + ", total scenes x" + scenes.Count;
+    }
+
     public const string _pref_autoAdd = "scenesAutoAdd";
 
     /// <summary>
@@ -146,5 +158,6 @@ public class SceneSubFolder
     {
         EdUserSettings.drawBool("+ build settings", _pref_autoAdd);
     }
+
 
 }

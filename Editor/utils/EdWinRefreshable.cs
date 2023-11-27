@@ -70,7 +70,7 @@ namespace fwp.utils.editor
         /// </summary>
         protected void primeRefresh() => _refresh = true;
 
-        protected void refreshByTitle()
+        virtual protected void refreshByTitle()
         {
             verbose = true;
             
