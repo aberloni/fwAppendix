@@ -15,7 +15,7 @@ namespace fwp.appendix.user
     static public class EdUserSettings
     {
 
-        static public void drawBool(string label, string uid)
+        static public bool drawBool(string label, string uid)
         {
             bool val = MgrUserSettings.getEdBool(uid);
             bool _val = EditorGUILayout.Toggle(label, val);
@@ -23,9 +23,10 @@ namespace fwp.appendix.user
             {
                 MgrUserSettings.setEdBool(uid, _val);
             }
+            return _val;
         }
 
-        static public void drawSlider(string label, string uid, Vector2 range)
+        static public float drawSlider(string label, string uid, Vector2 range)
         {
             float val = MgrUserSettings.getEdFloat(uid, 1f);
             GUILayout.BeginHorizontal();
@@ -41,6 +42,8 @@ namespace fwp.appendix.user
             GUILayout.Label(range.y.ToString(), GUILayout.Width(30f));
 
             GUILayout.EndHorizontal();
+
+            return _val;
         }
 
     }
