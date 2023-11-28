@@ -20,9 +20,17 @@ namespace fwp.screens
         Coroutine _coprocClosing;   // closing
         bool _opened = false;       // interactable
 
-        const string PARAM_OPEN = "open";
-        const string STATE_CLOSED = "closed";
-        const string STATE_OPENED = "opened";
+        /// <summary>
+        /// contains all data that can vary in other contexts
+        /// </summary>
+        public struct ScreenAnimatedParameters
+        {
+            public string bool_open;
+            public string state_closed;
+            public string state_opened;
+        }
+
+        protected ScreenAnimatedParameters parameters;
 
         //const string STATE_HIDING = "hiding";
         //const string STATE_OPENING = "opening";
@@ -30,6 +38,11 @@ namespace fwp.screens
         protected override void screenCreated()
         {
             base.screenCreated();
+
+            parameters = new ScreenAnimatedParameters();
+            parameters.bool_open = "open";
+            parameters.state_closed = "closed";
+            parameters.state_opened = "opened";
 
             _animator = GetComponent<Animator>();
             if (_animator == null)
@@ -124,7 +137,7 @@ namespace fwp.screens
 
             if (hasValidAnimator())
             {
-                _animator.SetBool(PARAM_OPEN, true);
+                _animator.SetBool(parameters.bool_open, true);
 
                 //animator state change...
                 yield return null;
@@ -133,7 +146,7 @@ namespace fwp.screens
 
                 //... do something spec for animating screen
                 //while (_animator.GetCurrentAnimatorStateInfo(0).IsName(STATE_OPENING)) yield return null;
-                while (!_animator.GetCurrentAnimatorStateInfo(0).IsName(STATE_OPENED)) yield return null;
+                while (!_animator.GetCurrentAnimatorStateInfo(0).IsName(parameters.state_opened)) yield return null;
             }
 
             evtOpeningAnimationDone();
@@ -195,11 +208,11 @@ namespace fwp.screens
 
             if (hasValidAnimator())
             {
-                _animator.SetBool(PARAM_OPEN, false);
+                _animator.SetBool(parameters.bool_open, false);
 
                 Debug.Log("waiting for screen to close");
 
-                while (!_animator.GetCurrentAnimatorStateInfo(0).IsName(STATE_CLOSED)) yield return null;
+                while (!_animator.GetCurrentAnimatorStateInfo(0).IsName(parameters.state_closed)) yield return null;
             }
 
             evtClosingAnimationCompleted();
