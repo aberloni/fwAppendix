@@ -145,8 +145,8 @@ namespace fwp.screens
                 yield return null;
 
                 //... do something spec for animating screen
-                //while (_animator.GetCurrentAnimatorStateInfo(0).IsName(STATE_OPENING)) yield return null;
-                while (!_animator.GetCurrentAnimatorStateInfo(0).IsName(parameters.state_opened)) yield return null;
+                IEnumerator process = processWaitUntilState(parameters.state_opened);
+                while(process.MoveNext()) yield return null;
             }
 
             evtOpeningAnimationDone();
@@ -210,9 +210,10 @@ namespace fwp.screens
             {
                 _animator.SetBool(parameters.bool_open, false);
 
-                Debug.Log("waiting for screen to close");
+                log("waiting for screen to end close animation");
 
-                while (!_animator.GetCurrentAnimatorStateInfo(0).IsName(parameters.state_closed)) yield return null;
+                IEnumerator process = processWaitUntilStateDone(parameters.state_closed);
+                while(process.MoveNext()) yield return null;
             }
 
             evtClosingAnimationCompleted();
@@ -223,6 +224,8 @@ namespace fwp.screens
         /// </summary>
         void evtClosingAnimationCompleted()
         {
+            log("closing animation completed");
+
             _opened = false; // jic
             _coprocClosing = null;
 
@@ -249,6 +252,66 @@ namespace fwp.screens
         /// </summary>
         virtual protected bool isInteractable() => _opened;
 
+        //Coroutine waitUntilState(string state, System.Action onCompletion = null) => StartCoroutine(processWaitUntilState(state, onCompletion));
+        //Coroutine waitExitState(string state, System.Action onCompletion = null) => StartCoroutine(processWaitExitState(state, onCompletion));
+
+        IEnumerator processWaitUntilStateDone(string state)
+        {
+            IEnumerator process = processWaitUntilState(state);
+            while (process.MoveNext()) yield return null;
+
+            AnimatorStateInfo info;
+            //wait for state to start
+            do
+            {
+                info = _animator.GetCurrentAnimatorStateInfo(0);
+                yield return null;
+            }
+            while (info.normalizedTime >= 1f);
+        }
+
+        IEnumerator processWaitUntilState(string state, System.Action onCompletion = null)
+        {
+            log(" ... wait for state:" + state);
+
+            AnimatorStateInfo info;
+
+            //wait for state to start
+            do
+            {
+                info = _animator.GetCurrentAnimatorStateInfo(0);
+                yield return null;
+            }
+            while (info.IsName(state));
+
+            log("state:" + state+" STARTED");
+
+            onCompletion?.Invoke();
+        }
+
+        IEnumerator processWaitExitState(string state, System.Action onCompletion = null)
+        {
+            log(" ... wait for exit state:" + state);
+
+            // wait for state to start
+            IEnumerator process = processWaitUntilState(state);
+            while (process.MoveNext()) yield return null;
+            
+            AnimatorStateInfo info;
+            // wait for state to exit
+            do
+            {
+                info = _animator.GetCurrentAnimatorStateInfo(0);
+                yield return null;
+            }
+            while (info.IsName(state));
+
+            log("state:" + state+" EXITED");
+
+            onCompletion?.Invoke();
+        }
+
+
         /// <summary>
         /// search from all opened screens
         /// </summary>
@@ -261,6 +324,7 @@ namespace fwp.screens
             }
             return null;
         }
+
         static public T getScreen<T>(string screenName) where T : ScreenAnimated
         {
             T[] scs = GameObject.FindObjectsOfType<T>();

@@ -351,7 +351,7 @@ namespace fwp.screens
 #if UNITY_EDITOR
             if (verbose)
             {
-                Debug.LogWarning(getStamp() + "  !> " + ct, this);
+                Debug.LogWarning(getStamp() + " !>> " + ct, this);
             }
 #endif
         }
@@ -361,7 +361,7 @@ namespace fwp.screens
 #if UNITY_EDITOR
             if(verbose)
             {
-                Debug.Log(getStamp() + "  ?> " + ct, this);
+                Debug.Log(getStamp() + " >>         " + ct, this);
             }
 #endif
         }
