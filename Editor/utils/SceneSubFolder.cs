@@ -127,6 +127,7 @@ public class SceneSubFolder
 
         // add/remove buttons
         bool present = SceneTools.isEditorSceneLoaded(profil.uid);
+        //bool present = profil.isLoaded();
         string label = present ? "-" : "+";
 
         if (GUILayout.Button(label, GUILayout.Width(GuiHelpers.btnSymbWidth)))
@@ -148,6 +149,7 @@ public class SceneSubFolder
     /// </summary>
     void onEditorSceneCall(SceneProfil profil, bool mustLoad, bool additive = false)
     {
+        profil.setDirty();
 
         if (mustLoad)
         {

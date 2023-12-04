@@ -12,13 +12,6 @@ using System;
 
 namespace fwp.scenes
 {
-    public class SceneAssoc
-    {
-        public string name;
-        public Scene handle;
-        public SceneLoaderRunner runner;
-    }
-
     public class SceneLoader : MonoBehaviour
     {
         static public bool verbose = false;
@@ -39,53 +32,6 @@ namespace fwp.scenes
             return true;
         }
 
-        static public SceneAssoc[] solveScenesAssocs(string[] sceneNames)
-        {
-            log($" ... now filtering x{sceneNames.Length} scene names");
-
-            List<SceneAssoc> output = new List<SceneAssoc>();
-            
-            for (int i = 0; i < sceneNames.Length; i++)
-            {
-                string sceneName = sceneNames[i];
-
-                // impossible to load
-                // not in bsettings
-                if (!checkIfInBuildSettings(sceneName))
-                {
-                    Debug.LogWarning("asked to load <b>" + sceneName + "</b> but this scene is <color=red><b>not added to BuildSettings</b></color>");
-                    continue;
-                }
-
-                /*
-                // is current active scene
-                if (doActiveSceneNameContains(sceneName))
-                {
-                    Debug.LogWarning(sceneName + " is current active scene, need to load it ?");
-                    output.Add(new SceneAssoc() { name = sceneName, handle = SceneManager.GetActiveScene() });
-                    continue;
-                }
-                */
-
-                SceneAssoc assoc = new SceneAssoc();
-                assoc.name = sceneName;
-
-                // don't double load same scene
-                // check from already present scenes
-                var scene = getLoadedScene(sceneName);
-                if(scene.isLoaded)
-                {
-                    Debug.LogWarning("  <b>" + sceneName + "</b> is considered as already loaded, skipping loading of that scene");
-                    assoc.handle = scene;
-                }
-
-                output.Add(assoc);
-            }
-
-            log("filtered x" + output.Count + " out of given x" + sceneNames.Length);
-
-            return output.ToArray();
-        }
 
         static public void log(string content, UnityEngine.Object context = null)
         {
@@ -144,7 +90,7 @@ namespace fwp.scenes
         {
             for (int i = 0; i < nms.Length; i++)
             {
-                Scene sc = getLoadedScene(nms[i]);
+                Scene sc = getLoadedScene(nms[i], true);
                 if (sc.isLoaded)
                 {
                     if(verbose)
@@ -287,12 +233,15 @@ namespace fwp.scenes
         /// this needs to be a strick comparison
         /// (use to check for already loaded scenes)
         /// </summary>
-        static public Scene getLoadedScene(string strictSceneName)
+        static public Scene getLoadedScene(string strictSceneName, bool warnMissing)
         {
-            if (Time.frameCount < 2)
+            if(Application.isPlaying)
             {
-                Debug.LogError($"asking for scene {strictSceneName} but scenes are not flagged as loaded until frame 2");
-                return default(Scene);
+                if (Time.frameCount < 2)
+                {
+                    Debug.LogError($"asking for scene {strictSceneName} but scenes are not flagged as loaded until frame 2");
+                    return default(Scene);
+                }
             }
             
             for (int i = 0; i < SceneManager.sceneCount; i++)

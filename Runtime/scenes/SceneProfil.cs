@@ -22,6 +22,8 @@ namespace fwp.scenes
 
         public string profilPath; // path to folder of uid
 
+        bool _dirty = false;
+
         /// <summary>
         /// returns path without scene folder
         /// </summary>
@@ -48,7 +50,7 @@ namespace fwp.scenes
         public List<string> layers;
         public List<string> deps;
 
-        List<SceneAssoc> assocs = new List<SceneAssoc>();
+        List<SceneAssoc> _assocs_buff;
 
         /// <summary>
         /// categoryUid is uniq PATH to scenes
@@ -88,6 +90,27 @@ namespace fwp.scenes
             }
 
             this.uid = setup(solvedCategoryUid, paths);
+        }
+
+        public void refresh()
+        {
+            if (Application.isPlaying)
+                return;
+
+            if (_assocs_buff == null)
+                _dirty = true;
+
+            if (_dirty)
+            {
+                fetchAssocs(true);
+            }
+
+            _dirty = false;
+        }
+
+        public void setDirty()
+        {
+            _dirty = true;
         }
 
         /// <summary>
@@ -257,6 +280,12 @@ namespace fwp.scenes
             return SceneManager.GetSceneByName(layers[0]).isLoaded;
         }
 
+        public void checkAddToBuildSettings(bool force)
+        {
+            if(force)
+                forceAddToBuildSettings();
+        }
+
         void forceAddToBuildSettings()
         {
 #if UNITY_EDITOR
@@ -308,6 +337,10 @@ namespace fwp.scenes
         }
 
 #if UNITY_EDITOR
+
+        /// <summary>
+        /// additive : is first scene additivly added
+        /// </summary>
         public void editorLoad(bool additive, bool forceAddBuildSettings = false)
         {
             // first check that scenes are added to build settings ?
@@ -320,7 +353,8 @@ namespace fwp.scenes
             UnityEditor.SceneManagement.OpenSceneMode mode = UnityEditor.SceneManagement.OpenSceneMode.Single;
             if (additive) mode = UnityEditor.SceneManagement.OpenSceneMode.Additive;
 
-            //first load base scene
+            // first : load base scene
+            // additive check : might wanna replace context
             string baseScene = layers[0];
             if (verbose) Debug.Log($"SceneProfil:loading base scene {baseScene}");
             SceneLoaderEditor.loadScene(baseScene, mode);
@@ -377,7 +411,7 @@ namespace fwp.scenes
             {
                 loadLayers(() =>
                 {
-                    Scene parentScene = extractMainScene();
+                    //Scene? parentScene = extractMainScene(false);
                     onLoadedCompleted?.Invoke(this);
                 });
             });
@@ -427,6 +461,8 @@ namespace fwp.scenes
                 for (int i = 0; i < layers.Count; i++) Debug.Log(getStamp() + " layer:" + layers[i]);
             }
 
+            if (_assocs_buff == null) _assocs_buff = new List<SceneAssoc>();
+
             SceneLoader.loadScenes(layers.ToArray(), (SceneAssoc[] scs) =>
                 {
                     if (scs.Length <= 0)
@@ -438,7 +474,7 @@ namespace fwp.scenes
                         }
                     }
 
-                    assocs.AddRange(scs);
+                    _assocs_buff.AddRange(scs);
 
                     //Scene main = extractMainScene();
                     //Debug.Assert(main.IsValid(), getStamp()+" extracted scene : " + main + " is not valid");
@@ -456,12 +492,42 @@ namespace fwp.scenes
             SceneLoader.unloadScenes(layers.ToArray(), onUnloadCompleted);
         }
 
-        public Scene extractMainScene()
+        List<SceneAssoc> fetchAssocs(bool force)
         {
-            Debug.Assert(assocs.Count > 0, "buff scenes must not be empty here");
-            Debug.Assert(assocs[0].handle.isLoaded);
+            if (_assocs_buff == null)
+                _assocs_buff = new List<SceneAssoc>();
 
-            return assocs[0].handle;
+            if(_assocs_buff.Count <= 0 || force)
+            {
+                _assocs_buff.Clear();
+
+                _assocs_buff.AddRange(SceneAssoc.solveScenesAssocs(layers.ToArray()));
+                _assocs_buff.AddRange(SceneAssoc.solveScenesAssocs(deps.ToArray()));
+
+                Debug.Log("assocs x" + _assocs_buff.Count);
+            }
+            
+            return _assocs_buff;
+        }
+
+        public Scene? extractMainScene()
+        {
+            refresh();
+
+            if (_assocs_buff == null)
+                return null;
+
+            if (_assocs_buff.Count <= 0)
+            {
+                return null;
+            }
+
+            if (_assocs_buff[0].isLoaded())
+            {
+                return _assocs_buff[0].handle;
+            }
+            
+            return null;
         }
 
         virtual public string editor_getButtonName() => uid + " (x" + layers.Count + ")";
@@ -477,7 +543,11 @@ namespace fwp.scenes
         {
             return "{SceneProfil} " + stringify();
         }
+
+
+
     }
+
 
 }
 

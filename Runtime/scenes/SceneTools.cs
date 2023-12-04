@@ -141,9 +141,20 @@ namespace fwp.scenes
 #if UNITY_EDITOR
         static public bool isEditorSceneLoaded(string sceneName)
         {
-            var scene = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByName(sceneName);
-            return scene.isLoaded;
+			var scene = getEditorSceneLoaded(sceneName);
+			return scene != null;
         }
+
+		static public UnityEngine.SceneManagement.Scene? getEditorSceneLoaded(string sceneName)
+        {
+			var scene = EditorSceneManager.GetSceneByName(sceneName);
+			if(scene.IsValid() && scene.isLoaded)
+            {
+				return scene;
+            }
+			return null;
+		}
+
 #endif
 
 

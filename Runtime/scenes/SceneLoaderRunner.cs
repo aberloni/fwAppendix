@@ -40,12 +40,9 @@ namespace fwp.scenes
             //SceneLoader.loaders.Remove(this);
         }
 
-        // 
-
-
         public Coroutine asyncLoadScenes(string[] sceneNames, Action<SceneAssoc[]> onComplete = null, float delayOnCompletion = 0f)
         {
-            assocs = SceneLoader.solveScenesAssocs(sceneNames);
+            assocs = SceneAssoc.solveScenesAssocs(sceneNames, true);
 
             return StartCoroutine(processLoadScenes(onComplete, delayOnCompletion));
         }

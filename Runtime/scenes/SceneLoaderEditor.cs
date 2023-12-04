@@ -18,6 +18,7 @@ namespace fwp.scenes
 
 
 #if UNITY_EDITOR
+
 		static public void loadScene(string nm, OpenSceneMode mode = OpenSceneMode.Additive)
 		{
 			string path = SceneTools.getPathOfSceneInProject(nm);
