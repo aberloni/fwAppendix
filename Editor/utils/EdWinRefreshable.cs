@@ -16,10 +16,18 @@ namespace fwp.utils.editor
     /// </summary>
     abstract public class EdWinRefreshable : EdWinFilterable
     {
-
         bool _refresh = false;
 
         virtual protected bool isDrawableAtRuntime() => true;
+
+        static public void setDirty<T>() where T : EdWinRefreshable
+        {
+            if(EditorWindow.HasOpenInstances<T>())
+            {
+                var win = EditorWindow.GetWindow<T>();
+                win.primeRefresh();
+            }
+        }
 
         private void OnEnable()
         {
