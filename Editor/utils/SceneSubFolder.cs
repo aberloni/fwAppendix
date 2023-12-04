@@ -132,10 +132,24 @@ public class SceneSubFolder
 
         if (GUILayout.Button(label, GUILayout.Width(GuiHelpers.btnSymbWidth)))
         {
-            if (!present) onEditorSceneCall(profil, true, true);
-            else onEditorSceneCall(profil, false);
+            if (!present)
+            {
+                onEditorSceneCall(profil, true, true);
+                onSceneCall(profil, true);
+            }
+            else
+            {
+                onEditorSceneCall(profil, false);
+                onSceneCall(profil, false);
+            }
         }
     }
+
+    /// <summary>
+    /// when user calls for a scene
+    /// </summary>
+    virtual protected void onSceneCall(SceneProfil profil, bool load)
+    { }
 
     virtual public string stringify()
     {
