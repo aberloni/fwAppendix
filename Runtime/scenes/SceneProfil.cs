@@ -504,7 +504,8 @@ namespace fwp.scenes
                 _assocs_buff.AddRange(SceneAssoc.solveScenesAssocs(layers.ToArray()));
                 _assocs_buff.AddRange(SceneAssoc.solveScenesAssocs(deps.ToArray()));
 
-                Debug.Log("assocs x" + _assocs_buff.Count);
+                if(verbose)
+                    Debug.Log("assocs x" + _assocs_buff.Count);
             }
             
             return _assocs_buff;

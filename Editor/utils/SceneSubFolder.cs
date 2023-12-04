@@ -1,11 +1,11 @@
-using fwp.appendix;
-using fwp.appendix.user;
-using fwp.scenes;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using static System.Collections.Specialized.BitVector32;
+
+using fwp.appendix;
+using fwp.appendix.user;
+using fwp.scenes;
 
 /// <summary>
 /// gather all scenes profiles for a specific folder
