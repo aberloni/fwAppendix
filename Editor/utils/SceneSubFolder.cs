@@ -97,10 +97,21 @@ public class SceneSubFolder
         GuiHelpers.pingScene(profil.profilPath);
     }
 
-    virtual protected void drawSceneLine(SceneProfil profil)
+    /// <summary>
+    /// root call to draw the line of given profil
+    /// </summary>
+    protected void drawSceneLine(SceneProfil profil)
     {
         GUILayout.BeginHorizontal();
+        drawLineContent(profil);
+        GUILayout.EndHorizontal();
+    }
 
+    /// <summary>
+    /// whatever is drawn in a profil line
+    /// </summary>
+    virtual protected void drawLineContent(SceneProfil profil)
+    {
         if (GUILayout.Button("?", GUILayout.Width(GuiHelpers.btnSymbWidthSmall)))
         {
             logSceneDetails(profil);
@@ -123,8 +134,6 @@ public class SceneSubFolder
             if (!present) onEditorSceneCall(profil, true, true);
             else onEditorSceneCall(profil, false);
         }
-
-        GUILayout.EndHorizontal();
     }
 
     virtual public string stringify()
