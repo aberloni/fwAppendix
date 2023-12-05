@@ -105,7 +105,11 @@ namespace fwp.scenes
         {
             return queryScenes(new string[] { sceneName }, (SceneAssoc[] scs) =>
             {
-                onComplete?.Invoke(scs[0]);
+                SceneAssoc sa = null;
+
+                if (scs != null && scs.Length > 0) sa = scs[0];
+                
+                onComplete?.Invoke(sa);
             });
         }
         static public Coroutine queryScenes(string[] sceneNames, Action<SceneAssoc[]> onComplete = null)
