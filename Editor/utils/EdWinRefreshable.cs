@@ -29,12 +29,31 @@ namespace fwp.utils.editor
             }
         }
 
+        private void OnFocus()
+        {
+            onFocus(true);
+            
+        }
+
+        private void OnLostFocus()
+        {
+            onFocus(false);
+        }
+
+        virtual protected void onFocus(bool gainFocus)
+        {
+            if(gainFocus)
+            {
+                refresh();
+            }
+        }
+
         private void OnEnable()
         {
             // https://forum.unity.com/threads/editorwindow-how-to-tell-when-returned-to-editor-mode-from-play-mode.541578/
             EditorApplication.playModeStateChanged += reactPlayModeState;
             //LogPlayModeState(PlayModeStateChange.EnteredEditMode);
-            refresh();
+            
         }
 
         private void OnDisable()

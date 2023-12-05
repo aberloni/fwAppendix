@@ -100,22 +100,29 @@ public class SceneSubFolder
     /// <summary>
     /// root call to draw the line of given profil
     /// </summary>
-    protected void drawSceneLine(SceneProfil profil)
+    protected bool drawSceneLine(SceneProfil profil)
     {
         GUILayout.BeginHorizontal();
-        drawLineContent(profil);
+        
+        bool output = drawLineContent(profil);
+
         GUILayout.EndHorizontal();
+
+        return output;
     }
 
     /// <summary>
     /// whatever is drawn in a profil line
+    /// true : called load
     /// </summary>
-    virtual protected void drawLineContent(SceneProfil profil)
+    virtual protected bool drawLineContent(SceneProfil profil)
     {
         if (GUILayout.Button("?", GUILayout.Width(GuiHelpers.btnSymbWidthSmall)))
         {
             logSceneDetails(profil);
         }
+
+        bool load = false;
 
         // scene button
         if (GUILayout.Button(profil.editor_getButtonName())) // each profil
@@ -123,6 +130,7 @@ public class SceneSubFolder
             //if (EditorPrefs.GetBool(edLoadDebug)) section[i].loadDebug = true;
             //profil.editorLoad(false);
             onEditorSceneCall(profil, true, false);
+            load = true;
         }
 
         // add/remove buttons
@@ -136,6 +144,7 @@ public class SceneSubFolder
             {
                 onEditorSceneCall(profil, true, true);
                 onSceneCall(profil, true);
+                load = true;
             }
             else
             {
@@ -143,6 +152,8 @@ public class SceneSubFolder
                 onSceneCall(profil, false);
             }
         }
+
+        return load;
     }
 
     /// <summary>

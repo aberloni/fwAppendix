@@ -210,6 +210,20 @@ namespace fwp.scenes
 
 #if UNITY_EDITOR
 
+		static public string getSceneAssetFullPath(string partName)
+		{
+			// in project t:Scene
+			string[] paths = getProjectAssetScenesPaths();
+
+			for (int i = 0; i < paths.Length; i++)
+			{
+				if (!paths[i].Contains(".unity")) continue;
+				if (paths[i].Contains(partName)) return paths[i];
+			}
+
+			return string.Empty;
+		}
+
 		static public string getBuildSettingsFullPathOfScene(string partName)
 		{
 			string fullName = getBuildSettingsSceneFullName(partName);
@@ -243,22 +257,6 @@ namespace fwp.scenes
 			all.Add(addScene);
 
 			EditorBuildSettings.scenes = all.ToArray();
-		}
-
-		static public string getSceneAssetFullPath(string sceneName)
-		{
-			string fullName = getBuildSettingsSceneFullName(sceneName);
-
-			string[] paths = getProjectAssetScenesPaths();
-
-			for (int i = 0; i < paths.Length; i++)
-			{
-				if (!paths[i].Contains(".unity")) continue;
-
-				if (paths[i].Contains(sceneName)) return paths[i];
-			}
-
-			return string.Empty;
 		}
 
 
