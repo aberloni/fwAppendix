@@ -237,6 +237,12 @@ namespace fwp.screens
             unload();
         }
 
+        public bool isBusy()
+        {
+            if (isOpening()) return true;
+            if (isClosing()) return true;
+            return isOpen();
+        }
         /// <summary>
         /// /! 
         /// APRES anim open
@@ -337,23 +343,32 @@ namespace fwp.screens
             return null;
         }
 
-        static public ScreenAnimated toggleScreen(string scNameToOpen)
+        static public void toggleScreen(string screenName)
         {
-            ScreenObject so = ScreensManager.getOpenedScreen(scNameToOpen);
-            Debug.Log(so);
+            ScreenAnimated so = (ScreenAnimated)ScreensManager.getOpenedScreen(screenName);
 
-            ScreenAnimated sa = so as ScreenAnimated;
-            Debug.Log(sa);
-
-            if (sa.isOpen())
+            // present ?
+            if(so != null)
             {
-                sa.closeAnimated();
-                return sa;
+                if (so.isBusy())
+                    return;
+
+                if (so.isOpen()) so.closeAnimated();
+                else so.openAnimated();
+
+                return;
             }
+            
+            // not there
+            ScreensManager.open(screenName, (screen)=>
+            {
+                so = screen as ScreenAnimated;
+                if(so != null)
+                {
+                    so.openAnimated();
+                }
+            });
 
-            Debug.LogWarning("toggling " + scNameToOpen + " did nothing ; screen is opening ?");
-
-            return null;
         }
 
     }
