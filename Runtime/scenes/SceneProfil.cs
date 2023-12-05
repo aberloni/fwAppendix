@@ -511,6 +511,45 @@ namespace fwp.scenes
             return _assocs_buff;
         }
 
+        public GameObject extractRoot(string sceneName, string rootName)
+        {
+            Scene? sc = extractScene(sceneName);
+
+            if (sc == null)
+                return null;
+
+            foreach (var root in sc.Value.GetRootGameObjects())
+            {
+                if (root.name.Contains(rootName))
+                    return root;
+            }
+
+            return null;
+        }
+
+        public Scene? extractScene(string nm)
+        {
+            refresh();
+
+            if (_assocs_buff == null)
+                return null;
+
+            if (_assocs_buff.Count <= 0)
+            {
+                return null;
+            }
+
+            foreach(var assoc in _assocs_buff)
+            {
+                if(assoc.handle.name.Contains(nm))
+                {
+                    return assoc.handle;
+                }
+            }
+
+            return null;
+        }
+
         public Scene? extractMainScene()
         {
             refresh();
