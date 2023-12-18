@@ -47,13 +47,13 @@ namespace fwp.screens
             _animator = GetComponent<Animator>();
             if (_animator == null)
             {
-                if(transform.childCount > 0)
+                if (transform.childCount > 0)
                 {
                     _animator = transform.GetChild(0).GetComponent<Animator>();
                 }
             }
 
-            if(!hasValidAnimator())
+            if (!hasValidAnimator())
             {
                 Debug.LogWarning(getStamp() + " animator is NOT VALID");
             }
@@ -146,7 +146,7 @@ namespace fwp.screens
 
                 //... do something spec for animating screen
                 IEnumerator process = processWaitUntilState(parameters.state_opened);
-                while(process.MoveNext()) yield return null;
+                while (process.MoveNext()) yield return null;
             }
 
             evtOpeningAnimationDone();
@@ -213,7 +213,7 @@ namespace fwp.screens
                 log("waiting for screen to end close animation");
 
                 IEnumerator process = processWaitUntilStateDone(parameters.state_closed);
-                while(process.MoveNext()) yield return null;
+                while (process.MoveNext()) yield return null;
             }
 
             evtClosingAnimationCompleted();
@@ -290,7 +290,7 @@ namespace fwp.screens
             }
             while (info.IsName(state));
 
-            log("state:" + state+" STARTED");
+            log("state:" + state + " STARTED");
 
             onCompletion?.Invoke();
         }
@@ -302,7 +302,7 @@ namespace fwp.screens
             // wait for state to start
             IEnumerator process = processWaitUntilState(state);
             while (process.MoveNext()) yield return null;
-            
+
             AnimatorStateInfo info;
             // wait for state to exit
             do
@@ -312,7 +312,7 @@ namespace fwp.screens
             }
             while (info.IsName(state));
 
-            log("state:" + state+" EXITED");
+            log("state:" + state + " EXITED");
 
             onCompletion?.Invoke();
         }
@@ -334,12 +334,16 @@ namespace fwp.screens
         static public T getScreen<T>(string screenName) where T : ScreenAnimated
         {
             T[] scs = GameObject.FindObjectsOfType<T>();
-            if (scs.Length <= 0) Debug.LogWarning("no screen <" + typeof(T) + "> present");
 
-            for (int i = 0; i < scs.Length; i++)
+            if (scs.Length <= 0) Debug.LogWarning("no screen <" + typeof(T) + "> present (to return screen of name : " + screenName + ")");
+            else
             {
-                if (scs[i].isScreenOfSceneName(screenName)) return scs[i];
+                for (int i = 0; i < scs.Length; i++)
+                {
+                    if (scs[i].isScreenOfSceneName(screenName)) return scs[i];
+                }
             }
+
             return null;
         }
 
@@ -348,7 +352,7 @@ namespace fwp.screens
             ScreenAnimated so = (ScreenAnimated)ScreensManager.getOpenedScreen(screenName);
 
             // present ?
-            if(so != null)
+            if (so != null)
             {
                 if (so.isBusy())
                     return;
@@ -358,12 +362,12 @@ namespace fwp.screens
 
                 return;
             }
-            
+
             // not there
-            ScreensManager.open(screenName, (screen)=>
+            ScreensManager.open(screenName, (screen) =>
             {
                 so = screen as ScreenAnimated;
-                if(so != null)
+                if (so != null)
                 {
                     so.openAnimated();
                 }

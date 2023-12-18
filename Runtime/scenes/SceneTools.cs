@@ -61,20 +61,19 @@ namespace fwp.scenes
 
 #if UNITY_EDITOR
 
-			// must use assetdatabase when !runtime
-			if (Application.isPlaying)
+			if (!Application.isPlaying)
 			{
-				scenes = getAllBuildSettingsScenes(false);
-			}
-			else
-            {
+				// !runtime : asset database
 				scenes = getProjectAssetScenesPaths();
 			}
 
-#else
-			// in build, use build settings list
-			scenes = getAllBuildSettingsScenes(false);
 #endif
+
+			if(scenes.Length <= 0)
+            {
+				// @runtime / @build, use build settings list
+				scenes = getAllBuildSettingsScenes(false);
+			}
 
 			List<string> output = new List<string>();
 
@@ -306,26 +305,30 @@ namespace fwp.scenes
 			return string.Empty;
 		}
 
+		static string[] _scene_paths;
+
 		/// <summary>
 		/// fetch all scene present in database
 		/// this should return all scene in projet
 		/// </summary>
 		static public string[] getProjectAssetScenesPaths()
 		{
-			string[] paths = AssetDatabase.FindAssets("t:Scene");
+			if (_scene_paths != null) return _scene_paths;
 
-			if (paths.Length <= 0)
+			_scene_paths = AssetDatabase.FindAssets("t:Scene");
+
+			if (_scene_paths.Length <= 0)
 			{
 				Debug.LogWarning("asking for scene but none ?");
 			}
 
 			//replace GUID by full path
-			for (int i = 0; i < paths.Length; i++)
+			for (int i = 0; i < _scene_paths.Length; i++)
 			{
-				paths[i] = AssetDatabase.GUIDToAssetPath(paths[i]);
+				_scene_paths[i] = AssetDatabase.GUIDToAssetPath(_scene_paths[i]);
 			}
 
-			return paths;
+			return _scene_paths;
 		}
 
 #endif

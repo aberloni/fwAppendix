@@ -257,9 +257,12 @@ namespace fwp.screens
         {
             if (isVisible())
             {
-                //dans le cas où y a pas que des canvas
-                //ou qu'il y a une seule camera ppale et qu'il faut aligner les choses à 0f
-                transform.position = Vector3.down * 3000f;
+                if(transform != null)
+                {
+                    //dans le cas où y a pas que des canvas
+                    //ou qu'il y a une seule camera ppale et qu'il faut aligner les choses à 0f
+                    transform.position = Vector3.down * 3000f;
+                }
 
                 toggleVisible(false); // specific case : force hide
 

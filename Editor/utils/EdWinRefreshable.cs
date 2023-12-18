@@ -105,6 +105,9 @@ namespace fwp.utils.editor
             verbose = false;
         }
 
+        /// <summary>
+        /// called onFocus gained, force=false
+        /// </summary>
         abstract protected void refresh(bool force = false);
 
         abstract protected string getWindowTitle();

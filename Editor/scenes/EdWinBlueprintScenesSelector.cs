@@ -1,17 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using System;
 using System.IO;
-
-using UnityEditor;
-using UnityEditor.SceneManagement;
 
 namespace fwp.scenes
 {
     using fwp.appendix;
-    using fwp.appendix.user;
 
     /// <summary>
     /// 
@@ -197,8 +191,20 @@ namespace fwp.scenes
             if (verbose)
                 Debug.Log("category:" + category + " paths x" + cat_paths.Count);
 
-            foreach (string path in cat_paths)
+
+
+            for (int i = 0; i < cat_paths.Count; i++)
             {
+                string path = cat_paths[i];
+
+#if UNITY_EDITOR
+                float progr = (i * 1f) / (cat_paths.Count * 1f);
+                if (UnityEditor.EditorUtility.DisplayCancelableProgressBar("profil : " + category, "..."+path, progr))
+                {
+                    return null;
+                }
+#endif
+
                 SceneProfil sp = generateProfil(path);
                 if (sp.isValid())
                 {
@@ -224,6 +230,10 @@ namespace fwp.scenes
 
             if (verbose)
                 Debug.Log("solved x" + profils.Count + " profiles");
+
+#if UNITY_EDITOR
+            UnityEditor.EditorUtility.ClearProgressBar();
+#endif
 
             return profils;
         }
