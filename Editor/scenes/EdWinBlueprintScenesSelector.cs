@@ -64,9 +64,6 @@ namespace fwp.scenes
 
             if (state != null && sections == null || force)
             {
-                if (verbose)
-                    Debug.Log("refresh sections");
-
                 sections = new Dictionary<string, List<SceneSubFolder>>();
                 injectSubSections(state);
             }
@@ -79,13 +76,11 @@ namespace fwp.scenes
             for (int i = 0; i < state.tabs.Count; i++)
             {
                 var lbl = state.tabs[i].path;
-                List<SceneSubFolder> tabContent = solveTabFolder(lbl);
-                sections.Add(lbl, tabContent);
-            }
+                
+                if (verbose) Debug.Log("SceneSelector :: refresh section : " + lbl);
 
-            if (verbose)
-            {
-                Debug.Log("sub folder sections x" + sections.Count);
+                List <SceneSubFolder> tabContent = solveTabFolder(lbl);
+                sections.Add(lbl, tabContent);
             }
 
         }
@@ -189,7 +184,7 @@ namespace fwp.scenes
             var cat_paths = SceneTools.getScenesPathsOfCategory(category, true);
 
             if (verbose)
-                Debug.Log("category:" + category + " paths x" + cat_paths.Count);
+                Debug.Log("category:" + category + " match paths x" + cat_paths.Count);
 
 
 
@@ -210,7 +205,7 @@ namespace fwp.scenes
                 {
                     bool found = false;
 
-                    if (verbose) Debug.Log("searching ... " + sp.uid);
+                    //if (verbose) Debug.Log("searching ... " + sp.uid);
 
                     foreach (var profil in profils)
                     {

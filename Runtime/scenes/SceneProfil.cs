@@ -67,7 +67,11 @@ namespace fwp.scenes
             string solvedCategoryUid = extractUid(categoryUid, hasContextInName);
             Debug.Assert(solvedCategoryUid.Length > 0, "empty uid ? given : " + solvedCategoryUid);
 
-            if (verbose) Debug.Log("UID | cat ? "+ categoryUid + " -> solved ? " + solvedCategoryUid);
+            if (verbose)
+            {
+                Debug.Log(" -> cat ? " + categoryUid);
+                Debug.Log(" --> solved ? " + solvedCategoryUid);
+            }
 
             //Debug.Log(categoryUid + " ? " + solvedCategoryUid);
 
@@ -84,12 +88,7 @@ namespace fwp.scenes
 
             profilPath = categoryUid;
 
-            if (verbose)
-            {
-                Debug.Log(categoryUid + " path @ " + profilPath);
-            }
-
-            this.uid = setup(solvedCategoryUid, paths);
+            uid = setup(solvedCategoryUid, paths);
         }
 
         public void refresh()
@@ -149,7 +148,7 @@ namespace fwp.scenes
         string setup(string setupUid, List<string> paths)
         {
             if (verbose)
-                Debug.Log("setup(" + setupUid + ") paths x" + paths.Count);
+                Debug.Log("SceneProfil, setup(" + setupUid + ") paths x" + paths.Count);
 
             if (uid.ToLower().Contains("SceneManagement"))
             {
@@ -174,7 +173,7 @@ namespace fwp.scenes
             layers.Clear();
             layers.AddRange(paths);
 
-            if (verbose) Debug.Log("layers x" + layers.Count);
+            if (verbose) Debug.Log("   ... found layers x" + layers.Count);
 
             solveDeps();
 

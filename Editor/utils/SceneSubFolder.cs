@@ -164,7 +164,8 @@ public class SceneSubFolder
 
     virtual public string stringify()
     {
-        return "@path:" + projectPath + " @folder:" + folderName + ", total scenes x" + scenes.Count;
+        //return "@path:" + projectPath + " @folder:" + folderName + ", total scenes x" + scenes.Count;
+        return "@folder:" + folderName + ", total scenes x" + scenes.Count;
     }
 
     public const string _pref_autoAdd = "scenesAutoAdd";

@@ -64,7 +64,7 @@ namespace fwp.scenes
 			if (!Application.isPlaying)
 			{
 				// !runtime : asset database
-				scenes = getProjectAssetScenesPaths();
+				scenes = getProjectAssetScenesPaths(); // uses buff filtering
 			}
 
 #endif
@@ -305,7 +305,7 @@ namespace fwp.scenes
 			return string.Empty;
 		}
 
-		static string[] _scene_paths;
+		static string[] __scene_paths;
 
 		/// <summary>
 		/// fetch all scene present in database
@@ -313,22 +313,22 @@ namespace fwp.scenes
 		/// </summary>
 		static public string[] getProjectAssetScenesPaths()
 		{
-			if (_scene_paths != null) return _scene_paths;
+			if (__scene_paths != null) return __scene_paths;
 
-			_scene_paths = AssetDatabase.FindAssets("t:Scene");
+			__scene_paths = AssetDatabase.FindAssets("t:Scene");
 
-			if (_scene_paths.Length <= 0)
+			if (__scene_paths.Length <= 0)
 			{
 				Debug.LogWarning("asking for scene but none ?");
 			}
 
 			//replace GUID by full path
-			for (int i = 0; i < _scene_paths.Length; i++)
+			for (int i = 0; i < __scene_paths.Length; i++)
 			{
-				_scene_paths[i] = AssetDatabase.GUIDToAssetPath(_scene_paths[i]);
+				__scene_paths[i] = AssetDatabase.GUIDToAssetPath(__scene_paths[i]);
 			}
 
-			return _scene_paths;
+			return __scene_paths;
 		}
 
 #endif
