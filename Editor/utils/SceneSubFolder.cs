@@ -113,7 +113,7 @@ public class SceneSubFolder
 
     /// <summary>
     /// whatever is drawn in a profil line
-    /// true : called load
+    /// true : pressed button & load is called
     /// </summary>
     virtual protected bool drawLineContent(SceneProfil profil)
     {

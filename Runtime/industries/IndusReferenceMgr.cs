@@ -26,6 +26,9 @@ namespace fwp.industries
 
     }
 
+    /// <summary>
+    /// make an object compatible with facebook logic
+    /// </summary>
     public interface iIndusReference
     { }
 }

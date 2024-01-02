@@ -26,27 +26,6 @@ namespace fwp.industries
 			}
 		}
 
-		static public List<FactoryBase> getSerializableFactories()
-		{
-			List<FactoryBase> output = new List<FactoryBase>();
-
-			if (factos.Count <= 0)
-			{
-				Debug.LogWarning("no facto present ?");
-				return output;
-			}
-
-			for (int i = 0; i < factos.Count; i++)
-			{
-                if (!factos[i].isFactoSaveLinked()) continue;
-                output.Add(factos[i]);
-			}
-
-			//if (factos.Count <= 0) Debug.LogWarning("no facto present ?");
-
-			return output;
-		}
-
 		/// <summary>
 		/// ie => seek : BrainScrapling
 		/// </summary>
