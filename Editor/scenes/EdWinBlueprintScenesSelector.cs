@@ -53,6 +53,9 @@ namespace fwp.scenes
         {
             SceneProfil.verbose = true;
             base.refreshByTitle();
+
+            scenes.SceneTools.refreshScenePathBuffer();
+
             SceneProfil.verbose = false;
         }
 

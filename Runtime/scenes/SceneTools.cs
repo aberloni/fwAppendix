@@ -307,14 +307,19 @@ namespace fwp.scenes
 
 		static string[] __scene_paths;
 
+		static public void refreshScenePathBuffer() => getProjectAssetScenesPaths(true);
+
 		/// <summary>
 		/// fetch all scene present in database
 		/// this should return all scene in projet
 		/// </summary>
-		static public string[] getProjectAssetScenesPaths()
+		static public string[] getProjectAssetScenesPaths(bool force = false)
 		{
-			if (__scene_paths != null) return __scene_paths;
-
+			if(!force)
+            {
+				if (__scene_paths != null) return __scene_paths;
+			}
+			
 			__scene_paths = AssetDatabase.FindAssets("t:Scene");
 
 			if (__scene_paths.Length <= 0)
