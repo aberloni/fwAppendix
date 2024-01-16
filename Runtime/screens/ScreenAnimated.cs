@@ -69,7 +69,7 @@ namespace fwp.screens
         {
             base.screenSetupLate();
 
-            if (isAutoOpenDuringSetup())
+            if (isAutoOpenDuringSetup()) // true by default
             {
                 openAnimated();
             }

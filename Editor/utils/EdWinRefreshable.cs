@@ -212,20 +212,28 @@ namespace fwp.utils.editor
             }
         }
 
+        static public void pingFolder(string folderPath) => pingObject(folderPath);
+
         /// <summary>
+        /// works with folder (without end / )
         /// use : EditorGUIUtility.PingObject
         /// </summary>
-        static public void pingFolder(string assetsPath)
+        static public void pingObject(string assetsPath)
         {
             if (!assetsPath.StartsWith(GuiHelpers.pathAssetFolderPrefix))
                 assetsPath = System.IO.Path.Combine(GuiHelpers.pathAssetFolderPrefix, assetsPath);
 
             //string path = "Assets/" + assetsPath;
 
+            // https://forum.unity.com/threads/selecting-a-folder-in-the-project-via-button-in-editor-window.355357/
+            if (assetsPath[assetsPath.Length - 1] == '/')
+                assetsPath = assetsPath.Substring(0, assetsPath.Length - 1);
+
             // Load object
             // https://docs.unity3d.com/ScriptReference/AssetDatabase.LoadAssetAtPath.html
             // must include Assets/
             UnityEngine.Object obj = AssetDatabase.LoadAssetAtPath(assetsPath, typeof(UnityEngine.Object));
+
             if (obj == null)
             {
                 Debug.LogWarning("ping failed @" + assetsPath);
