@@ -22,7 +22,7 @@ namespace fwp.utils.editor
 
         static public void setDirty<T>() where T : EdWinRefreshable
         {
-            if(EditorWindow.HasOpenInstances<T>())
+            if (EditorWindow.HasOpenInstances<T>())
             {
                 var win = EditorWindow.GetWindow<T>();
                 win.primeRefresh();
@@ -41,7 +41,7 @@ namespace fwp.utils.editor
 
         virtual protected void onFocus(bool gainFocus)
         {
-            if(gainFocus)
+            if (gainFocus)
             {
                 refresh();
             }
@@ -98,7 +98,7 @@ namespace fwp.utils.editor
         virtual protected void refreshByTitle()
         {
             verbose = true;
-            
+
             log("title-click");
 
             refresh(true);
@@ -211,42 +211,5 @@ namespace fwp.utils.editor
                 SceneView.lastActiveSceneView.AlignViewToObject(tar.transform);
             }
         }
-
-        static public void pingFolder(string folderPath) => pingObject(folderPath);
-
-        /// <summary>
-        /// works with folder (without end / )
-        /// use : EditorGUIUtility.PingObject
-        /// </summary>
-        static public void pingObject(string assetsPath)
-        {
-            if (!assetsPath.StartsWith(GuiHelpers.pathAssetFolderPrefix))
-                assetsPath = System.IO.Path.Combine(GuiHelpers.pathAssetFolderPrefix, assetsPath);
-
-            //string path = "Assets/" + assetsPath;
-
-            // https://forum.unity.com/threads/selecting-a-folder-in-the-project-via-button-in-editor-window.355357/
-            if (assetsPath[assetsPath.Length - 1] == '/')
-                assetsPath = assetsPath.Substring(0, assetsPath.Length - 1);
-
-            // Load object
-            // https://docs.unity3d.com/ScriptReference/AssetDatabase.LoadAssetAtPath.html
-            // must include Assets/
-            UnityEngine.Object obj = AssetDatabase.LoadAssetAtPath(assetsPath, typeof(UnityEngine.Object));
-
-            if (obj == null)
-            {
-                Debug.LogWarning("ping failed @" + assetsPath);
-                return;
-            }
-
-            // Select the object in the project folder
-            Selection.activeObject = obj;
-
-            // Also flash the folder yellow to highlight it
-            EditorGUIUtility.PingObject(obj);
-        }
-
     }
-
 }

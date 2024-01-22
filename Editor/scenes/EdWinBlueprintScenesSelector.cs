@@ -106,7 +106,7 @@ namespace fwp.scenes
 
             if (GUILayout.Button("ping folder", GUILayout.Width(GuiHelpers.btnLabelWidth)))
             {
-                pingFolder(Path.Combine(tabLabel));
+                GuiHelpers.selectFolder(Path.Combine(tabLabel), true);
             }
 
             if (GUILayout.Button("upfold all", GUILayout.Width(GuiHelpers.btnLabelWidth)))
@@ -251,6 +251,7 @@ namespace fwp.scenes
             return null;
         }
 
+        public void selectFolder(string path, bool unfold = false) => fwp.appendix.GuiHelpers.selectFolder(path, unfold);
     }
 
 }
