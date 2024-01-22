@@ -95,6 +95,7 @@ namespace fwp.appendix
                 return false;
             }
 
+
             Debug.Log("pinging (scene) @ " + path);
 
             // https://forum.unity.com/threads/focus-folder-in-project-window.559687/
