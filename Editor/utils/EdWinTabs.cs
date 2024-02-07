@@ -115,10 +115,9 @@ namespace fwp.utils.editor
                 
         }
 
-        protected override void refresh(bool force = false)
+        override public void refresh(bool force = false)
         {
-            // abstract method
-            //base.refresh(force);
+            base.refresh(force);
 
             if (force || stateEditime == null || stateEditime.tabsContent.Length <= 0)
             {

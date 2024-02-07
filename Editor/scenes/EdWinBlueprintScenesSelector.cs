@@ -49,19 +49,16 @@ namespace fwp.scenes
             return new SceneSubFolder(profilUid);
         }
 
-        protected override void refreshByTitle()
-        {
-            SceneProfil.verbose = true;
-            base.refreshByTitle();
-
-            scenes.SceneTools.refreshScenePathBuffer();
-
-            SceneProfil.verbose = false;
-        }
-
-        protected override void refresh(bool force = false)
+        public override void refresh(bool force = false)
         {
             base.refresh(force);
+
+            if(force)
+            {
+                SceneProfil.verbose = true;
+                SceneTools.refreshScenePathBuffer();
+                SceneProfil.verbose = false;
+            }
 
             var state = tabsState; // getter edit/runtime tabs
 

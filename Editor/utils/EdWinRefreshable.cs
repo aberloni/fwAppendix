@@ -59,6 +59,9 @@ namespace fwp.utils.editor
             EditorApplication.playModeStateChanged -= reactPlayModeState;
         }
 
+        /// <summary>
+        /// when editor changes mode
+        /// </summary>
         virtual protected void reactPlayModeState(PlayModeStateChange state)
         {
             //Debug.Log(state);
@@ -93,22 +96,31 @@ namespace fwp.utils.editor
         /// ask for a refresh
         /// (ie during GUI phase)
         /// </summary>
-        protected void primeRefresh() => _refresh = true;
+        public void primeRefresh() => _refresh = true;
 
-        virtual protected void refreshByTitle()
+        public void refreshVerbose()
+        {
+            verbose = true;
+            refresh(true);
+            verbose = false;
+        }
+
+        void refreshByTitle()
         {
             verbose = true;
 
-            log("title-click");
+            log("<b>title clicked</b>");
 
-            refresh(true);
-            verbose = false;
+            refreshVerbose();
         }
 
         /// <summary>
         /// called onFocus gained, force=false
         /// </summary>
-        abstract protected void refresh(bool force = false);
+        virtual public void refresh(bool force = false)
+        {
+            if (force) log("force <b>refresh</b>");
+        }
 
         abstract protected string getWindowTitle();
 
