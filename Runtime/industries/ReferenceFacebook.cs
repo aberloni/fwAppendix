@@ -145,7 +145,12 @@ namespace fwp.industries
         /// auto file object in matching category
         /// </summary>
         /// <param name="target"></param>
-        public void injectObject(FaceType target) => injectObject(target, target.GetType());
+        public void injectObject(FaceType target)
+        {
+            Debug.Assert(target == null, "null object given, must prevent sub to facebook for null objects");
+
+            injectObject(target, target.GetType());
+        }
 
         /// <summary>
         /// meant to specify what category to store the object

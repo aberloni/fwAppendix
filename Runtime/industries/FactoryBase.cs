@@ -16,7 +16,7 @@ namespace fwp.industries
         static public void toggleVerbose()
         {
             verbose = !verbose;
-            Debug.LogWarning("toggling verbose for factories : "+verbose);
+            Debug.LogWarning("toggling verbose for factories : " + verbose);
         }
 #endif
 
@@ -121,9 +121,9 @@ namespace fwp.industries
             string path = System.IO.Path.Combine(getObjectPath(), subType);
             Object obj = Resources.Load(path);
 
-            if(obj == null)
+            if (obj == null)
             {
-                Debug.LogWarning($"{GetType()}&{_factoryTargetType} null object @ " + path);
+                Debug.LogWarning(getStamp() + " /! <color=red>null object</color> @ " + path);
                 return null;
             }
 
@@ -180,6 +180,10 @@ namespace fwp.industries
                 obj = create(subType);
             }
 
+            // created object might be null, if resource path is pointing to nothing
+            if (obj == null)
+                return null;
+
             // make it active
             inject(obj);
 
@@ -198,7 +202,7 @@ namespace fwp.industries
 
         void recycleInternal(iFactoryObject candid)
         {
-            if(recycle(candid))
+            if (recycle(candid))
             {
                 candid.factoRecycle();
             }
@@ -239,11 +243,11 @@ namespace fwp.industries
             // edge case where recycling is called when destroying the object
             if (!IsNullOrDestroyed(comp))
             {
-                if(comp.transform != null)
+                if (comp.transform != null)
                 {
                     comp.transform.SetParent(null);
                 }
-                
+
                 // do something more ?
                 //comp.gameObject.SetActive(false);
                 //comp.enabled = false;
@@ -270,13 +274,13 @@ namespace fwp.industries
         {
             bool dirty = false;
 
-            if(inactives.Contains(candid))
+            if (inactives.Contains(candid))
             {
                 inactives.Remove(candid);
 
                 dirty = true;
             }
-            
+
             if (actives.IndexOf(candid) < 0)
             {
                 actives.Add(candid);
@@ -291,7 +295,7 @@ namespace fwp.industries
                 dirty = true;
             }
 
-            if(dirty)
+            if (dirty)
                 log("inject :: " + candid + " :: ↑" + actives.Count + "/ ↓" + inactives.Count);
         }
 
@@ -322,7 +326,7 @@ namespace fwp.industries
             Debug.Assert(actives.Count <= 0);
         }
 
-        string getStamp() => "<color=#3333aa>" + GetType() + "</color>";
+        string getStamp() => "<color=#3333aa>" + GetType() + "|" + _factoryTargetType + "</color>";
 
         void log(string content, object target = null)
         {
@@ -330,7 +334,7 @@ namespace fwp.industries
 #if UNITY_EDITOR || industries
             bool showLog = verbose;
 
-            if(showLog)
+            if (showLog)
                 Debug.Log(getStamp() + content, target as Object);
 #endif
         }
