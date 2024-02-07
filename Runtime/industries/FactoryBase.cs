@@ -272,6 +272,8 @@ namespace fwp.industries
         /// </summary>
         public void inject(iFactoryObject candid)
         {
+            Debug.Assert(candid != null, "candid to inject is null ?");
+
             bool dirty = false;
 
             if (inactives.Contains(candid))
