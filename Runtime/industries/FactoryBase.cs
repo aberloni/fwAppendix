@@ -120,10 +120,16 @@ namespace fwp.industries
         {
             string path = System.IO.Path.Combine(getObjectPath(), subType);
             Object obj = Resources.Load(path);
-            Debug.Assert(obj != null, $"{GetType()}&{_factoryTargetType} no object to load at path : " + path);
+
+            if(obj == null)
+            {
+                Debug.LogWarning($"{GetType()}&{_factoryTargetType} null object @ " + path);
+                return null;
+            }
 
             obj = GameObject.Instantiate(obj);
-            Debug.Log(getStamp() + " created:" + obj, obj);
+
+            log(" created:" + obj, obj);
 
             GameObject go = obj as GameObject;
 
@@ -318,14 +324,14 @@ namespace fwp.industries
 
         string getStamp() => "<color=#3333aa>" + GetType() + "</color>";
 
-        void log(string content)
+        void log(string content, object target = null)
         {
 
 #if UNITY_EDITOR || industries
             bool showLog = verbose;
 
             if(showLog)
-                Debug.Log(getStamp() + content);
+                Debug.Log(getStamp() + content, target as Object);
 #endif
         }
 
