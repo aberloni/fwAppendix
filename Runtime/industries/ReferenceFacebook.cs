@@ -147,8 +147,13 @@ namespace fwp.industries
         /// <param name="target"></param>
         public void injectObject(FaceType target)
         {
-            Debug.Assert(target == null, "null object given, must prevent sub to facebook for null objects");
-
+            if(target == null)
+            {
+                Debug.LogError("null object given, must prevent sub to facebook for null objects");
+                Debug.LogError("object might not be compatible with this FaceType ? "+typeof(FaceType));
+                return;
+            }
+            
             injectObject(target, target.GetType());
         }
 
