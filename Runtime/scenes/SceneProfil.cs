@@ -53,6 +53,16 @@ namespace fwp.scenes
         List<SceneAssoc> _assocs_buff;
 
         /// <summary>
+        /// has found anything
+        /// </summary>
+        public bool isValid()
+        {
+            if (uid.Length <= 0) return false;
+            if (layers == null) return false;
+            return layers.Count > 0;
+        }
+
+        /// <summary>
         /// categoryUid is uniq PATH to scenes
         /// ingame, want to load a scene
         /// force add is not available in builds
@@ -117,10 +127,15 @@ namespace fwp.scenes
         /// </summary>
         List<string> filterAllPaths(string categoryUid, bool removeExt = false)
         {
-
+            // get all paths to scenes matching category uid
             var paths = getPaths(categoryUid, removeExt);
-            Debug.Assert(paths.Count > 0, "empty paths[] ? uid : " + categoryUid);
-
+            if(paths.Count <= 0)
+            {
+                Debug.LogWarning($"given category : <b>{categoryUid}</b> => empty paths[] (length = 0)");
+                Debug.LogWarning("target category was not added to build settings ?");
+                return null;
+            }
+            
             // filter paths
 
             for (int i = 0; i < paths.Count; i++)
@@ -142,8 +157,6 @@ namespace fwp.scenes
         {
             return sp.uid == uid;
         }
-
-        public bool isValid() => this.uid.Length > 0;
 
         string setup(string setupUid, List<string> paths)
         {
