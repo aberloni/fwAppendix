@@ -72,7 +72,9 @@ namespace fwp.scenes
         /// </summary>
         public SceneProfil(string categoryUid, bool hasContextInName = false)
         {
-            this.uid = string.Empty; // invalid
+            // invalid by default
+            this.uid = string.Empty; 
+            profilPath = string.Empty;
 
             string solvedCategoryUid = extractUid(categoryUid, hasContextInName);
             Debug.Assert(solvedCategoryUid.Length > 0, "empty uid ? given : " + solvedCategoryUid);
@@ -85,19 +87,18 @@ namespace fwp.scenes
 
             //Debug.Log(categoryUid + " ? " + solvedCategoryUid);
 
-            //var paths = filterAllPaths(solvedCategoryUid, true);
+            // this might return null
+            // @runtime : if scenes are not present in build settings
             var paths = filterAllPaths(categoryUid, true);
 
-            if (paths.Count <= 0)
-            {
-                Debug.LogWarning(solvedCategoryUid + " has no remaining paths after filtering ?");
+            if (paths == null)
                 return;
-            }
 
-            //Debug.Log(getStamp() + " created");
+            if (paths.Count <= 0)
+                return;
 
+            // solve flag(s) validity
             profilPath = categoryUid;
-
             uid = setup(solvedCategoryUid, paths);
         }
 
