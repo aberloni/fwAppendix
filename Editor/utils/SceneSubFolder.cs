@@ -53,7 +53,7 @@ public class SceneSubFolder
         int cnt = 0;
         for (int i = 0; i < scenes.Count; i++)
         {
-            if (scenes[i].uid.Contains(filter))
+            if (scenes[i].label.Contains(filter))
                 cnt++;
         }
 
@@ -84,7 +84,7 @@ public class SceneSubFolder
 
     virtual protected void logSceneDetails(SceneProfil profil)
     {
-        Debug.Log(profil.uid);
+        Debug.Log(profil.label);
 
         Debug.Log("layers x" + profil.layers.Count);
         foreach (var elmt in profil.layers)
@@ -134,7 +134,7 @@ public class SceneSubFolder
         }
 
         // add/remove buttons
-        bool present = SceneTools.isEditorSceneLoaded(profil.uid);
+        bool present = SceneTools.isEditorSceneLoaded(profil.label);
         //bool present = profil.isLoaded();
         string label = present ? "-" : "+";
 

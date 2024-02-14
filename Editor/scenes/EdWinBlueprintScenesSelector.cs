@@ -38,6 +38,7 @@ namespace fwp.scenes
         /// </summary>
         virtual protected SceneProfil generateProfil(string uid)
         {
+            //Debug.Log("generating default profil : " + uid);
             return new SceneProfil(uid);
         }
 
@@ -53,11 +54,9 @@ namespace fwp.scenes
         {
             base.refresh(force);
 
-            if(force)
+            if (force)
             {
-                SceneProfil.verbose = true;
                 SceneTools.refreshScenePathBuffer();
-                SceneProfil.verbose = false;
             }
 
             var state = tabsState; // getter edit/runtime tabs
@@ -76,10 +75,10 @@ namespace fwp.scenes
             for (int i = 0; i < state.tabs.Count; i++)
             {
                 var lbl = state.tabs[i].path;
-                
+
                 if (verbose) Debug.Log("SceneSelector :: refresh section : " + lbl);
 
-                List <SceneSubFolder> tabContent = solveTabFolder(lbl);
+                List<SceneSubFolder> tabContent = solveTabFolder(lbl);
                 sections.Add(lbl, tabContent);
             }
 
@@ -95,6 +94,9 @@ namespace fwp.scenes
 
         protected bool drawSubs(string tabLabel)
         {
+            if (sections.Count <= 0)
+                return true;
+
             var subList = sections[tabLabel];
 
             GUILayout.BeginHorizontal();
@@ -163,7 +165,7 @@ namespace fwp.scenes
 
                 sub.scenes = kp.Value;
 
-                if(verbose) Debug.Log(sub.stringify());
+                if (verbose) Debug.Log(sub.stringify());
 
                 output.Add(sub);
             }
@@ -184,9 +186,7 @@ namespace fwp.scenes
             var cat_paths = SceneTools.getScenesPathsOfCategory(category, true);
 
             if (verbose)
-                Debug.Log("category:" + category + " match paths x" + cat_paths.Count);
-
-
+                Debug.Log("category <b>" + category + "</b> match paths x" + cat_paths.Count);
 
             for (int i = 0; i < cat_paths.Count; i++)
             {
@@ -194,37 +194,49 @@ namespace fwp.scenes
 
 #if UNITY_EDITOR
                 float progr = (i * 1f) / (cat_paths.Count * 1f);
-                if (UnityEditor.EditorUtility.DisplayCancelableProgressBar("profil : " + category, "..."+path, progr))
+                if (UnityEditor.EditorUtility.DisplayCancelableProgressBar("profil : " + category, "..." + path, progr))
                 {
                     return null;
                 }
 #endif
 
                 SceneProfil sp = generateProfil(path);
-                if (sp.isValid())
+                if (!sp.isValid()) Debug.LogWarning(path + " is not a valid profil");
+                else
                 {
                     bool found = false;
 
-                    //if (verbose) Debug.Log("searching ... " + sp.uid);
-
+                    // search in existing profils
                     foreach (var profil in profils)
                     {
                         if (profil.match(sp))
                             found = true;
                     }
 
-                    if (!found)
+                    // this profil is already in list
+                    if (found)
+                    {
+                        if (verbose) Debug.Log("~ " + sp.label + " @ " + path);
+                    }
+                    else
                     {
                         profils.Add(sp);
 
-                        if (verbose) Debug.Log("+ " + sp.uid);
+                        if (verbose) Debug.Log("+ " + sp.label + " @ " + path);
                     }
 
                 }
             }
 
             if (verbose)
+            {
                 Debug.Log("solved x" + profils.Count + " profiles");
+                foreach (var p in profils)
+                {
+                    Debug.Log(p.stringify());
+                }
+            }
+
 
 #if UNITY_EDITOR
             UnityEditor.EditorUtility.ClearProgressBar();
