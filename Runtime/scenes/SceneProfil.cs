@@ -31,6 +31,7 @@ namespace fwp.scenes
 
         /// <summary>
         /// returns path without scene folder
+        /// path/to/context/
         /// </summary>
         public string parentPath
         {
@@ -46,7 +47,7 @@ namespace fwp.scenes
         }
 
         /// <summary>
-        /// returns the name of the parent folder
+        /// returns just the name of the parent folder
         /// </summary>
         public string parentFolder
             => parentPath.Substring(parentPath.LastIndexOf('/') + 1);
@@ -79,9 +80,6 @@ namespace fwp.scenes
         {
             //Debug.Assert(categoryUid.Split("_").Length < 2, categoryUid + " cannot be partial : CONTEXT_SCENE_LAYER");
 
-            // invalid by default
-            profilPath = string.Empty;
-
             if (categoryUid.Contains("SceneManagement"))
             {
                 Debug.LogError("invalid uid : " + categoryUid);
@@ -91,7 +89,8 @@ namespace fwp.scenes
             extractContext(categoryUid);
 
             // remove uid from path
-            profilPath = categoryUid.Substring(0, categoryUid.LastIndexOf("/"));
+            //profilPath = categoryUid.Substring(0, categoryUid.LastIndexOf("/"));
+            profilPath = categoryUid;
 
             if (string.IsNullOrEmpty(context))
             {
