@@ -43,8 +43,13 @@ namespace fwp.scenes
 
                 string _path = profilPath;
 
-                // remove scene name
-                _path = _path.Substring(0, _path.LastIndexOf('/'));
+                Debug.Assert(_path.IndexOf("/") < 0, "path has no _ ? " + _path);
+
+                if(_path.IndexOf('/') > 0)
+                {
+                    // remove scene name
+                    _path = _path.Substring(0, _path.LastIndexOf('/'));
+                }
 
                 return _path;
             }
