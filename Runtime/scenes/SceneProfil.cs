@@ -19,6 +19,8 @@ namespace fwp.scenes
     {
         static public bool verbose = false;
 
+        string category; // debug
+
         string context_base; // context ONLY
         string context; // context OR context_scene
 
@@ -37,6 +39,8 @@ namespace fwp.scenes
         {
             get
             {
+                Debug.Assert(!string.IsNullOrEmpty(profilPath), "no profil path to deduce parent path ? (" + category + ")");
+
                 string _path = profilPath;
 
                 // remove scene name
@@ -78,6 +82,8 @@ namespace fwp.scenes
         /// </summary>
         public SceneProfil(string categoryUid)
         {
+            category = categoryUid;
+
             //Debug.Assert(categoryUid.Split("_").Length < 2, categoryUid + " cannot be partial : CONTEXT_SCENE_LAYER");
 
             if (categoryUid.Contains("SceneManagement"))
