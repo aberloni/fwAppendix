@@ -155,7 +155,7 @@ namespace fwp.scenes
             {
                 string parent = profil.parentPath;
 
-                Debug.Log(profil.label + " @ " + profil.parentPath);
+                //Debug.Log(profil.label + " @ " + profil.parentPath);
 
                 if (!list.ContainsKey(parent))
                 {

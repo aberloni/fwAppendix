@@ -63,7 +63,7 @@ namespace fwp.scenes
             string[] scenes = new string[0];
 
             //if (!folderContains.EndsWith("/")) folderContains += "/";
-            folderContains = "/" + folderContains.ToLower() + "/";
+            folderContains = "/" + folderContains.ToLower();
 
 #if UNITY_EDITOR
 
