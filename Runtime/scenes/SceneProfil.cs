@@ -425,6 +425,9 @@ namespace fwp.scenes
         }
 #endif
 
+        /// <summary>
+        /// create a virtual delay after loadings layers & deps
+        /// </summary>
         virtual protected float getDebugLoadDelay() => 0f;
 
         public void buildLoad(Action<SceneProfil> onLoadedCompleted)
