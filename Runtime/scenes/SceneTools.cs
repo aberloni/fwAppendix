@@ -40,6 +40,9 @@ namespace fwp.scenes
             }
         }
 
+        /// <summary>
+        /// will keep anything after last /
+        /// </summary>
         static public string removePathBeforeFile(string path)
         {
             return path.Substring(path.LastIndexOf("/") + 1);
@@ -60,7 +63,7 @@ namespace fwp.scenes
             string[] scenes = new string[0];
 
             //if (!folderContains.EndsWith("/")) folderContains += "/";
-            folderContains = folderContains.ToLower();
+            folderContains = "/" + folderContains.ToLower() + "/";
 
 #if UNITY_EDITOR
 

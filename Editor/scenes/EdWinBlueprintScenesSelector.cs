@@ -139,6 +139,12 @@ namespace fwp.scenes
         List<SceneSubFolder> solveTabFolder(string tabName)
         {
             List<SceneProfil> profils = getProfils(tabName);
+            if(profils == null)
+            {
+                Debug.LogError("null profils while solving tabs ?");
+                return null;
+            }
+
 
             Dictionary<string, List<SceneProfil>> list = new Dictionary<string, List<SceneProfil>>();
 

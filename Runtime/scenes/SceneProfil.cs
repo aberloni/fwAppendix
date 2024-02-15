@@ -19,17 +19,16 @@ namespace fwp.scenes
     {
         static public bool verbose = false;
 
-        string category; // debug
+        string _category; // debug
+        string _profilPath; // path to profil
 
         string context_base; // context ONLY
         string context; // context OR context_scene
 
-        // path to folder of uid
-        public string profilPath;
-
         bool _dirty = false;
 
         public string label => context;
+        public string pathToScene => _profilPath;
 
         /// <summary>
         /// returns path without scene folder
@@ -39,14 +38,14 @@ namespace fwp.scenes
         {
             get
             {
-                Debug.Assert(!string.IsNullOrEmpty(profilPath), "no profil path to deduce parent path ? (" + category + ")");
+                Debug.Assert(!string.IsNullOrEmpty(_profilPath), "no profil path to deduce parent path ? (" + _category + ")");
 
-                string _path = profilPath;
+                string _path = _profilPath;
 
                 //  Assets/Scenes/Resources/resource-engine
                 Debug.Assert(_path.IndexOf("/") > 0, "path has no '/' ? " + _path);
 
-                if(_path.IndexOf('/') > 0)
+                if (_path.IndexOf('/') > 0)
                 {
                     // remove scene name
                     _path = _path.Substring(0, _path.LastIndexOf('/'));
@@ -79,34 +78,31 @@ namespace fwp.scenes
 
         /// <summary>
         /// categoryUid is uniq PATH to scenes
+        /// OR simply name of a context
+        /// 
         /// ingame, want to load a scene
         /// force add to build settings is not available in builds
-        /// 
-        /// hasContextInName : if given scene name 
-        ///     (true)  have prefix before : context_name_layer
-        ///     (false) or just : name_layer
         /// </summary>
         public SceneProfil(string categoryUid)
         {
-            category = categoryUid;
-
-            //Debug.Assert(categoryUid.Split("_").Length < 2, categoryUid + " cannot be partial : CONTEXT_SCENE_LAYER");
-
             if (categoryUid.Contains("SceneManagement"))
             {
                 Debug.LogError("invalid uid : " + categoryUid);
                 return;
             }
 
-            extractContext(categoryUid);
+            // only keep context, remove path
+            // path must be deduce by context
+            _category = SceneTools.removePathBeforeFile(categoryUid);
+            Debug.Log("SceneProfil = " + _category);
 
-            // remove uid from path
-            //profilPath = categoryUid.Substring(0, categoryUid.LastIndexOf("/"));
-            profilPath = categoryUid;
+            //Debug.Assert(categoryUid.Split("_").Length < 2, categoryUid + " cannot be partial : CONTEXT_SCENE_LAYER");
+
+            extractContext(_category);
 
             if (string.IsNullOrEmpty(context))
             {
-                Debug.LogError("profil : input = " + categoryUid + " not compat");
+                Debug.LogError("profil : input = " + _category + " not compat");
                 return;
             }
 
@@ -117,7 +113,7 @@ namespace fwp.scenes
             // this might return null
             // @runtime : if scenes are not present in build settings
             // must give root name of category (no layer)
-            var paths = filterAllPaths(context, true);
+            var paths = filterAllPaths(true);
 
             if (paths == null)
             {
@@ -131,9 +127,13 @@ namespace fwp.scenes
                 return;
             }
 
-            // solve flag(s) validity
+            // remove non-compat
+            paths = filterPaths(paths);
 
-            setup(paths);
+            // solve layers & deps paths
+            solvePaths(paths);
+
+            Debug.Assert(!string.IsNullOrEmpty(_profilPath), "profil path must not be null : " + _category);
         }
 
         public void refresh()
@@ -160,23 +160,27 @@ namespace fwp.scenes
         /// <summary>
         /// extract all suited scenes from assetdatabase
         /// </summary>
-        List<string> filterAllPaths(string categoryUid, bool removeExt = false)
+        List<string> filterAllPaths(bool removeExt = false)
         {
             // categoryUid as "folder contains"
             // get all paths to scenes matching category uid
-            var paths = getPaths(categoryUid, removeExt);
+            var paths = getPaths(context_base, removeExt);
             if (paths.Count <= 0)
             {
-                Debug.LogWarning($"given category : <b>{categoryUid}</b> => empty paths[] (length = 0)");
-                Debug.LogWarning("target category was not added to build settings ?");
+                Debug.LogWarning($"given base context : <b>{context_base}</b> => empty paths[] (length = 0)");
+                Debug.LogWarning("target was not added to build settings ?");
                 return null;
             }
+
+            // keep any of the path as reference
+            // to gatekeep others
+            _profilPath = paths[0];
 
             // filter paths
 
             for (int i = 0; i < paths.Count; i++)
             {
-                //Debug.Log(paths[i]);
+                Debug.Log("#" + i + " : " + paths[i]);
 
                 if (!checkPathCompatibility(paths[i]))
                 {
@@ -194,11 +198,14 @@ namespace fwp.scenes
             return sp.label == label;
         }
 
-        void setup(List<string> paths)
+        /// <summary>
+        /// returns path to profil
+        /// </summary>
+        List<string> filterPaths(List<string> paths)
         {
             //if (verbose) Debug.Log("profil: setup(" + context + ") paths x" + paths.Count);
 
-            Debug.Assert(paths.Count > 0, context + " needs paths");
+            Debug.Assert(paths.Count > 0, "paths empty ?");
 
             // clean paths
             for (int i = 0; i < paths.Count; i++)
@@ -209,6 +216,11 @@ namespace fwp.scenes
             // push main scene first
             paths = reorderLayers(paths);
 
+            return paths;
+        }
+
+        void solvePaths(List<string> paths)
+        {
             if (layers == null) layers = new List<string>();
             layers.Clear();
             layers.AddRange(paths);
@@ -338,7 +350,7 @@ namespace fwp.scenes
             }
 
             //var scenes = SceneTools.getProjectAssetScenesPaths();
-            var scenes = filterAllPaths(context, false); // force adding, NEED extensions
+            var scenes = filterAllPaths(false); // force adding, NEED extensions
 
             foreach (string path in scenes)
             {
@@ -617,7 +629,7 @@ namespace fwp.scenes
         public string stringify()
         {
             string output = label;
-            if (!string.IsNullOrEmpty(profilPath)) output += " & profil path : " + profilPath;
+            if (!string.IsNullOrEmpty(_profilPath)) output += " & profil path : " + _profilPath;
             if (layers != null) output += " lyr[x" + layers.Count + "]";
             return output;
         }
