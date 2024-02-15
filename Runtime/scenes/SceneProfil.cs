@@ -43,7 +43,8 @@ namespace fwp.scenes
 
                 string _path = profilPath;
 
-                Debug.Assert(_path.IndexOf("/") < 0, "path has no _ ? " + _path);
+                //  Assets/Scenes/Resources/resource-engine
+                Debug.Assert(_path.IndexOf("/") > 0, "path has no '/' ? " + _path);
 
                 if(_path.IndexOf('/') > 0)
                 {
