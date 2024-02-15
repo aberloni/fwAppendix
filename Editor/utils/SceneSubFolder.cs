@@ -42,7 +42,7 @@ public class SceneSubFolder
             Debug.LogWarning("no base path given ?");
         }
 
-        folderName = folderPath.Substring(folderPath.LastIndexOf("/")+1);
+        folderName = folderPath.Substring(folderPath.LastIndexOf("/") + 1);
     }
 
     public bool hasContent(string filter)
@@ -84,16 +84,17 @@ public class SceneSubFolder
 
     virtual protected void logSceneDetails(SceneProfil profil)
     {
-        Debug.Log(profil.label);
+        Debug.Log("profil:" + profil.label);
 
-        Debug.Log("layers x" + profil.layers.Count);
+        Debug.Log("  -> layers x" + profil.layers.Count);
         foreach (var elmt in profil.layers)
             Debug.Log(elmt);
 
-        Debug.Log("deps x" + profil.deps.Count);
+        Debug.Log("  -> deps x" + profil.deps.Count);
         foreach (var dep in profil.deps)
             Debug.Log(dep);
 
+        // and ping scene
         GuiHelpers.pingScene(profil.profilPath);
     }
 
@@ -103,7 +104,7 @@ public class SceneSubFolder
     protected bool drawSceneLine(SceneProfil profil)
     {
         GUILayout.BeginHorizontal();
-        
+
         bool output = drawLineContent(profil);
 
         GUILayout.EndHorizontal();

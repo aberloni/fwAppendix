@@ -17,7 +17,7 @@ namespace fwp.scenes
     /// </summary>
     public class SceneProfil
     {
-        static public bool verbose = true;
+        static public bool verbose = false;
 
         string context_base; // context ONLY
         string context; // context OR context_scene
@@ -166,7 +166,7 @@ namespace fwp.scenes
             {
                 //Debug.Log(paths[i]);
 
-                if (checkPathIgnore(paths[i]))
+                if (!checkPathCompatibility(paths[i]))
                 {
                     //Debug.Log("ignored: " + paths[i]);
                     paths.RemoveAt(i);
@@ -248,16 +248,13 @@ namespace fwp.scenes
         }
 
         /// <summary>
-        /// remove some pattern
+        /// ce path est compat avec ce profil ?
         /// </summary>
-        virtual protected bool checkPathIgnore(string path)
+        virtual protected bool checkPathCompatibility(string path)
         {
             // both this profil AND given path must share same path
             string copy = path.Substring(0, path.LastIndexOf("/"));
-
-            //Debug.Log(copy + " != " + parentPath);
-
-            return !copy.Contains(parentPath);
+            return copy.Contains(parentPath);
         }
 
         /// <summary>
