@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Collections.ObjectModel;
 
 //using Object = UnityEngine.Object;
 using System.Linq;
@@ -11,17 +12,22 @@ namespace fwp.industries
 
     /// <summary>
     /// manage a dictionary of assoc between a given Type and all objects associated with it
+    /// in : BaseType can be an interface shared by all candidates
     /// </summary>
     abstract public class ReferenceFacebook<FaceType> where FaceType : class
     {
         public bool verbose = false;
 
         private Dictionary<Type, List<FaceType>> candidates;
+        private Dictionary<Type, ReadOnlyCollection<FaceType>> collections;
 
         public ReferenceFacebook()
         {
             candidates = new Dictionary<Type, List<FaceType>>();
+            collections = new Dictionary<Type, ReadOnlyCollection<FaceType>>();
         }
+
+        public bool hasAnyType() => candidates.Count > 0;
 
         /// <summary>
         /// refresh all existing
@@ -34,67 +40,20 @@ namespace fwp.industries
 
             foreach (var kp in candidates)
             {
-                kp.Value.Clear();
-                kp.Value.AddRange(fetchByType(kp.Key, monos));
+                refreshType(kp.Key, monos);
             }
         }
 
-        private Type getTypeByDicoIndex(int idx)
+        public void refreshType<T>(MonoBehaviour[] monos = null) where T : FaceType
+            => refreshType(typeof(T), monos);
+
+        public void refreshType(Type type, MonoBehaviour[] monos = null)
         {
-            int i = 0;
-            foreach (var kp in candidates)
-            {
-                if (i == idx) return kp.Key;
-            }
-            return null;
-        }
+            if (!ContainsType(type))
+                return;
 
-        public bool hasAnyType() => candidates.Count > 0;
-
-        public Type[] getAllTypes()
-        {
-            List<Type> output = new List<Type>();
-            foreach (var kp in candidates)
-            {
-                output.Add(kp.Key);
-            }
-            return output.ToArray();
-        }
-
-        private bool hasGroupOfType(Type tar)
-        {
-            foreach (var kp in candidates)
-            {
-                //Debug.Log(kp.Key + " vs " + tar);
-                //if (kp.Key.GetType().IsAssignableFrom(tar)) return true;
-                if (tar.IsAssignableFrom(kp.Key)) return true;
-            }
-            return false;
-        }
-
-        private bool hasGroupType<T>() => hasGroupType(typeof(T));
-        bool hasGroupType(Type t)
-        {
-            /*
-            foreach (var kp in candidates)
-            {
-                if (typeof(T).IsAssignableFrom(kp.Key)) return true;
-                //if (kp.Key.GetType() == typeof(T)) return true;
-            }
-            return false;
-            */
-
-            return candidates.ContainsKey(t);
-        }
-
-        /// <summary>
-        /// generate a list of candidates, NOT using facebook
-        /// only fetching objects
-        /// NOT OPTI if no monos are provided
-        /// </summary>
-        private List<FaceType> fetchByType(Type tar, MonoBehaviour[] monos = null)
-        {
-            List<FaceType> output = new List<FaceType>();
+            var list = candidates[type];
+            list.Clear();
 
             //gather group data
             if (monos == null) monos = GameObject.FindObjectsOfType<MonoBehaviour>();
@@ -107,44 +66,25 @@ namespace fwp.industries
                 if (iref == null) continue;
 
                 //if (monos[i].GetType().IsAssignableFrom(tar))
-                if (tar.IsAssignableFrom(iref.GetType()))
+                if (type.IsAssignableFrom(iref.GetType()))
                 {
-                    output.Add(iref);
+                    list.Add(iref);
                 }
             }
 
-            return output;
         }
-
-        /// <summary>
-        /// get all mono and inject all object of given type into facebook
-        /// </summary>
-        public List<FaceType> refreshGroupByType(Type tar, MonoBehaviour[] monos = null)
+        public Type[] getAllTypes()
         {
-            var output = fetchByType(tar, monos);
-            candidates[tar] = output;
-
-            log($"group refresh <{tar}> x" + output.Count);
-
-            return output;
-        }
-
-        /// <summary>
-        /// faaat at runtime
-        /// </summary>
-        public List<T> refreshGroup<T>(MonoBehaviour[] monos = null) where T : FaceType
-        {
-            List<T> output = new List<T>();
-
-            var list = refreshGroupByType(typeof(T), monos);
-            for (int i = 0; i < list.Count; i++)
+            List<Type> output = new List<Type>();
+            foreach (var kp in candidates)
             {
-                var cand = (T)list[i];
-                output.Add(cand);
+                output.Add(kp.Key);
             }
-
-            return output;
+            return output.ToArray();
         }
+
+        public bool ContainsType<T>() => ContainsType(typeof(T));
+        public bool ContainsType(Type t) => candidates.ContainsKey(t);
 
         /// <summary>
         /// auto file object in matching category
@@ -165,7 +105,8 @@ namespace fwp.industries
         /// <summary>
         /// meant to specify what category to store the object
         /// </summary>
-        public void injectObject<T>(FaceType target) where T : FaceType => injectObject(target, typeof(T));
+        public void injectObject<T>(T target) where T : FaceType 
+            => injectObject(target, typeof(T));
 
         /// <summary>
         /// if type is not declared facebook will add it AND fetch
@@ -174,30 +115,30 @@ namespace fwp.industries
         {
             Debug.Assert(target != null, "do not inject null object ?");
 
-            if (!hasAssocType(targetType))
+            if(!ContainsType(targetType))
             {
                 // this will also fetch all of this type
                 // it seems that findobjectoftype can't find target during awake
                 injectType(targetType);
             }
 
-            if (candidates[targetType].IndexOf(target) < 0) // already subbed ?
+            var list = candidates[targetType];
+            if(!list.Contains(target))
             {
-                candidates[targetType].Add(target);
-
+                list.Add(target);
                 log("inject :: type:" + targetType + " & ref : " + target + " :: ↑" + candidates[targetType].Count);
             }
-
         }
 
         /// <summary>
         /// should remove object in ALL list where it's located
+        /// will also remove all assoc types
         /// </summary>
         public void removeObject(FaceType target)
         {
+            var compatList = getAssocTypes(target);
 
-            var list = getAssocTypes(target);
-            if (list.Count <= 0)
+            if (compatList.Count <= 0)
             {
                 if (verbose)
                     Debug.LogWarning("trying to remove object " + target + " by no assoc type found ?");
@@ -205,9 +146,9 @@ namespace fwp.industries
                 return;
             }
 
-            for (int i = 0; i < list.Count; i++)
+            for (int i = 0; i < compatList.Count; i++)
             {
-                var targetType = list[i];
+                var targetType = compatList[i];
 
                 candidates[targetType].Remove(target);
 
@@ -266,7 +207,7 @@ namespace fwp.industries
         /// add a specific type and its solved list to facebook
         /// if type is not declared in facebook, it will add it AND fetch
         /// </summary>
-        public void injectType(Type tar)
+        public void injectType(Type tar, bool alsoFetch = false)
         {
             //var assoc = getAssocType(tar);
             if (hasAssocType(tar)) return;
@@ -275,9 +216,11 @@ namespace fwp.industries
 
             log($"{getStamp()} facebook added type : <b>{tar}</b>");
 
-            fetchByType(tar);
-
-            log($"{getStamp()} found x{candidates[tar].Count} ref(s) after adding type : <b>{tar}</b>");
+            if(alsoFetch)
+            {
+                refreshType(tar);
+                log($"{getStamp()} found x{candidates[tar].Count} ref(s) after adding type : <b>{tar}</b>");
+            }
         }
 
         public void injectTypes(Type[] tars)
@@ -288,64 +231,20 @@ namespace fwp.industries
             }
         }
 
-        public List<FaceType> getGroupByType(Type t)
-        {
-            if (!hasGroupType(t))
-                return null;
-
-            return candidates[t].Cast<FaceType>().ToList();
-        }
-
         /// <summary>
         /// in  : <T>
         /// out : list of objects of that type
         /// </summary>
-        public List<T> getGroup<T>() where T : FaceType
+        public ReadOnlyCollection<T> getGroup<T>() where T : FaceType
         {
-            // check in facebook if it has the group
-            // by checking assignable type (not absolute type)
-            if (!hasGroupType<T>())
-            {
-                if (verbose)
-                    Debug.LogWarning("no group " + typeof(T) + " ?");
-
-                return null;
-            }
-
-            //Type assoc = getAssocType(typeof(T));
-            Type assoc = typeof(T);
-            List<FaceType> elmts = candidates[assoc];
-            Debug.Assert(elmts != null, "facebook list not init for type " + assoc);
-
-            // /! using Linq here
-            List<T> output = elmts.Cast<T>().ToList();
-            Debug.Assert(output != null, "can't cast " + elmts + " to " + assoc);
-
-            return output;
+            if (!ContainsType<T>()) return null;
+            return (ReadOnlyCollection<T>)collections[typeof(T)].Cast<T>();
         }
 
-        public MonoBehaviour getClosestToPosition<T>(Vector2 position) where T : FaceType
+        public ReadOnlyCollection<FaceType> getGroup(Type t)
         {
-            List<T> refs = getGroup<T>();
-            MonoBehaviour closest = null;
-            float min = Mathf.Infinity;
-            float dst;
-
-            for (int i = 0; i < refs.Count; i++)
-            {
-                MonoBehaviour mono = refs[i] as MonoBehaviour;
-                if (mono == null) continue;
-
-                dst = Vector2.Distance(mono.transform.position, position);
-
-                if (dst < min)
-                {
-                    min = dst;
-                    closest = mono;
-                }
-            }
-
-            return closest;
+            if (!ContainsType(t)) return null;
+            return collections[t];
         }
 
         string getStamp() => "<color=#3333aa>~" + typeof(FaceType).ToString() + "</color>";
