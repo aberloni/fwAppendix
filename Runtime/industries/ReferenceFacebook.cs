@@ -72,14 +72,19 @@ namespace fwp.industries
             return false;
         }
 
-        private bool hasGroupType<T>()
+        private bool hasGroupType<T>() => hasGroupType(typeof(T));
+        bool hasGroupType(Type t)
         {
+            /*
             foreach (var kp in candidates)
             {
                 if (typeof(T).IsAssignableFrom(kp.Key)) return true;
                 //if (kp.Key.GetType() == typeof(T)) return true;
             }
             return false;
+            */
+
+            return candidates.ContainsKey(t);
         }
 
         /// <summary>
