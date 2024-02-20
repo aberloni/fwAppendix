@@ -288,16 +288,18 @@ namespace fwp.industries
             }
         }
 
-        public List<FaceType> getGroupByType(Type tar)
+        public List<FaceType> getGroupByType(Type t)
         {
-            List<FaceType> output = new List<FaceType>();
-            foreach (var kp in candidates)
-            {
-                if (tar == kp.Key) return kp.Value;
-            }
-            return output;
+            if (!hasGroupType(t))
+                return null;
+
+            return candidates[t].Cast<FaceType>().ToList();
         }
 
+        /// <summary>
+        /// in  : <T>
+        /// out : list of objects of that type
+        /// </summary>
         public List<T> getGroup<T>() where T : FaceType
         {
             // check in facebook if it has the group
@@ -322,10 +324,10 @@ namespace fwp.industries
             return output;
         }
 
-        public MonoBehaviour getClosestToPosition(Type tar, Vector2 position)
+        public MonoBehaviour getClosestToPosition<T>(Vector2 position) where T : FaceType
         {
-            List<FaceType> refs = getGroupByType(tar);
-            FaceType closest = null;
+            List<T> refs = getGroup<T>();
+            MonoBehaviour closest = null;
             float min = Mathf.Infinity;
             float dst;
 
@@ -339,11 +341,11 @@ namespace fwp.industries
                 if (dst < min)
                 {
                     min = dst;
-                    closest = mono as FaceType;
+                    closest = mono;
                 }
             }
 
-            return closest as MonoBehaviour;
+            return closest;
         }
 
         string getStamp() => "<color=#3333aa>~" + typeof(FaceType).ToString() + "</color>";
