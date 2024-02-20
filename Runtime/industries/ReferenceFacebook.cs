@@ -212,7 +212,11 @@ namespace fwp.industries
             //var assoc = getAssocType(tar);
             if (hasAssocType(tar)) return;
 
-            candidates.Add(tar, new List<FaceType>());
+            var list = new List<FaceType>();
+            candidates.Add(tar, list);
+            
+            var ro = new ReadOnlyCollection<FaceType>(candidates[tar]);
+            collections.Add(tar, ro);
 
             log($"{getStamp()} facebook added type : <b>{tar}</b>");
 
