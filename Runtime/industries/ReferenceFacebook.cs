@@ -21,10 +21,21 @@ namespace fwp.industries
         private Dictionary<Type, List<FaceType>> candidates;
         private Dictionary<Type, ReadOnlyCollection<FaceType>> collections;
 
+        private Dictionary<Type, Group<FaceType>> groups;
+        
+
+        public class Group<T> where T : class
+        {
+            public List<T> candidates;
+            public ReadOnlyCollection<T> collections;
+        }
+
         public ReferenceFacebook()
         {
             candidates = new Dictionary<Type, List<FaceType>>();
             collections = new Dictionary<Type, ReadOnlyCollection<FaceType>>();
+
+            groups = new Dictionary<Type, Group<FaceType>>();
         }
 
         public bool hasAnyType() => candidates.Count > 0;
@@ -214,8 +225,9 @@ namespace fwp.industries
 
             var list = new List<FaceType>();
             candidates.Add(tar, list);
-            
-            var ro = new ReadOnlyCollection<FaceType>(candidates[tar]);
+
+            //var ro = new ReadOnlyCollection<FaceType>(candidates[tar]);
+            var ro = list.AsReadOnly();
             collections.Add(tar, ro);
 
             log($"{getStamp()} facebook added type : <b>{tar}</b>");
@@ -235,19 +247,42 @@ namespace fwp.industries
             }
         }
 
+        public List<T> getCopy<T>() where T : FaceType
+        {
+            if (!ContainsType<T>()) return null;
+            return candidates[typeof(T)].Cast<T>().ToList();
+        }
+
         /// <summary>
         /// in  : <T>
         /// out : list of objects of that type
         /// </summary>
-        public ReadOnlyCollection<T> getGroup<T>() where T : FaceType
+        public ReadOnlyCollection<T> getCollection<T>() where T : FaceType
         {
             if (!ContainsType<T>()) return null;
-            return (ReadOnlyCollection<T>)collections[typeof(T)].Cast<T>();
+
+            //var g = groups[typeof(T)];
+            //return g.collections;
+
+            //creates copy
+            var list = candidates[typeof(T)].Cast<T>().ToList();
+            return new ReadOnlyCollection<T>(list);
+
+            //var collec = (ReadOnlyCollection<T>)collections[typeof(T)];
+            //return collec;
+
+            //return candidates[typeof(T)].AsReadOnly();
+
+            //return null;
+
         }
 
-        public ReadOnlyCollection<FaceType> getGroup(Type t)
+        public ReadOnlyCollection<FaceType> getCollection(Type t)
         {
             if (!ContainsType(t)) return null;
+            //var g = groups[t];
+            //return g.collections;
+            //return new ReadOnlyCollection<FaceType>(candidates[t]);
             return collections[t];
         }
 

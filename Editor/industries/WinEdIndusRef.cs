@@ -77,7 +77,7 @@ namespace fwp.industries
 
         static private bool drawListType(Type typ, bool toggleState)
         {
-            var refs = IndusReferenceMgr.instance.getGroup(typ);
+            var refs = IndusReferenceMgr.instance.getCollection(typ);
 
             string nm = typ.ToString();
             nm += " x" + refs.Count;
