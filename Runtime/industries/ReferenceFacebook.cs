@@ -18,10 +18,10 @@ namespace fwp.industries
     {
         public bool verbose = false;
 
-        private Dictionary<Type, List<object>> candidates;
+        private Dictionary<Type, List<FaceType>> candidates;
 
 
-        private Dictionary<Type, object> collections;
+        private Dictionary<Type, ReadOnlyCollection<FaceType>> collections;
 
         //private Dictionary<Type, object> groups;
         
@@ -34,8 +34,8 @@ namespace fwp.industries
 
         public ReferenceFacebook()
         {
-            candidates = new Dictionary<Type, List<object>>();
-            collections = new Dictionary<Type, object>();
+            candidates = new Dictionary<Type, List<FaceType>>();
+            collections = new Dictionary<Type, ReadOnlyCollection<FaceType>>();
 
             //groups = new Dictionary<Type, object>();
         }
@@ -225,7 +225,7 @@ namespace fwp.industries
             //var assoc = getAssocType(tar);
             if (hasAssocType(tar)) return;
 
-            var list = new List<object>();
+            var list = new List<FaceType>();
             candidates.Add(tar, list);
 
             //var ro = new ReadOnlyCollection<FaceType>(candidates[tar]);
@@ -255,9 +255,9 @@ namespace fwp.industries
             return candidates[typeof(T)].Cast<T>().ToList();
         }
 
-        public ReadOnlyCollection<object> getCollection(Type t)
+        public ReadOnlyCollection<FaceType> getCollection(Type t)
         {
-            return (ReadOnlyCollection<object>)collections[t];
+            return (ReadOnlyCollection<FaceType>)collections[t];
         }
 
         /// <summary>
