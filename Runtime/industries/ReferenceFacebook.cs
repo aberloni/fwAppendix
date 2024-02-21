@@ -16,7 +16,7 @@ namespace fwp.industries
     /// </summary>
     abstract public class ReferenceFacebook<FaceType> where FaceType : class
     {
-        public bool verbose = false;
+        static public bool verbose = false;
 
         private Dictionary<Type, List<FaceType>> candidates;
 
@@ -257,7 +257,10 @@ namespace fwp.industries
 
         public ReadOnlyCollection<FaceType> getCollection(Type t)
         {
-            return (ReadOnlyCollection<FaceType>)collections[t];
+            if (!ContainsType(t)) return null;
+
+            var list = candidates[t];
+            return list.AsReadOnly();
         }
 
         /// <summary>
@@ -268,22 +271,17 @@ namespace fwp.industries
         {
             if (!ContainsType<T>()) return null;
 
+            var list = candidates[typeof(T)].Cast<T>().ToList();
+            return list.AsReadOnly();
+
             //var g = (Group<T>)groups[typeof(T)];
             //return g.collections;
 
             //creates copy
-            var list = candidates[typeof(T)].Cast<T>().ToList();
-            return new ReadOnlyCollection<T>(list);
-
-            //var collec = (ReadOnlyCollection<T>)collections[typeof(T)];
-            //return collec;
-
-            //return collec;
+            //var list = candidates[typeof(T)].Cast<T>().ToList();
+            //return new ReadOnlyCollection<T>(list);
 
             //return candidates[typeof(T)].AsReadOnly();
-
-            //return null;
-
         }
 
         string getStamp() => "<color=#3333aa>~" + typeof(FaceType).ToString() + "</color>";
