@@ -18,10 +18,12 @@ namespace fwp.industries
     {
         public bool verbose = false;
 
-        private Dictionary<Type, List<FaceType>> candidates;
-        private Dictionary<Type, ReadOnlyCollection<FaceType>> collections;
+        private Dictionary<Type, List<object>> candidates;
 
-        private Dictionary<Type, Group<FaceType>> groups;
+
+        private Dictionary<Type, object> collections;
+
+        //private Dictionary<Type, object> groups;
         
 
         public class Group<T> where T : class
@@ -32,10 +34,10 @@ namespace fwp.industries
 
         public ReferenceFacebook()
         {
-            candidates = new Dictionary<Type, List<FaceType>>();
-            collections = new Dictionary<Type, ReadOnlyCollection<FaceType>>();
+            candidates = new Dictionary<Type, List<object>>();
+            collections = new Dictionary<Type, object>();
 
-            groups = new Dictionary<Type, Group<FaceType>>();
+            //groups = new Dictionary<Type, object>();
         }
 
         public bool hasAnyType() => candidates.Count > 0;
@@ -223,7 +225,7 @@ namespace fwp.industries
             //var assoc = getAssocType(tar);
             if (hasAssocType(tar)) return;
 
-            var list = new List<FaceType>();
+            var list = new List<object>();
             candidates.Add(tar, list);
 
             //var ro = new ReadOnlyCollection<FaceType>(candidates[tar]);
@@ -247,21 +249,26 @@ namespace fwp.industries
             }
         }
 
-        public List<T> getCopy<T>() where T : FaceType
+        public List<T> getCopy<T>() where T : class, FaceType
         {
             if (!ContainsType<T>()) return null;
             return candidates[typeof(T)].Cast<T>().ToList();
+        }
+
+        public ReadOnlyCollection<object> getCollection(Type t)
+        {
+            return (ReadOnlyCollection<object>)collections[t];
         }
 
         /// <summary>
         /// in  : <T>
         /// out : list of objects of that type
         /// </summary>
-        public ReadOnlyCollection<T> getCollection<T>() where T : FaceType
+        public ReadOnlyCollection<T> getCollection<T>() where T : class, FaceType
         {
             if (!ContainsType<T>()) return null;
 
-            //var g = groups[typeof(T)];
+            //var g = (Group<T>)groups[typeof(T)];
             //return g.collections;
 
             //creates copy
@@ -271,19 +278,12 @@ namespace fwp.industries
             //var collec = (ReadOnlyCollection<T>)collections[typeof(T)];
             //return collec;
 
+            //return collec;
+
             //return candidates[typeof(T)].AsReadOnly();
 
             //return null;
 
-        }
-
-        public ReadOnlyCollection<FaceType> getCollection(Type t)
-        {
-            if (!ContainsType(t)) return null;
-            //var g = groups[t];
-            //return g.collections;
-            //return new ReadOnlyCollection<FaceType>(candidates[t]);
-            return collections[t];
         }
 
         string getStamp() => "<color=#3333aa>~" + typeof(FaceType).ToString() + "</color>";
