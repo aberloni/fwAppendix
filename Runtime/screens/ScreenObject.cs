@@ -182,20 +182,10 @@ namespace fwp.screens
                 return canvas.toggleVisible(flag);
             }
 
-            //fallback
-            // this is not good : it's best to no deactivate the screenobject mono
-            /*
-            if(transform.childCount > 0)
-            {
-                transform.GetChild(0).gameObject.SetActive(flag);
-            }
-            else
-            {
-                gameObject.SetActive(flag);
-            }
-            */
+            // nothing specific ?
+            // no failure ...
 
-            return flag;
+            return true;
         }
 
         virtual public bool isVisible()
@@ -208,69 +198,60 @@ namespace fwp.screens
             return gameObject.activeSelf;
         }
 
-
         [ContextMenu("show instant")]
-        protected void ctxm_show() { showInstant(); }
+        protected void ctxm_show()
+        {
+            if (!show())
+            {
+                Debug.LogWarning(getStamp()+" couldn't show ?", this);
+            }
+        }
 
         [ContextMenu("hide")]
-        protected void ctxm_hide() { forceHide(); }
-
-        public void show() => showInstant();
-        public void hide() => hideInstant();
+        protected void ctxm_hide()
+        { 
+            if(!forceHide())
+            {
+                Debug.LogWarning(getStamp() + " couldn't hide ?", this);
+            }
+        }
 
         /// <summary>
         /// when already loaded but asking to be shown
         /// </summary>
-        public void showInstant()
+        public bool show()
         {
             //Debug.Log(getStamp() + " show " + name);
             nav?.resetTimerNoInteraction();
 
             transform.position = Vector3.zero;
 
-            toggleVisible(true); // specific case : show instant
-
-            //Debug.Log(name + " -> show");
+            return toggleVisible(true); // specific case : show instant
         }
 
         /// <summary>
         /// this is virtual, another screen might do something different
         /// </summary>
-        public void hideInstant()
+        public bool hide()
         {
             //Debug.Log("  <color=white>hide()</color> <b>" + name + "</b>");
 
             if (tags.HasFlag(ScreenTags.stickyVisibility))
             {
-                //Debug.LogWarning("    can't hide " + name + " because is setup as sticky");
-                return;
+                if(verbose)
+                    Debug.LogWarning(getStamp()+ "      can't hide because is setup as sticky");
+
+                return false;
             }
 
-            forceHide();
+            return toggleVisible(false);
         }
 
         /// <summary>
         /// returns true if actually toggled
+        /// ignore sticky states
         /// </summary>
-        /// <returns></returns>
-        public bool forceHide()
-        {
-            if (isVisible())
-            {
-                if(transform != null)
-                {
-                    //dans le cas où y a pas que des canvas
-                    //ou qu'il y a une seule camera ppale et qu'il faut aligner les choses à 0f
-                    transform.position = Vector3.down * 3000f;
-                }
-
-                toggleVisible(false); // specific case : force hide
-
-                return true;
-            }
-
-            return false;
-        }
+        public bool forceHide() => toggleVisible(false); // specific case : force hide
 
         public void unload() => unload(false);
         public void unload(bool force = false)

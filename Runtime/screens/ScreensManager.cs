@@ -11,7 +11,7 @@ namespace fwp.screens
 
     public class ScreensManager
     {
-        static public bool verbose = false;
+        static public bool verbose;
 
         static protected List<ScreenObject> screens = new List<ScreenObject>();
 
@@ -30,7 +30,9 @@ namespace fwp.screens
             if (screens.Contains(so)) return;
 
             screens.Add(so);
-            Debug.Log(so.name + "       is now subscribed to screens");
+
+            if(verbose)
+                Debug.Log(so.name + "       is now subscribed to screens");
         }
 
         static public void unsubScreen(ScreenObject so)
@@ -38,7 +40,9 @@ namespace fwp.screens
             if (!screens.Contains(so)) return;
 
             screens.Remove(so);
-            Debug.Log(so.name + "       is now removed from screens (screen destroy)");
+
+            if(verbose)
+                Debug.Log(so.name + "       is now removed from screens (screen destroy)");
         }
 
         static protected void fetchScreens()
@@ -223,17 +227,17 @@ namespace fwp.screens
                     //do nothing with filtered screen
                     if (containsFilter.Length > 0 && screens[i].name.Contains(containsFilter)) continue;
 
-                    screens[i].hideInstant();
+                    screens[i].hide();
                     //Debug.Log("  L "+screens[i].name + " hidden");
                 }
 
             }
 
-            if (state) selected.showInstant();
+            if (state) selected.show();
             else
             {
                 if (force) selected.forceHide();
-                else selected.hideInstant(); // stickies won't hide
+                else selected.hide(); // stickies won't hide
             }
 
         }
