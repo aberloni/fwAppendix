@@ -62,8 +62,9 @@ namespace fwp.scenes
             => parentPath.Substring(parentPath.LastIndexOf('/') + 1);
 
         //these are only scene names (no ext, no path)
-        public List<string> layers;
-        public List<string> deps;
+        public List<string> layers; // additionnal content of same profil
+        public List<string> deps; // other contextual scenes needed for this profil
+        public List<string> statics; // scene that won't be unload
 
         List<SceneAssoc> _assocs_buff;
 
@@ -131,7 +132,7 @@ namespace fwp.scenes
             paths = filterPaths(paths);
 
             // solve layers & deps paths
-            solvePaths(paths);
+            solveLayers(paths);
 
             Debug.Assert(!string.IsNullOrEmpty(_profilPath), "profil path must not be null : " + _category);
         }
@@ -219,7 +220,7 @@ namespace fwp.scenes
             return paths;
         }
 
-        void solvePaths(List<string> paths)
+        void solveLayers(List<string> paths)
         {
             if (layers == null) layers = new List<string>();
             layers.Clear();
@@ -228,6 +229,7 @@ namespace fwp.scenes
             //if (verbose) Debug.Log("profil#" + label + " : found layers x" + layers.Count);
 
             solveDeps();
+            solveStatics();
         }
 
         /// <summary>
@@ -325,6 +327,12 @@ namespace fwp.scenes
             deps.Clear();
         }
 
+        virtual public void solveStatics()
+        {
+            if (statics == null) statics = new List<string>();
+            statics.Clear();
+        }
+
         public bool isLoaded()
         {
             if (layers.Count <= 0) return false;
@@ -397,8 +405,6 @@ namespace fwp.scenes
             // first check that scenes are added to build settings ?
             if (forceAddBuildSettings) forceAddToBuildSettings();
 
-            solveDeps();
-
             if (verbose) Debug.Log($"SceneProfil:editorLoad <b>{label}</b> ; layers x{layers.Count} & deps x{deps.Count}");
 
             UnityEditor.SceneManagement.OpenSceneMode mode = UnityEditor.SceneManagement.OpenSceneMode.Single;
@@ -410,22 +416,18 @@ namespace fwp.scenes
             if (verbose) Debug.Log($"SceneProfil:loading base scene {baseScene}");
             SceneLoaderEditor.loadScene(baseScene, mode);
 
-            //load additive others
-            for (int i = 1; i < layers.Count; i++)
-            {
-                if (verbose) Debug.Log($"SceneProfil:loading layer:{layers[i]}");
-                SceneLoaderEditor.loadScene(layers[i]);
-            }
+            List<string> toLoads = new List<string>();
+            toLoads.AddRange(layers);
+            toLoads.AddRange(deps);
+            toLoads.AddRange(statics);
 
-            //load deps
-            for (int i = 0; i < deps.Count; i++)
+            // load all
+            // layers[0] is empty ?
+            for (int i = 0; i < toLoads.Count; i++)
             {
-                if (verbose) Debug.Log($"SceneProfil:loading layer:{deps[i]}");
-                SceneLoaderEditor.loadScene(deps[i]);
+                if (verbose) Debug.Log($"SceneProfil:loading layer:{toLoads[i]}");
+                SceneLoaderEditor.loadScene(toLoads[i]);
             }
-
-            //lock by editor toggle
-            //HalperEditor.upfoldNodeHierarchy();
         }
 
         public void editorUnload()
@@ -539,8 +541,6 @@ namespace fwp.scenes
 
         public void buildUnload(System.Action onUnloadCompleted)
         {
-            solveDeps();
-
             Debug.Log(getStamp() + " : " + label + " is <b>unloading</b>");
 
             SceneLoader.unloadScenes(layers.ToArray(), onUnloadCompleted);
