@@ -122,12 +122,6 @@ namespace fwp.scenes
                 return;
             }
 
-            if (paths.Count <= 0)
-            {
-                if (verbose) Debug.Log(categoryUid + " has no paths ?");
-                return;
-            }
-
             // remove non-compat
             paths = filterPaths(paths);
 
@@ -169,7 +163,7 @@ namespace fwp.scenes
             if (paths.Count <= 0)
             {
                 Debug.LogWarning($"given base context : <b>{context}</b> => empty paths[] (length = 0)");
-                Debug.LogWarning("target was not added to build settings ?");
+                Debug.LogWarning("target context was <color=red>not added to build settings</b> ?");
                 return null;
             }
 
@@ -405,18 +399,14 @@ namespace fwp.scenes
             // first check that scenes are added to build settings ?
             if (forceAddBuildSettings) forceAddToBuildSettings();
 
-            if (verbose) Debug.Log($"SceneProfil:editorLoad <b>{label}</b> ; layers x{layers.Count} & deps x{deps.Count}");
+            if (verbose) 
+                Debug.Log($"SceneProfil:editorLoad <b>{label}</b> ; layers x{layers.Count} & deps x{deps.Count}");
 
             UnityEditor.SceneManagement.OpenSceneMode mode = UnityEditor.SceneManagement.OpenSceneMode.Single;
             if (additive) mode = UnityEditor.SceneManagement.OpenSceneMode.Additive;
 
-            // first : load base scene
-            // additive check : might wanna replace context
-            string baseScene = layers[0];
-            if (verbose) Debug.Log($"SceneProfil:loading base scene {baseScene}");
-            SceneLoaderEditor.loadScene(baseScene, mode);
-
             List<string> toLoads = new List<string>();
+            
             toLoads.AddRange(layers);
             toLoads.AddRange(deps);
             toLoads.AddRange(statics);
@@ -445,6 +435,8 @@ namespace fwp.scenes
             {
                 SceneLoaderEditor.unloadScene(deps[i]);
             }
+
+            // NOT STATICS : duh
 
             //var sc = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByName(layers[0]);
             //UnityEditor.SceneManagement.EditorSceneManager.CloseScene(sc, true);
@@ -503,10 +495,9 @@ namespace fwp.scenes
 
         void loadLayers(Action onCompletion)
         {
-
             if (layers.Count <= 0)
             {
-                Debug.LogWarning(getStamp() + " layers array is empty ?");
+                //Debug.LogWarning(getStamp() + " layers array is empty ?");
                 onCompletion.Invoke();
                 return;
             }
