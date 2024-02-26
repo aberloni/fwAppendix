@@ -393,9 +393,9 @@ namespace fwp.scenes
 #if UNITY_EDITOR
 
         /// <summary>
-        /// additive : is first scene additivly added
+        /// replace context = remove all other scenes
         /// </summary>
-        public void editorLoad(bool additive, bool forceAddBuildSettings = false)
+        public void editorLoad(bool replaceContext, bool forceAddBuildSettings = false)
         {
             // first check that scenes are added to build settings ?
             if (forceAddBuildSettings) forceAddToBuildSettings();
@@ -403,9 +403,18 @@ namespace fwp.scenes
             if (verbose) 
                 Debug.Log($"SceneProfil:editorLoad <b>{label}</b> ; layers x{layers.Count} & deps x{deps.Count}");
 
-            UnityEditor.SceneManagement.OpenSceneMode mode = UnityEditor.SceneManagement.OpenSceneMode.Single;
-            if (additive) mode = UnityEditor.SceneManagement.OpenSceneMode.Additive;
+            // first : load base scene NON ADDITIVE to replace full context
+            // additive check : might wanna replace context
+            if(layers.Count > 0)
+            {
+                UnityEditor.SceneManagement.OpenSceneMode mode = UnityEditor.SceneManagement.OpenSceneMode.Single;
+                if (!replaceContext) mode = UnityEditor.SceneManagement.OpenSceneMode.Additive;
 
+                string baseScene = layers[0];
+                if (verbose) Debug.Log($"SceneProfil:loading base scene {baseScene}");
+                SceneLoaderEditor.loadScene(baseScene, mode);
+            }
+            
             List<string> toLoads = new List<string>();
             
             toLoads.AddRange(layers);
@@ -417,7 +426,7 @@ namespace fwp.scenes
             for (int i = 0; i < toLoads.Count; i++)
             {
                 if (verbose) Debug.Log($"SceneProfil:loading layer:{toLoads[i]}");
-                SceneLoaderEditor.loadScene(toLoads[i], mode);
+                SceneLoaderEditor.loadScene(toLoads[i]); // additive
             }
         }
 

@@ -130,7 +130,7 @@ public class SceneSubFolder
         {
             //if (EditorPrefs.GetBool(edLoadDebug)) section[i].loadDebug = true;
             //profil.editorLoad(false);
-            onEditorSceneCall(profil, true, false);
+            onEditorSceneCall(profil, true);
             load = true;
         }
 
@@ -143,14 +143,14 @@ public class SceneSubFolder
         {
             if (!present)
             {
-                onEditorSceneCall(profil, true, true);
-                onSceneCall(profil, true);
+                onEditorSceneCall(profil, false);
+                reactSceneCall(profil, true);
                 load = true;
             }
             else
             {
-                onEditorSceneCall(profil, false);
-                onSceneCall(profil, false);
+                onEditorSceneRemoval(profil);
+                reactSceneCall(profil, false);
             }
         }
 
@@ -159,8 +159,9 @@ public class SceneSubFolder
 
     /// <summary>
     /// when user calls for a scene
+    /// load or unload
     /// </summary>
-    virtual protected void onSceneCall(SceneProfil profil, bool load)
+    virtual protected void reactSceneCall(SceneProfil profil, bool load)
     { }
 
     virtual public string stringify()
@@ -174,19 +175,16 @@ public class SceneSubFolder
     /// <summary>
     /// additive only for loading
     /// </summary>
-    void onEditorSceneCall(SceneProfil profil, bool mustLoad, bool additive = false)
+    void onEditorSceneCall(SceneProfil profil, bool replaceContext)
     {
         profil.setDirty();
+        profil.editorLoad(replaceContext, MgrUserSettings.getEdBool(_pref_autoAdd));
+    }
 
-        if (mustLoad)
-        {
-            profil.editorLoad(additive, MgrUserSettings.getEdBool(_pref_autoAdd));
-        }
-        else
-        {
-            profil.editorUnload();
-        }
-
+    void onEditorSceneRemoval(SceneProfil profil)
+    {
+        profil.setDirty();
+        profil.editorUnload();
     }
 
     /// <summary>
