@@ -531,16 +531,34 @@ namespace fwp.scenes
                 });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void buildUnload(System.Action onUnloadCompleted)
         {
+            
             if (verbose)
                 Debug.Log(getStamp() + " build unload : <b>" + label + "</b>");
 
-            if (layers == null) Debug.LogWarning(_profilPath + " has no layers ?");
-            else
+            if (layers == null)
             {
-                SceneLoader.unloadScenes(layers.ToArray(), onUnloadCompleted);
+                if(verbose)
+                    Debug.Log(getStamp() + " null layers");
+
+                onUnloadCompleted?.Invoke();
+                return;
             }
+
+            if(layers.Count <= 0)
+            {
+                if (verbose)
+                    Debug.Log(getStamp() + " empty layers");
+
+                onUnloadCompleted?.Invoke();
+                return;
+            }
+
+            SceneLoader.unloadScenes(layers.ToArray(), onUnloadCompleted);
         }
 
         List<SceneAssoc> fetchAssocs(bool force)
