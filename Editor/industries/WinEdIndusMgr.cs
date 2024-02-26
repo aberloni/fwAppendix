@@ -29,7 +29,7 @@ namespace fwp.industries
 
         void refreshRefs(bool force = false)
         {
-            if(factos == null || force)
+            if (factos == null || force)
             {
                 factos = FactoriesMgr.getAllFactories();
                 toggleSections = new bool[factos.Length];
@@ -49,7 +49,7 @@ namespace fwp.industries
                 refreshRefs(true);
             }
 
-            if(factos.Length <= 0)
+            if (factos.Length <= 0)
             {
                 GUILayout.Label("has 0 factos");
                 return;
@@ -90,7 +90,7 @@ namespace fwp.industries
 
         void drawFactoList(iFactoryObject[] refs)
         {
-            if(refs.Length <= 0)
+            if (refs.Length <= 0)
             {
                 GUILayout.Label("nothing to list");
                 return;
@@ -109,8 +109,8 @@ namespace fwp.industries
                 GUILayout.BeginHorizontal();
 
                 MonoBehaviour mono = elmt as MonoBehaviour;
-                if (mono != null) EditorGUILayout.ObjectField(mono.name, mono, typeof(MonoBehaviour), true);
-                else GUILayout.Label(elmt.GetType().ToString());
+                if (mono != null) EditorGUILayout.ObjectField("(mono) " + mono.name, mono, typeof(MonoBehaviour), true);
+                else GUILayout.Label(elmt.GetType().ToString()+" !mono");
 
                 GUILayout.EndHorizontal();
             }
