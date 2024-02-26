@@ -541,9 +541,14 @@ namespace fwp.scenes
 
         public void buildUnload(System.Action onUnloadCompleted)
         {
-            Debug.Log(getStamp() + " : " + label + " is <b>unloading</b>");
+            if (verbose)
+                Debug.Log(getStamp() + " build unload : <b>" + label + "</b>");
 
-            SceneLoader.unloadScenes(layers.ToArray(), onUnloadCompleted);
+            if (layers == null) Debug.LogWarning(_profilPath + " has no layers ?");
+            else
+            {
+                SceneLoader.unloadScenes(layers.ToArray(), onUnloadCompleted);
+            }
         }
 
         List<SceneAssoc> fetchAssocs(bool force)
