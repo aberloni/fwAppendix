@@ -71,8 +71,9 @@ namespace fwp.scenes
         /// <summary>
         /// has found anything
         /// </summary>
-        public bool isValid()
+        public bool hasContent()
         {
+
             if (layers == null) return false;
             return layers.Count > 0;
         }
@@ -416,7 +417,7 @@ namespace fwp.scenes
             for (int i = 0; i < toLoads.Count; i++)
             {
                 if (verbose) Debug.Log($"SceneProfil:loading layer:{toLoads[i]}");
-                SceneLoaderEditor.loadScene(toLoads[i]);
+                SceneLoaderEditor.loadScene(toLoads[i], mode);
             }
         }
 

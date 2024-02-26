@@ -209,7 +209,7 @@ namespace fwp.scenes
 #endif
 
                 SceneProfil sp = generateProfil(path);
-                if (!sp.isValid()) Debug.LogWarning(path + " is not a valid profil");
+                if (!sp.hasContent()) Debug.LogWarning(path + " has no content");
                 else
                 {
                     bool found = false;
