@@ -289,7 +289,8 @@ namespace fwp.screens
 
         static protected void loadMissingScreen(string screenName, Action<ScreenObject> onComplete)
         {
-            ScreenLoading.showLoadingScreen();
+            // don't, let the context choose to show it or not
+            //ScreenLoading.showLoadingScreen();
 
             // first search if already exists
             ScreenObject so = getOpenedScreen(screenName);
