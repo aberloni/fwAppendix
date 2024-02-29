@@ -141,6 +141,11 @@ namespace fwp.utils.editor
                     }
                 }
             }
+
+            if(force)
+            {
+                selectDefaultTab();
+            }
         }
 
         WinTabsState generateState(string uid, (string, System.Func<bool>)[] data)
