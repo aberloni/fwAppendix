@@ -6,7 +6,7 @@ using UnityEngine;
 /// <summary>
 /// gives this view the tools to filter content
 /// </summary>
-public class EdWinFilterable : EditorWindow
+public class WinEdFilterable : EditorWindow
 {
     protected bool verbose = false;
 

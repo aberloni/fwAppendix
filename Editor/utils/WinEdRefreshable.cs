@@ -14,13 +14,13 @@ namespace fwp.utils.editor
     /// meant to provide a way to force refresh of a window
     /// and encapsulate the refresh content event
     /// </summary>
-    abstract public class EdWinRefreshable : EdWinFilterable
+    abstract public class WinEdRefreshable : WinEdFilterable
     {
         bool _refresh = false;
 
         virtual protected bool isDrawableAtRuntime() => true;
 
-        static public void setDirty<T>() where T : EdWinRefreshable
+        static public void setDirty<T>() where T : WinEdRefreshable
         {
             if (EditorWindow.HasOpenInstances<T>())
             {

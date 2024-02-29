@@ -14,7 +14,7 @@ namespace fwp.utils.editor
     /// usage:
     /// override generate methods to feed your own content
     /// </summary>
-    abstract public class EdWinTabs : EdWinRefreshable
+    abstract public class EdWinTabs : WinEdRefreshable
     {
         public const float btnSize = 40f;
 
