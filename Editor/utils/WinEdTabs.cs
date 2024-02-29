@@ -144,7 +144,8 @@ namespace fwp.utils.editor
 
             if(force)
             {
-                selectDefaultTab();
+                //DONT it will reset tab at every compilation
+                //selectDefaultTab();
             }
         }
 
@@ -218,6 +219,8 @@ namespace fwp.utils.editor
                 var tab = _state.tabs[_tabIndex];
 
                 drawFilterField();
+
+                GUILayout.Space(15f);
 
                 if (tab.drawCallback != null)
                 {
