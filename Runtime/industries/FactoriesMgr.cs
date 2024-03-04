@@ -10,12 +10,12 @@ namespace fwp.industries
 	/// </summary>
 	static public class FactoriesMgr
 	{
-		static private List<FactoryBase> factos = new List<FactoryBase>();
+		static private List<iFactory> factos = new List<iFactory>(); // FactoryBase<iFactoryObject>
 
 		/// <summary>
 		/// for debug only
 		/// </summary>
-		static public FactoryBase[] getAllFactories() => factos.ToArray();
+		static public List<iFactory> getAllFactories() => factos;
 
 		static public void recycleEverything()
 		{
@@ -29,61 +29,39 @@ namespace fwp.industries
 		/// <summary>
 		/// ie => seek : BrainScrapling
 		/// </summary>
-		static public FactoryBase getFactory(Type seekFactoryType)
+		static public Facto getFactoryOf<Facto>()	where Facto : iFactory
 		{
-			Debug.Assert(seekFactoryType != null, "given type is null ?");
-			//Type factoTyp = typeof(seekFactoryType);
-
-			FactoryBase output;
+			//Type typ = typeof(Facto);
 
 			//already exists ?
 			for (int i = 0; i < factos.Count; i++)
 			{
-				if (factos[i].GetType() == seekFactoryType)
-				{
-					return factos[i];
-				}
+				Facto f = (Facto)factos[i];
+				if (f != null)
+					return f;
+
+				//if (factos[i].GetType() == typ) return (T)factos[i];
 			}
 
-			//Debug.Log(" (" + factos.Count + ") creating new factory for " + seekFactoryType);
-			//FactoryBase<TinyObject> fb = (FactoryBase<TinyObject>)Activator.CreateInstance(seekFactoryType);
-			//factos.Add(fb);
-
-			//output = (FactoryBase)Activator.CreateInstance(typeof(FactoryBase), new object[] { seekFactoryType });
-			output = create(seekFactoryType);
-
-			return output;
-		}
-
-		static public void refreshFactory<T>() where T : FactoryBase
-		{
-			getFactory<T>().refresh();
-		}
-
-		/// <summary>
-		/// T = FactoryX
-		/// </summary>
-		static public T getFactory<T>() where T : FactoryBase
-		{
-			return (T)getFactory(typeof(T));
+			return create<Facto>();
 		}
 
 		/// <summary>
 		/// create the factory instance
 		/// </summary>
-		static private FactoryBase create(Type tarType)
+		static private Facto create<Facto>() where Facto : iFactory
 		{
 			//https://stackoverflow.com/questions/731452/create-instance-of-generic-type-whose-constructor-requires-a-parameter
 
-			FactoryBase fb = null;
+			Facto fb;
 
-			object instance = Activator.CreateInstance(tarType);
+			object instance = Activator.CreateInstance<Facto>();
 			Debug.Assert(instance != null);
 
-			fb = (FactoryBase)instance;
-			Debug.Assert(fb != null, $"implem for {tarType} , check typo ?");
+			fb = (Facto)instance;
+			Debug.Assert(fb != null, $"implem for {typeof(Facto)} , check typo ?");
 
-			Debug.Log($" creating new factory for {tarType} , total x{factos.Count}");
+			Debug.Log($" creating new factory for {typeof(Facto)} , total x{factos.Count}");
 
 			//FactoryBase fb = (FactoryBase)Activator.CreateInstance(typeof(FactoryBase), new object[] { tarType });
 			factos.Add(fb);
@@ -91,7 +69,7 @@ namespace fwp.industries
 			return fb;
 		}
 
-		static public void inject(FactoryBase facto)
+		static public void inject(iFactory facto)
         {
 			factos.Add(facto);
         }

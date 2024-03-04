@@ -14,7 +14,7 @@ namespace fwp.industries
             EditorWindow.GetWindow(typeof(WinEdIndusMgr));
         }
 
-        FactoryBase[] factos;
+        List<iFactory> factos;
         bool[] toggleSections;
 
         Vector2 _cursorPosition = Vector2.zero;
@@ -32,7 +32,7 @@ namespace fwp.industries
             if (factos == null || force)
             {
                 factos = FactoriesMgr.getAllFactories();
-                toggleSections = new bool[factos.Length];
+                toggleSections = new bool[factos.Count];
             }
         }
 
@@ -49,17 +49,17 @@ namespace fwp.industries
                 refreshRefs(true);
             }
 
-            if (factos.Length <= 0)
+            if (factos.Count <= 0)
             {
                 GUILayout.Label("has 0 factos");
                 return;
             }
 
-            GUILayout.Label("x" + factos.Length + " factories");
+            GUILayout.Label("x" + factos.Count + " factories");
 
             scroll = GUILayout.BeginScrollView(scroll);
 
-            for (int i = 0; i < factos.Length; i++)
+            for (int i = 0; i < factos.Count; i++)
             {
                 toggleSections[i] = drawFacto(factos[i], toggleSections[i]);
             }
@@ -68,7 +68,7 @@ namespace fwp.industries
             //EditorGUILayout.ObjectField("Title", objectHandle, typeof(objectClassName), true);
         }
 
-        bool drawFacto(FactoryBase facto, bool toggleState)
+        bool drawFacto(iFactory facto, bool toggleState)
         {
             toggleState = EditorGUILayout.Foldout(toggleState, facto.GetType().ToString(), true);
 
@@ -80,7 +80,7 @@ namespace fwp.industries
                     facto.recycleAll();
                 }
 
-                drawFactoList(facto.getActives().ToArray());
+                drawFactoList(facto.getActives());
                 drawFactoList(facto.getInactives());
 
             }
@@ -88,15 +88,15 @@ namespace fwp.industries
             return toggleState;
         }
 
-        void drawFactoList(iFactoryObject[] refs)
+        void drawFactoList(List<iFactoryObject> refs)
         {
-            if (refs.Length <= 0)
+            if (refs.Count <= 0)
             {
                 GUILayout.Label("nothing to list");
                 return;
             }
 
-            GUILayout.Label(refs[0].GetType() + " x" + refs.Length);
+            GUILayout.Label(refs[0].GetType() + " x" + refs.Count);
 
             foreach (var elmt in refs)
             {

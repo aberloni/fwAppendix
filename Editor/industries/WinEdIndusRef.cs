@@ -14,7 +14,7 @@ namespace fwp.industries
             EditorWindow.GetWindow(typeof(WinEdIndusRef));
         }
 
-        Type[] refTypes;
+        List<Type> refTypes;
         bool[] toggleTypes;
 
         //MonoBehaviour cursorMono = null;
@@ -33,8 +33,8 @@ namespace fwp.industries
         {
             if (refTypes == null || force)
             {
-                refTypes = IndusReferenceMgr.instance.getAllTypes();
-                toggleTypes = new bool[refTypes.Length];
+                refTypes = IndusReferenceMgr.instance.GetAllTypes();
+                toggleTypes = new bool[refTypes.Count];
             }
         }
 
@@ -51,22 +51,22 @@ namespace fwp.industries
                 updateRefs(true);
             }
 
-            if (refTypes.Length <= 0)
+            if (refTypes.Count <= 0)
             {
                 GUILayout.Label("facebook has 0 type(s)");
                 return;
             }
 
-            GUILayout.Label("x" + refTypes.Length + " in facebook");
+            GUILayout.Label("x" + refTypes.Count + " in facebook");
 
             if (GUILayout.Button("refresh list(s)"))
             {
-                IndusReferenceMgr.instance.refreshAll();
+                IndusReferenceMgr.instance.RefreshAll();
             }
 
             scroll = GUILayout.BeginScrollView(scroll);
 
-            for (int i = 0; i < refTypes.Length; i++)
+            for (int i = 0; i < refTypes.Count; i++)
             {
                 toggleTypes[i] = drawListType(refTypes[i], toggleTypes[i]);
             }
@@ -77,7 +77,7 @@ namespace fwp.industries
 
         static private bool drawListType(Type typ, bool toggleState)
         {
-            var refs = IndusReferenceMgr.instance.getCollection(typ);
+            var refs = IndusReferenceMgr.instance.GetGroup(typ);
 
             string nm = typ.ToString();
             nm += " x" + refs.Count;

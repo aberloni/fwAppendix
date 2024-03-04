@@ -4,13 +4,15 @@ using UnityEngine;
 using System;
 using System.Collections.ObjectModel;
 
-//using Object = UnityEngine.Object;
 using System.Linq;
+//using System.Collections.ObjectModel;
 
-namespace fwp.industries
+namespace fwp.industries.facebook
 {
 
     /// <summary>
+    /// 2024-03-04 deprecated
+    /// 
     /// manage a dictionary of assoc between a given Type and all objects associated with it
     /// in : BaseType can be an interface shared by all candidates
     /// </summary>

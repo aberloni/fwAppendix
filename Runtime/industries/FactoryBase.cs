@@ -1,28 +1,41 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace fwp.industries
 {
+    using facebook;
+
+    public interface iFactory
+    {
+        public void refresh(); // refresh content of this factory
+        public bool hasCandidates(); // factory as any elements ?
+        public void recycleAll(); // force a recycling on all active elements
+
+        /// <summary>
+        /// DEBUG ONLY
+        /// creates a copy in a list
+        /// </summary>
+        public List<iFactoryObject> getActives();
+        public List<iFactoryObject> getInactives();
+    }
+
     /// <summary>
     /// wrapper object to make a factory for a specific type
     /// </summary>
-    abstract public class FactoryBase
+    abstract public class FactoryBase<FaceType> : iFactory where FaceType : class, iFactoryObject
     {
-        static public bool verbose = false;
+        /// <summary>
+        /// ReadOnly wrapper around list in facebook
+        /// </summary>
+        public ReadOnlyCollection<FaceType> actives = null;
 
-#if UNITY_EDITOR
-        [UnityEditor.MenuItem("Window/Industries/(verbose) factory")]
-        static public void toggleVerbose()
-        {
-            verbose = !verbose;
-            Debug.LogWarning("toggling verbose for factories : " + verbose);
-        }
-#endif
-
-        //List<FactoryObject> pool = new List<FactoryObject>();
-        protected List<iFactoryObject> actives = new List<iFactoryObject>();
-        List<iFactoryObject> inactives = new List<iFactoryObject>();
+        /// <summary>
+        /// all objects currently available for recycling
+        /// </summary>
+        public List <FaceType> inactives = new List<FaceType>();
 
         System.Type _factoryTargetType;
 
@@ -30,7 +43,8 @@ namespace fwp.industries
         {
             _factoryTargetType = getFactoryTargetType();
 
-            IndusReferenceMgr.instance.injectType(_factoryTargetType);
+            // get handle to RO list
+            actives = IndusReferenceMgr.instance.GetGroup<FaceType>();
 
             if (!Application.isPlaying) refresh();
         }
@@ -38,20 +52,18 @@ namespace fwp.industries
         /// <summary>
         /// what kind of object will be created by this factory
         /// </summary>
-        abstract protected System.Type getFactoryTargetType();
+        protected System.Type getFactoryTargetType() => typeof(FaceType);
 
         public void refresh()
         {
             log("refresh()");
 
-            actives.Clear();
             inactives.Clear();
 
-            //List<T> actives = getActives<T>();
-            Object[] presents = (Object[])GameObject.FindObjectsOfType(_factoryTargetType);
+            Object[] presents = (Object[])GameObject.FindObjectsOfType(typeof(FaceType));
             for (int i = 0; i < presents.Length; i++)
             {
-                inject(presents[i] as iFactoryObject);
+                inject(presents[i] as FaceType);
             }
 
             log("refresh:after x{actives.Count}");
@@ -63,43 +75,44 @@ namespace fwp.industries
         public bool hasCandidates(int countCheck) => (actives.Count + inactives.Count) >= countCheck;
 
         /// <summary>
+        /// cannot implem this
+        /// must use facebook RO collects
+        /// 
+        /// SHK to facebook content
         /// just transfert list
         /// </summary>
+        //public ReadOnlyCollection<FaceType> getActives() => actives;
+
+#if UNITY_EDITOR
+
         public List<iFactoryObject> getActives()
         {
-            return actives;
-        }
-
-        /// <summary>
-        /// only for debug
-        /// </summary>
-        public iFactoryObject[] getInactives()
-        {
-            return inactives.ToArray();
-        }
-
-        public List<T> getActives<T>() where T : iFactoryObject
-        {
-            List<T> tmp = new List<T>();
-            for (int i = 0; i < actives.Count; i++)
+            List<iFactoryObject> tmp = new List<iFactoryObject>();
+            foreach(var e in actives)
             {
-                T candid = (T)actives[i];
-                if (candid == null) continue;
-                tmp.Add(candid);
+                tmp.Add(e as iFactoryObject);
             }
-
-            //Debug.Log(typeof(T)+" ? candid = "+tmp.Count + " / active count = " + actives.Count);
-
             return tmp;
         }
 
-        public iFactoryObject getRandomActive()
+        /// <summary>
+        /// DEBUG ONLY
+        /// </summary>
+        public List<iFactoryObject> getInactives()
+        {
+            return inactives.Cast<iFactoryObject>().ToList();
+        }
+
+#endif
+
+        public FaceType getRandomActive()
         {
             Debug.Assert(actives.Count > 0, GetType() + " can't return random one if active list is empty :: " + actives.Count + "/" + inactives.Count);
 
             return actives[Random.Range(0, actives.Count)];
         }
-        public iFactoryObject getNextActive(iFactoryObject curr)
+
+        public FaceType getNextActive(FaceType curr)
         {
             int idx = actives.IndexOf(curr);
             if (idx > -1)
@@ -114,9 +127,9 @@ namespace fwp.industries
         }
 
         /// <summary>
-        /// générer un nouveau element dans le pool
+        /// generate a new element in the pool
         /// </summary>
-        protected iFactoryObject create(string subType)
+        protected FaceType create(string subType)
         {
             string path = System.IO.Path.Combine(getObjectPath(), subType);
             Object obj = Resources.Load(path);
@@ -135,7 +148,7 @@ namespace fwp.industries
 
             //Debug.Log("newly created object " + go.name, go);
 
-            iFactoryObject candidate = go.GetComponent<iFactoryObject>();
+            FaceType candidate = go.GetComponent<FaceType>();
             Debug.Assert(candidate != null, $"no candidate on {go} ?? generated object is not factory compatible", go);
 
             inactives.Add(candidate);
@@ -153,9 +166,9 @@ namespace fwp.industries
         /// demander a la factory de filer un element dispo
         /// subType est le nom du prefab dans le dossier correspondant
         /// </summary>
-        public iFactoryObject extract(string subType)
+        public FaceType extract(string subType)
         {
-            iFactoryObject obj = null;
+            FaceType obj = null;
 
             //will add an item in inactive
             //and go on
@@ -195,12 +208,12 @@ namespace fwp.industries
 
         public T extract<T>(string subType)
         {
-            iFactoryObject icand = extract(subType);
+            FaceType icand = extract(subType);
             Component com = icand as Component;
             return com.GetComponent<T>();
         }
 
-        void recycleInternal(iFactoryObject candid)
+        void recycleInternal(FaceType candid)
         {
             if (recycle(candid))
             {
@@ -211,7 +224,7 @@ namespace fwp.industries
         /// <summary>
         /// indiquer a la factory qu'un objet a changé d'état de recyclage
         /// </summary>
-        public bool recycle(iFactoryObject candid)
+        public bool recycle(FaceType candid)
         {
             bool dirty = false;
 
@@ -219,7 +232,9 @@ namespace fwp.industries
             //Debug.Assert(present, candid + " is not in actives array ?");
             if (present)
             {
-                actives.Remove(candid);
+                IndusReferenceMgr.instance.Delete(candid);
+                //actives.Remove(candid);
+
                 dirty = true;
             }
 
@@ -232,7 +247,7 @@ namespace fwp.industries
                 // DO NOT, inf loop
                 //candid.factoRecycle();
 
-                IndusReferenceMgr.instance.removeObject(candid); // rem facebook
+                IndusReferenceMgr.instance.Delete(candid); // rem facebook
 
                 dirty = true;
             }
@@ -270,7 +285,7 @@ namespace fwp.industries
         /// quand un objet est déclaré comme utilisé par le systeme
         /// généralement cette méthode est appellé a la création d'un objet lié a la facto
         /// </summary>
-        public void inject(iFactoryObject candid)
+        public void inject(FaceType candid)
         {
             Debug.Assert(candid != null, "candid to inject is null ?");
 
@@ -285,14 +300,13 @@ namespace fwp.industries
 
             if (actives.IndexOf(candid) < 0)
             {
-                actives.Add(candid);
-
-                //candid.factoMaterialize();
+                // into facebook
+                //actives.Add(candid);
 
                 MonoBehaviour cmp = candid as MonoBehaviour;
                 if (cmp != null) cmp.enabled = true;
 
-                IndusReferenceMgr.instance.injectObject(candid);
+                IndusReferenceMgr.instance.Register((FaceType)candid);
 
                 dirty = true;
             }
@@ -304,9 +318,9 @@ namespace fwp.industries
         /// <summary>
         /// called by a destroyed object
         /// </summary>
-        public void destroy(iFactoryObject candid)
+        public void destroy(FaceType candid)
         {
-            if (actives.IndexOf(candid) > -1) actives.Remove(candid);
+            IndusReferenceMgr.instance.Delete(candid);
             if (inactives.IndexOf(candid) > -1) inactives.Remove(candid);
         }
 
@@ -314,7 +328,7 @@ namespace fwp.industries
         {
             log("recycleAll()");
 
-            List<iFactoryObject> cands = new List<iFactoryObject>();
+            List<FaceType> cands = new List<FaceType>();
             cands.AddRange(actives);
 
             // use INTERNAL to avoid inf loops
@@ -334,7 +348,7 @@ namespace fwp.industries
         {
 
 #if UNITY_EDITOR || industries
-            bool showLog = verbose;
+            bool showLog = IndusReferenceMgr.verbose;
 
             if (showLog)
                 Debug.Log(getStamp() + content, target as Object);
@@ -363,7 +377,7 @@ namespace fwp.industries
     /// <summary>
     /// make ref compatible with factories
     /// </summary>
-    public interface iFactoryObject : iIndusReference
+    public interface iFactoryObject : IFacebook
     {
 
         /// <summary>
