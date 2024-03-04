@@ -14,6 +14,9 @@ namespace fwp.industries
         public bool hasCandidates(); // factory as any elements ?
         public void recycleAll(); // force a recycling on all active elements
 
+        public void injectObject(iFactoryObject instance);
+        public iFactoryObject extractObject(string uid);
+
         /// <summary>
         /// DEBUG ONLY
         /// creates a copy in a list
@@ -162,6 +165,8 @@ namespace fwp.industries
         }
         abstract protected string getObjectPath();
 
+        public iFactoryObject extractObject(string subType) => (iFactoryObject)extract(subType);
+
         /// <summary>
         /// demander a la factory de filer un element dispo
         /// subType est le nom du prefab dans le dossier correspondant
@@ -280,6 +285,8 @@ namespace fwp.industries
 
             return dirty;
         }
+
+        public void injectObject(iFactoryObject candid) => inject((FaceType)candid);
 
         /// <summary>
         /// quand un objet est déclaré comme utilisé par le systeme
