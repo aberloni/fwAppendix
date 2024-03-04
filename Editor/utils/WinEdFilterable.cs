@@ -6,10 +6,8 @@ using UnityEngine;
 /// <summary>
 /// gives this view the tools to filter content
 /// </summary>
-public class WinEdFilterable : EditorWindow
+public class WinEdFilterable : WinEdWrapper
 {
-    protected bool verbose = false;
-
     string _filter = string.Empty;
 
     protected bool hasFilter => _filter.Length > 0;
@@ -28,8 +26,4 @@ public class WinEdFilterable : EditorWindow
         GUILayout.EndHorizontal();
     }
 
-    protected void log(string content)
-    {
-        if (verbose) Debug.Log(GetType() + " @ " + content);
-    }
 }
