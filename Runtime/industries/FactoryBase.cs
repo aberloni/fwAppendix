@@ -17,12 +17,14 @@ namespace fwp.industries
         public void injectObject(iFactoryObject instance);
         public iFactoryObject extractObject(string uid);
 
+#if UNITY_EDITOR
         /// <summary>
         /// DEBUG ONLY
         /// creates a copy in a list
         /// </summary>
         public List<iFactoryObject> getActives();
         public List<iFactoryObject> getInactives();
+#endif
     }
 
     /// <summary>
