@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
 
+/// <summary>
+/// author : Lorris Giovagnoli
+/// </summary>
 namespace fwp.industries.facebook
 {
 	/// <summary>

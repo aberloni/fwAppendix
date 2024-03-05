@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
+/// <summary>
+/// author : Lorris Giovagnoli
+/// </summary>
 namespace fwp.industries.facebook
 {
 	public interface IGroup
