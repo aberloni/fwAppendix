@@ -38,7 +38,7 @@ namespace fwp.industries
         /// <summary>
         /// all objects currently available for recycling
         /// </summary>
-        public List <FaceType> inactives = new List<FaceType>();
+        public List<FaceType> inactives = new List<FaceType>();
 
         System.Type _factoryTargetType;
 
@@ -91,7 +91,7 @@ namespace fwp.industries
         public List<iFactoryObject> getActives()
         {
             List<iFactoryObject> tmp = new List<iFactoryObject>();
-            foreach(var e in actives)
+            foreach (var e in actives)
             {
                 tmp.Add(e as iFactoryObject);
             }
@@ -139,7 +139,7 @@ namespace fwp.industries
 
             if (obj == null)
             {
-                Debug.LogWarning(getStamp() + " /! <color=red>null object</color> @ " + path);
+                Debug.LogWarning(getStamp() + " /! <color=red>null object</color> path@" + path);
                 return null;
             }
 
@@ -152,7 +152,7 @@ namespace fwp.industries
             //Debug.Log("newly created object " + go.name, go);
 
             FaceType candidate = go.GetComponent<FaceType>();
-            Debug.Assert(candidate != null, $"no candidate on {go} ?? generated object is not factory compatible", go);
+            Debug.Assert(candidate != null, $"could not retrieve comp<{typeof(FaceType)}> on gObject:{go} ?? generated object is not factory compatible", go);
 
             inactives.Add(candidate);
             //recycle(candidate);
@@ -389,6 +389,7 @@ namespace fwp.industries
 
         /// <summary>
         /// the actual name of the object to instantiate
+        /// to be able to compare signatures when extracting and recycling
         /// Resources/{facto}/{CandidateName}
         /// </summary>
         string factoGetCandidateName();

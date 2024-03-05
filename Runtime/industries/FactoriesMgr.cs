@@ -31,18 +31,18 @@ namespace fwp.industries
         /// </summary>
         static public T getFactoryOf<T>() where T : iFactory
         {
-            //Type typ = typeof(Facto);
-
-            T output;
-
             // already exists ?
             foreach (var f in factos)
             {
                 Debug.Assert(f != null, "an item in factos[] is null ??");
                 try
                 {
-                    output = (T)f;
-                    if (f != null) return output;
+                    // need to compare type
+                    // can't cast if not matching
+                    if(f.GetType() == typeof(T))
+                    {
+                        return (T)f;
+                    }
                 }
                 catch
                 {
