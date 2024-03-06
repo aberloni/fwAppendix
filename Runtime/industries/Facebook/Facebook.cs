@@ -8,126 +8,138 @@ using UnityEngine;
 /// </summary>
 namespace fwp.industries.facebook
 {
-	/// <summary>
-	/// compatible objects need to implem this interface
-	/// </summary>
-	public interface IFacebook { }
+    /// <summary>
+    /// compatible objects need to implem this interface
+    /// </summary>
+    public interface IFacebook { }
 
-	/// <summary>
-	/// meant to provide a way to manage list of type of objects
-	/// where context objects can sub/unsub from
-	/// 
-	/// to dodge having to manage a FindObjectsOfType anywhere
-	/// </summary>
-	abstract public class Facebook
-	{
-		private Dictionary<Type, IGroup> registry = new Dictionary<Type, IGroup>();
+    /// <summary>
+    /// meant to provide a way to manage list of type of objects
+    /// where context objects can sub/unsub from
+    /// 
+    /// to dodge having to manage a FindObjectsOfType anywhere
+    /// </summary>
+    abstract public class Facebook
+    {
+        private Dictionary<Type, IGroup> registry = new Dictionary<Type, IGroup>();
 
 #if UNITY_EDITOR
-		/// <summary>
-		/// debug only
-		/// </summary>
-		public List<Type> GetAllTypes()
+        /// <summary>
+        /// debug only
+        /// </summary>
+        public List<Type> GetAllTypes()
         {
-			List<Type> typs = new List<Type>();
-			foreach(var kp in registry)
+            List<Type> typs = new List<Type>();
+            foreach (var kp in registry)
             {
-				typs.Add(kp.Key);
+                typs.Add(kp.Key);
             }
-			return typs;
+            return typs;
         }
 
-		/// <summary>
-		/// !OPTI
-		/// will refill array based on monobehavior found in context
-		/// </summary>
-		void Refresh(IGroup group, MonoBehaviour[] monos)
+        /// <summary>
+        /// !OPTI
+        /// will refill array based on monobehavior found in context
+        /// </summary>
+        void Refresh(IGroup group, MonoBehaviour[] monos)
         {
-			group.Clear();
+            group.Clear();
 
-			if(monos == null)
-				monos = GameObject.FindObjectsOfType<MonoBehaviour>();
+            if (monos == null)
+                monos = GameObject.FindObjectsOfType<MonoBehaviour>();
 
-			foreach(var m in monos)
+            foreach (var m in monos)
             {
-				group.Add(m);
+                group.Add(m);
             }
         }
 
-		public void RefreshAll()
+        public void RefreshAll()
         {
-			var monos = GameObject.FindObjectsOfType<MonoBehaviour>();
-			foreach (var r in registry)
+            var monos = GameObject.FindObjectsOfType<MonoBehaviour>();
+            foreach (var r in registry)
             {
-				Refresh(r.Value, monos);
+                Refresh(r.Value, monos);
             }
         }
 #endif
 
-		public void Register<T>(T member) where T: class, IFacebook
-		{
-			if (member == null)
-				return;
+        public void Register<T>(T member) where T : class, IFacebook
+        {
+            if (member == null)
+                return;
 
-			Group<T> group = GetGroupOfType<T>();
-			if (!group.members.Contains(member))
-				group.members.Add(member);
-		}
-		
-		public void Delete<T>(T member) where T: class, IFacebook
-		{
-			if (member == null)
-				return;
+            Group<T> group = GetGroupOfType<T>();
+            if (!group.members.Contains(member))
+                group.members.Add(member);
+        }
 
-			Group<T> group = GetGroupOfType<T>();
-			if (group.members.Contains(member))
-				group.members.Remove(member);
-		}
+        /// <summary>
+        /// only removed from matching highest level Type
+        /// </summary>
+        public void Delete<T>(T member) where T : class, IFacebook
+        {
+            if (member == null)
+                return;
 
-		public void DeleteFromAllGroups(object member)
-		{
-			if (member == null)
-				return;
+            Group<T> group = GetGroupOfType<T>();
+            if (group.members.Contains(member))
+            {
+                group.members.Remove(member);
+            }
+        }
 
-			Type memberType = member.GetType();
-			foreach(Type type in registry.Keys)
-			{
-				if (memberType == type || memberType.IsSubclassOf(type))
-				{
-					registry[type].Remove(member);
-				}
-			}
-		}
+        /// <summary>
+        /// its type and all castables
+        /// </summary>
+        public void DeleteFromAllGroups(object member)
+        {
+            if (member == null)
+                return;
 
-		public ReadOnlyCollection<T> GetGroup<T>() where T: class, IFacebook
-		{
-			Group<T> group = GetGroupOfType<T>();
-			return group.readOnlyMembers;
-		}
+            //Debug.Log("deleting : " + member);
 
-		private Group<T> GetGroupOfType<T>() where T: class, IFacebook
-		{
-			CreateGroupOfTypeIfDoesNotExist<T>();
-			return (Group<T>)registry[typeof(T)];
-		}
+            Type memberType = member.GetType();
+            foreach (Type type in registry.Keys)
+            {
+                //Debug.Log("? " + type + " vs " + memberType);
+                if (type.IsAssignableFrom(memberType))
+                {
+                    //Debug.Log("!");
+                    registry[type].Remove(member);
+                }
+            }
+        }
 
-		private void CreateGroupOfTypeIfDoesNotExist<T>() where T: class, IFacebook
-		{
-			if (registry.ContainsKey(typeof(T)))
-				return;
+        public ReadOnlyCollection<T> GetGroup<T>() where T : class, IFacebook
+        {
+            Group<T> group = GetGroupOfType<T>();
+            return group.readOnlyMembers;
+        }
 
-			Group<T> newGroup = new Group<T>();
-			registry.Add(typeof(T), newGroup);
-		}
+        private Group<T> GetGroupOfType<T>() where T : class, IFacebook
+        {
+            CreateGroupOfTypeIfDoesNotExist<T>();
+            return (Group<T>)registry[typeof(T)];
+        }
 
-		public IReadOnlyList<object> GetGroup(Type type)
-		{
-			return GetGroupOfType(type)?.GetMembers();
-		}
+        private void CreateGroupOfTypeIfDoesNotExist<T>() where T : class, IFacebook
+        {
+            if (registry.ContainsKey(typeof(T)))
+                return;
 
-		private IGroup GetGroupOfType(Type type)
-		{
-			return registry.ContainsKey(type) ? registry[type] : null;
-		}
-	}
+            Group<T> newGroup = new Group<T>();
+            registry.Add(typeof(T), newGroup);
+        }
+
+        public IReadOnlyList<object> GetGroup(Type type)
+        {
+            return GetGroupOfType(type)?.GetMembers();
+        }
+
+        private IGroup GetGroupOfType(Type type)
+        {
+            return registry.ContainsKey(type) ? registry[type] : null;
+        }
+    }
 }

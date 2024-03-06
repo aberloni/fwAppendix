@@ -62,5 +62,23 @@ namespace fwp.industries.facebook
         {
 			members.Clear();
         }
+
+		public bool IsSubclass(System.Type typ)
+        {
+			// https://learn.microsoft.com/en-us/dotnet/api/system.type.issubclassof?view=net-8.0
+			// The IsSubclassOf method cannot be used to determine whether an interface derives from another interface,
+			// or whether a class implements an interface.
+			// Use the IsAssignableFrom method for that purpose, as the following example shows.
+
+			return typ.IsSubclassOf(typeof(T));
+		}
+
+		public bool IsAssignableFrom(System.Type typ)
+        {
+			// https://learn.microsoft.com/en-us/dotnet/api/system.type.isassignablefrom?view=net-8.0
+			// typ castable as T ?
+			//return typeof(T).IsAssignableFrom(typ);
+			return typ.IsAssignableFrom(typeof(T));
+        }
 	}
 }
