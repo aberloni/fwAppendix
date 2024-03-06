@@ -111,6 +111,16 @@ namespace fwp.industries.facebook
             }
         }
 
+        /// <summary>
+        /// returns a copy of content of a group
+        /// </summary>
+        public List<T> GetGroupCopy<T>() where T : class, IFacebook
+        {
+            List<T> output = new List<T>();
+            output.AddRange(GetGroup<T>());
+            return output;
+        }
+
         public ReadOnlyCollection<T> GetGroup<T>() where T : class, IFacebook
         {
             Group<T> group = GetGroupOfType<T>();
