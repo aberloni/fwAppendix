@@ -59,7 +59,7 @@ namespace fwp.screens
             }
         }
 
-        void Awake()
+        private void Awake()
         {
             if(type == ScreenType.none)
             {
@@ -74,6 +74,8 @@ namespace fwp.screens
         {
             // at this abstract level, keep whatever is setup in editor
             //hide(); // default state is : not visible
+
+            log("created");
         }
 
         /// <summary>
@@ -84,9 +86,14 @@ namespace fwp.screens
             return false;
         }
 
-        IEnumerator Start()
+        private IEnumerator Start()
         {
-            while (delayEngineCheck()) yield return null;
+            if(delayEngineCheck())
+            {
+                while (delayEngineCheck()) yield return null;
+                log("delay engine : done");
+            }
+            
 
             // setup will trigger auto opening and setupBeforeOpening
             screenSetup();
@@ -117,17 +124,20 @@ namespace fwp.screens
 
         virtual protected void screenSetup()
         {
-
+            log("setup");
         }
 
+        /// <summary>
+        /// before setup late
+        /// </summary>
         virtual protected void screenSetupDebug()
         {
-            log("screenSetupDebug()");
+            log("setup debug");
         }
 
         virtual protected void screenSetupLate()
         {
-
+            log("setup late");
         }
 
         public void subNavDirection(Action down, Action up, Action left, Action right)
@@ -174,8 +184,7 @@ namespace fwp.screens
 
         virtual protected bool toggleVisible(bool flag)
         {
-            if(verbose)
-                Debug.Log(getStamp() + "    toggle visible : " + flag);
+            log("toggle visible : " + flag);
             
             if (canvas.hasCanvas())
             {
@@ -262,7 +271,7 @@ namespace fwp.screens
                 return;
             }
 
-            Debug.Log(getStamp()+ " unloading <b>" + gameObject.scene.name + "</b>");
+            log("unloading <b>" + gameObject.scene.name + "</b>");
 
             SceneManager.UnloadSceneAsync(gameObject.scene.name);
         }
@@ -279,7 +288,7 @@ namespace fwp.screens
 
         virtual public void act_call_home()
         {
-            Debug.Log(getStamp() + " calling <b>home screen</b>");
+            log("calling <b>home screen</b>");
 
             ScreensManager.open(ScreensManager.ScreenNameGenerics.home);
         }
@@ -323,7 +332,9 @@ namespace fwp.screens
         }
 
         virtual protected void onScreenDestruction()
-        { }
+        {
+            log("destroy");
+        }
 
         virtual public string stringify()
         {
