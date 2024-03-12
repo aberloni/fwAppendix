@@ -290,6 +290,8 @@ namespace fwp.industries
 
         public void injectObject(iFactoryObject candid) => inject((FaceType)candid);
 
+        //public void inject<FaceType>(FaceType candid) => inject(candid);
+
         /// <summary>
         /// quand un objet est déclaré comme utilisé par le systeme
         /// généralement cette méthode est appellé a la création d'un objet lié a la facto
@@ -315,7 +317,8 @@ namespace fwp.industries
                 MonoBehaviour cmp = candid as MonoBehaviour;
                 if (cmp != null) cmp.enabled = true;
 
-                IndusReferenceMgr.instance.Register((FaceType)candid);
+                //IndusReferenceMgr.instance.Register((FaceType)candid);
+                IndusReferenceMgr.instance.Register<FaceType>(candid);
 
                 dirty = true;
             }
