@@ -19,6 +19,8 @@ namespace fwp.screens
     {
         static public bool verbose = false;
 
+        bool _debug = false;
+
         const string screenPrefix = "screen-";
 
         public string getStamp() => "<color=white>screen</color>:" + name;
@@ -61,6 +63,8 @@ namespace fwp.screens
 
         private void Awake()
         {
+            _debug = UnityEngine.SceneManagement.SceneManager.GetActiveScene() == gameObject.scene;
+
             if(type == ScreenType.none)
             {
                 Debug.LogWarning("integration:missing screen type", this);
@@ -100,7 +104,7 @@ namespace fwp.screens
 
             yield return null;
 
-            if (!isActiveScene())
+            if (!isDebugContext())
             {
                 log("-debug => active scene : " + SceneManager.GetActiveScene().name + " != " + gameObject.scene.name);
             }
@@ -122,10 +126,7 @@ namespace fwp.screens
 
         public bool isSticky() => tags.HasFlag(ScreenTags.stickyVisibility);
 
-        protected bool isActiveScene()
-        {
-            return UnityEngine.SceneManagement.SceneManager.GetActiveScene() == gameObject.scene;
-        }
+        protected bool isDebugContext() => _debug;
 
         virtual protected void screenSetup()
         {
