@@ -102,6 +102,7 @@ namespace fwp.screens
 
             if (isActiveScene())
             {
+                log("active scene : " + gameObject.scene.name+" :: debug context");
                 screenSetupDebug();
             }
 
