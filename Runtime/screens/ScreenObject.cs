@@ -100,9 +100,13 @@ namespace fwp.screens
 
             yield return null;
 
-            if (isActiveScene())
+            if (!isActiveScene())
             {
-                log("active scene : " + gameObject.scene.name+" :: debug context");
+                log("-debug => active scene : " + SceneManager.GetActiveScene().name + " != " + gameObject.scene.name);
+            }
+            else
+            {
+                log("+debug => screen scene : " + gameObject.scene.name+" is active scene");
                 screenSetupDebug();
             }
 
@@ -352,13 +356,14 @@ namespace fwp.screens
 #endif
         }
 
-        protected void log(string ct)
+        protected void log(string ct, Component target = null)
         {
 #if UNITY_EDITOR
-            if(verbose)
-            {
-                Debug.Log(getStamp() + " >>         " + ct, this);
-            }
+            if (!verbose)
+                return;
+
+            if (target == null) target = this;
+            Debug.Log(getStamp() + " >>         " + ct, this);
 #endif
         }
 
