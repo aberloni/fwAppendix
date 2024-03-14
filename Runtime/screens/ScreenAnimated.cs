@@ -35,6 +35,9 @@ namespace fwp.screens
         //const string STATE_HIDING = "hiding";
         //const string STATE_OPENING = "opening";
 
+        /// <summary>
+        /// constructor / awake
+        /// </summary>
         protected override void screenCreated()
         {
             base.screenCreated();
@@ -149,13 +152,13 @@ namespace fwp.screens
                 while (process.MoveNext()) yield return null;
             }
 
-            evtOpeningAnimationDone();
+            onOpeningAnimationDone();
         }
 
         /// <summary>
         /// do something at the end of opening animation
         /// </summary>
-        virtual protected void evtOpeningAnimationDone()
+        virtual protected void onOpeningAnimationDone()
         {
             _coprocOpening = null;
 
@@ -173,10 +176,10 @@ namespace fwp.screens
         /// </summary>
         public void actionClose()
         {
-            closeAnimated();
+            onCloseAnimated();
         }
 
-        virtual public void closeAnimated()
+        virtual public void onCloseAnimated()
         {
             //Debug.Log(getStamp() + " close animated ?");
 
@@ -216,14 +219,6 @@ namespace fwp.screens
                 while (process.MoveNext()) yield return null;
             }
 
-            evtClosingAnimationCompleted();
-        }
-
-        /// <summary>
-        /// après l'anim de fermeture
-        /// </summary>
-        void evtClosingAnimationCompleted()
-        {
             log("closing animation completed");
 
             _opened = false; // jic
@@ -357,7 +352,7 @@ namespace fwp.screens
                 if (so.isBusy())
                     return;
 
-                if (so.isOpen()) so.closeAnimated();
+                if (so.isOpen()) so.onCloseAnimated();
                 else so.openAnimated();
 
                 return;

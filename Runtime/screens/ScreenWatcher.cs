@@ -104,7 +104,7 @@ namespace fwp.screens
 
         public void interrupt()
         {
-            screen.closeAnimated();
+            screen.onCloseAnimated();
         }
 
 
@@ -117,7 +117,7 @@ namespace fwp.screens
 
             if(screenAnim != null)
             {
-                screenAnim.closeAnimated();
+                screenAnim.onCloseAnimated();
             }
 
             while(screen != null)
