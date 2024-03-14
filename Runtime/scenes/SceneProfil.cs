@@ -164,7 +164,7 @@ namespace fwp.scenes
             if (paths.Count <= 0)
             {
                 Debug.LogWarning($"given base context : <b>{context}</b> => empty paths[] (length = 0)");
-                Debug.LogWarning("target context was <color=red>not added to build settings</b> ?");
+                Debug.LogWarning("target context was <color=red>not added to build settings</color> ?");
                 return null;
             }
 
