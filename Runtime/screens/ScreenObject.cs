@@ -268,18 +268,24 @@ namespace fwp.screens
         /// </summary>
         public bool forceHide() => toggleVisible(false); // specific case : force hide
 
-        public void unload() => unload(false);
-        public void unload(bool force = false)
+        public bool unload() => unload(false);
+        
+        /// <summary>
+        /// true = success
+        /// </summary>
+        public bool unload(bool force = false)
         {
             if (!force && tags.HasFlag(ScreenTags.stickyPersistance))
             {
                 Debug.LogWarning("can't unload sticky scenes : " + gameObject.scene.name);
-                return;
+                return false;
             }
 
             log("unloading <b>" + gameObject.scene.name + "</b>");
 
             SceneManager.UnloadSceneAsync(gameObject.scene.name);
+
+            return true;
         }
 
         public bool isInteractive() => nav != null;
