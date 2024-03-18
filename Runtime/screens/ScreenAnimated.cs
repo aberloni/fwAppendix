@@ -170,16 +170,23 @@ namespace fwp.screens
             if (verbose) Debug.Log(getStamp() + " OPENED");
         }
 
+        
+
         /// <summary>
         /// called by external context
         /// for UI buttons
         /// </summary>
-        public void actionClose()
-        {
-            onCloseAnimated();
-        }
+        public void actionClose() => onCloseAnimated();
 
-        virtual public void onCloseAnimated()
+        /// <summary>
+        /// will animate
+        /// </summary>
+        public void closeAnimated() => actionClose();
+
+        /// <summary>
+        /// use actionClose to close
+        /// </summary>
+        virtual protected void onCloseAnimated()
         {
             //Debug.Log(getStamp() + " close animated ?");
 
