@@ -46,7 +46,7 @@ namespace fwp.appendix
 #if UNITY_2023
             return GameObject.FindFirstObjectByType<T>();
 #else
-			return GameObject.FindObjectsOfType<T>();
+			return GameObject.FindObjectOfType<T>();
 #endif
 		}
 
