@@ -5,6 +5,9 @@ using System;
 
 namespace fwp.screens
 {
+    /// <summary>
+    /// module to manage raw input directions
+    /// </summary>
     public class ScreenNav
     {
         protected float notInteractiveTimer = 0f;

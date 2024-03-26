@@ -9,6 +9,13 @@ namespace fwp.scenes
 {
     /// <summary>
     /// hierarchy object to track load of scenes
+    /// 
+    /// smooth loading thread : https://gamedev.stackexchange.com/questions/130180/smooth-loading-screen-between-scenes
+    ///     If you want the scene activation to not freeze your game, then you should keep your 
+    ///     Awake and Start callbacks to a minimun, and initialize your scripts in a coroutine through several cycles.
+    ///     
+    /// loading thread priority : https://docs.unity3d.com/ScriptReference/Application-backgroundLoadingPriority.html
+    /// 
     /// </summary>
     public class SceneLoaderRunner : MonoBehaviour
     {
@@ -152,6 +159,8 @@ namespace fwp.scenes
 
             SceneLoader.log("  L <b>" + target + "</b> loading ... ");
 
+            // https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager.LoadSceneAsync.html
+            // https://docs.unity3d.com/ScriptReference/AsyncOperation.html
             AsyncOperation async = SceneManager.LoadSceneAsync(target, LoadSceneMode.Additive);
             while (!async.isDone)
             {

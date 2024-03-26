@@ -9,6 +9,10 @@ using UnityEngine.UI;
 namespace fwp.screens
 {
     /// <summary>
+    /// wrapper to manage a menu using scenes
+    /// 1x menu is 1x scene and will be loaded when called
+    /// and can be unloaded when the user is done
+    /// 
     /// show,hide
     /// updateVisible,updateNotVisible
     /// 
@@ -121,6 +125,14 @@ namespace fwp.screens
 
             screenSetupLate();
         }
+
+        private void OnValidate()
+        {
+            validate();    
+        }
+
+        virtual protected void validate()
+        { }
 
         public Scene getScene() => gameObject.scene;
 
@@ -268,8 +280,6 @@ namespace fwp.screens
         /// </summary>
         public bool forceHide() => toggleVisible(false); // specific case : force hide
 
-        public bool unload() => unload(false);
-        
         /// <summary>
         /// true = success
         /// </summary>
@@ -283,6 +293,7 @@ namespace fwp.screens
 
             log("unloading <b>" + gameObject.scene.name + "</b>");
 
+            //SceneManager.UnloadSceneAsync(gameObject.scene, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
             SceneManager.UnloadSceneAsync(gameObject.scene.name);
 
             return true;
