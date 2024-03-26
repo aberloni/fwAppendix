@@ -200,6 +200,9 @@ namespace fwp.screens
 
         virtual protected void action_back() { }
 
+        /// <summary>
+        /// true = ok
+        /// </summary>
         virtual protected bool toggleVisible(bool flag)
         {
             log("toggle visible : " + flag);

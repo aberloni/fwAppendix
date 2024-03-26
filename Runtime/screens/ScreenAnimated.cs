@@ -181,7 +181,7 @@ namespace fwp.screens
         /// <summary>
         /// will animate
         /// </summary>
-        public void closeAnimated() => actionClose();
+        public void closeAnimated() => onCloseAnimated();
 
         /// <summary>
         /// use actionClose to close
@@ -236,9 +236,26 @@ namespace fwp.screens
             onClosingAnimationCompleted();
         }
 
+        /// <summary>
+        /// allow to change behavior
+        /// default : unload the scene after hiding animation is done
+        /// </summary>
+        virtual protected bool isUnloadAfterClosing() => true;
+
+        /// <summary>
+        /// do more stuff after closing
+        /// </summary>
         virtual protected void onClosingAnimationCompleted()
         {
-            unload();
+            if(isUnloadAfterClosing())
+            {
+                //won't if sticky
+                unload();
+            }
+            else
+            {
+                hide();
+            }
         }
 
         public bool isBusy()
