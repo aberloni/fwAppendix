@@ -190,7 +190,7 @@ public class SceneSubFolder
     /// <summary>
     /// helper to draw a line to toggle a bool linked to edpprefs
     /// </summary>
-    static public void drawAutoAdd(string label, string ppref)
+    static public void drawToggle(string label, string ppref)
     {
         EdUserSettings.drawBool("+" + label, ppref);
     }
@@ -200,7 +200,7 @@ public class SceneSubFolder
     /// </summary>
     static public void drawAutoAddBuildSettings()
     {
-        drawAutoAdd("build settings", _pref_autoAddBuildSettings);
+        drawToggle("build settings", _pref_autoAddBuildSettings);
     }
 
 

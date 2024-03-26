@@ -33,7 +33,7 @@ namespace fwp.scenes
         /* remove everything with a * at the start of the name */
         static public void removeGuides()
         {
-            GameObject[] objs = GameObject.FindObjectsOfType<GameObject>();
+            GameObject[] objs = fwp.appendix.AppendixUtils.gcs<GameObject>();
             for (int i = 0; i < objs.Length; i++)
             {
                 if (objs[i].name[0] == '*') GameObject.Destroy(objs[i].gameObject);

@@ -334,15 +334,10 @@ namespace fwp.scenes
             return SceneManager.GetSceneByName(layers[0]).isLoaded;
         }
 
-        public void checkAddToBuildSettings(bool force)
-        {
-            if (force)
-                forceAddToBuildSettings();
-        }
+#if UNITY_EDITOR
 
         void forceAddToBuildSettings()
         {
-#if UNITY_EDITOR
             List<EditorBuildSettingsScene> tmp = new List<EditorBuildSettingsScene>();
 
             // keep existing
@@ -352,8 +347,15 @@ namespace fwp.scenes
                     tmp.AddRange(EditorBuildSettings.scenes);
             }
 
-            //var scenes = SceneTools.getProjectAssetScenesPaths();
-            var scenes = filterAllPaths(false); // force adding, NEED extensions
+            var scenes = filterAllPaths(false); // gather linked scenes
+
+            if(scenes.Count <= 0)
+            {
+                if(verbose)
+                    Debug.LogWarning("no scenes returned after filtering ?");
+
+                return;
+            }
 
             foreach (string path in scenes)
             {
@@ -370,27 +372,30 @@ namespace fwp.scenes
                 tmp.Add(new EditorBuildSettingsScene(path, true));
             }
 
-            if (tmp.Count > 0)
+            if (tmp.Count <= 0)
             {
-                //assign
-                EditorBuildSettings.scenes = tmp.ToArray();
+                if(verbose)
+                    Debug.LogWarning("nothing to add to build settings ?");
 
-                if (verbose)
-                {
-                    for (int i = 0; i < EditorBuildSettings.scenes.Length; i++)
-                    {
-                        Debug.Log("#" + i + " => " + EditorBuildSettings.scenes[i].path);
-                    }
-                }
-
-                if (verbose)
-                    Debug.Log("forced added scenes to build settings : x" + EditorBuildSettings.scenes.Length);
+                return;
             }
 
-#endif
-        }
+            //assign
+            EditorBuildSettings.scenes = tmp.ToArray();
 
-#if UNITY_EDITOR
+            if (verbose)
+            {
+                Debug.Log("was (re)added to build settings x" + tmp.Count);
+
+                for (int i = 0; i < EditorBuildSettings.scenes.Length; i++)
+                {
+                    Debug.Log("#" + i + " => " + EditorBuildSettings.scenes[i].path);
+                }
+
+                Debug.Log("total build settings scenes x" + EditorBuildSettings.scenes.Length);
+            }
+
+        }
 
         /// <summary>
         /// replace context = remove all other scenes
