@@ -170,7 +170,7 @@ public class SceneSubFolder
         return "@folder:" + folderName + ", total scenes x" + scenes.Count;
     }
 
-    public const string _pref_autoAdd = "scenesAutoAdd";
+    public const string _pref_autoAddBuildSettings = "scenesAutoAddBuildSettings";
 
     /// <summary>
     /// additive only for loading
@@ -178,7 +178,7 @@ public class SceneSubFolder
     void onEditorSceneCall(SceneProfil profil, bool replaceContext)
     {
         profil.setDirty();
-        profil.editorLoad(replaceContext, MgrUserSettings.getEdBool(_pref_autoAdd));
+        profil.editorLoad(replaceContext, MgrUserSettings.getEdBool(_pref_autoAddBuildSettings));
     }
 
     void onEditorSceneRemoval(SceneProfil profil)
@@ -188,11 +188,19 @@ public class SceneSubFolder
     }
 
     /// <summary>
+    /// helper to draw a line to toggle a bool linked to edpprefs
+    /// </summary>
+    static public void drawAutoAdd(string label, string ppref)
+    {
+        EdUserSettings.drawBool("+" + label, ppref);
+    }
+
+    /// <summary>
     /// shk
     /// </summary>
-    static public void drawAutoAdd()
+    static public void drawAutoAddBuildSettings()
     {
-        EdUserSettings.drawBool("+ build settings", _pref_autoAdd);
+        drawAutoAdd("build settings", _pref_autoAddBuildSettings);
     }
 
 

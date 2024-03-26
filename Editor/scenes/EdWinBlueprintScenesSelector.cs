@@ -133,7 +133,7 @@ namespace fwp.scenes
         {
             base.drawAdditionnal();
 
-            SceneSubFolder.drawAutoAdd();
+            SceneSubFolder.drawAutoAddBuildSettings();
         }
 
         List<SceneSubFolder> solveTabFolder(string tabName)
