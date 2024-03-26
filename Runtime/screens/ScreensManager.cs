@@ -25,6 +25,9 @@ namespace fwp.screens
             loading
         };
 
+        /// <summary>
+        /// a ScreenObject will sub here during its Awake
+        /// </summary>
         static public void subScreen(ScreenObject so)
         {
             if (screens.Contains(so)) return;

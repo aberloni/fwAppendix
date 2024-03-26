@@ -29,7 +29,19 @@ namespace fwp.scenes
             return false;
         }
 
-
+        /// <summary>
+        /// extract a comp from roots
+        /// </summary>
+        public T extract<T>() where T : Component
+        {
+            foreach(var root in handle.GetRootGameObjects())
+            {
+                T ret = root.GetComponentInChildren<T>();
+                if (ret != null)
+                    return ret;
+            }
+            return null;
+        }
 
         /// <summary>
         /// fetch all assocs from given names
