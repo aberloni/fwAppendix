@@ -58,7 +58,7 @@ namespace fwp.screens
 
             if (!hasValidAnimator())
             {
-                Debug.LogWarning(getStamp() + " animator is NOT VALID");
+                logw("animator is NOT VALID");
             }
 
             //Debug.Assert(_animator != null, "screen animated animator missing ; voir avec andre");
@@ -100,7 +100,7 @@ namespace fwp.screens
         /// </summary>
         public void openAnimated()
         {
-            if (verbose) Debug.Log(getStamp() + " open animating TAB : " + name, transform);
+            if (verbose) log(" open animating TAB : " + name, transform);
 
             //already animating ?
 
@@ -108,8 +108,8 @@ namespace fwp.screens
             {
                 if (verbose)
                 {
-                    Debug.LogWarning(getStamp() + " => open animated => coroutine d'opening tourne déjà ?");
-                    Debug.LogWarning(getStamp() + " trying to re-open the same screen during it's opening ?");
+                    logw(" => open animated => coroutine d'opening tourne déjà ?");
+                    logw(" trying to re-open the same screen during it's opening ?");
                 }
 
                 return;
@@ -167,7 +167,7 @@ namespace fwp.screens
 
             _opened = true;
 
-            if (verbose) Debug.Log(getStamp() + " OPENED");
+            if (verbose) log("OPENED");
         }
 
         
@@ -192,11 +192,13 @@ namespace fwp.screens
 
             if (isClosing())
             {
-                Debug.LogWarning(" ... already closing");
+                if(verbose)
+                    logw(" ... already closing");
+
                 return;
             }
 
-            if (verbose) Debug.Log(getStamp() + " CLOSING ...");
+            if (verbose) log("CLOSING ...");
 
             _coprocClosing = StartCoroutine(processAnimatingClosing());
         }

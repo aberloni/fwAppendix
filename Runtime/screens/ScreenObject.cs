@@ -43,11 +43,11 @@ namespace fwp.screens
         public enum ScreenTags
         {
             none = 0,
-            pauseIngameUpdate       = 1, // screen that pauses gameplay
-            blockIngameInput        = 2,  // screen that lock inputs
-            stickyVisibility        = 4,  // can't be hidden
-            stickyPersistance       = 8, // can't be unloaded
-            hideOtherLayerOnShow    = 16,
+            pauseIngameUpdate = 1, // screen that pauses gameplay
+            blockIngameInput = 2,  // screen that lock inputs
+            stickyVisibility = 4,  // can't be hidden
+            stickyPersistance = 8, // can't be unloaded
+            hideOtherLayerOnShow = 16,
         };
 
         public ScreenType type;
@@ -69,7 +69,7 @@ namespace fwp.screens
         {
             _debug = UnityEngine.SceneManagement.SceneManager.GetActiveScene() == gameObject.scene;
 
-            if(type == ScreenType.none)
+            if (type == ScreenType.none)
             {
                 Debug.LogWarning("integration:missing screen type", this);
             }
@@ -96,12 +96,12 @@ namespace fwp.screens
 
         private IEnumerator Start()
         {
-            if(delayEngineCheck())
+            if (delayEngineCheck())
             {
                 while (delayEngineCheck()) yield return null;
                 log("delay engine : done");
             }
-            
+
 
             // setup will trigger auto opening and setupBeforeOpening
             screenSetup();
@@ -111,7 +111,7 @@ namespace fwp.screens
             if (!isDebugContext()) log("-debug => active scene : " + SceneManager.GetActiveScene().name + " != " + gameObject.scene.name);
             else
             {
-                log("+debug => screen scene : " + gameObject.scene.name+" is active scene");
+                log("+debug => screen scene : " + gameObject.scene.name + " is active scene");
                 screenSetupDebug();
             }
 
@@ -125,7 +125,7 @@ namespace fwp.screens
 
         private void OnValidate()
         {
-            validate();    
+            validate();
         }
 
         virtual protected void validate()
@@ -203,7 +203,7 @@ namespace fwp.screens
         virtual protected bool toggleVisible(bool flag)
         {
             log("toggle visible : " + flag);
-            
+
             if (canvas.hasCanvas())
             {
                 return canvas.toggleVisible(flag);
@@ -218,7 +218,7 @@ namespace fwp.screens
         virtual public bool isVisible()
         {
             if (canvas != null) return canvas.isVisible();
-            if(transform.childCount > 0)
+            if (transform.childCount > 0)
             {
                 return transform.GetChild(0).gameObject.activeSelf;
             }
@@ -230,14 +230,14 @@ namespace fwp.screens
         {
             if (!show())
             {
-                Debug.LogWarning(getStamp()+" couldn't show ?", this);
+                Debug.LogWarning(getStamp() + " couldn't show ?", this);
             }
         }
 
         [ContextMenu("hide")]
         protected void ctxm_hide()
-        { 
-            if(!forceHide())
+        {
+            if (!forceHide())
             {
                 Debug.LogWarning(getStamp() + " couldn't hide ?", this);
             }
@@ -265,8 +265,8 @@ namespace fwp.screens
 
             if (tags.HasFlag(ScreenTags.stickyVisibility))
             {
-                if(verbose)
-                    Debug.LogWarning(getStamp()+ "      can't hide because is setup as sticky");
+                if (verbose)
+                    logw("      can't hide because is setup as sticky");
 
                 return false;
             }
@@ -346,9 +346,9 @@ namespace fwp.screens
         {
             // no leader = visible
             bool visi = leader == null;
-            
+
             // is this screen leader
-            if(leader != null)
+            if (leader != null)
                 visi = leader == this;
 
             toggleVisible(visi); // standby logic
@@ -364,25 +364,23 @@ namespace fwp.screens
             return "\n  isVisible ? " + isVisible();
         }
 
+        virtual public bool isVerbose() => verbose;
+
         protected void logw(string ct)
         {
-#if UNITY_EDITOR
-            if (verbose)
-            {
-                Debug.LogWarning(getStamp() + " !>> " + ct, this);
-            }
-#endif
+            if (!isVerbose())
+                return;
+
+            Debug.LogWarning(getStamp() + " !>> " + ct, this);
         }
 
-        protected void log(string ct, Component target = null)
+        virtual protected void log(string ct, Component target = null)
         {
-#if UNITY_EDITOR
-            if (!verbose)
+            if (!isVerbose())
                 return;
 
             if (target == null) target = this;
             Debug.Log(getStamp() + " >>         " + ct, this);
-#endif
         }
 
         // SHKS
