@@ -17,7 +17,7 @@ namespace fwp.screens
         {
             base.screenCreated();
 
-            Debug.Assert(type == ScreenObject.ScreenType.overlay);
+            Debug.Assert(type == ScreenObject.ScreenType.overlay, "INTE, screen must be overlay type");
         }
 
         protected override void onClosingAnimationCompleted()

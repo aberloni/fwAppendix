@@ -108,10 +108,7 @@ namespace fwp.screens
 
             yield return null;
 
-            if (!isDebugContext())
-            {
-                log("-debug => active scene : " + SceneManager.GetActiveScene().name + " != " + gameObject.scene.name);
-            }
+            if (!isDebugContext()) log("-debug => active scene : " + SceneManager.GetActiveScene().name + " != " + gameObject.scene.name);
             else
             {
                 log("+debug => screen scene : " + gameObject.scene.name+" is active scene");
@@ -138,7 +135,10 @@ namespace fwp.screens
 
         public bool isSticky() => tags.HasFlag(ScreenTags.stickyVisibility);
 
-        protected bool isDebugContext() => _debug;
+        /// <summary>
+        /// @awake active scene is check
+        /// </summary>
+        virtual protected bool isDebugContext() => _debug;
 
         virtual protected void screenSetup()
         {
