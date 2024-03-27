@@ -6,12 +6,12 @@ using System;
 
 namespace fwp.industries
 {
-    public class WinEdIndusMgr : EditorWindow
+    public class WinEdIndusFactories : EditorWindow
     {
         [MenuItem("Window/Industries/(window) indus factories", false, 1)]
         static void init()
         {
-            EditorWindow.GetWindow(typeof(WinEdIndusMgr));
+            EditorWindow.GetWindow(typeof(WinEdIndusFactories));
         }
 
         List<iFactory> factos;
@@ -80,15 +80,15 @@ namespace fwp.industries
                     facto.recycleAll();
                 }
 
-                drawFactoList(facto.getActives());
-                drawFactoList(facto.getInactives());
+                drawFactoList("actives", facto.getActives());
+                drawFactoList("inactives", facto.getInactives());
 
             }
 
             return toggleState;
         }
 
-        void drawFactoList(List<iFactoryObject> refs)
+        void drawFactoList(string lbl, List<iFactoryObject> refs)
         {
             if (refs.Count <= 0)
             {
@@ -96,7 +96,9 @@ namespace fwp.industries
                 return;
             }
 
-            GUILayout.Label(refs[0].GetType() + " x" + refs.Count);
+            GUILayout.Label(lbl + " x" + refs.Count);
+
+            //GUILayout.Label(refs[0].GetType() + " x" + refs.Count);
 
             foreach (var elmt in refs)
             {
@@ -110,7 +112,7 @@ namespace fwp.industries
 
                 MonoBehaviour mono = elmt as MonoBehaviour;
                 if (mono != null) EditorGUILayout.ObjectField("(mono) " + mono.name, mono, typeof(MonoBehaviour), true);
-                else GUILayout.Label(elmt.GetType().ToString()+" !mono");
+                else GUILayout.Label(elmt.GetType().ToString() + " !mono");
 
                 GUILayout.EndHorizontal();
             }
