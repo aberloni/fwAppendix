@@ -50,6 +50,14 @@ namespace fwp.scenes
             return new SceneSubFolder(profilUid);
         }
 
+        protected override void updateEditime()
+        {
+            base.updateEditime();
+
+            if (sections == null)
+                refresh();
+        }
+
         public override void refresh(bool force = false)
         {
             base.refresh(force);
@@ -63,7 +71,9 @@ namespace fwp.scenes
 
             if (state != null && sections == null || force)
             {
-                sections = new Dictionary<string, List<SceneSubFolder>>();
+                if (sections == null) sections = new Dictionary<string, List<SceneSubFolder>>();
+                else sections.Clear();
+
                 injectSubSections(state);
             }
 
@@ -76,20 +86,18 @@ namespace fwp.scenes
             {
                 var lbl = state.tabs[i].path;
 
+                if (sections.ContainsKey(lbl))
+                {
+                    Debug.LogWarning("sections already contains label : " + lbl + " ; skipping injection");
+                    continue;
+                }
+
                 if (verbose) Debug.Log("SceneSelector :: refresh section : " + lbl);
 
                 List<SceneSubFolder> tabContent = solveTabFolder(lbl);
                 sections.Add(lbl, tabContent);
             }
 
-        }
-
-        protected override void updateEditime()
-        {
-            base.updateEditime();
-
-            if (sections == null)
-                refresh();
         }
 
         protected bool drawSubs(string tabLabel)
@@ -139,7 +147,7 @@ namespace fwp.scenes
         List<SceneSubFolder> solveTabFolder(string tabName)
         {
             List<SceneProfil> profils = getProfils(tabName);
-            if(profils == null)
+            if (profils == null)
             {
                 Debug.LogError("null profils while solving tabs ?");
                 return null;
