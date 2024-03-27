@@ -33,6 +33,8 @@ namespace fwp.scenes
         /// </summary>
         Dictionary<string, List<SceneSubFolder>> sections = null;
 
+        virtual protected bool useProgressBar() => true;
+
         /// <summary>
         /// can be replaced by different way to handle scene profil
         /// </summary>
@@ -209,10 +211,13 @@ namespace fwp.scenes
                 string path = cat_paths[i];
 
 #if UNITY_EDITOR
-                float progr = (i * 1f) / (cat_paths.Count * 1f);
-                if (UnityEditor.EditorUtility.DisplayCancelableProgressBar("profil : " + category, "..." + path, progr))
+                if(useProgressBar())
                 {
-                    return null;
+                    float progr = (i * 1f) / (cat_paths.Count * 1f);
+                    if (UnityEditor.EditorUtility.DisplayCancelableProgressBar("profil : " + category, "..." + path, progr))
+                    {
+                        return null;
+                    }
                 }
 #endif
 
@@ -255,7 +260,10 @@ namespace fwp.scenes
 
 
 #if UNITY_EDITOR
-            UnityEditor.EditorUtility.ClearProgressBar();
+            if(useProgressBar())
+            {
+                UnityEditor.EditorUtility.ClearProgressBar();
+            }
 #endif
 
             return profils;
