@@ -46,7 +46,7 @@ namespace fwp.industries.facebook
             group.Clear();
 
             if (monos == null)
-                monos = GameObject.FindObjectsOfType<MonoBehaviour>();
+                monos = fwp.appendix.AppendixUtils.gcs<MonoBehaviour>();
 
             foreach (var m in monos)
             {
@@ -56,7 +56,7 @@ namespace fwp.industries.facebook
 
         public void RefreshAll()
         {
-            var monos = GameObject.FindObjectsOfType<MonoBehaviour>();
+            var monos = fwp.appendix.AppendixUtils.gcs<MonoBehaviour>();
             foreach (var r in registry)
             {
                 Refresh(r.Value, monos);

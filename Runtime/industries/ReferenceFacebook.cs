@@ -49,7 +49,7 @@ namespace fwp.industries.facebook
         /// </summary>
         public void refreshAll()
         {
-            MonoBehaviour[] monos = GameObject.FindObjectsOfType<MonoBehaviour>();
+            MonoBehaviour[] monos = fwp.appendix.AppendixUtils.gcs<MonoBehaviour>();
 
             log("refreshAll() checking x" + candidates.Count + " types against x" + monos.Length + " monos");
 
@@ -71,7 +71,7 @@ namespace fwp.industries.facebook
             list.Clear();
 
             //gather group data
-            if (monos == null) monos = GameObject.FindObjectsOfType<MonoBehaviour>();
+            if (monos == null) monos = fwp.appendix.qh.gcs<MonoBehaviour>();
 
             for (int i = 0; i < monos.Length; i++)
             {

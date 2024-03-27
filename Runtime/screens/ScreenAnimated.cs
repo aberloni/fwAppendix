@@ -344,7 +344,7 @@ namespace fwp.screens
         /// </summary>
         static public ScreenAnimated getScreen(string screenName)
         {
-            ScreenAnimated[] scs = GameObject.FindObjectsOfType<ScreenAnimated>();
+            ScreenAnimated[] scs = fwp.appendix.qh.gcs<ScreenAnimated>();
             for (int i = 0; i < scs.Length; i++)
             {
                 if (scs[i].isScreenOfSceneName(screenName)) return scs[i];
@@ -354,7 +354,7 @@ namespace fwp.screens
 
         static public T getScreen<T>(string screenName) where T : ScreenAnimated
         {
-            T[] scs = GameObject.FindObjectsOfType<T>();
+            T[] scs = fwp.appendix.qh.gcs<T>();
 
             if (scs.Length <= 0) Debug.LogWarning("no screen <" + typeof(T) + "> present (to return screen of name : " + screenName + ")");
             else

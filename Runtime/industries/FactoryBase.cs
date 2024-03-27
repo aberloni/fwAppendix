@@ -65,7 +65,7 @@ namespace fwp.industries
 
             inactives.Clear();
 
-            Object[] presents = (Object[])GameObject.FindObjectsOfType(typeof(FaceType));
+            Object[] presents = (Object[])fwp.appendix.AppendixUtils.gcts(typeof(FaceType));
             for (int i = 0; i < presents.Length; i++)
             {
                 inject(presents[i] as FaceType);

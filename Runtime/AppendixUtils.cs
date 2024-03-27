@@ -24,10 +24,19 @@ namespace fwp.appendix
 
 	static public class AppendixUtils
 	{
-		/// <summary>
-		/// 
-		/// </summary>
-		static public T[] gcs<T>() where T : UnityEngine.Object
+		static public Object[] gcts(System.Type type)
+		{
+#if UNITY_2023
+            return GameObject.FindObjectsByType(type, FindObjectsSortMode.None);
+#else
+			return GameObject.FindObjectsOfType(type);
+#endif
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        static public T[] gcs<T>() where T : UnityEngine.Object
 		{
 #if UNITY_2023
             return GameObject.FindObjectsByType<T>(FindObjectsSortMode.None);

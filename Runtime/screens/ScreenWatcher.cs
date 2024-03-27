@@ -48,7 +48,7 @@ namespace fwp.screens
 
         static protected ScreenWatcher getExisting(string targetScreen)
         {
-            ScreenWatcher[] watchers = GameObject.FindObjectsOfType<ScreenWatcher>();
+            ScreenWatcher[] watchers = fwp.appendix.qh.gcs<ScreenWatcher>();
             for (int i = 0; i < watchers.Length; i++)
             {
                 if (watchers[i].isWatching(targetScreen)) return watchers[i];

@@ -52,7 +52,7 @@ namespace fwp.screens
         {
             if (screens == null) screens = new List<ScreenObject>();
             screens.Clear();
-            screens.AddRange(GameObject.FindObjectsOfType<ScreenObject>());
+            screens.AddRange(fwp.appendix.qh.gcs<ScreenObject>());
         }
 
         static public bool hasOpenScreenOfType(ScreenObject.ScreenType type)
