@@ -33,10 +33,11 @@ namespace fwp.verbosity
         static int getMaskInt(Type enumType)
         {
             //Type t = enumType.GetType();
-            
+#if UNITY_EDITOR
             if (Application.isEditor) 
                 return EditorPrefs.GetInt(
                     _ppref_prefix + enumType, 0);
+#endif
 
             checkKey(enumType);
 
@@ -49,13 +50,12 @@ namespace fwp.verbosity
 
             Type t = enumSpecificValue.GetType();
 
-            if (Application.isEditor)
-                local = EditorPrefs.GetInt(_ppref_prefix + t.ToString(), 0);
-            else
-            {
-                checkKey(enumSpecificValue.GetType());
-                local = toggles[t];
-            }
+#if UNITY_EDITOR
+            local = EditorPrefs.GetInt(_ppref_prefix + t.ToString(), 0);
+#else
+            checkKey(enumSpecificValue.GetType());
+            local = toggles[t];
+#endif
 
             // dico/pref stored value
             var dVal = (Enum)Enum.ToObject(t, local);
@@ -83,23 +83,15 @@ namespace fwp.verbosity
             Type t = flag.GetType();
             int sVal = (int)Enum.ToObject(t, flag);
 
-            if (Application.isEditor)
-            {
+#if UNITY_EDITOR
+            EditorPrefs.SetInt(_ppref_prefix + t.ToString(), sVal);
+            Debug.Log(" <editor< " + t.ToString() + "#" + sVal);
+#else
+            checkKey(flag.GetType());
+            toggles[t] = sVal;
 
-
-                EditorPrefs.SetInt(_ppref_prefix + t.ToString(), sVal);
-
-                Debug.Log(" <editor< " + t.ToString() + "#" + sVal);
-            }
-            else
-            {
-                checkKey(flag.GetType());
-                toggles[t] = sVal;
-
-                Debug.Log(" <<< " + t.ToString() + "#" + sVal);
-            }
-
-
+            Debug.Log(" <<< " + t.ToString() + "#" + sVal);
+#endif
         }
 
 
