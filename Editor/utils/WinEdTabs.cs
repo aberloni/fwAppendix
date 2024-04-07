@@ -16,8 +16,6 @@ namespace fwp.utils.editor
     /// </summary>
     abstract public class EdWinTabs : WinEdRefreshable
     {
-        public const float btnSize = 40f;
-
         const string _editor__profiler_tab = "tab_scene_profiler";
 
         public class WinTabState
@@ -29,7 +27,14 @@ namespace fwp.utils.editor
             /// </summary>
             public string label => path.Substring(path.LastIndexOf("/") + 1);
 
-            public System.Func<bool> drawCallback;
+            /// <summary>
+            /// how to draw content of this tab
+            /// </summary>
+            public System.Action drawCallback;
+
+            /// <summary>
+            /// scroll value
+            /// </summary>
             public Vector2 scroll;
         }
 
@@ -88,7 +93,7 @@ namespace fwp.utils.editor
         /// tab label, gui draw callback
         /// return : true to draw additionnal content
         /// </summary>
-        abstract public (string, System.Func<bool>)[] generateTabsEditor();
+        abstract public (string, System.Action)[] generateTabsEditor();
 
         /// <summary>
         /// what to draw @runtime
@@ -96,8 +101,8 @@ namespace fwp.utils.editor
         /// return null : to draw nothing
         /// func return true : to draw additionnal content
         /// </summary>
-        virtual public (string, System.Func<bool>)[] generateTabsRuntime() 
-            => new (string, System.Func<bool>)[0];
+        virtual public (string, System.Action)[] generateTabsRuntime() 
+            => new (string, System.Action)[0];
 
         public void selectDefaultTab()
         {
@@ -149,7 +154,7 @@ namespace fwp.utils.editor
             }
         }
 
-        WinTabsState generateState(string uid, (string, System.Func<bool>)[] data)
+        WinTabsState generateState(string uid, (string, System.Action)[] data)
         {
             WinTabsState state = new WinTabsState(uid);
 
@@ -185,12 +190,9 @@ namespace fwp.utils.editor
 
             int currTabIndex = _state.tabActive;
 
-            bool result = false;
-
             if (_state == null)
             {
                 GUILayout.Label("no tabs available");
-                result = true;
             }
             else
             {
@@ -228,27 +230,19 @@ namespace fwp.utils.editor
                     //Debug.Log(tab.scroll);
 
                     // draw gui
-                    result = tab.drawCallback.Invoke();
+                    tab.drawCallback.Invoke();
 
                     GUILayout.EndScrollView();
                 }
 
             }
 
-            // if tab returned true : issue, don't draw additionnal
-            if (!result)
-            {
-                drawAdditionnal();
-            }
         }
 
         /// <summary>
-        /// drawn after tabs zone
+        /// shortcut to draw a tab header
         /// </summary>
-        virtual protected void drawAdditionnal()
-        { }
-
-        static public int drawTabsHeader(int tabSelected, GUIContent[] tabs)
+        public int drawTabsHeader(int tabSelected, GUIContent[] tabs)
         {
             //GUIStyle gs = new GUIStyle(GUI.skin.button)
             //int newTab = GUILayout.Toolbar((int)tabSelected, modeLabels, "LargeButton", GUILayout.Width(toolbarWidth), GUILayout.ExpandWidth(true));

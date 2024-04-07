@@ -139,9 +139,9 @@ namespace fwp.scenes
         /// <summary>
         /// additionnal stuff under tabs zone
         /// </summary>
-        protected override void drawAdditionnal()
+        protected override void drawFooter()
         {
-            base.drawAdditionnal();
+            base.drawFooter();
 
             SceneSubFolder.drawAutoAddBuildSettings();
         }

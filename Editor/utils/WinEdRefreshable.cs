@@ -18,21 +18,6 @@ namespace fwp.utils.editor
     {
         bool _refresh = false;
 
-        virtual protected bool isDrawableAtRuntime() => true;
-
-        abstract protected string getWindowTitle();
-
-        protected override string getWindowTabName() => getWindowTitle();
-
-        static public void setDirty<T>() where T : WinEdRefreshable
-        {
-            if (EditorWindow.HasOpenInstances<T>())
-            {
-                var win = EditorWindow.GetWindow<T>();
-                win.primeRefresh();
-            }
-        }
-
         protected override void onFocus(bool gainFocus)
         {
             base.onFocus(gainFocus);
@@ -43,30 +28,14 @@ namespace fwp.utils.editor
             }
         }
 
-        private void Update()
+        override protected void update()
         {
             if (_refresh)
             {
                 _refresh = false;
                 refresh(true);
             }
-
-            update();
-
-            if (!Application.isPlaying)
-                updateEditime();
-            else
-                updateRuntime();
         }
-
-        virtual protected void update()
-        { }
-
-        virtual protected void updateEditime()
-        { }
-
-        virtual protected void updateRuntime()
-        { }
 
         /// <summary>
         /// ask for a refresh
@@ -81,12 +50,9 @@ namespace fwp.utils.editor
             verbose = false;
         }
 
-        void refreshByTitle()
+        protected override void onTitleClicked()
         {
-            verbose = true;
-
-            log("<b>title clicked</b>");
-
+            base.onTitleClicked();
             refreshVerbose();
         }
 
@@ -98,104 +64,5 @@ namespace fwp.utils.editor
             if (force) log("force <b>refresh</b>");
         }
 
-        private void OnGUI()
-        {
-            if (GUILayout.Button(getWindowTitle(), QuickEditorViewStyles.getWinTitle()))
-            {
-                refreshByTitle();
-            }
-
-            if (!isDrawableAtRuntime())
-            {
-                GUILayout.Label("not @ runtime");
-                return;
-            }
-
-            draw();
-        }
-
-        /// <summary>
-        /// content to draw in editor window
-        /// after window title
-        /// </summary>
-        virtual protected void draw()
-        {
-
-        }
-
-        /// <summary>
-        /// helper
-        /// generic button drawer
-        /// </summary>
-        static public bool drawButton(string label)
-        {
-            bool output = false;
-
-            //EditorGUI.BeginDisabledGroup(select == null);
-            if (GUILayout.Button(label, getButtonSquare(30f, 100f)))
-            {
-                output = true;
-            }
-            //EditorGUI.EndDisabledGroup();
-
-            return output;
-        }
-
-        /// <summary>
-        /// helper
-        /// draw button that react to presence of an object
-        /// </summary>
-        static public bool drawButtonReference(string label, GameObject select)
-        {
-            bool output = false;
-
-            EditorGUI.BeginDisabledGroup(select == null);
-            if (GUILayout.Button(label, getButtonSquare()))
-            {
-                output = true;
-            }
-            EditorGUI.EndDisabledGroup();
-
-            return output;
-        }
-
-        /// <summary>
-        /// draw a label with speficic style
-        /// </summary>
-        static public void drawSectionTitle(string label, float spaceMargin = 20f, int leftMargin = 10)
-        {
-            if (spaceMargin > 0f)
-                GUILayout.Space(spaceMargin);
-
-            GUILayout.Label(label, QuickEditorViewStyles.getSectionTitle(15, TextAnchor.UpperLeft, leftMargin));
-        }
-
-        static private GUIStyle gButtonSquare;
-        static public GUIStyle getButtonSquare(float height = 50, float width = 80)
-        {
-            if (gButtonSquare == null)
-            {
-                gButtonSquare = new GUIStyle(GUI.skin.button);
-                gButtonSquare.alignment = TextAnchor.MiddleCenter;
-                gButtonSquare.fontSize = 10;
-                gButtonSquare.fixedHeight = height;
-                gButtonSquare.fixedWidth = width;
-                gButtonSquare.normal.textColor = Color.white;
-
-                gButtonSquare.wordWrap = true;
-            }
-            return gButtonSquare;
-        }
-
-        static public void focusElementWithIndex(GameObject tar, bool alignViewToObject)
-        {
-            Selection.activeGameObject = tar;
-            EditorGUIUtility.PingObject(tar);
-
-            if (SceneView.lastActiveSceneView != null && alignViewToObject)
-            {
-                SceneView.lastActiveSceneView.AlignViewToObject(tar.transform);
-            }
-        }
     }
 }
