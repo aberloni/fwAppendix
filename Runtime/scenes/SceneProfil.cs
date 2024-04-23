@@ -79,6 +79,32 @@ namespace fwp.scenes
         }
 
         /// <summary>
+        /// any of the layer within has filter contains
+        /// </summary>
+        public bool matchFilter(string filter)
+        {
+            if (string.IsNullOrEmpty(filter)) return true;
+            if (!hasContent()) return false;
+
+            filter = filter.ToLower();
+
+            if(!label.ToLower().Contains(filter))
+            {
+                return false;
+            }
+
+            foreach(var l in layers)
+            {
+                if(l.ToLower().Contains(filter))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// categoryUid is uniq PATH to scenes
         /// OR simply name of a context
         /// 

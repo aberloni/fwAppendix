@@ -45,41 +45,39 @@ public class SceneSubFolder
         folderName = folderPath.Substring(folderPath.LastIndexOf("/") + 1);
     }
 
-    public bool hasContent(string filter)
+    public bool hasContentMatchingFilter(string filter)
     {
-        if (filter.Length <= 0)
-            return scenes.Count > 0;
+        if (string.IsNullOrEmpty(filter)) return scenes.Count > 0;
 
         int cnt = 0;
         for (int i = 0; i < scenes.Count; i++)
         {
-            if (scenes[i].label.Contains(filter))
+            //Debug.Log(scenes[i].label + " vs " + filter);
+            if (scenes[i].matchFilter(filter))
                 cnt++;
         }
 
         return cnt > 0;
     }
+
     public void drawSection(string filter)
     {
+        // has any profil matching filter
+        if (!hasContentMatchingFilter(filter)) return;
 
-        if (!hasContent(filter))
+        // sub folder
+        toggled = EditorGUILayout.Foldout(toggled, folderName + " (x" + scenes.Count + ")", true);
+        if (toggled)
         {
-            GUILayout.Label(folderName);
-        }
-        else
-        {
-
-            // sub folder
-            toggled = EditorGUILayout.Foldout(toggled, folderName + " (x" + scenes.Count + ")", true);
-            if (toggled)
+            foreach (var profil in scenes)
             {
-                foreach (var profil in scenes)
+                if(profil.matchFilter(filter))
                 {
-                    drawSceneLine(profil);
+                    drawLineContent(profil);
                 }
             }
         }
-
+        
     }
 
     virtual protected void logSceneDetails(SceneProfil profil)
@@ -99,25 +97,13 @@ public class SceneSubFolder
     }
 
     /// <summary>
-    /// root call to draw the line of given profil
-    /// </summary>
-    protected bool drawSceneLine(SceneProfil profil)
-    {
-        GUILayout.BeginHorizontal();
-
-        bool output = drawLineContent(profil);
-
-        GUILayout.EndHorizontal();
-
-        return output;
-    }
-
-    /// <summary>
     /// whatever is drawn in a profil line
     /// true : pressed button & load is called
     /// </summary>
     virtual protected bool drawLineContent(SceneProfil profil)
     {
+        GUILayout.BeginHorizontal();
+
         if (GUILayout.Button("?", GUILayout.Width(GuiHelpers.btnSymbWidthSmall)))
         {
             logSceneDetails(profil);
@@ -153,6 +139,8 @@ public class SceneSubFolder
                 reactSceneCall(profil, false);
             }
         }
+
+        GUILayout.EndHorizontal();
 
         return load;
     }
