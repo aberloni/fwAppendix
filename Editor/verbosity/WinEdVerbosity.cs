@@ -38,12 +38,23 @@ namespace fwp.verbosity
         {
             var ret = new List<Enum>();
 
-            Type t = typeof(VerbositySectionUniversal);
-            var enumValue = (Enum)System.Activator.CreateInstance(t);
+            foreach(var t in getInjectionCandidates())
+            {
+                injectEnum(t, ret);
+            }
 
-            ret.Add(enumValue);
             return ret;
         }
+
+        virtual protected Type[] getInjectionCandidates() => new Type[] { typeof(VerbositySectionUniversal) };
+
+        protected void injectEnum(Type t, List<Enum> list)
+        {
+            var enumValue = (Enum)System.Activator.CreateInstance(t);
+            list.Add(enumValue);
+        }
+
+        protected void injectEnum<E>(List<Enum> list) where E : Enum => injectEnum(typeof(E), list);
 
         private void OnGUI()
         {
