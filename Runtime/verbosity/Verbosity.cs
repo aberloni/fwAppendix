@@ -11,10 +11,16 @@ namespace fwp.verbosity
     [System.Flags]
     public enum VerbositySectionUniversal
     {
-        none = 0,
-        engine = 1,
-        input = 2,
-        boot = 4,
+        none            = 0,
+        engine          = 1,
+        input           = 2,
+
+        addressables    = 4,
+        audio           = 8,
+        localization    = 16,
+
+        boot            = 32,
+        industries      = 64,
     }
 
     public class Verbosity
