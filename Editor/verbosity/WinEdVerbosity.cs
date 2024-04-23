@@ -38,7 +38,7 @@ namespace fwp.verbosity
         {
             var ret = new List<Enum>();
 
-            foreach(var t in getInjectionCandidates())
+            foreach (var t in getInjectionCandidates())
             {
                 injectEnum(t, ret);
             }
@@ -64,7 +64,7 @@ namespace fwp.verbosity
                 return;
             }
 
-            GUILayout.Label("toggles x" + keys.Length);
+            GUILayout.Label("Verbosity toggles (x" + keys.Length + ")");
 
             // each possible enums
             foreach (var key in keys)
@@ -73,7 +73,9 @@ namespace fwp.verbosity
                 //GUILayout.Label(key.ToString());
 
                 Enum pv = Verbosity.getMaskEnum(key);
-                Enum nv = EditorGUILayout.EnumFlagsField(key.ToString(), pv);
+
+                var label = key.GetType().Name;
+                Enum nv = EditorGUILayout.EnumFlagsField(label, pv);
 
                 if (pv != nv)
                 {
