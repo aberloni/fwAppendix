@@ -33,6 +33,8 @@ namespace fwp.scenes
         /// </summary>
         Dictionary<string, List<SceneSubFolder>> sections = null;
 
+        public bool hasSections => sections != null && sections.Count > 0;
+
         virtual protected bool useProgressBar() => true;
 
         /// <summary>
@@ -52,12 +54,15 @@ namespace fwp.scenes
             return new SceneSubFolder(profilUid);
         }
 
-        protected override void updateEditime()
+        protected override void onFocus(bool gainFocus)
         {
-            base.updateEditime();
+            base.onFocus(gainFocus);
 
-            if (sections == null)
-                refresh();
+            if(gainFocus)
+            {
+                if (!hasSections) refresh(true);
+            }
+            
         }
 
         public override void refresh(bool force = false)
