@@ -6,6 +6,7 @@ using System.IO;
 namespace fwp.scenes
 {
     using fwp.appendix;
+    using fwp.utils.editor;
 
     /// <summary>
     /// 
@@ -24,7 +25,7 @@ namespace fwp.scenes
     /// - implement sections names for tabs
     /// - you can override generateProfil to use some specific SceneProfil
     /// </summary>
-    abstract public class EdWinBlueprintScenesSelector : utils.editor.WinEdTabs
+    abstract public class EdWinBlueprintScenesSelector : WinEdTabs
     {
         /// <summary>
         /// assoc btw tab label and some sub bolbs

@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace fwp.utils.editor
 {
-    using fwp.appendix.user;
     using UnityEditor;
 
     /// <summary>
@@ -16,73 +15,6 @@ namespace fwp.utils.editor
     /// </summary>
     abstract public class WinEdTabs : WinEdRefreshable
     {
-        const string _editor__profiler_tab = "tab_scene_profiler";
-
-        public class WinTabState
-        {
-            public string path;
-
-            /// <summary>
-            /// only use for display
-            /// </summary>
-            public string label => path.Substring(path.LastIndexOf("/") + 1);
-
-            /// <summary>
-            /// how to draw content of this tab
-            /// </summary>
-            public System.Action drawCallback;
-
-            /// <summary>
-            /// scroll value
-            /// </summary>
-            public Vector2 scroll;
-        }
-
-        public class WinTabsState
-        {
-            const int defaultTab = 0;
-
-            public int tabActive
-            {
-                get => MgrUserSettings.getEdInt(ppUID, defaultTab);
-                set
-                {
-                    MgrUserSettings.setEdInt(ppUID, value);
-                    //Debug.Log(uid+"?"+value);
-                }
-            }
-
-            public List<WinTabState> tabs;
-
-            public GUIContent[] tabsContent; // util for unity drawing
-
-            //public bool isValid() => tabs != null;
-
-            public List<string> labels
-            {
-                get
-                {
-                    List<string> output = new List<string>();
-                    foreach (var tab in tabs)
-                    {
-                        output.Add(tab.label);
-                    }
-                    return output;
-                }
-
-            }
-
-            string ppUID => _editor__profiler_tab + "_" + GetType() + "_" + tUID;
-
-            string tUID;
-
-            public WinTabsState(string uid)
-            {
-                this.tUID = uid;
-            }
-
-            public string getUid() => tUID;
-        }
 
         WinTabsState stateEditime;
         WinTabsState stateRuntime;
@@ -105,12 +37,10 @@ namespace fwp.utils.editor
         virtual public (string, System.Action)[] generateTabsRuntime()
             => new (string, System.Action)[0];
 
-        public void selectDefaultTab()
+        public void resetTabSelection()
         {
             tabsState.tabActive = 0;
         }
-
-        public void selectTab(int index) => tabsState.tabActive = index;
 
         protected override void reactPlayModeState(PlayModeStateChange state)
         {
@@ -128,7 +58,7 @@ namespace fwp.utils.editor
             if (force || stateEditime == null || stateEditime.tabsContent.Length <= 0)
             {
                 var data = generateTabsEditor();
-                stateEditime = generateState("editor", data);
+                stateEditime = generateState("editor-"+GetType(), data);
 
                 log("refresh-ed editor tabs (x" + stateEditime.tabs.Count + ")");
 
@@ -138,7 +68,7 @@ namespace fwp.utils.editor
                 {
                     if (data.Length > 0)
                     {
-                        stateRuntime = generateState("runtime", data);
+                        stateRuntime = generateState("runtime-"+GetType(), data);
                         log("refresh-ed runtime tabs (x" + stateRuntime.tabs.Count + ")");
                     }
                     else
@@ -148,11 +78,6 @@ namespace fwp.utils.editor
                 }
             }
 
-            if (force)
-            {
-                //DONT it will reset tab at every compilation
-                //selectDefaultTab();
-            }
         }
 
         WinTabsState generateState(string uid, (string, System.Action)[] data)
@@ -187,57 +112,33 @@ namespace fwp.utils.editor
             var _state = tabsState;
 
             if (_state == null)
-                return;
-
-            int currTabIndex = _state.tabActive;
-
-            if (_state == null)
             {
                 GUILayout.Label("no tabs available");
+                return;
             }
-            else
+
+            drawFilterField();
+
+            GUILayout.Space(15f);
+
+            // draw labels buttons
+            var _tabIndex = drawTabsHeader(_state.tabActive, _state.tabsContent);
+
+            // selection changed ?
+            if (_tabIndex != _state.tabActive)
             {
-                // draw labels buttons
-                var _tabIndex = drawTabsHeader(currTabIndex, _state.tabsContent);
-
-                // selection changed ?
-                if (_tabIndex != currTabIndex)
+                if (_tabIndex < 0 || _tabIndex >= _state.tabs.Count)
                 {
-                    selectTab(_tabIndex); // force selection
+                    Debug.LogWarning(_tabIndex + " oob ? " + _state.tabs.Count);
+                    _tabIndex = 0;
                 }
 
-                if (_tabIndex < 0)
-                    return;
-
-                if (_tabIndex >= _state.tabs.Count)
-                {
-                    if (verbose)
-                        Debug.LogWarning(_tabIndex + " oob ? " + _state.tabs.Count);
-
-                    selectTab(0);
-
-                    return;
-                }
-
-                var tab = _state.tabs[_tabIndex];
-
-                drawFilterField();
-
-                GUILayout.Space(15f);
-
-                if (tab.drawCallback != null)
-                {
-                    tab.scroll = GUILayout.BeginScrollView(tab.scroll);
-                    //Debug.Log(tab.scroll);
-
-                    // draw gui
-                    tab.drawCallback.Invoke();
-
-                    GUILayout.EndScrollView();
-                }
-
+                //assign
+                _state.tabActive = _tabIndex;
             }
 
+            var tab = _state.tabs[_tabIndex];
+            tab?.draw();
         }
 
         /// <summary>
