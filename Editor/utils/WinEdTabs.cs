@@ -14,7 +14,7 @@ namespace fwp.utils.editor
     /// usage:
     /// override generate methods to feed your own content
     /// </summary>
-    abstract public class EdWinTabs : WinEdRefreshable
+    abstract public class WinEdTabs : WinEdRefreshable
     {
         const string _editor__profiler_tab = "tab_scene_profiler";
 

@@ -24,7 +24,7 @@ namespace fwp.scenes
     /// - implement sections names for tabs
     /// - you can override generateProfil to use some specific SceneProfil
     /// </summary>
-    abstract public class EdWinBlueprintScenesSelector : utils.editor.EdWinTabs
+    abstract public class EdWinBlueprintScenesSelector : utils.editor.WinEdTabs
     {
         /// <summary>
         /// assoc btw tab label and some sub bolbs
