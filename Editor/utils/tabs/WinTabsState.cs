@@ -78,7 +78,7 @@ namespace fwp.utils.editor
 
         public void draw()
         {
-            if (drawCallback != null)
+            if (drawCallback == null)
                 return;
 
             scroll = GUILayout.BeginScrollView(scroll);

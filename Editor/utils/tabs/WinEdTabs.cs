@@ -41,6 +41,10 @@ namespace fwp.utils.editor
         {
             tabsState.tabActive = 0;
         }
+        public void selectTab(int index)
+        {
+            tabsState.tabActive = index;
+        }
 
         protected override void reactPlayModeState(PlayModeStateChange state)
         {
