@@ -44,10 +44,10 @@ namespace fwp.utils.editor
 
             public int tabActive
             {
-                get => MgrUserSettings.getEdInt(_editor__profiler_tab + "_" + uid, defaultTab);
+                get => MgrUserSettings.getEdInt(ppUID, defaultTab);
                 set
                 {
-                    MgrUserSettings.setEdInt(_editor__profiler_tab + "_" + uid, value);
+                    MgrUserSettings.setEdInt(ppUID, value);
                     //Debug.Log(uid+"?"+value);
                 }
             }
@@ -72,15 +72,16 @@ namespace fwp.utils.editor
 
             }
 
-            string uid;
+            string ppUID => _editor__profiler_tab + "_" + GetType() + "_" + tUID;
+
+            string tUID;
 
             public WinTabsState(string uid)
             {
-                this.uid = uid;
-                //tabActive = 0;
+                this.tUID = uid;
             }
 
-            public string getUid() => uid;
+            public string getUid() => tUID;
         }
 
         WinTabsState stateEditime;
@@ -101,7 +102,7 @@ namespace fwp.utils.editor
         /// return null : to draw nothing
         /// func return true : to draw additionnal content
         /// </summary>
-        virtual public (string, System.Action)[] generateTabsRuntime() 
+        virtual public (string, System.Action)[] generateTabsRuntime()
             => new (string, System.Action)[0];
 
         public void selectDefaultTab()
@@ -117,7 +118,7 @@ namespace fwp.utils.editor
 
             //case PlayModeStateChange.ExitingPlayMode:
             //case PlayModeStateChange.EnteredEditMode:
-                
+
         }
 
         override public void refresh(bool force = false)
@@ -133,7 +134,7 @@ namespace fwp.utils.editor
 
                 stateRuntime = null;
                 data = generateTabsRuntime();
-                if(data != null)
+                if (data != null)
                 {
                     if (data.Length > 0)
                     {
@@ -147,7 +148,7 @@ namespace fwp.utils.editor
                 }
             }
 
-            if(force)
+            if (force)
             {
                 //DONT it will reset tab at every compilation
                 //selectDefaultTab();
@@ -210,9 +211,9 @@ namespace fwp.utils.editor
 
                 if (_tabIndex >= _state.tabs.Count)
                 {
-                    if(verbose)
+                    if (verbose)
                         Debug.LogWarning(_tabIndex + " oob ? " + _state.tabs.Count);
-                    
+
                     selectTab(0);
 
                     return;
