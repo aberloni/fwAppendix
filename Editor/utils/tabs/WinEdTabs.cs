@@ -62,7 +62,7 @@ namespace fwp.utils.editor
             if (force || stateEditime == null || stateEditime.tabsContent.Length <= 0)
             {
                 var data = generateTabsEditor();
-                stateEditime = generateState("editor-"+GetType(), data);
+                stateEditime = generateState("editor-" + GetType(), data);
 
                 log("refresh-ed editor tabs (x" + stateEditime.tabs.Count + ")");
 
@@ -72,7 +72,7 @@ namespace fwp.utils.editor
                 {
                     if (data.Length > 0)
                     {
-                        stateRuntime = generateState("runtime-"+GetType(), data);
+                        stateRuntime = generateState("runtime-" + GetType(), data);
                         log("refresh-ed runtime tabs (x" + stateRuntime.tabs.Count + ")");
                     }
                     else
@@ -128,8 +128,10 @@ namespace fwp.utils.editor
             // draw labels buttons
             var _tabIndex = drawTabsHeader(_state.tabActive, _state.tabsContent);
 
+            bool tabChanged = _tabIndex != _state.tabActive;
+
             // selection changed ?
-            if (_tabIndex != _state.tabActive)
+            if (tabChanged)
             {
                 if (_tabIndex < 0 || _tabIndex >= _state.tabs.Count)
                 {
@@ -139,10 +141,18 @@ namespace fwp.utils.editor
 
                 //assign
                 _state.tabActive = _tabIndex;
+
+                //verbose = true;
+                onTabChanged(_tabIndex);
             }
 
             var tab = _state.tabs[_tabIndex];
             tab?.draw();
+        }
+
+        virtual protected void onTabChanged(int tab)
+        {
+            Debug.Log("selected tab #" + tab + " @ " + tabsState.tabs[tab].path);
         }
 
         /// <summary>

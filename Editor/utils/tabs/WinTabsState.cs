@@ -59,6 +59,9 @@ namespace fwp.utils.editor
 
     public class WinTabState
     {
+        /// <summary>
+        /// complete path to section
+        /// </summary>
         public string path;
 
         /// <summary>

@@ -87,32 +87,44 @@ namespace fwp.scenes
 
         }
 
+        protected override void onTabChanged(int tab)
+        {
+            base.onTabChanged(tab);
+
+            var state = tabsState.tabs[tab];
+            injectSubSection(state.path);
+        }
+
         void injectSubSections(WinTabsState state)
         {
             // each possible labels into sub folder blob
             for (int i = 0; i < state.tabs.Count; i++)
             {
-                var lbl = state.tabs[i].path;
-
-                if (sections.ContainsKey(lbl))
-                {
-                    Debug.LogWarning("sections already contains label : " + lbl + " ; skipping injection");
-                    continue;
-                }
-
-                if (verbose) Debug.Log("SceneSelector :: refresh section : " + lbl);
-
-                List<SceneSubFolder> tabContent = solveTabFolder(lbl);
-                if(tabContent != null)
-                {
-                    sections.Add(lbl, tabContent);
-                }
-                
+                injectSubSection(state.tabs[i].path);
             }
 
         }
 
-        protected bool drawSubs(string tabLabel)
+        void injectSubSection(string sectionPath)
+        {
+            if (verbose) Debug.Log("SceneSelector :: refresh section : " + sectionPath);
+
+            // remove if previous
+            if (sections.ContainsKey(sectionPath))
+            {
+                sections.Remove(sectionPath);
+            }
+
+            List<SceneSubFolder> tabContent = solveTabFolder(sectionPath);
+            
+            if (tabContent != null)
+            {
+                sections.Add(sectionPath, tabContent);
+            }
+
+        }
+
+        protected bool drawSubSectionTab(string tabLabel)
         {
             if (sections.Count <= 0)
                 return true;
