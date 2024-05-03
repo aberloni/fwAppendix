@@ -27,13 +27,14 @@ namespace fwp.scenes
         string _profilPath; // path to profil
         public string parentPath => _profilPath;
 
+        // path : [context]_scene_layer
         string context_base; // context ONLY
         string context; // context OR context_scene
 
         bool _dirty = false;
 
         public string label => context;
-        
+
         //these are only scene names (no ext, no path)
         public List<string> layers; // additionnal content of same profil
         public List<string> deps; // other contextual scenes needed for this profil
@@ -131,7 +132,7 @@ namespace fwp.scenes
             layers.Clear();
             layers.AddRange(paths);
 
-            if (verbose) Debug.Log(categoryUid + " : layers x " + layers.Count + " out of x " + paths.Count + " paths");
+            if (verbose) Debug.Log(categoryUid + " : layers x " + layers.Count + ", out of x " + paths.Count + " paths");
 
             // nothing here
             // but context might want to add stuff
@@ -234,41 +235,7 @@ namespace fwp.scenes
                 paths[i] = SceneTools.removePathBeforeFile(paths[i]);
             }
 
-            // push main scene first
-            paths = reorderLayers(paths);
-
             return paths;
-        }
-
-        /// <summary>
-        /// this will take the main scene
-        /// and push it front of array
-        /// to be loaded first
-        /// </summary>
-        virtual protected List<string> reorderLayers(List<string> paths)
-        {
-            // search for original
-            int index = -1;
-            for (int i = 0; i < paths.Count; i++)
-            {
-                if (paths[i] == context_base)
-                {
-                    index = i;
-                }
-            }
-
-            List<string> output = new List<string>();
-
-            if (index > 0)
-            {
-                paths.Remove(context_base); // lose ref
-                output.Add(context_base); // add ref in front
-            }
-
-            // add others
-            output.AddRange(paths);
-
-            return output;
         }
 
         /// <summary>
@@ -673,7 +640,7 @@ namespace fwp.scenes
         {
             string output = label;
             if (!string.IsNullOrEmpty(_profilPath)) output += "     profil path : " + _profilPath;
-            if (layers != null) output += "     lyr[x" + layers.Count + "]";
+            if (layers != null) output += "lyr[" + layers.Count + "] & deps[" + deps.Count + "]";
             return output;
         }
 
