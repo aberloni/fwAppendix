@@ -145,7 +145,7 @@ namespace fwp.scenes
 
             if (paths == null)
             {
-                if (verbose) Debug.Log(categoryUid + " paths is null ?");
+                if (verbose) Debug.Log(categoryUid + " : paths is null ?");
                 return;
             }
 
@@ -153,7 +153,17 @@ namespace fwp.scenes
             paths = filterPaths(paths);
 
             // solve layers & deps paths
-            solveLayers(paths);
+            // adds deps
+            if (layers == null) layers = new List<string>();
+            layers.Clear();
+            layers.AddRange(paths);
+
+            if (verbose) Debug.Log(categoryUid + " : layers x " + layers.Count + " out of x "+paths.Count+" paths");
+
+            // nothing here
+            // but context might want to add stuff
+            solveDeps();
+            solveStatics();
 
             Debug.Assert(!string.IsNullOrEmpty(_profilPath), "profil path must not be null : " + _category);
         }
@@ -184,8 +194,9 @@ namespace fwp.scenes
         /// </summary>
         List<string> filterAllPaths(bool removeExt = false)
         {
-            // categoryUid as "folder contains"
-            // get all paths to scenes matching category uid
+
+            // gets ALL paths containing this cUID
+            // checks if categoryUid is contains in scenes path
             var paths = getPaths(context, removeExt);
             if (paths.Count <= 0)
             {
@@ -239,18 +250,6 @@ namespace fwp.scenes
             paths = reorderLayers(paths);
 
             return paths;
-        }
-
-        void solveLayers(List<string> paths)
-        {
-            if (layers == null) layers = new List<string>();
-            layers.Clear();
-            layers.AddRange(paths);
-
-            //if (verbose) Debug.Log("profil#" + label + " : found layers x" + layers.Count);
-
-            solveDeps();
-            solveStatics();
         }
 
         /// <summary>

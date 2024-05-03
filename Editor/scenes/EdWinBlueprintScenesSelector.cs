@@ -227,6 +227,8 @@ namespace fwp.scenes
                 }
 #endif
 
+                SceneProfil.verbose = verbose;
+
                 // generate a profil with given path
                 SceneProfil sp = generateProfil(path);
 
