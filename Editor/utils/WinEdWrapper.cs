@@ -20,12 +20,13 @@ public class WinEdWrapper : EditorWindow
 
     private void OnLostFocus()
     {
+        verbose = false;
+
         onFocus(false);
     }
 
     virtual protected void onFocus(bool gainFocus)
-    {
-    }
+    { }
 
     private void OnEnable()
     {

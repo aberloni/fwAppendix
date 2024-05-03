@@ -152,7 +152,7 @@ namespace fwp.utils.editor
 
         virtual protected void onTabChanged(int tab)
         {
-            Debug.Log("selected tab #" + tab + " @ " + tabsState.tabs[tab].path);
+            if(verbose) Debug.Log("selected tab #" + tab + " @ " + tabsState.tabs[tab].path);
         }
 
         /// <summary>

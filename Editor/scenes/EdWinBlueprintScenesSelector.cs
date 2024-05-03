@@ -102,7 +102,6 @@ namespace fwp.scenes
             {
                 injectSubSection(state.tabs[i].path);
             }
-
         }
 
         void injectSubSection(string sectionPath)

@@ -21,8 +21,10 @@ public class WinEdFilterable : WinEdWrapper
         _filter = GUILayout.TextArea(_filter);
 
         if (GUILayout.Button("clear", GUILayout.Width(50f)))
+        {
             _filter = string.Empty;
-
+        }
+        
         GUILayout.EndHorizontal();
     }
 

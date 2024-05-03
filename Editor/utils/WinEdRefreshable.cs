@@ -45,14 +45,12 @@ namespace fwp.utils.editor
 
         public void refreshVerbose()
         {
-            verbose = true;
             refresh(true);
-            verbose = false;
         }
 
         protected override void onTitleClicked()
         {
-            base.onTitleClicked();
+            base.onTitleClicked(); // verbose = true
             refreshVerbose();
         }
 
