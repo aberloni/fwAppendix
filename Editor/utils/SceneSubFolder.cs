@@ -93,7 +93,7 @@ public class SceneSubFolder
             Debug.Log(dep);
 
         // and ping scene
-        GuiHelpers.pingScene(profil.pathToScene);
+        GuiHelpers.pingScene(profil.pingScenePath);
     }
 
     /// <summary>

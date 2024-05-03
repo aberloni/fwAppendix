@@ -103,7 +103,11 @@ namespace fwp.scenes
                 if (verbose) Debug.Log("SceneSelector :: refresh section : " + lbl);
 
                 List<SceneSubFolder> tabContent = solveTabFolder(lbl);
-                sections.Add(lbl, tabContent);
+                if(tabContent != null)
+                {
+                    sections.Add(lbl, tabContent);
+                }
+                
             }
 
         }
@@ -160,7 +164,6 @@ namespace fwp.scenes
                 Debug.LogError("null profils while solving tabs ?");
                 return null;
             }
-
 
             Dictionary<string, List<SceneProfil>> list = new Dictionary<string, List<SceneProfil>>();
 

@@ -20,7 +20,12 @@ namespace fwp.scenes
         static public bool verbose = false;
 
         string _category; // debug
+
+        string _profilDefaultScenePath; // path to first scene found
+        public string pingScenePath => _profilDefaultScenePath;
+
         string _profilPath; // path to profil
+        public string parentPath => _profilPath;
 
         string context_base; // context ONLY
         string context; // context OR context_scene
@@ -28,39 +33,7 @@ namespace fwp.scenes
         bool _dirty = false;
 
         public string label => context;
-        public string pathToScene => _profilPath;
-
-        /// <summary>
-        /// returns path without scene folder
-        /// path/to/context/
-        /// </summary>
-        public string parentPath
-        {
-            get
-            {
-                Debug.Assert(!string.IsNullOrEmpty(_profilPath), "no profil path to deduce parent path ? (" + _category + ")");
-
-                string _path = _profilPath;
-
-                //  Assets/Scenes/Resources/resource-engine
-                Debug.Assert(_path.IndexOf("/") > 0, "path has no '/' ? " + _path);
-
-                if (_path.IndexOf('/') > 0)
-                {
-                    // remove scene name
-                    _path = _path.Substring(0, _path.LastIndexOf('/'));
-                }
-
-                return _path;
-            }
-        }
-
-        /// <summary>
-        /// returns just the name of the parent folder
-        /// </summary>
-        public string parentFolder
-            => parentPath.Substring(parentPath.LastIndexOf('/') + 1);
-
+        
         //these are only scene names (no ext, no path)
         public List<string> layers; // additionnal content of same profil
         public List<string> deps; // other contextual scenes needed for this profil
@@ -88,14 +61,14 @@ namespace fwp.scenes
 
             filter = filter.ToLower();
 
-            if(!label.ToLower().Contains(filter))
+            if (!label.ToLower().Contains(filter))
             {
                 return false;
             }
 
-            foreach(var l in layers)
+            foreach (var l in layers)
             {
-                if(l.ToLower().Contains(filter))
+                if (l.ToLower().Contains(filter))
                 {
                     return true;
                 }
@@ -158,7 +131,7 @@ namespace fwp.scenes
             layers.Clear();
             layers.AddRange(paths);
 
-            if (verbose) Debug.Log(categoryUid + " : layers x " + layers.Count + " out of x "+paths.Count+" paths");
+            if (verbose) Debug.Log(categoryUid + " : layers x " + layers.Count + " out of x " + paths.Count + " paths");
 
             // nothing here
             // but context might want to add stuff
@@ -189,6 +162,21 @@ namespace fwp.scenes
             _dirty = true;
         }
 
+        void solveProfilPath(string refPath)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(refPath), "no ref path given ?");
+            Debug.Assert(refPath.IndexOf("/") > 0, "path has no '/' ?");
+
+            _profilDefaultScenePath = refPath;
+
+            // keep any of the path as reference
+            // to gatekeep others
+            // remove scene name, keep only path
+            _profilPath = refPath.Substring(0, refPath.LastIndexOf("/"));
+
+            if (verbose) Debug.Log("profil ref path (compatibility) : " + _profilPath);
+        }
+
         /// <summary>
         /// extract all suited scenes from assetdatabase
         /// </summary>
@@ -205,17 +193,17 @@ namespace fwp.scenes
                 return null;
             }
 
-            // keep any of the path as reference
-            // to gatekeep others
-            _profilPath = paths[0];
+            solveProfilPath(paths[0]);
 
             // filter paths
 
             for (int i = 0; i < paths.Count; i++)
             {
-                if (verbose) Debug.Log("#" + i + " : " + paths[i]);
+                bool toRemove = !checkPathCompatibility(paths[i]);
 
-                if (!checkPathCompatibility(paths[i]))
+                if (verbose) Debug.Log("#" + i + " : " + paths[i] + " : removed?" + toRemove);
+
+                if (toRemove)
                 {
                     //Debug.Log("ignored: " + paths[i]);
                     paths.RemoveAt(i);
@@ -300,6 +288,7 @@ namespace fwp.scenes
         {
             // both this profil AND given path must share same path
             string copy = path.Substring(0, path.LastIndexOf("/"));
+
             return copy.Contains(parentPath);
         }
 
@@ -374,9 +363,9 @@ namespace fwp.scenes
 
             var scenes = filterAllPaths(false); // gather linked scenes
 
-            if(scenes.Count <= 0)
+            if (scenes.Count <= 0)
             {
-                if(verbose)
+                if (verbose)
                     Debug.LogWarning("no scenes returned after filtering ?");
 
                 return;
@@ -399,7 +388,7 @@ namespace fwp.scenes
 
             if (tmp.Count <= 0)
             {
-                if(verbose)
+                if (verbose)
                     Debug.LogWarning("nothing to add to build settings ?");
 
                 return;
@@ -430,12 +419,12 @@ namespace fwp.scenes
             // first check that scenes are added to build settings ?
             if (forceAddBuildSettings) forceAddToBuildSettings();
 
-            if (verbose) 
+            if (verbose)
                 Debug.Log($"SceneProfil:editorLoad <b>{label}</b> ; layers x{layers.Count} & deps x{deps.Count}");
 
             // first : load base scene NON ADDITIVE to replace full context
             // additive check : might wanna replace context
-            if(layers.Count > 0)
+            if (layers.Count > 0)
             {
                 UnityEditor.SceneManagement.OpenSceneMode mode = UnityEditor.SceneManagement.OpenSceneMode.Single;
                 if (!replaceContext) mode = UnityEditor.SceneManagement.OpenSceneMode.Additive;
@@ -444,9 +433,9 @@ namespace fwp.scenes
                 if (verbose) Debug.Log($"SceneProfil:loading base scene {baseScene}");
                 SceneLoaderEditor.loadScene(baseScene, mode);
             }
-            
+
             List<string> toLoads = new List<string>();
-            
+
             toLoads.AddRange(layers);
             toLoads.AddRange(deps);
             toLoads.AddRange(statics);
@@ -575,20 +564,20 @@ namespace fwp.scenes
         /// </summary>
         public void buildUnload(System.Action onUnloadCompleted)
         {
-            
+
             if (verbose)
                 Debug.Log(getStamp() + " build unload : <b>" + label + "</b>");
 
             if (layers == null)
             {
-                if(verbose)
+                if (verbose)
                     Debug.Log(getStamp() + " null layers");
 
                 onUnloadCompleted?.Invoke();
                 return;
             }
 
-            if(layers.Count <= 0)
+            if (layers.Count <= 0)
             {
                 if (verbose)
                     Debug.Log(getStamp() + " empty layers");
