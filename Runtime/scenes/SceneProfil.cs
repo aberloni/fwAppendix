@@ -681,7 +681,7 @@ namespace fwp.scenes
 
         virtual public string editor_getButtonName() => label + " (x" + layers.Count + ")";
 
-        public string stringify()
+        virtual public string stringify()
         {
             string output = label;
             if (!string.IsNullOrEmpty(_profilPath)) output += "     profil path : " + _profilPath;
