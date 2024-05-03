@@ -89,7 +89,10 @@ public class WinEdWrapper : EditorWindow
 
     virtual protected void drawHeader()
     {
-        if (GUILayout.Button(getWindowTabName(), QuickEditorViewStyles.getWinTitle()))
+        string winName = getWindowTabName();
+        if (verbose) winName += "~";
+
+        if (GUILayout.Button(winName, QuickEditorViewStyles.getWinTitle()))
         {
             onTitleClicked();
         }
