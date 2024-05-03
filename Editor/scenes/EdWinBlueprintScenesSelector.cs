@@ -59,11 +59,11 @@ namespace fwp.scenes
         {
             base.onFocus(gainFocus);
 
-            if(gainFocus)
+            if (gainFocus)
             {
                 if (!hasSections) refresh(true);
             }
-            
+
         }
 
         public override void refresh(bool force = false)
@@ -217,7 +217,7 @@ namespace fwp.scenes
                 string path = cat_paths[i];
 
 #if UNITY_EDITOR
-                if(useProgressBar())
+                if (useProgressBar())
                 {
                     float progr = (i * 1f) / (cat_paths.Count * 1f);
                     if (UnityEditor.EditorUtility.DisplayCancelableProgressBar("profil : " + category, "..." + path, progr))
@@ -227,7 +227,10 @@ namespace fwp.scenes
                 }
 #endif
 
+                // generate a profil with given path
                 SceneProfil sp = generateProfil(path);
+
+                // check if the profil is already part of profils[]
                 if (!sp.hasContent()) Debug.LogWarning(path + " has no content");
                 else
                 {
@@ -243,13 +246,13 @@ namespace fwp.scenes
                     // this profil is already in list
                     if (found)
                     {
-                        if (verbose) Debug.Log("~ " + sp.label + " @ " + path);
+                        if (verbose) Debug.Log("~ " + sp.label + " (lyrx" + sp.layers.Count + ") @ " + path);
                     }
                     else
                     {
                         profils.Add(sp);
 
-                        if (verbose) Debug.Log("+ " + sp.label + " @ " + path);
+                        if (verbose) Debug.Log("+ " + sp.label + " (lyrx" + sp.layers.Count + ") @ " + path);
                     }
 
                 }
@@ -266,7 +269,7 @@ namespace fwp.scenes
 
 
 #if UNITY_EDITOR
-            if(useProgressBar())
+            if (useProgressBar())
             {
                 UnityEditor.EditorUtility.ClearProgressBar();
             }
