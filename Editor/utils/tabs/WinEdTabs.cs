@@ -126,6 +126,7 @@ namespace fwp.utils.editor
             GUILayout.Space(15f);
 
             // draw labels buttons
+            // +oob check
             var _tabIndex = drawTabsHeader(_state.tabActive, _state.tabsContent);
 
             bool tabChanged = _tabIndex != _state.tabActive;
@@ -133,14 +134,8 @@ namespace fwp.utils.editor
             // selection changed ?
             if (tabChanged)
             {
-                if (_tabIndex < 0 || _tabIndex >= _state.tabs.Count)
-                {
-                    Debug.LogWarning(_tabIndex + " oob ? " + _state.tabs.Count);
-                    _tabIndex = 0;
-                }
-
                 //assign
-                _state.tabActive = _tabIndex;
+                _state.tabActive = _tabIndex; // +oob check
 
                 //verbose = true;
                 onTabChanged(_tabIndex);
@@ -160,10 +155,15 @@ namespace fwp.utils.editor
         /// </summary>
         public int drawTabsHeader(int tabSelected, GUIContent[] tabs)
         {
+
+
             //GUIStyle gs = new GUIStyle(GUI.skin.button)
             //int newTab = GUILayout.Toolbar((int)tabSelected, modeLabels, "LargeButton", GUILayout.Width(toolbarWidth), GUILayout.ExpandWidth(true));
             int newTab = GUILayout.Toolbar((int)tabSelected, tabs, "LargeButton");
             //if (newTab != (int)tabSelected) Debug.Log("changed tab ? " + tabSelected);
+
+            if (newTab >= tabs.Length) newTab = tabs.Length - 1;
+            if (newTab < 0) newTab = 0;
 
             return newTab;
         }

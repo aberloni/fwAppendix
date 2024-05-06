@@ -18,7 +18,7 @@ namespace fwp.utils.editor
             get => MgrUserSettings.getEdInt(ppUID, 0);
             set
             {
-                MgrUserSettings.setEdInt(ppUID, value);
+                MgrUserSettings.setEdInt(ppUID, Mathf.Clamp(value, 0, tabs.Count - 1));
                 //Debug.Log(uid+"?"+value);
             }
         }
