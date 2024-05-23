@@ -77,7 +77,7 @@ namespace fwp.utils.editor
 
             drawFilterField();
 
-            GUILayout.Space(15f);
+            drawAboveTabsHeader();
 
             // draw labels buttons
             // +oob check
@@ -86,8 +86,13 @@ namespace fwp.utils.editor
                 onTabChanged(_state.getActiveTab());
             }
 
+            GUILayout.Space(15f);
+
             _state.drawActiveTab();
         }
+
+        virtual protected void drawAboveTabsHeader()
+        { }
 
         virtual protected void onTabChanged(WrapperTab tab)
         {
