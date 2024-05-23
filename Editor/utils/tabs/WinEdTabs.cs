@@ -81,24 +81,15 @@ namespace fwp.utils.editor
 
             // draw labels buttons
             // +oob check
-            var _tabIndex = _state.drawTabsHeader();
-
-            bool tabChanged = _tabIndex != _state.tabActive;
-
-            // selection changed ?
-            if (tabChanged)
+            if(_state.drawTabsHeader())
             {
-                //assign
-                _state.tabActive = _tabIndex; // +oob check
-
-                //verbose = true;
-                onTabChanged(_tabIndex);
+                onTabChanged(_state.getActiveTab());
             }
 
             _state.drawActiveTab();
         }
 
-        virtual protected void onTabChanged(int tab)
+        virtual protected void onTabChanged(WrapperTab tab)
         {
             if (verbose) Debug.Log("selected tab #" + tab);
         }

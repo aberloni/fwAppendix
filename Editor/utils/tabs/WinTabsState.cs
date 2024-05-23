@@ -89,7 +89,7 @@ namespace fwp.utils.editor
         /// <summary>
         /// shortcut to draw a tab header
         /// </summary>
-        public int drawTabsHeader()
+        public bool drawTabsHeader()
         {
 
             //GUIStyle gs = new GUIStyle(GUI.skin.button)
@@ -97,10 +97,16 @@ namespace fwp.utils.editor
             int newTab = GUILayout.Toolbar(tabActive, tabsContent, "LargeButton");
             //if (newTab != (int)tabSelected) Debug.Log("changed tab ? " + tabSelected);
 
-            if (newTab >= tabsContent.Length) newTab = tabsContent.Length - 1;
-            if (newTab < 0) newTab = 0;
+            if(newTab != tabActive)
+            {
+                if (newTab >= tabsContent.Length) newTab = tabsContent.Length - 1;
+                if (newTab < 0) newTab = 0;
 
-            return newTab;
+                tabActive = newTab;
+                return true;
+            }
+
+            return false;
         }
 
         public void drawActiveTab()

@@ -87,11 +87,10 @@ namespace fwp.scenes
 
         }
 
-        protected override void onTabChanged(int tabIndex)
+        protected override void onTabChanged(WrapperTab tab)
         {
-            base.onTabChanged(tabIndex);
+            base.onTabChanged(tab);
 
-            var tab = tabsState.getActiveTab();
             injectSubSection(tab.path);
         }
 
