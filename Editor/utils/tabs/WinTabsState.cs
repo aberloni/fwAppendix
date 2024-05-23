@@ -26,7 +26,7 @@ namespace fwp.utils.editor
         public bool isSetup => tabsContent.Length > 0;
         public int countTabs => tabs.Count;
 
-        List<WinTabState> tabs = new List<WinTabState>();
+        List<WrapperTab> tabs = new List<WrapperTab>();
 
         // util for unity drawing
         GUIContent[] tabsContent = new GUIContent[0];
@@ -39,6 +39,20 @@ namespace fwp.utils.editor
                 foreach (var tab in tabs)
                 {
                     output.Add(tab.label);
+                }
+                return output;
+            }
+
+        }
+
+        public List<string> paths
+        {
+            get
+            {
+                List<string> output = new List<string>();
+                foreach (var tab in tabs)
+                {
+                    output.Add(tab.path);
                 }
                 return output;
             }
@@ -63,7 +77,7 @@ namespace fwp.utils.editor
         /// </summary>
         public void add(string path, System.Action draw)
         {
-            WinTabState wts = new WinTabState();
+            WrapperTab wts = new WrapperTab();
             wts.path = path;
             wts.drawCallback = draw;
             tabs.Add(wts);
@@ -93,13 +107,15 @@ namespace fwp.utils.editor
         {
             tabs[tabActive].draw();
         }
+
+        public WrapperTab getActiveTab() => tabs[tabActive];
     }
 
 
     /// <summary>
     /// wrapper for one tab
     /// </summary>
-    public class WinTabState
+    public class WrapperTab
     {
         /// <summary>
         /// complete path to section

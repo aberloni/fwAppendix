@@ -87,20 +87,25 @@ namespace fwp.scenes
 
         }
 
-        protected override void onTabChanged(int tab)
+        protected override void onTabChanged(int tabIndex)
         {
-            base.onTabChanged(tab);
+            base.onTabChanged(tabIndex);
 
-            var state = tabsState.tabs[tab];
-            injectSubSection(state.path);
+            var tab = tabsState.getActiveTab();
+            injectSubSection(tab.path);
         }
 
-        void injectSubSections(WinTabsState state)
+        /// <summary>
+        /// inject all tabs path to sub sections
+        /// </summary>
+        void injectSubSections(WrapperTabs state)
         {
+            var paths = state.paths;
+
             // each possible labels into sub folder blob
-            for (int i = 0; i < state.tabs.Count; i++)
+            foreach(var p in paths)
             {
-                injectSubSection(state.tabs[i].path);
+                injectSubSection(p);
             }
         }
 
@@ -296,7 +301,7 @@ namespace fwp.scenes
 
         public SceneProfil getOpenedProfil()
         {
-            var category = sections[tabsState.tabs[tabsState.tabActive].path];
+            var category = sections[tabsState.getActiveTab().path];
 
             foreach (var profil in category)
             {
