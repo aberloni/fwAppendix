@@ -16,17 +16,17 @@ namespace fwp.utils.editor
     abstract public class WinEdTabs : WinEdRefreshable
     {
 
-        WinTabsState stateEditime;
-        WinTabsState stateRuntime;
+        WrapperTabs stateEditime;
+        WrapperTabs stateRuntime;
 
-        protected WinTabsState tabsState => Application.isPlaying ? stateRuntime : stateEditime;
+        protected WrapperTabs tabsState => Application.isPlaying ? stateRuntime : stateEditime;
 
         /// <summary>
         /// what tabs to draw !runtime
         /// tab label, gui draw callback
         /// return : true to draw additionnal content
         /// </summary>
-        abstract public (string, System.Action)[] generateTabsEditor();
+        abstract public void populateTabsEditor(WrapperTabs wt);
 
         /// <summary>
         /// what to draw @runtime
@@ -34,8 +34,10 @@ namespace fwp.utils.editor
         /// return null : to draw nothing
         /// func return true : to draw additionnal content
         /// </summary>
-        virtual public (string, System.Action)[] generateTabsRuntime()
-            => new (string, System.Action)[0];
+        virtual public void populateTabsRuntime(WrapperTabs wt)
+        {
+            populateTabsEditor(wt);
+        }
 
         public void resetTabSelection()
         {
@@ -46,67 +48,19 @@ namespace fwp.utils.editor
             tabsState.tabActive = index;
         }
 
-        protected override void reactPlayModeState(PlayModeStateChange state)
-        {
-            base.reactPlayModeState(state);
-
-            //case PlayModeStateChange.ExitingPlayMode:
-            //case PlayModeStateChange.EnteredEditMode:
-
-        }
-
         override public void refresh(bool force = false)
         {
             base.refresh(force);
 
-            if (force || stateEditime == null || stateEditime.tabsContent.Length <= 0)
+            if (force || stateEditime == null || !stateEditime.isSetup)
             {
-                var data = generateTabsEditor();
-                stateEditime = generateState("editor-" + GetType(), data);
+                stateEditime = new WrapperTabs("editor-" + GetType());
+                populateTabsEditor(stateEditime);
 
-                log("refresh-ed editor tabs (x" + stateEditime.tabs.Count + ")");
-
-                stateRuntime = null;
-                data = generateTabsRuntime();
-                if (data != null)
-                {
-                    if (data.Length > 0)
-                    {
-                        stateRuntime = generateState("runtime-" + GetType(), data);
-                        log("refresh-ed runtime tabs (x" + stateRuntime.tabs.Count + ")");
-                    }
-                    else
-                    {
-                        stateRuntime = stateEditime;
-                    }
-                }
+                stateRuntime = new WrapperTabs("runtime-" + GetType());
+                populateTabsRuntime(stateRuntime);
             }
 
-        }
-
-        WinTabsState generateState(string uid, (string, System.Action)[] data)
-        {
-            WinTabsState state = new WinTabsState(uid);
-
-            foreach (var tabTuple in data)
-            {
-                var tab = new WinTabState();
-                tab.path = tabTuple.Item1;
-
-                tab.drawCallback = tabTuple.Item2;
-
-                if (state.tabs == null)
-                    state.tabs = new List<WinTabState>();
-
-                state.tabs.Add(tab);
-
-                log("added tab -> " + tab.label);
-            }
-
-            // store stuff for unity drawing
-            state.tabsContent = TabsHelper.generateTabsDatas(state.labels.ToArray());
-
-            return state;
         }
 
         sealed protected override void draw()
@@ -127,7 +81,7 @@ namespace fwp.utils.editor
 
             // draw labels buttons
             // +oob check
-            var _tabIndex = drawTabsHeader(_state.tabActive, _state.tabsContent);
+            var _tabIndex = _state.drawTabsHeader();
 
             bool tabChanged = _tabIndex != _state.tabActive;
 
@@ -141,32 +95,14 @@ namespace fwp.utils.editor
                 onTabChanged(_tabIndex);
             }
 
-            var tab = _state.tabs[_tabIndex];
-            tab?.draw();
+            _state.drawActiveTab();
         }
 
         virtual protected void onTabChanged(int tab)
         {
-            if(verbose) Debug.Log("selected tab #" + tab + " @ " + tabsState.tabs[tab].path);
+            if (verbose) Debug.Log("selected tab #" + tab);
         }
 
-        /// <summary>
-        /// shortcut to draw a tab header
-        /// </summary>
-        public int drawTabsHeader(int tabSelected, GUIContent[] tabs)
-        {
-
-
-            //GUIStyle gs = new GUIStyle(GUI.skin.button)
-            //int newTab = GUILayout.Toolbar((int)tabSelected, modeLabels, "LargeButton", GUILayout.Width(toolbarWidth), GUILayout.ExpandWidth(true));
-            int newTab = GUILayout.Toolbar((int)tabSelected, tabs, "LargeButton");
-            //if (newTab != (int)tabSelected) Debug.Log("changed tab ? " + tabSelected);
-
-            if (newTab >= tabs.Length) newTab = tabs.Length - 1;
-            if (newTab < 0) newTab = 0;
-
-            return newTab;
-        }
 
     }
 

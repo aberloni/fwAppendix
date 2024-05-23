@@ -9,7 +9,7 @@ namespace fwp.utils.editor
     /// <summary>
     /// wrapper that keeps all data of different tabs
     /// </summary>
-    public class WinTabsState
+    public class WrapperTabs
     {
         const string _editor__profiler_tab = "tab_scene_profiler";
 
@@ -23,11 +23,13 @@ namespace fwp.utils.editor
             }
         }
 
-        public List<WinTabState> tabs;
+        public bool isSetup => tabsContent.Length > 0;
+        public int countTabs => tabs.Count;
 
-        public GUIContent[] tabsContent; // util for unity drawing
+        List<WinTabState> tabs = new List<WinTabState>();
 
-        //public bool isValid() => tabs != null;
+        // util for unity drawing
+        GUIContent[] tabsContent = new GUIContent[0];
 
         public List<string> labels
         {
@@ -43,20 +45,60 @@ namespace fwp.utils.editor
 
         }
 
-        string ppUID => _editor__profiler_tab + "_" + tUID;
+        string ppUID => _editor__profiler_tab + "_" + wuid;
 
-        string tUID;
+        string wuid;
 
-        public WinTabsState(string uid)
+        public WrapperTabs(string uid)
         {
-            this.tUID = uid;
+            wuid = uid;
         }
 
-        public string getUid() => tUID;
+        public void selectDefaultTab() => tabActive = 0;
+
+        public string getWrapperUid() => wuid;
+
+        /// <summary>
+        /// add various tabs to wrapper
+        /// </summary>
+        public void add(string path, System.Action draw)
+        {
+            WinTabState wts = new WinTabState();
+            wts.path = path;
+            wts.drawCallback = draw;
+            tabs.Add(wts);
+
+            // store stuff for unity drawing
+            tabsContent = TabsHelper.generateTabsDatas(labels.ToArray());
+        }
+
+        /// <summary>
+        /// shortcut to draw a tab header
+        /// </summary>
+        public int drawTabsHeader()
+        {
+
+            //GUIStyle gs = new GUIStyle(GUI.skin.button)
+            //int newTab = GUILayout.Toolbar((int)tabSelected, modeLabels, "LargeButton", GUILayout.Width(toolbarWidth), GUILayout.ExpandWidth(true));
+            int newTab = GUILayout.Toolbar(tabActive, tabsContent, "LargeButton");
+            //if (newTab != (int)tabSelected) Debug.Log("changed tab ? " + tabSelected);
+
+            if (newTab >= tabsContent.Length) newTab = tabsContent.Length - 1;
+            if (newTab < 0) newTab = 0;
+
+            return newTab;
+        }
+
+        public void drawActiveTab()
+        {
+            tabs[tabActive].draw();
+        }
     }
 
 
-
+    /// <summary>
+    /// wrapper for one tab
+    /// </summary>
     public class WinTabState
     {
         /// <summary>
