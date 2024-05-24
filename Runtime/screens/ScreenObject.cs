@@ -65,6 +65,16 @@ namespace fwp.screens
             }
         }
 
+        public Scene getScene() => gameObject.scene;
+
+        public bool isSticky() => tags.HasFlag(ScreenTags.stickyVisibility);
+
+        /// <summary>
+        /// @awake active scene is check
+        /// </summary>
+        virtual protected bool isDebugContext() => _debug;
+
+
         private void Awake()
         {
             _debug = UnityEngine.SceneManagement.SceneManager.GetActiveScene() == gameObject.scene;
@@ -83,7 +93,7 @@ namespace fwp.screens
             // at this abstract level, keep whatever is setup in editor
             //hide(); // default state is : not visible
 
-            log("created");
+            logScreen("created");
         }
 
         /// <summary>
@@ -99,7 +109,7 @@ namespace fwp.screens
             if (delayEngineCheck())
             {
                 while (delayEngineCheck()) yield return null;
-                log("delay engine : done");
+                logScreen("delay engine : done");
             }
 
 
@@ -108,10 +118,10 @@ namespace fwp.screens
 
             yield return null;
 
-            if (!isDebugContext()) log("-debug => active scene : " + SceneManager.GetActiveScene().name + " != " + gameObject.scene.name);
+            if (!isDebugContext()) logScreen("-debug => active scene : " + SceneManager.GetActiveScene().name + " != " + gameObject.scene.name);
             else
             {
-                log("+debug => screen scene : " + gameObject.scene.name + " is active scene");
+                logScreen("+debug => screen scene : " + gameObject.scene.name + " is active scene");
                 screenSetupDebug();
             }
 
@@ -123,26 +133,19 @@ namespace fwp.screens
             screenSetupLate();
         }
 
+#if UNITY_EDITOR
         private void OnValidate()
         {
             validate();
         }
+#endif
 
         virtual protected void validate()
         { }
 
-        public Scene getScene() => gameObject.scene;
-
-        public bool isSticky() => tags.HasFlag(ScreenTags.stickyVisibility);
-
-        /// <summary>
-        /// @awake active scene is check
-        /// </summary>
-        virtual protected bool isDebugContext() => _debug;
-
         virtual protected void screenSetup()
         {
-            log("setup");
+            logScreen("setup");
         }
 
         /// <summary>
@@ -150,12 +153,12 @@ namespace fwp.screens
         /// </summary>
         virtual protected void screenSetupDebug()
         {
-            log("setup debug");
+            logScreen("setup debug");
         }
 
         virtual protected void screenSetupLate()
         {
-            log("setup late");
+            logScreen("setup late");
         }
 
         public void subNavDirection(Action down, Action up, Action left, Action right)
@@ -201,21 +204,24 @@ namespace fwp.screens
         virtual protected void action_back() { }
 
         /// <summary>
-        /// true = ok
+        /// return : visibility
         /// </summary>
         virtual protected bool toggleVisible(bool flag)
         {
-            log("toggle visible : " + flag);
-
-            if (canvas.hasCanvas())
+            if (isVisible() != flag)
             {
-                return canvas.toggleVisible(flag);
+                //log("toggle visible : " + flag);
+
+                if (canvas.hasCanvas())
+                {
+                    return canvas.toggleVisible(flag);
+                }
+
+                // nothing specific ?
+                // no failure ...
             }
 
-            // nothing specific ?
-            // no failure ...
-
-            return true;
+            return isVisible();
         }
 
         virtual public bool isVisible()
@@ -269,7 +275,7 @@ namespace fwp.screens
             if (tags.HasFlag(ScreenTags.stickyVisibility))
             {
                 if (verbose)
-                    logw("      can't hide because is setup as sticky");
+                    logwScreen("      can't hide because is setup as sticky");
 
                 return false;
             }
@@ -294,7 +300,7 @@ namespace fwp.screens
                 return false;
             }
 
-            log("unloading <b>" + gameObject.scene.name + "</b>");
+            logScreen("unloading <b>" + gameObject.scene.name + "</b>");
 
             //SceneManager.UnloadSceneAsync(gameObject.scene, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
             SceneManager.UnloadSceneAsync(gameObject.scene.name);
@@ -314,7 +320,7 @@ namespace fwp.screens
 
         virtual public void act_call_home()
         {
-            log("calling <b>home screen</b>");
+            logScreen("calling <b>home screen</b>");
 
             ScreensManager.open(ScreensManager.ScreenNameGenerics.home);
         }
@@ -359,7 +365,7 @@ namespace fwp.screens
 
         virtual protected void onScreenDestruction()
         {
-            log("destroy");
+            logScreen("destroy");
         }
 
         virtual public string stringify()
@@ -369,7 +375,7 @@ namespace fwp.screens
 
         virtual public bool isVerbose() => verbose;
 
-        protected void logw(string ct)
+        protected void logwScreen(string ct)
         {
             if (!isVerbose())
                 return;
@@ -377,7 +383,7 @@ namespace fwp.screens
             Debug.LogWarning(getStamp() + " !>> " + ct, this);
         }
 
-        virtual protected void log(string ct, Component target = null)
+        void logScreen(string ct, Component target = null)
         {
             if (!isVerbose())
                 return;
