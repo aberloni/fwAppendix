@@ -58,7 +58,7 @@ namespace fwp.screens
 
             if (!hasValidAnimator())
             {
-                logw("animator is NOT VALID");
+                logwScreen("animator is NOT VALID");
             }
 
             //Debug.Assert(_animator != null, "screen animated animator missing ; voir avec andre");
@@ -100,7 +100,7 @@ namespace fwp.screens
         /// </summary>
         public void openAnimated()
         {
-            if (verbose) log(" open animating TAB : " + name, transform);
+            if (verbose) logScreen(" open animating TAB : " + name, transform);
 
             //already animating ?
 
@@ -108,8 +108,8 @@ namespace fwp.screens
             {
                 if (verbose)
                 {
-                    logw(" => open animated => coroutine d'opening tourne déjà ?");
-                    logw(" trying to re-open the same screen during it's opening ?");
+                    logwScreen(" => open animated => coroutine d'opening tourne déjà ?");
+                    logwScreen(" trying to re-open the same screen during it's opening ?");
                 }
 
                 return;
@@ -167,7 +167,7 @@ namespace fwp.screens
 
             _opened = true;
 
-            if (verbose) log("OPENED");
+            if (verbose) logScreen("OPENED");
         }
 
         
@@ -193,12 +193,12 @@ namespace fwp.screens
             if (isClosing())
             {
                 if(verbose)
-                    logw(" ... already closing");
+                    logwScreen(" ... already closing");
 
                 return;
             }
 
-            if (verbose) log("CLOSING ...");
+            if (verbose) logScreen("CLOSING ...");
 
             _coprocClosing = StartCoroutine(processAnimatingClosing());
         }
@@ -222,13 +222,13 @@ namespace fwp.screens
             {
                 _animator.SetBool(parameters.bool_open, false);
 
-                log("waiting for screen to end close animation");
+                logScreen("waiting for screen to end close animation");
 
                 IEnumerator process = processWaitUntilStateDone(parameters.state_closed);
                 while (process.MoveNext()) yield return null;
             }
 
-            log("closing animation completed");
+            logScreen("closing animation completed");
 
             _opened = false; // jic
             _coprocClosing = null;
@@ -299,7 +299,7 @@ namespace fwp.screens
 
         IEnumerator processWaitUntilState(string state, System.Action onCompletion = null)
         {
-            log(" ... wait for state:" + state);
+            logScreen(" ... wait for state:" + state);
 
             AnimatorStateInfo info;
 
@@ -311,14 +311,14 @@ namespace fwp.screens
             }
             while (info.IsName(state));
 
-            log("state:" + state + " STARTED");
+            logScreen("state:" + state + " STARTED");
 
             onCompletion?.Invoke();
         }
 
         IEnumerator processWaitExitState(string state, System.Action onCompletion = null)
         {
-            log(" ... wait for exit state:" + state);
+            logScreen(" ... wait for exit state:" + state);
 
             // wait for state to start
             IEnumerator process = processWaitUntilState(state);
@@ -333,7 +333,7 @@ namespace fwp.screens
             }
             while (info.IsName(state));
 
-            log("state:" + state + " EXITED");
+            logScreen("state:" + state + " EXITED");
 
             onCompletion?.Invoke();
         }

@@ -383,7 +383,7 @@ namespace fwp.screens
             Debug.LogWarning(getStamp() + " !>> " + ct, this);
         }
 
-        void logScreen(string ct, Component target = null)
+        protected void logScreen(string ct, Component target = null)
         {
             if (!isVerbose())
                 return;
