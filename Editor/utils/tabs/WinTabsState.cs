@@ -15,10 +15,23 @@ namespace fwp.utils.editor
 
         public int tabActive
         {
-            get => MgrUserSettings.getEdInt(ppUID, 0);
+            get
+            {
+                int idx = MgrUserSettings.getEdInt(ppUID, 0);
+
+                idx = Mathf.Max(0, idx);
+                if (tabs != null && tabs.Count > 0) idx = Mathf.Min(idx, tabs.Count - 1);
+
+                return idx;
+            }
             set
             {
-                MgrUserSettings.setEdInt(ppUID, Mathf.Clamp(value, 0, tabs.Count - 1));
+                int idx = value;
+                
+                idx = Mathf.Max(0, idx);
+                if(tabs != null && tabs.Count > 0) idx = Mathf.Min(idx, tabs.Count - 1);
+                
+                MgrUserSettings.setEdInt(ppUID, idx);
                 //Debug.Log(uid+"?"+value);
             }
         }
