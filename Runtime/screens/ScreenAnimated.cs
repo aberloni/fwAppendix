@@ -42,14 +42,12 @@ namespace fwp.screens
         {
             base.screenCreated();
 
-            parameters = new ScreenAnimatedParameters();
-            parameters.bool_open = "open";
-            parameters.state_closed = "closed";
-            parameters.state_opened = "opened";
-
+            parameters = generateAnimatedParams();
+            
             _animator = GetComponent<Animator>();
             if (_animator == null)
             {
+                // seek one in immediate children only
                 if (transform.childCount > 0)
                 {
                     _animator = transform.GetChild(0).GetComponent<Animator>();
@@ -68,6 +66,16 @@ namespace fwp.screens
             toggleVisible(false); // creation : make it invisible by default (but still active)
         }
 
+        virtual protected ScreenAnimatedParameters generateAnimatedParams()
+        {
+            var _parameters = new ScreenAnimatedParameters();
+            _parameters.bool_open = "open";
+            _parameters.state_closed = "closed";
+            _parameters.state_opened = "opened";
+
+            return _parameters;
+        }
+
         protected override void screenSetupLate()
         {
             base.screenSetupLate();
@@ -82,10 +90,7 @@ namespace fwp.screens
         /// this context doesn't take into account any loading flow
         /// this MIGHT BE needed for context where engine needs to do stuff before opening
         /// </summary>
-        virtual protected bool isAutoOpenDuringSetup()
-        {
-            return true;
-        }
+        virtual protected bool isAutoOpenDuringSetup() => true;
 
         protected override void onScreenDestruction()
         {
