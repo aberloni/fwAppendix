@@ -13,10 +13,12 @@ using UnityEditor.SceneManagement;
 
 namespace fwp.appendix
 {
-	/// <summary>
-	/// syntax shrink
-	/// </summary>
-	static public class qh
+    /// <summary>
+    /// https://docs.unity3d.com/Manual/PlatformDependentCompilation.html
+	/// 
+    /// syntax shrink
+    /// </summary>
+    static public class qh
 	{
 		static public T[] gcs<T>() where T : UnityEngine.Object => AppendixUtils.gcs<T>();
         static public T gc<T>() where T : UnityEngine.Object => AppendixUtils.gc<T>();
@@ -26,7 +28,7 @@ namespace fwp.appendix
 	{
 		static public Object[] gcts(System.Type type)
 		{
-#if UNITY_2023
+#if UNITY_6000_0_OR_NEWER || UNITY_2023_OR_NEWER
             return GameObject.FindObjectsByType(type, FindObjectsSortMode.None);
 #else
 			return GameObject.FindObjectsOfType(type);
@@ -38,7 +40,7 @@ namespace fwp.appendix
         /// </summary>
         static public T[] gcs<T>() where T : UnityEngine.Object
 		{
-#if UNITY_2023
+#if UNITY_6000_0_OR_NEWER || UNITY_2023_OR_NEWER
             return GameObject.FindObjectsByType<T>(FindObjectsSortMode.None);
 #else
 			return GameObject.FindObjectsOfType<T>();
@@ -51,8 +53,8 @@ namespace fwp.appendix
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         static public T gc<T>() where T : UnityEngine.Object
-		{
-#if UNITY_2023
+        {
+#if UNITY_6000_0_OR_NEWER || UNITY_2023_OR_NEWER
             return GameObject.FindFirstObjectByType<T>();
 #else
 			return GameObject.FindObjectOfType<T>();

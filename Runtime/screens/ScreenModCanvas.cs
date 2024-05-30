@@ -8,7 +8,13 @@ namespace fwp.screens
     {
 
         protected Canvas[] _canvas;
-        protected Canvas _mainCanvas;
+
+        /// <summary>
+        /// first canvas found
+        /// "default"
+        /// </summary>
+        public Canvas canvas => _canvas[0];
+        public bool hasCanvas => _canvas.Length > 0;
 
         protected RectTransform _rt;
 
@@ -17,10 +23,7 @@ namespace fwp.screens
             _canvas = screen.GetComponentsInChildren<Canvas>();
             Debug.Assert(_canvas.Length > 0, "no canvas for screen ui ?");
 
-            _mainCanvas = _canvas[0];
-
             _rt = screen.GetComponent<RectTransform>();
-
         }
 
         /// <summary>
@@ -29,22 +32,12 @@ namespace fwp.screens
         public void setupForUiCamera()
         {
             Camera uiCam = fwp.appendix.AppendixUtils.gc<Camera>("camera-ui");
-            if (_mainCanvas.renderMode == RenderMode.ScreenSpaceOverlay)
+            if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
             {
-                _mainCanvas.renderMode = RenderMode.ScreenSpaceCamera;
-                _mainCanvas.worldCamera = uiCam;
+                canvas.renderMode = RenderMode.ScreenSpaceCamera;
+                canvas.worldCamera = uiCam;
             }
             
-        }
-
-        public bool hasCanvas()
-        {
-            return _mainCanvas != null;
-        }
-
-        public Canvas getDefaultCanvas()
-        {
-            return _mainCanvas;
         }
 
         public Canvas getCanvasByName(string nm)

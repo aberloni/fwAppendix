@@ -43,7 +43,7 @@ namespace fwp.screens
             base.screenCreated();
 
             parameters = generateAnimatedParams();
-            
+
             _animator = GetComponent<Animator>();
             if (_animator == null)
             {
@@ -60,7 +60,7 @@ namespace fwp.screens
 
             openedAnimatedScreens.Add(this);
 
-            if(isAutoOpenDuringSetup())
+            if (isAutoOpenDuringSetup())
             {
                 logScreen("animated:auto open = hide on creation");
                 toggleVisible(false);
@@ -107,7 +107,7 @@ namespace fwp.screens
         /// </summary>
         public void openAnimated()
         {
-            logScreen(" open animating TAB : " + name, transform);
+            logScreen("animated:open", this);
 
             //already animating ?
 

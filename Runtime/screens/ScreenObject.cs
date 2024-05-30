@@ -76,6 +76,13 @@ namespace fwp.screens
 
         private void Awake()
         {
+            if(canvas == null)
+            {
+                Debug.LogError("screen framework works only with canvas");
+                enabled = false;
+                return;
+            }
+
             _debug = UnityEngine.SceneManagement.SceneManager.GetActiveScene() == gameObject.scene;
 
             if (type == ScreenType.none)
@@ -203,34 +210,30 @@ namespace fwp.screens
         virtual protected void action_back() { }
 
         /// <summary>
+        /// ask to change visib
+        /// this will toggle on/off canvas (if any)
         /// return : visibility
         /// </summary>
-        virtual protected bool toggleVisible(bool flag)
+        protected void toggleVisible(bool flag)
         {
-            if (isVisible() != flag)
-            {
-                //log("toggle visible : " + flag);
-
-                if (canvas.hasCanvas())
-                {
-                    return canvas.toggleVisible(flag);
-                }
-
-                // nothing specific ?
-                // no failure ...
-            }
-
-            return isVisible();
+            if (isVisible() == flag) return;
+            setVisibility(flag);
         }
 
+        /// <summary>
+        /// routine to describe how to toggle screen
+        /// </summary>
+        virtual protected void setVisibility(bool flag)
+        {
+            canvas.toggleVisible(flag);
+        }
+
+        /// <summary>
+        /// routine to describe if screen is visible
+        /// </summary>
         virtual public bool isVisible()
         {
-            if (canvas != null) return canvas.isVisible();
-            if (transform.childCount > 0)
-            {
-                return transform.GetChild(0).gameObject.activeSelf;
-            }
-            return gameObject.activeSelf;
+            return canvas.isVisible();
         }
 
         [ContextMenu("show")]
@@ -250,32 +253,30 @@ namespace fwp.screens
         /// <summary>
         /// when already loaded but asking to be shown
         /// </summary>
-        public bool show()
+        public void show()
         {
             //Debug.Log(getStamp() + " show " + name);
             nav?.resetTimerNoInteraction();
 
             transform.position = Vector3.zero;
 
-            return toggleVisible(true); // specific case : show instant
+            toggleVisible(true); // specific case : show instant
         }
 
         /// <summary>
         /// this is virtual, another screen might do something different
         /// </summary>
-        public bool hide()
+        public void hide()
         {
             //Debug.Log("  <color=white>hide()</color> <b>" + name + "</b>");
 
             if (tags.HasFlag(ScreenTags.stickyVisibility))
             {
-                if (verbose)
-                    logwScreen("      can't hide because is setup as sticky");
-
-                return false;
+                logwScreen("      can't hide because is setup as sticky");
+                return;
             }
 
-            return toggleVisible(false);
+            toggleVisible(false);
         }
 
         /// <summary>
