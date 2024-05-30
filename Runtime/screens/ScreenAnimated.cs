@@ -48,16 +48,13 @@ namespace fwp.screens
             if (_animator == null)
             {
                 // seek one in immediate children only
-                if (transform.childCount > 0)
+                foreach (Transform child in transform)
                 {
-                    _animator = transform.GetChild(0).GetComponent<Animator>();
+                    _animator = child.GetComponent<Animator>();
                 }
             }
 
-            if (!hasValidAnimator())
-            {
-                logwScreen("animator is NOT VALID");
-            }
+            if (!hasValidAnimator()) logwScreen("create : could not fetch a valid animator ?");
 
             //Debug.Assert(_animator != null, "screen animated animator missing ; voir avec andre");
 
@@ -128,7 +125,7 @@ namespace fwp.screens
             //toggleVisible(false); // setup : hide before setup-ing
         }
 
-        bool hasValidAnimator()
+        virtual protected bool hasValidAnimator()
         {
             if (_animator == null) return false;
             if (_animator.runtimeAnimatorController == null) return false;
