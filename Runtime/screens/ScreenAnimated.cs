@@ -279,25 +279,10 @@ namespace fwp.screens
         /// </summary>
         virtual protected bool isInteractable() => _opened;
 
-        //Coroutine waitUntilState(string state, System.Action onCompletion = null) => StartCoroutine(processWaitUntilState(state, onCompletion));
-        //Coroutine waitExitState(string state, System.Action onCompletion = null) => StartCoroutine(processWaitExitState(state, onCompletion));
-
-        IEnumerator processWaitUntilStateDone(string state)
-        {
-            // wait for state to start
-            IEnumerator process = processWaitUntilState(state);
-            while (process.MoveNext()) yield return null;
-
-            // wait for state to end
-            AnimatorStateInfo info;
-            do
-            {
-                info = _animator.GetCurrentAnimatorStateInfo(0);
-                yield return null;
-            }
-            while (info.normalizedTime >= 1f);
-        }
-
+        /// <summary>
+        /// wait for state to start
+        /// state to be focused by animator
+        /// </summary>
         IEnumerator processWaitUntilState(string state, System.Action onCompletion = null)
         {
             //logScreen(" ... wait for state:" + state);
@@ -310,7 +295,7 @@ namespace fwp.screens
                 info = _animator.GetCurrentAnimatorStateInfo(0);
                 yield return null;
             }
-            while (info.IsName(state));
+            while (!info.IsName(state));
 
             //logScreen("state:" + state + " STARTED");
 
