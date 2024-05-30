@@ -185,7 +185,7 @@ namespace fwp.screens
         /// <summary>
         /// will animate
         /// </summary>
-        public void closeAnimated()
+        public void closeAnimated(bool instant = false)
         {
             //Debug.Log(getStamp() + " close animated ?");
 
@@ -195,11 +195,24 @@ namespace fwp.screens
                 return;
             }
 
-            logScreen("CLOSING ...");
+            logScreen("animated:close");
 
             _opened = false;
 
             setupBeforeClosing();
+
+            if(_coprocClosing != null)
+            {
+                StopCoroutine(_coprocClosing);
+                _coprocClosing = null;
+            }
+
+            if(instant)
+            {
+                // bypass animation
+                onClosingAnimationCompleted();
+                return;
+            }
 
             _coprocClosing = StartCoroutine(processAnimatingClosing());
         }
@@ -207,6 +220,7 @@ namespace fwp.screens
         virtual protected void setupBeforeClosing()
         {
             logScreen("animated:closing:setup");
+
         }
 
         IEnumerator processAnimatingClosing()
