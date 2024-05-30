@@ -27,7 +27,7 @@ namespace fwp.screens
 
         const string screenPrefix = "screen-";
 
-        public string getStamp() => "<color=white>screen</color>:" + name;
+        public string getStamp() => Time.frameCount + $"@<color=white>screen:{name}</color> ";
 
         public enum ScreenType
         {
@@ -76,7 +76,7 @@ namespace fwp.screens
 
         private void Awake()
         {
-            if(canvas == null)
+            if (canvas == null)
             {
                 Debug.LogError("screen framework works only with canvas");
                 enabled = false;
