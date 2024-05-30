@@ -1,17 +1,24 @@
-﻿using System.Collections;
+﻿using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+
 using System;
 using System.Linq;
-using UnityEngine.SceneManagement;
 
 namespace fwp.screens
 {
     using fwp.scenes;
-
+    
     public class ScreensManager
     {
         static public bool verbose;
+
+        [UnityEditor.MenuItem("Window/Screens/(toggle) screens verbose")]
+        static void miScreensVerbose()
+        {
+            verbose = !verbose;
+            Debug.LogWarning("ScreensManager>verbosity : " + verbose);
+        }
 
         static protected List<ScreenObject> screens = new List<ScreenObject>();
 
