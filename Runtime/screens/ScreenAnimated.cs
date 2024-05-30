@@ -172,23 +172,16 @@ namespace fwp.screens
             if (verbose) logScreen("OPENED");
         }
 
-        
-
         /// <summary>
         /// called by external context
         /// for UI buttons
         /// </summary>
-        public void actionClose() => onCloseAnimated();
+        public void actionClose() => closeAnimated();
 
         /// <summary>
         /// will animate
         /// </summary>
-        public void closeAnimated() => onCloseAnimated();
-
-        /// <summary>
-        /// use actionClose to close
-        /// </summary>
-        virtual protected void onCloseAnimated()
+        public void closeAnimated()
         {
             //Debug.Log(getStamp() + " close animated ?");
 
@@ -202,22 +195,18 @@ namespace fwp.screens
 
             if (verbose) logScreen("CLOSING ...");
 
+            _opened = false;
+
+            setupBeforeClosing();
+
             _coprocClosing = StartCoroutine(processAnimatingClosing());
         }
 
         virtual protected void setupBeforeClosing()
-        {
-            _opened = false;
-        }
+        { }
 
         IEnumerator processAnimatingClosing()
         {
-            yield return null; // laisser le temps a coprocClosing d'etre assigné :shrug:
-
-            setupBeforeClosing();
-
-            yield return null;
-            yield return null;
             yield return null;
 
             if (hasValidAnimator())
@@ -232,8 +221,8 @@ namespace fwp.screens
 
             logScreen("closing animation completed");
 
-            _opened = false; // jic
             _coprocClosing = null;
+            _opened = false;
 
             onClosingAnimationCompleted();
         }
@@ -249,7 +238,7 @@ namespace fwp.screens
         /// </summary>
         virtual protected void onClosingAnimationCompleted()
         {
-            if(isUnloadAfterClosing())
+            if (isUnloadAfterClosing())
             {
                 //won't if sticky
                 unload();
@@ -286,11 +275,12 @@ namespace fwp.screens
 
         IEnumerator processWaitUntilStateDone(string state)
         {
+            // wait for state to start
             IEnumerator process = processWaitUntilState(state);
             while (process.MoveNext()) yield return null;
 
+            // wait for state to end
             AnimatorStateInfo info;
-            //wait for state to start
             do
             {
                 info = _animator.GetCurrentAnimatorStateInfo(0);
@@ -301,7 +291,7 @@ namespace fwp.screens
 
         IEnumerator processWaitUntilState(string state, System.Action onCompletion = null)
         {
-            logScreen(" ... wait for state:" + state);
+            //logScreen(" ... wait for state:" + state);
 
             AnimatorStateInfo info;
 
@@ -313,33 +303,10 @@ namespace fwp.screens
             }
             while (info.IsName(state));
 
-            logScreen("state:" + state + " STARTED");
+            //logScreen("state:" + state + " STARTED");
 
             onCompletion?.Invoke();
         }
-
-        IEnumerator processWaitExitState(string state, System.Action onCompletion = null)
-        {
-            logScreen(" ... wait for exit state:" + state);
-
-            // wait for state to start
-            IEnumerator process = processWaitUntilState(state);
-            while (process.MoveNext()) yield return null;
-
-            AnimatorStateInfo info;
-            // wait for state to exit
-            do
-            {
-                info = _animator.GetCurrentAnimatorStateInfo(0);
-                yield return null;
-            }
-            while (info.IsName(state));
-
-            logScreen("state:" + state + " EXITED");
-
-            onCompletion?.Invoke();
-        }
-
 
         /// <summary>
         /// search from all opened screens
@@ -380,7 +347,7 @@ namespace fwp.screens
                 if (so.isBusy())
                     return;
 
-                if (so.isOpen()) so.onCloseAnimated();
+                if (so.isOpen()) so.closeAnimated();
                 else so.openAnimated();
 
                 return;

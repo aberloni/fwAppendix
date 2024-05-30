@@ -234,22 +234,18 @@ namespace fwp.screens
             return gameObject.activeSelf;
         }
 
-        [ContextMenu("show instant")]
+        [ContextMenu("show")]
         protected void ctxm_show()
         {
-            if (!show())
-            {
-                Debug.LogWarning(getStamp() + " couldn't show ?", this);
-            }
+            verbose = true;
+            show();
         }
 
         [ContextMenu("hide")]
         protected void ctxm_hide()
         {
-            if (!forceHide())
-            {
-                Debug.LogWarning(getStamp() + " couldn't hide ?", this);
-            }
+            verbose = true;
+            hide();
         }
 
         /// <summary>
@@ -282,12 +278,6 @@ namespace fwp.screens
 
             return toggleVisible(false);
         }
-
-        /// <summary>
-        /// returns true if actually toggled
-        /// ignore sticky states
-        /// </summary>
-        public bool forceHide() => toggleVisible(false); // specific case : force hide
 
         /// <summary>
         /// true = success

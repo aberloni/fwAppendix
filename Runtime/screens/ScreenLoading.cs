@@ -72,12 +72,9 @@ namespace fwp.screens
             //Debug.Log("hiding loading screen through static call");
 
             if (_instance == null)
-            {
-                Debug.LogWarning("LOADING ; asking to hide loading but instance is null ?");
                 return;
-            }
 
-            _instance.forceHide();
+            _instance.hide();
         }
 
     }

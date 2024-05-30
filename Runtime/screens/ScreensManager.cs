@@ -203,7 +203,7 @@ namespace fwp.screens
             return null;
         }
 
-        static protected void changeScreenVisibleState(string scName, bool state, string containsFilter = "", bool force = false)
+        static protected void changeScreenVisibleState(string scName, bool state, string containsFilter = "")
         {
             fetchScreens();
 
@@ -239,24 +239,20 @@ namespace fwp.screens
             if (state) selected.show();
             else
             {
-                if (force) selected.forceHide();
-                else selected.hide(); // stickies won't hide
+                selected.hide(); // stickies won't hide
             }
 
         }
 
-        static public void close(ScreenNameGenerics scName) { close(scName.ToString()); }
-        static public void close(string scName) { close(scName, "", false); }
-        static public void close(ScreenNameGenerics scName, bool force = false) { close(scName.ToString(), "", force); }
-        static public void close(ScreenNameGenerics scName, string filter = "", bool force = false) { close(scName.ToString(), filter, force); }
+        static public void close(ScreenNameGenerics scName, string filter = "") => close(scName.ToString(), filter);
 
         /// <summary>
         /// </summary>
         /// <param name="nameEnd"></param>
         /// <param name="force">if screen is sticky</param>
-        static protected void close(string nameEnd, string filter = "", bool force = false)
+        static public void close(string nameEnd, string filter = "")
         {
-            changeScreenVisibleState(nameEnd, false, filter, force);
+            changeScreenVisibleState(nameEnd, false, filter);
         }
 
         [ContextMenu("kill all")]
