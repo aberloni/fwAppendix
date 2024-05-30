@@ -74,7 +74,6 @@ namespace fwp.screens
         /// </summary>
         virtual protected bool isDebugContext() => _debug;
 
-
         private void Awake()
         {
             _debug = UnityEngine.SceneManagement.SceneManager.GetActiveScene() == gameObject.scene;
@@ -108,10 +107,10 @@ namespace fwp.screens
         {
             if (delayEngineCheck())
             {
+                logScreen("delay engine : start ...");
                 while (delayEngineCheck()) yield return null;
-                logScreen("delay engine : done");
+                logScreen("delay engine : ... done");
             }
-
 
             // setup will trigger auto opening and setupBeforeOpening
             screenSetup();
@@ -360,7 +359,7 @@ namespace fwp.screens
 
         virtual public string stringify()
         {
-            return "\n  isVisible ? " + isVisible();
+            return GetType() + " isVisible ? " + isVisible();
         }
 
         protected void logwScreen(string ct)
@@ -371,13 +370,14 @@ namespace fwp.screens
             Debug.LogWarning(getStamp() + " !>> " + ct, this);
         }
 
-        protected void logScreen(string ct, Component target = null)
+        protected void logScreen(string msg, object target = null)
         {
             if (!verbose)
                 return;
 
             if (target == null) target = this;
-            Debug.Log(getStamp() + " >>         " + ct, this);
+
+            Debug.Log(getStamp() + " >>         " + msg, target as UnityEngine.Object);
         }
 
         // SHKS

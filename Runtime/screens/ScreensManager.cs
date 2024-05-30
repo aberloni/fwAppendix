@@ -17,7 +17,7 @@ namespace fwp.screens
         static void miScreensVerbose()
         {
             verbose = !verbose;
-            Debug.LogWarning("ScreensManager>verbosity : " + verbose);
+            Debug.LogWarning(getStamp()+" verbosity : " + verbose);
         }
 
         static protected List<ScreenObject> screens = new List<ScreenObject>();
@@ -335,7 +335,7 @@ namespace fwp.screens
 
         static string getStamp()
         {
-            return "~~ScreensManager~~";
+            return "~~ScreensManager~~>";
         }
 
     }

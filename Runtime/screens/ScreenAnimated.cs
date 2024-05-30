@@ -26,7 +26,7 @@ namespace fwp.screens
         public struct ScreenAnimatedParameters
         {
             public string bool_open;
-            public string state_closed;
+            public string state_closed; // name of the state when screen is closed
             public string state_opened;
         }
 
@@ -60,7 +60,18 @@ namespace fwp.screens
 
             openedAnimatedScreens.Add(this);
 
-            toggleVisible(false); // creation : make it invisible by default (but still active)
+            if(isAutoOpenDuringSetup())
+            {
+                logScreen("animated:auto open = hide on creation");
+                toggleVisible(false);
+            }
+        }
+
+        protected override void onScreenDestruction()
+        {
+            base.onScreenDestruction();
+
+            openedAnimatedScreens.Remove(this);
         }
 
         virtual protected ScreenAnimatedParameters generateAnimatedParams()
@@ -79,6 +90,7 @@ namespace fwp.screens
 
             if (isAutoOpenDuringSetup()) // true by default
             {
+                logScreen("animated:auto open");
                 openAnimated();
             }
         }
@@ -89,20 +101,13 @@ namespace fwp.screens
         /// </summary>
         virtual protected bool isAutoOpenDuringSetup() => true;
 
-        protected override void onScreenDestruction()
-        {
-            base.onScreenDestruction();
-
-            openedAnimatedScreens.Remove(this);
-        }
-
         /// <summary>
         /// do not call this if the screen is already opening ?
         /// this will be ignored if screen is already in opening process
         /// </summary>
         public void openAnimated()
         {
-            if (verbose) logScreen(" open animating TAB : " + name, transform);
+            logScreen(" open animating TAB : " + name, transform);
 
             //already animating ?
 
@@ -168,8 +173,7 @@ namespace fwp.screens
             //toggleVisible(true); // opening animation done : jic
 
             _opened = true;
-
-            if (verbose) logScreen("OPENED");
+            logScreen("animated:opening:done");
         }
 
         /// <summary>
@@ -187,13 +191,11 @@ namespace fwp.screens
 
             if (isClosing())
             {
-                if(verbose)
-                    logwScreen(" ... already closing");
-
+                logwScreen(" ... already closing");
                 return;
             }
 
-            if (verbose) logScreen("CLOSING ...");
+            logScreen("CLOSING ...");
 
             _opened = false;
 
@@ -203,7 +205,9 @@ namespace fwp.screens
         }
 
         virtual protected void setupBeforeClosing()
-        { }
+        {
+            logScreen("animated:closing:setup");
+        }
 
         IEnumerator processAnimatingClosing()
         {
@@ -211,15 +215,18 @@ namespace fwp.screens
 
             if (hasValidAnimator())
             {
+                logScreen("animated:closing:animated ...");
+
                 _animator.SetBool(parameters.bool_open, false);
 
-                logScreen("waiting for screen to end close animation");
+                logScreen("animated:waiting for screen to end close animation");
 
-                IEnumerator process = processWaitUntilStateDone(parameters.state_closed);
+                // wait for closed state
+                IEnumerator process = processWaitUntilState(parameters.state_closed);
                 while (process.MoveNext()) yield return null;
-            }
 
-            logScreen("closing animation completed");
+                //logScreen("animated:closing:animated state is done");
+            }
 
             _coprocClosing = null;
             _opened = false;
@@ -238,6 +245,8 @@ namespace fwp.screens
         /// </summary>
         virtual protected void onClosingAnimationCompleted()
         {
+            logScreen("animated:closing animation completed");
+
             if (isUnloadAfterClosing())
             {
                 //won't if sticky
