@@ -34,7 +34,13 @@ namespace fwp.verbosity
             }
         }
 
-        virtual protected List<Enum> injectKeys()
+        /// <summary>
+        /// function to override to add more types to feature
+        /// </summary>
+        virtual protected List<Type> getInjectionCandidates() 
+            => new List<Type>() { typeof(VerbositySectionUniversal) };
+
+        List<Enum> injectKeys()
         {
             var ret = new List<Enum>();
 
@@ -46,17 +52,18 @@ namespace fwp.verbosity
             return ret;
         }
 
-        virtual protected Type[] getInjectionCandidates() => new Type[] { typeof(VerbositySectionUniversal) };
-
-        protected void injectEnum(Type t, List<Enum> list)
+        void injectEnum(Type t, List<Enum> list)
         {
             var enumValue = (Enum)System.Activator.CreateInstance(t);
             list.Add(enumValue);
         }
 
-        protected void injectEnum<E>(List<Enum> list) where E : Enum => injectEnum(typeof(E), list);
+        //void injectEnum<E>(List<Enum> list) where E : Enum => injectEnum(typeof(E), list);
 
-        private void OnGUI()
+        /// <summary>
+        /// win editor draw
+        /// </summary>
+        void OnGUI()
         {
             if (keys == null)
             {
