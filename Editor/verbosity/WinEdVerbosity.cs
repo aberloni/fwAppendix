@@ -100,7 +100,8 @@ namespace fwp.verbosity
         { }
 
         virtual protected void drawFooter()
-        { }
+        { 
+        }
 
         public static Array GetUnderlyingEnumValues(Type type)
         {

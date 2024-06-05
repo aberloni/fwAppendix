@@ -48,11 +48,6 @@ namespace fwp.screens
 
             if (txt != null) txt.enabled = false;
 
-            //loading must be sticky to not be closed by maanger open/close logic
-            //of other screens
-            Debug.Assert(tags.HasFlag(ScreenTags.stickyVisibility));
-            Debug.Assert(tags.HasFlag(ScreenTags.stickyPersistance));
-
             cam = GetComponent<Camera>();
             if (cam == null) cam = GetComponentInChildren<Camera>();
 
