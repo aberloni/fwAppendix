@@ -71,6 +71,8 @@ namespace fwp.verbosity
                 return;
             }
 
+            drawHeader();
+
             GUILayout.Label("Verbosity toggles (x" + keys.Length + ")");
 
             // each possible enums
@@ -91,7 +93,14 @@ namespace fwp.verbosity
 
             }
 
+            drawFooter();
         }
+
+        virtual protected void drawHeader()
+        { }
+
+        virtual protected void drawFooter()
+        { }
 
         public static Array GetUnderlyingEnumValues(Type type)
         {
