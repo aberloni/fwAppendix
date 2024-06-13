@@ -191,7 +191,7 @@ namespace fwp.screens
                     Debug.Log($"{getStamp()} | open:<b>{nm}</b> ({filterName}) | already present, changing visibility");
 
                 // show
-                changeScreenVisibleState(nm, true, filterName);
+                changeScreenPresence(nm, true, filterName);
                 
                 onComplete?.Invoke(so);
 
@@ -210,7 +210,10 @@ namespace fwp.screens
             return null;
         }
 
-        static protected void changeScreenVisibleState(string scName, bool state, string containsFilter = "")
+        /// <summary>
+        /// will close or open the screen
+        /// </summary>
+        static void changeScreenPresence(string scName, bool state, string containsFilter = "")
         {
             fetchScreens();
 
@@ -243,10 +246,13 @@ namespace fwp.screens
 
             }
 
-            if (state) selected.show();
+            if (state)
+            {
+                selected.open();
+            }
             else
             {
-                selected.hide(); // stickies won't hide
+                selected.close(); // stickies won't hide
             }
 
         }
@@ -259,7 +265,7 @@ namespace fwp.screens
         /// <param name="force">if screen is sticky</param>
         static public void close(string nameEnd, string filter = "")
         {
-            changeScreenVisibleState(nameEnd, false, filter);
+            changeScreenPresence(nameEnd, false, filter);
         }
 
         [ContextMenu("kill all")]

@@ -250,7 +250,19 @@ namespace fwp.screens
             hide();
         }
 
+        virtual public void open()
+        {
+            show();
+        }
+
+        virtual public void close()
+        {
+            hide();
+        }
+
         /// <summary>
+        /// this is NOT for opening
+        /// it's to display
         /// when already loaded but asking to be shown
         /// </summary>
         public void show()

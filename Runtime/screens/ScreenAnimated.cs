@@ -101,11 +101,23 @@ namespace fwp.screens
         /// </summary>
         virtual protected bool isAutoOpenDuringSetup() => true;
 
+        public override void open()
+        {
+            //base.open();
+            openAnimated();
+        }
+
+        public override void close()
+        {
+            //base.close();
+            closeAnimated();
+        }
+
         /// <summary>
         /// do not call this if the screen is already opening ?
         /// this will be ignored if screen is already in opening process
         /// </summary>
-        public void openAnimated()
+        void openAnimated()
         {
             logScreen("animated:open", this);
 
@@ -141,7 +153,8 @@ namespace fwp.screens
         {
             setupBeforeOpening();
 
-            toggleVisible(true); // opening : just before animating (after setup)
+            show();
+            //toggleVisible(true); // opening : just before animating (after setup)
 
             ScreenLoading.hideLoadingScreen(); // laby screen, now animating open screen
 
