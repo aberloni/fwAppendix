@@ -38,6 +38,11 @@ namespace fwp.screens
             ScreensManager.open(filterName(overlayName), onLoaded);
         }
 
+        static public void closeOverlay(string overlayName)
+        {
+            ScreensManager.close(filterName(overlayName));
+        }
+
         static public ScreenWatcher watchOverlay(ScreenOverlay overlay,
             Action onCreated = null, Action onOpened = null, Action onClosed = null)
         {

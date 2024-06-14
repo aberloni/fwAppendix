@@ -42,8 +42,7 @@ namespace fwp.screens
         {
             base.screenCreated();
 
-            parameters = generateAnimatedParams();
-
+            
             _animator = GetComponent<Animator>();
             if (_animator == null)
             {
@@ -54,16 +53,23 @@ namespace fwp.screens
                 }
             }
 
-            if (!hasValidAnimator()) logwScreen("create : could not fetch a valid animator ?");
+            if (!hasValidAnimator()) logwScreen("could not fetch a valid animator ?");
+            else
+            {
+                // generate params to interact with animator
+                parameters = generateAnimatedParams();
 
+                // to trigger a warning if not compat
+                _animator.GetBool(parameters.bool_open);
+            }
             //Debug.Assert(_animator != null, "screen animated animator missing ; voir avec andre");
 
             openedAnimatedScreens.Add(this);
 
+            // screen is visible at that point, need to hide it in auto open context
             if (isAutoOpenDuringSetup())
             {
-                logScreen("animated:auto open = hide on creation");
-                setVisibility(false);
+                setVisibility(false); // auto open = hide during create
             }
         }
 
@@ -90,7 +96,7 @@ namespace fwp.screens
 
             if (isAutoOpenDuringSetup()) // true by default
             {
-                logScreen("animated:auto open");
+                logScreen("animated:    setup auto open");
                 open();
             }
         }
@@ -106,7 +112,7 @@ namespace fwp.screens
             base.reactOpen(); // show
 
             //base.open();
-            logScreen("animated:open", this);
+            logScreen("animated:    open", this);
 
             //already animating ?
 
@@ -319,15 +325,8 @@ namespace fwp.screens
             }
             else
             {
-                // not there
-                ScreensManager.open(screenName, (screen) =>
-                {
-                    so = screen as ScreenAnimated;
-                    if (so != null)
-                    {
-                        so.open();
-                    }
-                });
+                // not there, load & open
+                ScreensManager.open(screenName);
             }
 
         }

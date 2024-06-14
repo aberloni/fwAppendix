@@ -31,7 +31,7 @@ namespace fwp.screens
 
         const string screenPrefix = "screen-";
 
-        public string getStamp() => Time.frameCount + $"@<color=white>screen:{name}</color> ";
+        public string getStamp() => Time.frameCount + $"@<color=white>{GetType()}:{name}</color>:   ";
 
         public enum ScreenType
         {
@@ -102,7 +102,7 @@ namespace fwp.screens
         {
             // not shown or hidden :
             // at this abstract level, keep whatever is setup in editor
-            
+
             logScreen("created");
         }
 
@@ -128,10 +128,10 @@ namespace fwp.screens
 
             yield return null;
 
-            if (!isDebugContext()) logScreen("-debug => active scene : " + SceneManager.GetActiveScene().name + " != " + gameObject.scene.name);
-            else
+            //"active scene : \" + SceneManager.GetActiveScene().name + \" != \" + gameObject.scene.name;
+            if (isDebugContext())
             {
-                logScreen("+debug => screen scene : " + gameObject.scene.name + " is active scene");
+                logScreen("+debug:  gameo scene : " + gameObject.scene.name);
                 screenSetupDebug();
             }
 
@@ -262,9 +262,6 @@ namespace fwp.screens
             setVisible(false);
         }
 
-        /// <summary>
-        /// just show
-        /// </summary>
         public void open()
         {
             nav?.resetTimerNoInteraction();
@@ -402,12 +399,12 @@ namespace fwp.screens
             return GetType() + " isVisible ? " + isVisible();
         }
 
-        protected void logwScreen(string ct)
+        protected void logwScreen(string msg)
         {
             if (!verbose)
                 return;
 
-            Debug.LogWarning(getStamp() + " !>> " + ct, this);
+            Debug.LogWarning(getStamp() + msg, this);
         }
 
         protected void logScreen(string msg, object target = null)
@@ -417,7 +414,7 @@ namespace fwp.screens
 
             if (target == null) target = this;
 
-            Debug.Log(getStamp() + " >>         " + msg, target as UnityEngine.Object);
+            Debug.Log(getStamp() + msg, target as UnityEngine.Object);
         }
 
         // SHKS

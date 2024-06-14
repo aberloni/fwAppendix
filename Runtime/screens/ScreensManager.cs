@@ -11,9 +11,28 @@ namespace fwp.screens
     
     public class ScreensManager
     {
-        static public bool verbose;
+        const string _bool_verbose = "fwp.screens.verbosity";
 
-        [UnityEditor.MenuItem("Window/Screens/(toggle) screens verbose")]
+        static bool _verbose;
+        static public bool verbose
+        {
+            get
+            {
+#if UNITY_EDITOR
+                _verbose = UnityEditor.EditorPrefs.GetBool(_bool_verbose, false);
+#endif
+                return _verbose;
+            }
+            set
+            {
+                _verbose = value;
+#if UNITY_EDITOR
+                UnityEditor.EditorPrefs.SetBool(_bool_verbose, value);
+#endif
+            }
+        }
+
+        [UnityEditor.MenuItem("Window/Screens/(toggle) screens verbosity")]
         static void miScreensVerbose()
         {
             verbose = !verbose;
