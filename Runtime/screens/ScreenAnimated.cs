@@ -88,6 +88,7 @@ namespace fwp.screens
                     foreach (Transform child in transform)
                     {
                         _animator = child.GetComponent<Animator>();
+                        if (_animator != null) break;
                     }
                 }
             }
