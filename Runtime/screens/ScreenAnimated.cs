@@ -28,6 +28,29 @@ namespace fwp.screens
             public string bool_open;
             public string state_closed; // name of the state when screen is closed
             public string state_opened;
+
+            public void validate(Animator a)
+            {
+                logPresence(a, bool_open);
+                logPresence(a, state_opened);
+                logPresence(a, state_closed);
+            }
+
+            void logPresence(Animator a, string param)
+            {
+                if (!hasParam(a, param)) Debug.LogWarning(a.name + " NOK " + param);
+                else Debug.LogWarning(a.name + " OK " + param);
+            }
+
+            bool hasParam(Animator a, string param)
+            {
+                foreach (var p in a.parameters)
+                {
+                    if (p.name == param)
+                        return true;
+                }
+                return false;
+            }
         }
 
         protected ScreenAnimatedParameters parameters;
@@ -42,27 +65,7 @@ namespace fwp.screens
         {
             base.screenCreated();
 
-            
-            _animator = GetComponent<Animator>();
-            if (_animator == null)
-            {
-                // seek one in immediate children only
-                foreach (Transform child in transform)
-                {
-                    _animator = child.GetComponent<Animator>();
-                }
-            }
-
-            if (!hasValidAnimator()) logwScreen("could not fetch a valid animator ?");
-            else
-            {
-                // generate params to interact with animator
-                parameters = generateAnimatedParams();
-
-                // to trigger a warning if not compat
-                _animator.GetBool(parameters.bool_open);
-            }
-            //Debug.Assert(_animator != null, "screen animated animator missing ; voir avec andre");
+            solveAnimator();
 
             openedAnimatedScreens.Add(this);
 
@@ -70,6 +73,29 @@ namespace fwp.screens
             if (isAutoOpenDuringSetup())
             {
                 setVisibility(false); // auto open = hide during create
+            }
+        }
+
+        void solveAnimator()
+        {
+            if (_animator == null)
+            {
+
+                _animator = GetComponent<Animator>();
+                if (_animator == null)
+                {
+                    // seek one in immediate children only
+                    foreach (Transform child in transform)
+                    {
+                        _animator = child.GetComponent<Animator>();
+                    }
+                }
+            }
+
+            if (_animator != null)
+            {
+                // generate params to interact with animator
+                parameters = generateAnimatedParams();
             }
         }
 
@@ -130,10 +156,32 @@ namespace fwp.screens
             _coprocOpening = StartCoroutine(processAnimatingOpening());
         }
 
-        virtual protected bool hasValidAnimator()
+        [ContextMenu("validator")]
+        protected void cmValidator()
         {
-            if (_animator == null) return false;
-            if (_animator.runtimeAnimatorController == null) return false;
+            logwScreen("VALIDATOR");
+
+            solveAnimator();
+
+            if (hasValidAnimator(true))
+            {
+                generateAnimatedParams().validate(_animator);
+            }
+        }
+
+        virtual protected bool hasValidAnimator(bool log = false)
+        {
+            if (_animator == null)
+            {
+                if (log) logwScreen("NOK   animator = null");
+                return false;
+            }
+            if (_animator.runtimeAnimatorController == null)
+            {
+                if (log) logwScreen("NOK   animator.controller = null");
+                return false;
+            }
+
             return true;
         }
 
