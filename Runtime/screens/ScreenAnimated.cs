@@ -18,7 +18,7 @@ namespace fwp.screens
 
         Coroutine _coprocOpening;   // opening
         Coroutine _coprocClosing;   // closing
-        bool _opened = false;       // interactable
+        bool _interactable = false;       // interactable
 
         /// <summary>
         /// contains all data that can vary in other contexts
@@ -63,7 +63,7 @@ namespace fwp.screens
             if (isAutoOpenDuringSetup())
             {
                 logScreen("animated:auto open = hide on creation");
-                toggleVisible(false);
+                setVisibility(false);
             }
         }
 
@@ -91,7 +91,7 @@ namespace fwp.screens
             if (isAutoOpenDuringSetup()) // true by default
             {
                 logScreen("animated:auto open");
-                openAnimated();
+                open();
             }
         }
 
@@ -101,24 +101,11 @@ namespace fwp.screens
         /// </summary>
         virtual protected bool isAutoOpenDuringSetup() => true;
 
-        public override void open()
+        public override void reactOpen()
         {
+            base.reactOpen(); // show
+
             //base.open();
-            openAnimated();
-        }
-
-        public override void close()
-        {
-            //base.close();
-            closeAnimated();
-        }
-
-        /// <summary>
-        /// do not call this if the screen is already opening ?
-        /// this will be ignored if screen is already in opening process
-        /// </summary>
-        void openAnimated()
-        {
             logScreen("animated:open", this);
 
             //already animating ?
@@ -137,11 +124,6 @@ namespace fwp.screens
             _coprocOpening = StartCoroutine(processAnimatingOpening());
         }
 
-        virtual protected void setupBeforeOpening()
-        {
-            //toggleVisible(false); // setup : hide before setup-ing
-        }
-
         virtual protected bool hasValidAnimator()
         {
             if (_animator == null) return false;
@@ -151,11 +133,6 @@ namespace fwp.screens
 
         IEnumerator processAnimatingOpening()
         {
-            setupBeforeOpening();
-
-            show();
-            //toggleVisible(true); // opening : just before animating (after setup)
-
             ScreenLoading.hideLoadingScreen(); // laby screen, now animating open screen
 
             if (hasValidAnimator())
@@ -185,61 +162,40 @@ namespace fwp.screens
             // this is done before "open animation"
             //toggleVisible(true); // opening animation done : jic
 
-            _opened = true;
+            _interactable = true;
+
             logScreen("animated:opening:done");
         }
 
-        /// <summary>
-        /// called by external context
-        /// for UI buttons
-        /// </summary>
-        public void actionClose() => closeAnimated();
-
-        /// <summary>
-        /// will animate
-        /// </summary>
-        public void closeAnimated(bool instant = false)
+        protected override void setupBeforeClosing()
         {
-            //Debug.Log(getStamp() + " close animated ?");
+            base.setupBeforeClosing();
+            _interactable = false;
+        }
 
+        public override void reactClose()
+        {
             if (isClosing())
             {
                 logwScreen(" ... already closing");
                 return;
             }
 
+            base.reactClose();
+
             logScreen("animated:close");
 
-            _opened = false;
-
-            setupBeforeClosing();
-
-            if(_coprocClosing != null)
+            if (_coprocClosing != null)
             {
                 StopCoroutine(_coprocClosing);
                 _coprocClosing = null;
             }
 
-            if(instant)
-            {
-                // bypass animation
-                onClosingAnimationCompleted();
-                return;
-            }
-
             _coprocClosing = StartCoroutine(processAnimatingClosing());
-        }
-
-        virtual protected void setupBeforeClosing()
-        {
-            logScreen("animated:closing:setup");
-
         }
 
         IEnumerator processAnimatingClosing()
         {
-            yield return null;
-
             if (hasValidAnimator())
             {
                 logScreen("animated:closing:animated ...");
@@ -256,16 +212,10 @@ namespace fwp.screens
             }
 
             _coprocClosing = null;
-            _opened = false;
+            _interactable = false;
 
             onClosingAnimationCompleted();
         }
-
-        /// <summary>
-        /// allow to change behavior
-        /// default : unload the scene after hiding animation is done
-        /// </summary>
-        virtual protected bool isUnloadAfterClosing() => true;
 
         /// <summary>
         /// do more stuff after closing
@@ -273,30 +223,25 @@ namespace fwp.screens
         virtual protected void onClosingAnimationCompleted()
         {
             logScreen("animated:closing animation completed");
-
-            if (isUnloadAfterClosing())
-            {
-                //won't if sticky
-                unload();
-            }
-            else
-            {
-                hide();
-            }
         }
 
+        /// <summary>
+        /// opening or closing or opened
+        /// </summary>
         public bool isBusy()
         {
             if (isOpening()) return true;
             if (isClosing()) return true;
-            return isOpen();
+            return isOpened();
         }
+
         /// <summary>
         /// /! 
         /// APRES anim open
         /// AVANT anim close
         /// </summary>
-        public bool isOpen() => _opened;
+        public bool isOpened() => _interactable;
+        public bool isClosed() => !isVisible();
 
         public bool isOpening() => _coprocOpening != null;
         public bool isClosing() => _coprocClosing != null;
@@ -304,7 +249,7 @@ namespace fwp.screens
         /// <summary>
         /// something above ?
         /// </summary>
-        virtual protected bool isInteractable() => _opened;
+        virtual protected bool isInteractable() => _interactable;
 
         /// <summary>
         /// wait for state to start
@@ -365,24 +310,25 @@ namespace fwp.screens
             // present ?
             if (so != null)
             {
-                if (so.isBusy())
-                    return;
-
-                if (so.isOpen()) so.closeAnimated();
-                else so.openAnimated();
-
-                return;
-            }
-
-            // not there
-            ScreensManager.open(screenName, (screen) =>
-            {
-                so = screen as ScreenAnimated;
-                if (so != null)
+                if (so.isOpened()) so.close();
+                else if (so.isClosed()) so.open();
+                else
                 {
-                    so.openAnimated();
+                    Debug.LogWarning("could not solve toggle state of " + screenName, so);
                 }
-            });
+            }
+            else
+            {
+                // not there
+                ScreensManager.open(screenName, (screen) =>
+                {
+                    so = screen as ScreenAnimated;
+                    if (so != null)
+                    {
+                        so.open();
+                    }
+                });
+            }
 
         }
 

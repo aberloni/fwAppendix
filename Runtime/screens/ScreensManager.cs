@@ -240,7 +240,7 @@ namespace fwp.screens
                     //do nothing with filtered screen
                     if (containsFilter.Length > 0 && screens[i].name.Contains(containsFilter)) continue;
 
-                    screens[i].hide();
+                    screens[i].close();
                     //Debug.Log("  L "+screens[i].name + " hidden");
                 }
 
@@ -280,7 +280,7 @@ namespace fwp.screens
                     if (screens[i].name.EndsWith(filterName)) continue;
                 }
 
-                screens[i].hide();
+                screens[i].close();
             }
         }
 

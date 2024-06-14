@@ -102,32 +102,33 @@ namespace fwp.screens
             return tarScreen == targetScreen;
         }
 
+        /// <summary>
+        /// close active screen
+        /// </summary>
         public void interrupt()
         {
-            screen.closeAnimated();
+            screen.close();
         }
-
 
         IEnumerator closeProcess(string toClose, Action onCompletion)
         {
-            yield return null;
-            
             var screen = ScreensManager.getOpenedScreen(toClose);
             var screenAnim = screen as ScreenAnimated;
 
-            if(screenAnim != null)
+            if (screenAnim.isUnloadAfterClosing())
             {
-                screenAnim.closeAnimated();
+                Debug.LogError(screenAnim.name + "won't unload ! remove stick persist tag to use watcher", screenAnim);
+                onCompletion?.Invoke();
+                yield break;
             }
 
-            while(screen != null)
-            {
-                yield return null;
-            }
+            // start closing process
+            if (screenAnim != null) screenAnim.close();
 
+            // wait for screen to be unloaded
+            while (screen != null) yield return null;
+            
             onCompletion?.Invoke();
-
-            //StartCoroutine(globalProcess());
         }
 
         IEnumerator globalProcess()
@@ -224,7 +225,7 @@ namespace fwp.screens
             if (verbose)
                 Debug.Log(" ... wait while still flagged as opened ...");
 
-            while (screen.isOpen()) yield return null;
+            while (screen.isOpened()) yield return null;
 
             onCompletion?.Invoke();
         }

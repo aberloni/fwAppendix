@@ -12,6 +12,7 @@ namespace fwp.screens
     /// </summary>
     public class ScreenOverlay : ScreenAnimated
     {
+        const string overlayPrefix = "overlay-";
 
         protected override void screenCreated()
         {
@@ -19,26 +20,6 @@ namespace fwp.screens
 
             Debug.Assert(type == ScreenObject.ScreenType.overlay, "INTE, screen must be overlay type");
         }
-
-        protected override void onClosingAnimationCompleted()
-        {
-            //base.onClosingAnimationCompleted();
-
-            //Debug.Log(tags);
-
-            if(tags.HasFlag(ScreenTags.stickyPersistance))
-            {
-                // just hide
-                hide();
-            }
-            else
-            {
-                // remove screen
-                unload();
-            }
-        }
-
-        const string overlayPrefix = "overlay-";
 
         static string filterName(string name)
         {

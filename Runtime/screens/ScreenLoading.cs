@@ -50,16 +50,13 @@ namespace fwp.screens
 
             cam = GetComponent<Camera>();
             if (cam == null) cam = GetComponentInChildren<Camera>();
-
-            //Debug.Log("hiding loading screen through static call");
-            show();
         }
 
         static public void showLoadingScreen()
         {
             if (_instance == null) return;
 
-            _instance.show();
+            _instance.setVisibility(true);
         }
 
         static public void hideLoadingScreen()
@@ -69,7 +66,7 @@ namespace fwp.screens
             if (_instance == null)
                 return;
 
-            _instance.hide();
+            _instance.setVisibility(false);
         }
 
     }

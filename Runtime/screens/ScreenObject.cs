@@ -18,6 +18,10 @@ namespace fwp.screens
     /// 
     /// visibility is based on activation/deactivation of first child of this component
     /// to use canvases see ScreenUi
+    /// 
+    /// this layer is not meant to include open/close paradigm
+    /// it's meant to make the screen visible or not
+    /// use ScreenAnimated for open/close paradigm
     /// </summary>
     public class ScreenObject : MonoBehaviour
     {
@@ -96,9 +100,9 @@ namespace fwp.screens
 
         virtual protected void screenCreated()
         {
+            // not shown or hidden :
             // at this abstract level, keep whatever is setup in editor
-            //hide(); // default state is : not visible
-
+            
             logScreen("created");
         }
 
@@ -212,18 +216,26 @@ namespace fwp.screens
         /// <summary>
         /// ask to change visib
         /// this will toggle on/off canvas (if any)
-        /// return : visibility
         /// </summary>
-        protected void toggleVisible(bool flag)
+        protected void setVisibility(bool flag)
         {
+            // no change = do nothing
             if (isVisible() == flag) return;
-            setVisibility(flag);
+
+            if (tags.HasFlag(ScreenTags.stickyVisibility))
+            {
+                logwScreen("      can't hide because is setup as sticky");
+                return;
+            }
+
+            setVisible(flag);
         }
 
         /// <summary>
-        /// routine to describe how to toggle screen
+        /// describe how to show/hide screen
+        /// this ignores filter checks (sticky)
         /// </summary>
-        virtual protected void setVisibility(bool flag)
+        virtual protected void setVisible(bool flag)
         {
             canvas.toggleVisible(flag);
         }
@@ -236,59 +248,74 @@ namespace fwp.screens
             return canvas.isVisible();
         }
 
-        [ContextMenu("show")]
+        [ContextMenu("force show")]
         protected void ctxm_show()
         {
             ScreensManager.verbose = true;
-            show();
+            setVisible(true);
         }
 
-        [ContextMenu("hide")]
+        [ContextMenu("force hide")]
         protected void ctxm_hide()
         {
             ScreensManager.verbose = true;
-            hide();
-        }
-
-        virtual public void open()
-        {
-            show();
-        }
-
-        virtual public void close()
-        {
-            hide();
+            setVisible(false);
         }
 
         /// <summary>
-        /// this is NOT for opening
-        /// it's to display
-        /// when already loaded but asking to be shown
+        /// just show
         /// </summary>
-        public void show()
+        public void open()
         {
-            //Debug.Log(getStamp() + " show " + name);
             nav?.resetTimerNoInteraction();
 
-            transform.position = Vector3.zero;
+            setupBeforeOpening();
+            reactOpen();
+        }
 
-            toggleVisible(true); // specific case : show instant
+        virtual protected void setupBeforeOpening()
+        { }
+
+        /// <summary>
+        /// what to do when opening
+        /// </summary>
+        virtual public void reactOpen()
+        {
+            setVisibility(true);
+        }
+
+        public void close()
+        {
+            setupBeforeClosing();
+            reactClose();
+        }
+
+        virtual protected void setupBeforeClosing()
+        { }
+
+        /// <summary>
+        /// what to do when close is called
+        /// </summary>
+        virtual public void reactClose()
+        {
+
+            if (isUnloadAfterClosing()) //won't if sticky persist
+            {
+                unload();
+            }
+            else
+            {
+                setVisibility(false);
+            }
         }
 
         /// <summary>
-        /// this is virtual, another screen might do something different
+        /// allow to change behavior
+        /// default : unload the scene after hiding animation is done
         /// </summary>
-        public void hide()
+        virtual public bool isUnloadAfterClosing()
         {
-            //Debug.Log("  <color=white>hide()</color> <b>" + name + "</b>");
-
-            if (tags.HasFlag(ScreenTags.stickyVisibility))
-            {
-                logwScreen("      can't hide because is setup as sticky");
-                return;
-            }
-
-            toggleVisible(false);
+            return !tags.HasFlag(ScreenTags.stickyPersistance);
         }
 
         /// <summary>
@@ -362,7 +389,7 @@ namespace fwp.screens
             if (leader != null)
                 visi = leader == this;
 
-            toggleVisible(visi); // standby logic
+            setVisibility(visi); // standby logic
         }
 
         virtual protected void onScreenDestruction()

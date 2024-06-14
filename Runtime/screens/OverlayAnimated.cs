@@ -18,14 +18,6 @@ namespace fwp.screens
                 type = ScreenType.overlay;
         }
 
-        /// <summary>
-        /// not really useful
-        /// </summary>
-        static public void closeOverlay(OverlayAnimated overlay)
-        {
-            overlay.closeAnimated();
-        }
-
         const string overlay_prefix = "overlay-";
 
         /// <summary>
