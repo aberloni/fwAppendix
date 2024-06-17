@@ -23,6 +23,22 @@ namespace fwp.screens
         Camera cam;
         public Text txt;
 
+        public override void reactOpen()
+        {
+            base.reactOpen();
+
+            verbosity.Verbosity.logUniversal(
+                verbosity.VerbositySectionUniversal.loading, "loading:open");
+        }
+
+        public override void reactClose()
+        {
+            base.reactClose();
+
+            verbosity.Verbosity.logUniversal(
+                verbosity.VerbositySectionUniversal.loading, "loading:close");
+        }
+
         /// <summary>
         /// must be called by hand
         /// </summary>
@@ -55,18 +71,13 @@ namespace fwp.screens
         static public void showLoadingScreen()
         {
             if (_instance == null) return;
-
-            _instance.setVisibility(true);
+            _instance.open();
         }
 
         static public void hideLoadingScreen()
         {
-            //Debug.Log("hiding loading screen through static call");
-
-            if (_instance == null)
-                return;
-
-            _instance.setVisibility(false);
+            if (_instance == null) return;
+            _instance.close();
         }
 
     }

@@ -13,14 +13,14 @@ namespace fwp.verbosity
     {
         none            = 0,
         engine          = 1,
-        input           = 2,
+        loading         = 2,
 
-        addressables    = 4,
-        audio           = 8,
-        localization    = 16,
+        input           = 4,
+        addressables    = 8,
+        audio           = 16,
+        localization    = 32,
 
-        boot            = 32,
-        industries      = 64,
+        shader          = 64,
     }
 
     public class Verbosity
