@@ -264,6 +264,7 @@ namespace fwp.screens
 
         public void open()
         {
+            logScreen("open");
             nav?.resetTimerNoInteraction();
 
             setupBeforeOpening();
@@ -278,11 +279,13 @@ namespace fwp.screens
         /// </summary>
         virtual public void reactOpen()
         {
+            
             setVisibility(true);
         }
 
         public void close()
         {
+            logScreen("close");
             setupBeforeClosing();
             reactClose();
         }

@@ -31,12 +31,18 @@ namespace fwp.screens
 
             public void validate(Animator a)
             {
-                logPresence(a, bool_open);
-                logPresence(a, state_opened);
-                logPresence(a, state_closed);
+                logParamPresence(a, bool_open);
             }
 
-            void logPresence(Animator a, string param)
+            /*
+            void logStatePresence(Animator a, string state)
+            {
+                if (!a.HasState(state, 0)) Debug.LogWarning(a.name + " NOK " + state);
+                else Debug.LogWarning(a.name + " OK " + state);
+            }
+            */
+
+            void logParamPresence(Animator a, string param)
             {
                 if (!hasParam(a, param)) Debug.LogWarning(a.name + " NOK " + param);
                 else Debug.LogWarning(a.name + " OK " + param);
@@ -123,7 +129,7 @@ namespace fwp.screens
 
             if (isAutoOpenDuringSetup()) // true by default
             {
-                logScreen("animated:    setup auto open");
+                logScreen("animated:setup:late:auto open");
                 open();
             }
         }
@@ -138,9 +144,6 @@ namespace fwp.screens
         {
             base.reactOpen(); // show
 
-            //base.open();
-            logScreen("animated:    open", this);
-
             //already animating ?
 
             if (isOpening())
@@ -154,9 +157,21 @@ namespace fwp.screens
                 return;
             }
 
-            _coprocOpening = StartCoroutine(processAnimatingOpening());
+            ScreenLoading.hideLoadingScreen(); // laby screen, now animating open screen
+
+            if(hasValidAnimator())
+            {
+                logScreen("animation:  opening");
+                _coprocOpening = StartCoroutine(processAnimatingOpening());
+            }
+            else
+            {
+                onOpeningAnimationDone();
+            }
+            
         }
 
+#if UNITY_EDITOR
         [ContextMenu("validator")]
         protected void cmValidator()
         {
@@ -169,6 +184,7 @@ namespace fwp.screens
                 generateAnimatedParams().validate(_animator);
             }
         }
+#endif
 
         virtual protected bool hasValidAnimator(bool log = false)
         {
@@ -188,22 +204,16 @@ namespace fwp.screens
 
         IEnumerator processAnimatingOpening()
         {
-            ScreenLoading.hideLoadingScreen(); // laby screen, now animating open screen
+            Debug.Assert(hasValidAnimator(), "nop");
 
-            if (hasValidAnimator())
-            {
-                _animator.SetBool(parameters.bool_open, true);
+            _animator.SetBool(parameters.bool_open, true);
 
-                //animator state change...
-                yield return null;
-                yield return null;
-                yield return null;
+            logScreen("open:wait:" + parameters.state_opened);
 
-                //... do something spec for animating screen
-                IEnumerator process = processWaitUntilState(parameters.state_opened);
-                while (process.MoveNext()) yield return null;
-            }
-
+            //... do something spec for animating screen
+            IEnumerator process = processWaitUntilState(parameters.state_opened);
+            while (process.MoveNext()) yield return null;
+            
             onOpeningAnimationDone();
         }
 
