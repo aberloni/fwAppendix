@@ -116,6 +116,7 @@ namespace fwp.screens
         virtual protected ScreenAnimatedParameters generateAnimatedParams()
         {
             var _parameters = new ScreenAnimatedParameters();
+
             _parameters.bool_open = "open";
             _parameters.state_closed = "closed";
             _parameters.state_opened = "opened";
@@ -157,18 +158,18 @@ namespace fwp.screens
                 return;
             }
 
-            ScreenLoading.hideLoadingScreen(); // laby screen, now animating open screen
-
-            if(hasValidAnimator())
+            if (hasValidAnimator())
             {
-                logScreen("animation:  opening");
+                logScreen("animation:  open (animation)");
                 _coprocOpening = StartCoroutine(processAnimatingOpening());
             }
             else
             {
+                logScreen("animation:  open (no animation)");
                 onOpeningAnimationDone();
             }
-            
+
+            ScreenLoading.hideLoadingScreen(); // now animating open screen
         }
 
 #if UNITY_EDITOR
@@ -208,12 +209,12 @@ namespace fwp.screens
 
             _animator.SetBool(parameters.bool_open, true);
 
-            logScreen("open:wait:" + parameters.state_opened);
+            logScreen("open:wait state:<b>" + parameters.state_opened + "</b>");
 
             //... do something spec for animating screen
             IEnumerator process = processWaitUntilState(parameters.state_opened);
             while (process.MoveNext()) yield return null;
-            
+
             onOpeningAnimationDone();
         }
 
@@ -246,9 +247,8 @@ namespace fwp.screens
                 return;
             }
 
-            base.reactClose();
-
-            logScreen("animated:close");
+            // hide/unload
+            //base.reactClose();
 
             if (_coprocClosing != null)
             {
@@ -256,28 +256,28 @@ namespace fwp.screens
                 _coprocClosing = null;
             }
 
-            _coprocClosing = StartCoroutine(processAnimatingClosing());
+            if (hasValidAnimator())
+            {
+                logScreen("close (animated)");
+                _coprocClosing = StartCoroutine(processAnimatingClosing());
+            }
+            else
+            {
+                logScreen("close (not animated)");
+                onClosingAnimationCompleted();
+            }
+
         }
 
         IEnumerator processAnimatingClosing()
         {
-            if (hasValidAnimator())
-            {
-                logScreen("animated:closing:animated ...");
+            _animator.SetBool(parameters.bool_open, false);
 
-                _animator.SetBool(parameters.bool_open, false);
+            logScreen("animated:wait state:<b>" + parameters.state_closed + "</b>");
 
-                logScreen("animated:waiting for screen to end close animation");
-
-                // wait for closed state
-                IEnumerator process = processWaitUntilState(parameters.state_closed);
-                while (process.MoveNext()) yield return null;
-
-                //logScreen("animated:closing:animated state is done");
-            }
-
-            _coprocClosing = null;
-            _interactable = false;
+            // wait for closed state
+            IEnumerator process = processWaitUntilState(parameters.state_closed);
+            while (process.MoveNext()) yield return null;
 
             onClosingAnimationCompleted();
         }
@@ -285,9 +285,12 @@ namespace fwp.screens
         /// <summary>
         /// do more stuff after closing
         /// </summary>
-        virtual protected void onClosingAnimationCompleted()
+        override protected void onClosingAnimationCompleted()
         {
-            logScreen("animated:closing animation completed");
+            base.onClosingAnimationCompleted();
+
+            _coprocClosing = null;
+            _interactable = false;
         }
 
         /// <summary>

@@ -262,13 +262,27 @@ namespace fwp.screens
             setVisible(false);
         }
 
+        virtual protected bool canOpen()
+        {
+            return true;
+        }
+
         public void open()
         {
+            if (!canOpen())
+            {
+                logScreen("open: can't");
+                return;
+            }
+
             logScreen("open");
             nav?.resetTimerNoInteraction();
 
             setupBeforeOpening();
             reactOpen();
+
+            // default, canvas needs to be visible
+            setVisibility(true);
         }
 
         virtual protected void setupBeforeOpening()
@@ -276,16 +290,26 @@ namespace fwp.screens
 
         /// <summary>
         /// what to do when opening
+        /// (setup is done just before)
         /// </summary>
         virtual public void reactOpen()
+        { }
+
+        virtual protected bool canClose()
         {
-            
-            setVisibility(true);
+            return true;
         }
 
         public void close()
         {
+            if(!canClose())
+            {
+                logScreen("close: can't");
+                return;
+            }
+
             logScreen("close");
+
             setupBeforeClosing();
             reactClose();
         }
@@ -298,6 +322,15 @@ namespace fwp.screens
         /// </summary>
         virtual public void reactClose()
         {
+            onClosingAnimationCompleted();
+        }
+
+        /// <summary>
+        /// what to do when screen is finished closing
+        /// </summary>
+        virtual protected void onClosingAnimationCompleted()
+        {
+            logScreen("close:onClosingAnimationCompleted");
 
             if (isUnloadAfterClosing()) //won't if sticky persist
             {
@@ -307,6 +340,7 @@ namespace fwp.screens
             {
                 setVisibility(false);
             }
+            
         }
 
         /// <summary>
@@ -339,19 +373,12 @@ namespace fwp.screens
 
         public bool isInteractive() => nav != null;
 
-        public void act_button(Button clickedButton)
+        /// <summary>
+        /// when using unity events callbacks
+        /// </summary>
+        virtual public void act_button(Button clickedButton)
         {
-            process_button_press(clickedButton.name);
-        }
-
-        virtual protected void process_button_press(string buttonName)
-        { }
-
-        virtual public void act_call_home()
-        {
-            logScreen("calling <b>home screen</b>");
-
-            ScreensManager.open(ScreensManager.ScreenNameGenerics.home);
+            //process_button_press(clickedButton.name);
         }
 
         /// <summary>
@@ -377,6 +404,11 @@ namespace fwp.screens
             ScreensManager.unsubScreen(this);
         }
 
+        virtual protected void onScreenDestruction()
+        {
+            logScreen("destroy");
+        }
+
         /// <summary>
         /// to toggle all screens that are not leader
         /// </summary>
@@ -392,10 +424,6 @@ namespace fwp.screens
             setVisibility(visi); // standby logic
         }
 
-        virtual protected void onScreenDestruction()
-        {
-            logScreen("destroy");
-        }
 
         virtual public string stringify()
         {
