@@ -32,12 +32,14 @@ namespace fwp.screens
             }
         }
 
+#if UNITY_EDITOR
         [UnityEditor.MenuItem("Window/Screens/(toggle) screens verbosity")]
         static void miScreensVerbose()
         {
             verbose = !verbose;
             Debug.LogWarning(getStamp()+" verbosity : " + verbose);
         }
+#endif
 
         static protected List<ScreenObject> screens = new List<ScreenObject>();
 
