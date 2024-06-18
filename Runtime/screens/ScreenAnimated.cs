@@ -294,16 +294,6 @@ namespace fwp.screens
         }
 
         /// <summary>
-        /// opening or closing or opened
-        /// </summary>
-        public bool isBusy()
-        {
-            if (isOpening()) return true;
-            if (isClosing()) return true;
-            return isOpened();
-        }
-
-        /// <summary>
         /// /! 
         /// APRES anim open
         /// AVANT anim close
@@ -340,6 +330,18 @@ namespace fwp.screens
             //logScreen("state:" + state + " STARTED");
 
             onCompletion?.Invoke();
+        }
+
+        public override string stringify()
+        {
+            string ret = base.stringify();
+
+            if (isOpening()) ret += " OPENING";
+            if (isClosing()) ret += " CLOSING";
+            if (isOpened()) ret += " OPENED";
+            if (isClosed()) ret += " CLOSED";
+
+            return ret;
         }
 
         /// <summary>

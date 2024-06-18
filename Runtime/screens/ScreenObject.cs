@@ -302,7 +302,7 @@ namespace fwp.screens
 
         public void close()
         {
-            if(!canClose())
+            if (!canClose())
             {
                 logScreen("close: can't");
                 return;
@@ -340,7 +340,7 @@ namespace fwp.screens
             {
                 setVisibility(false);
             }
-            
+
         }
 
         /// <summary>
@@ -424,10 +424,18 @@ namespace fwp.screens
             setVisibility(visi); // standby logic
         }
 
+#if UNITY_EDITOR
+        [ContextMenu("stringify")]
+        void cmStringify() => Debug.Log(stringify(), this);
+#endif
 
         virtual public string stringify()
         {
-            return GetType() + " isVisible ? " + isVisible();
+            string ret = GetType() + ":" + name;
+            if (isVisible()) ret += " VISIBLE";
+            if (tags.HasFlag(ScreenTags.stickyVisibility)) ret += " STICKY"; // can't hide
+            if (tags.HasFlag(ScreenTags.stickyPersistance)) ret += " PERSIST"; // can't unload
+            return ret;
         }
 
         protected void logwScreen(string msg)
