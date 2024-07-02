@@ -220,7 +220,11 @@ namespace fwp.screens
         protected void setVisibility(bool flag)
         {
             // no change = do nothing
-            if (isVisible() == flag) return;
+            if (isVisible() == flag)
+            {
+                logScreen("visibility? already @ " + flag);
+                return;
+            }
 
             if (!flag && tags.HasFlag(ScreenTags.stickyVisibility))
             {
@@ -228,7 +232,7 @@ namespace fwp.screens
                 return;
             }
 
-            setVisible(flag);
+            setVisible(flag); // visibility
         }
 
         /// <summary>
@@ -253,14 +257,14 @@ namespace fwp.screens
         protected void ctxm_show()
         {
             ScreensManager.verbose = true;
-            setVisible(true);
+            setVisible(true); // cm
         }
 
         [ContextMenu("force hide")]
         protected void ctxm_hide()
         {
             ScreensManager.verbose = true;
-            setVisible(false);
+            setVisible(false); // cm
         }
 
         virtual protected bool canOpen()

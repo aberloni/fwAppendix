@@ -91,12 +91,18 @@ namespace fwp.screens
             if (_canvas == null)
                 return false;
 
+            if(canvas != null)
+            {
+                return canvas.enabled;
+            }
+            
+            // any sub canvas ?
             for (int i = 0; i < _canvas.Length; i++)
             {
                 if (_canvas[i] == null) continue;
-
                 if (_canvas[i].enabled) return true;
             }
+
             return false;
         }
 
