@@ -184,6 +184,9 @@ namespace fwp.screens
             {
                 generateAnimatedParams().validate(_animator);
             }
+
+            if (canvas.canvas == null) logwScreen("no canvas");
+            else logwScreen("canvas : " + canvas.canvas, canvas.canvas);
         }
 #endif
 

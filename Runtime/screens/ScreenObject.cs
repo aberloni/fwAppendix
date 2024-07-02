@@ -438,12 +438,14 @@ namespace fwp.screens
             return ret;
         }
 
-        protected void logwScreen(string msg)
+        protected void logwScreen(string msg, object tar = null)
         {
             if (!verbose)
                 return;
 
-            Debug.LogWarning(getStamp() + msg, this);
+            if (tar == null) tar = this;
+
+            Debug.LogWarning(getStamp() + msg, tar as UnityEngine.Object);
         }
 
         protected void logScreen(string msg, object target = null)
