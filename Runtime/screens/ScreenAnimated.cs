@@ -143,7 +143,7 @@ namespace fwp.screens
 
         public override void reactOpen()
         {
-            base.reactOpen(); // show
+            base.reactOpen();
 
             //already animating ?
 

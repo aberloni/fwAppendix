@@ -222,7 +222,7 @@ namespace fwp.screens
             // no change = do nothing
             if (isVisible() == flag) return;
 
-            if (tags.HasFlag(ScreenTags.stickyVisibility))
+            if (!flag && tags.HasFlag(ScreenTags.stickyVisibility))
             {
                 logwScreen("      can't hide because is setup as sticky");
                 return;
@@ -237,6 +237,7 @@ namespace fwp.screens
         /// </summary>
         virtual protected void setVisible(bool flag)
         {
+            logScreen("canvas:visibility:" + flag);
             canvas.toggleVisible(flag);
         }
 
