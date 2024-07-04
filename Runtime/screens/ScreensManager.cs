@@ -54,7 +54,7 @@ namespace fwp.screens
         };
 
         /// <summary>
-        /// a ScreenObject will sub here during its Awake
+        /// called during ScreenObject AWAKE
         /// </summary>
         static public void subScreen(ScreenObject so)
         {
@@ -66,6 +66,9 @@ namespace fwp.screens
                 Debug.Log(so.name + "       is now subscribed to screens");
         }
 
+        /// <summary>
+        /// destroy
+        /// </summary>
         static public void unsubScreen(ScreenObject so)
         {
             if (!screens.Contains(so)) return;
@@ -76,6 +79,9 @@ namespace fwp.screens
                 Debug.Log(so.name + "       is now removed from screens (screen destroy)");
         }
 
+        /// <summary>
+        /// not opti
+        /// </summary>
         static protected void fetchScreens()
         {
             if (screens == null) screens = new List<ScreenObject>();
@@ -194,50 +200,54 @@ namespace fwp.screens
             return false;
         }
 
-        static public ScreenObject open(System.Enum enu, Action<ScreenObject> onComplete = null) => open(enu.ToString(), onComplete);
-        static public ScreenObject open(string nm, Action<ScreenObject> onComplete) { return open(nm, string.Empty, onComplete); }
-
         /// <summary>
-        /// best practice : should never call a screen by name but create a contextual enum
-        /// this function won't return a screen that is not already loaded
+        /// if present return
+        /// return null is needs loading (use callback)
         /// </summary>
-        static public ScreenObject open(string nm, string filterName = "", Action<ScreenObject> onComplete = null)
+        static public void load(string nm, Action<ScreenObject> onCompletion = null)
         {
-            
-            // already present ?
             ScreenObject so = getOpenedScreen(nm);
-            if (so != null)
+            if(so != null)
             {
-                if(verbose)
-                    Debug.Log($"{getStamp()} | open:<b>{nm}</b> ({filterName}) | already present, changing visibility");
+                if (verbose)
+                    Debug.Log($"{getStamp()} | open:<b>{nm}</b> | already present");
 
-                // show
-                changeScreenPresence(nm, true, filterName);
-                
-                onComplete?.Invoke(so);
-
-                return so;
+                onCompletion?.Invoke(so);
+                return;
             }
 
-            if(verbose)
-                Debug.Log($"{getStamp()} | open:<b>{nm}</b> ({filterName}) | not already present, load");
+            if (verbose)
+                Debug.Log($"{getStamp()} | open:<b>{nm}</b> | not already present, load");
 
-            // not present : try to load it
-            loadMissingScreen(nm, delegate (ScreenObject loadedScreen)
+            loadMissingScreen(nm, (tar) =>
             {
-                onComplete?.Invoke(loadedScreen);
+                so = tar;
+                onCompletion?.Invoke(so);
             });
+        }
 
-            return null;
+        static public void open(System.Enum enu, Action<ScreenObject> onComplete = null) => open(enu.ToString(), onComplete);
+        static public void open(string nm, Action<ScreenObject> onComplete) => open(nm, string.Empty, onComplete);
+
+        /// <summary>
+        /// will load AND open()
+        /// </summary>
+        static public void open(string nm, string filterName = "", Action<ScreenObject> onLoadCompleted = null)
+        {
+            load(nm, (tar) =>
+            {
+                onLoadCompleted?.Invoke(tar);
+                changeScreenPresence(nm, true, filterName);
+            });
         }
 
         /// <summary>
         /// will close or open the screen
         /// </summary>
-        static void changeScreenPresence(string scName, bool state, string containsFilter = "")
+        static void changeScreenPresence(string scName, bool state, string hidesContainsFilter = "")
         {
-            fetchScreens();
-
+            if(!Application.isPlaying) fetchScreens();
+            
             //Debug.Log("opening " + scName + " (filter ? " + filter + ")");
 
             ScreenObject selected = getOpenedScreen(scName);
@@ -258,8 +268,12 @@ namespace fwp.screens
                 {
                     if (screens[i] == selected) continue;
 
-                    //do nothing with filtered screen
-                    if (containsFilter.Length > 0 && screens[i].name.Contains(containsFilter)) continue;
+                    // must filter
+                    if(!string.IsNullOrEmpty(hidesContainsFilter))
+                    {
+                         // part of filter : do nothing
+                        if (screens[i].name.Contains(hidesContainsFilter)) continue;
+                    }
 
                     screens[i].close();
                     //Debug.Log("  L "+screens[i].name + " hidden");

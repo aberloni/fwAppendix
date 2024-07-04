@@ -47,9 +47,9 @@ namespace fwp.screens
         {
             Debug.Log("wrapper process : loading screen " + nm);
 
-            screen = ScreensManager.open(nm, (ScreenObject screen) =>
+            ScreensManager.open(nm, (ScreenObject loadedScreen) =>
             {
-                this.screen = screen;
+                screen = loadedScreen;
             });
 
             Debug.Log("wrapper process : waiting for screen ("+nm+")");

@@ -77,11 +77,8 @@ namespace fwp.screens
 
             openedAnimatedScreens.Add(this);
 
-            // screen is visible at that point, need to hide it in auto open context
-            if (isAutoOpenDuringSetup())
-            {
-                setVisibility(false); // auto open = hide during create
-            }
+            // animated must be hidden by default
+            setVisibility(false);
         }
 
         void solveAnimator()
@@ -139,7 +136,7 @@ namespace fwp.screens
         {
             base.screenSetupLate();
 
-            if (isAutoOpenDuringSetup()) // true by default
+            if (isOpenDuringSetup()) // true by default
             {
                 logScreen("animated:setup:late:auto open");
                 open();
@@ -147,10 +144,10 @@ namespace fwp.screens
         }
 
         /// <summary>
-        /// this context doesn't take into account any loading flow
-        /// this MIGHT BE needed for context where engine needs to do stuff before opening
+        /// to prevent screen beeing visible by default
+        /// opti-in open()
         /// </summary>
-        virtual protected bool isAutoOpenDuringSetup() => true;
+        virtual protected bool isOpenDuringSetup() => true;
 
         public override void reactOpen()
         {
