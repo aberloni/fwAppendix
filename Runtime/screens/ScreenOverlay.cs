@@ -21,7 +21,7 @@ namespace fwp.screens
             Debug.Assert(type == ScreenObject.ScreenType.overlay, "INTE, screen must be overlay type");
         }
 
-        static string filterName(string name)
+        static public string filterName(string name)
         {
             if(!name.StartsWith(overlayPrefix))
             {
