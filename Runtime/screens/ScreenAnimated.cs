@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.TextCore;
 
 /// <summary>
 /// ces écrans ne doivent pas avoir de lien fort avec le maze
@@ -29,9 +30,10 @@ namespace fwp.screens
             public string state_closed; // name of the state when screen is closed
             public string state_opened;
 
-            public void validate(Animator a)
+            public bool canOpen(Animator a)
             {
-                logParamPresence(a, bool_open);
+                if (!hasParam(a, bool_open)) return false;
+                return true;
             }
 
             /*
@@ -42,13 +44,13 @@ namespace fwp.screens
             }
             */
 
-            void logParamPresence(Animator a, string param)
+            public void logParamPresence(Animator a, string param)
             {
                 if (!hasParam(a, param)) Debug.LogWarning(a.name + " NOK " + param);
                 else Debug.LogWarning(a.name + " OK " + param);
             }
 
-            bool hasParam(Animator a, string param)
+            public bool hasParam(Animator a, string param)
             {
                 foreach (var p in a.parameters)
                 {
@@ -86,7 +88,6 @@ namespace fwp.screens
         {
             if (_animator == null)
             {
-
                 _animator = GetComponent<Animator>();
                 if (_animator == null)
                 {
@@ -103,6 +104,16 @@ namespace fwp.screens
             {
                 // generate params to interact with animator
                 parameters = generateAnimatedParams();
+                if (!parameters.canOpen(_animator))
+                {
+                    logwScreen("ignore animator : " + _animator + " not compat", _animator);
+                    _animator = null;
+                }
+            }
+
+            if (_animator == null)
+            {
+                logwScreen("no animator for animated screen : " + name, this);
             }
         }
 
@@ -178,11 +189,12 @@ namespace fwp.screens
         {
             logwScreen("VALIDATOR");
 
+            //fetch animator ref
             solveAnimator();
 
-            if (hasValidAnimator(true))
+            if (!hasValidAnimator())
             {
-                generateAnimatedParams().validate(_animator);
+                logwScreen("animator is not valid");
             }
 
             if (canvas.canvas == null) logwScreen("no canvas");
@@ -190,20 +202,21 @@ namespace fwp.screens
         }
 #endif
 
-        virtual protected bool hasValidAnimator(bool log = false)
+        virtual protected bool hasValidAnimator()
         {
             if (_animator == null)
             {
-                if (log) logwScreen("NOK   animator = null");
-                return false;
-            }
-            if (_animator.runtimeAnimatorController == null)
-            {
-                if (log) logwScreen("NOK   animator.controller = null");
+                logwScreen("NOK   animator = null");
                 return false;
             }
 
-            return true;
+            if (_animator.runtimeAnimatorController == null)
+            {
+                logwScreen("NOK   animator.controller = null");
+                return false;
+            }
+
+            return parameters.canOpen(_animator);
         }
 
         IEnumerator processAnimatingOpening()
