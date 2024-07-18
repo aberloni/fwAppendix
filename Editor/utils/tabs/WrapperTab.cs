@@ -44,11 +44,12 @@ namespace fwp.utils.editor.tabs
 
             scroll = GUILayout.BeginScrollView(scroll);
 
-            // draw gui
-            drawCallback.Invoke();
+            drawGUI();
 
             GUILayout.EndScrollView();
         }
+
+        virtual protected void drawGUI() => drawCallback?.Invoke();
     }
 
 }
