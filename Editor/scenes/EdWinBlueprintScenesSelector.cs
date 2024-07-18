@@ -7,6 +7,7 @@ namespace fwp.scenes
 {
     using fwp.appendix;
     using fwp.utils.editor;
+    using fwp.utils.editor.tabs;
 
     /// <summary>
     /// 

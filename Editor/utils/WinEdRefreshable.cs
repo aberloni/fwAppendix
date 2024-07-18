@@ -5,8 +5,6 @@ using UnityEditor;
 
 namespace fwp.utils.editor
 {
-    using fwp.appendix;
-
     /// <summary>
     /// PROVIDE:
     /// refresh, update, draw

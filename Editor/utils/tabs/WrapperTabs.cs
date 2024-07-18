@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace fwp.utils.editor
+namespace fwp.utils.editor.tabs
 {
     using fwp.appendix.user;
 
@@ -130,45 +130,6 @@ namespace fwp.utils.editor
         public WrapperTab getActiveTab() => tabs[tabActive];
     }
 
-
-    /// <summary>
-    /// wrapper for one tab
-    /// </summary>
-    public class WrapperTab
-    {
-        /// <summary>
-        /// complete path to section
-        /// </summary>
-        public string path;
-
-        /// <summary>
-        /// only use for display
-        /// </summary>
-        public string label => path.Substring(path.LastIndexOf("/") + 1);
-
-        /// <summary>
-        /// how to draw content of this tab
-        /// </summary>
-        public System.Action drawCallback;
-
-        /// <summary>
-        /// scroll value
-        /// </summary>
-        public Vector2 scroll;
-
-        public void draw()
-        {
-            if (drawCallback == null)
-                return;
-
-            scroll = GUILayout.BeginScrollView(scroll);
-
-            // draw gui
-            drawCallback.Invoke();
-
-            GUILayout.EndScrollView();
-        }
-    }
 
 
 }

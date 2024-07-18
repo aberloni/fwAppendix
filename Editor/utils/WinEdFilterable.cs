@@ -3,29 +3,33 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// gives this view the tools to filter content
-/// </summary>
-public class WinEdFilterable : WinEdWrapper
+namespace fwp.utils.editor
 {
-    string _filter = string.Empty;
-
-    protected bool hasFilter => _filter.Length > 0;
-    protected string filter => _filter;
-
-    protected void drawFilterField()
+    /// <summary>
+    /// gives this view the tools to filter content
+    /// </summary>
+    public class WinEdFilterable : WinEdWrapper
     {
-        GUILayout.BeginHorizontal();
+        string _filter = string.Empty;
 
-        GUILayout.Label("filter", GUILayout.Width(50f));
-        _filter = GUILayout.TextArea(_filter);
+        public bool hasFilter => _filter.Length > 0;
+        public string filter => _filter;
 
-        if (GUILayout.Button("clear", GUILayout.Width(50f)))
+        protected void drawFilterField()
         {
-            _filter = string.Empty;
+            GUILayout.BeginHorizontal();
+
+            GUILayout.Label("filter", GUILayout.Width(50f));
+            _filter = GUILayout.TextArea(_filter);
+
+            if (GUILayout.Button("clear", GUILayout.Width(50f)))
+            {
+                _filter = string.Empty;
+            }
+
+            GUILayout.EndHorizontal();
         }
-        
-        GUILayout.EndHorizontal();
+
     }
 
 }

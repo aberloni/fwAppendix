@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace fwp.utils.editor
 {
-    using UnityEditor;
+    using fwp.utils.editor.tabs;
 
     /// <summary>
     /// PROVIDE:
@@ -15,7 +15,6 @@ namespace fwp.utils.editor
     /// </summary>
     abstract public class WinEdTabs : WinEdRefreshable
     {
-
         WrapperTabs stateEditime;
         WrapperTabs stateRuntime;
 
