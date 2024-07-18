@@ -27,6 +27,16 @@ namespace fwp.utils.editor.tabs
         /// </summary>
         public Vector2 scroll;
 
+        /// <summary>
+        /// owner
+        /// </summary>
+        protected WinEdTabs window;
+
+        public WrapperTab(WinEdTabs window)
+        {
+            this.window = window;
+        }
+
         public void draw()
         {
             if (drawCallback == null)
