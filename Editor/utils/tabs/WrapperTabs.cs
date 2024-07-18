@@ -85,6 +85,16 @@ namespace fwp.utils.editor.tabs
 
         public string getWrapperUid() => wuid;
 
+        public void add(WrapperTab tab)
+        {
+            tabs.Add(tab);
+
+            Debug.Assert(tab.drawCallback != null, "need to feed draw callback");
+
+            // store stuff for unity drawing
+            tabsContent = TabsHelper.generateTabsDatas(labels.ToArray());
+        }
+
         /// <summary>
         /// add various tabs to wrapper
         /// </summary>
@@ -93,10 +103,7 @@ namespace fwp.utils.editor.tabs
             WrapperTab wts = new WrapperTab(window);
             wts.path = path;
             wts.drawCallback = draw;
-            tabs.Add(wts);
-
-            // store stuff for unity drawing
-            tabsContent = TabsHelper.generateTabsDatas(labels.ToArray());
+            add(wts);
         }
 
         /// <summary>
