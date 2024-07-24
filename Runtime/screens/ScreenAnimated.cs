@@ -157,7 +157,7 @@ namespace fwp.screens
 
             if (isOpening())
             {
-                if (isVerbose)
+                if (verbose)
                 {
                     logwScreen(" => open animated => coroutine d'opening tourne déjà ?");
                     logwScreen(" trying to re-open the same screen during it's opening ?");
