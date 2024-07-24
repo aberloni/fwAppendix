@@ -25,7 +25,7 @@ namespace fwp.screens
     /// </summary>
     public class ScreenObject : MonoBehaviour
     {
-        static public bool isVerbose => ScreensManager.isVerbose;
+        public bool verbose = false;
 
         bool _debug = false;
 
@@ -443,8 +443,7 @@ namespace fwp.screens
 
         protected void logwScreen(string msg, object tar = null)
         {
-            if (!isVerbose)
-                return;
+            if (!ScreensManager.isVerbose && !verbose) return;
 
             if (tar == null) tar = this;
 
@@ -453,8 +452,7 @@ namespace fwp.screens
 
         protected void logScreen(string msg, object target = null)
         {
-            if (!isVerbose)
-                return;
+            if (!ScreensManager.isVerbose && !verbose) return;
 
             if (target == null) target = this;
 
