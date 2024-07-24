@@ -105,11 +105,9 @@ namespace fwp.utils.editor
 
         virtual protected void onTitleClicked()
         {
-
             verbose = true;
 
             log("<b>title clicked</b>");
-
         }
 
         /// <summary>

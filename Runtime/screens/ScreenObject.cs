@@ -25,7 +25,7 @@ namespace fwp.screens
     /// </summary>
     public class ScreenObject : MonoBehaviour
     {
-        static public bool verbose => ScreensManager.verbose;
+        static public bool isVerbose => ScreensManager.isVerbose;
 
         bool _debug = false;
 
@@ -256,14 +256,12 @@ namespace fwp.screens
         [ContextMenu("force show")]
         protected void ctxm_show()
         {
-            ScreensManager.verbose = true;
             setVisible(true); // cm
         }
 
         [ContextMenu("force hide")]
         protected void ctxm_hide()
         {
-            ScreensManager.verbose = true;
             setVisible(false); // cm
         }
 
@@ -445,7 +443,7 @@ namespace fwp.screens
 
         protected void logwScreen(string msg, object tar = null)
         {
-            if (!verbose)
+            if (!isVerbose)
                 return;
 
             if (tar == null) tar = this;
@@ -455,7 +453,7 @@ namespace fwp.screens
 
         protected void logScreen(string msg, object target = null)
         {
-            if (!verbose)
+            if (!isVerbose)
                 return;
 
             if (target == null) target = this;

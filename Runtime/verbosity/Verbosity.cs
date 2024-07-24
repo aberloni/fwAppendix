@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 namespace fwp.verbosity
 {
@@ -23,6 +25,9 @@ namespace fwp.verbosity
         shader          = 64,
     }
 
+    /// <summary>
+    /// a manager to toggle sections of verbosity
+    /// </summary>
     public class Verbosity
     {
         const string _ppref_prefix = "ppref_";

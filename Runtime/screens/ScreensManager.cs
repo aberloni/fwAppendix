@@ -11,35 +11,7 @@ namespace fwp.screens
     
     public class ScreensManager
     {
-        const string _bool_verbose = "fwp.screens.verbosity";
-
-        static bool _verbose;
-        static public bool verbose
-        {
-            get
-            {
-#if UNITY_EDITOR
-                _verbose = UnityEditor.EditorPrefs.GetBool(_bool_verbose, false);
-#endif
-                return _verbose;
-            }
-            set
-            {
-                _verbose = value;
-#if UNITY_EDITOR
-                UnityEditor.EditorPrefs.SetBool(_bool_verbose, value);
-#endif
-            }
-        }
-
-#if UNITY_EDITOR
-        [UnityEditor.MenuItem("Window/Screens/(toggle) screens verbosity")]
-        static void miScreensVerbose()
-        {
-            verbose = !verbose;
-            Debug.LogWarning(getStamp()+" verbosity : " + verbose);
-        }
-#endif
+        static public bool isVerbose => ScreensVerbosity.verbose;
 
         static protected List<ScreenObject> screens = new List<ScreenObject>();
 
@@ -62,7 +34,7 @@ namespace fwp.screens
 
             screens.Add(so);
 
-            if(verbose)
+            if(isVerbose)
                 Debug.Log(so.name + "       is now subscribed to screens");
         }
 
@@ -75,7 +47,7 @@ namespace fwp.screens
 
             screens.Remove(so);
 
-            if(verbose)
+            if(isVerbose)
                 Debug.Log(so.name + "       is now removed from screens (screen destroy)");
         }
 
@@ -209,14 +181,14 @@ namespace fwp.screens
             ScreenObject so = getOpenedScreen(nm);
             if(so != null)
             {
-                if (verbose)
+                if (isVerbose)
                     Debug.Log($"{getStamp()} | open:<b>{nm}</b> | already present");
 
                 onCompletion?.Invoke(so);
                 return;
             }
 
-            if (verbose)
+            if (isVerbose)
                 Debug.Log($"{getStamp()} | open:<b>{nm}</b> | not already present, load");
 
             loadMissingScreen(nm, (tar) =>
@@ -347,7 +319,7 @@ namespace fwp.screens
                 return;
             }
 
-            if(verbose)
+            if(isVerbose)
                 Debug.Log("loadMissingScreen | screen to open : <b>" + screenName + "</b>");
 
             SceneLoader.queryScene(screenName, (assoc) =>

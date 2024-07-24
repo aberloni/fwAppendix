@@ -96,7 +96,7 @@ namespace fwp.scenes
             // only keep context, remove path
             // path must be deduce by context
             _category = SceneTools.removePathBeforeFile(categoryUid);
-            if (verbose) Debug.Log("SceneProfil <b>" + _category + "</b>");
+            if (verbose) Debug.Log(" + SceneProfil <b>" + _category + "</b>");
 
             //Debug.Assert(categoryUid.Split("_").Length < 2, categoryUid + " cannot be partial : CONTEXT_SCENE_LAYER");
 
@@ -104,7 +104,7 @@ namespace fwp.scenes
 
             if (string.IsNullOrEmpty(context))
             {
-                Debug.LogError("profil : input = " + _category + " not compat");
+                Debug.LogError("/! profil : input = " + _category + " not compat");
                 return;
             }
 

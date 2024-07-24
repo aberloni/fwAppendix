@@ -103,7 +103,7 @@ namespace fwp.scenes
             var paths = state.paths;
 
             // each possible labels into sub folder blob
-            foreach(var p in paths)
+            foreach (var p in paths)
             {
                 injectSubSection(p);
             }
@@ -111,7 +111,7 @@ namespace fwp.scenes
 
         void injectSubSection(string sectionPath)
         {
-            if (verbose) Debug.Log("SceneSelector :: refresh section : " + sectionPath);
+            //if (verbose) Debug.Log("SceneSelector :: refresh section : " + sectionPath);
 
             // remove if previous
             if (sections.ContainsKey(sectionPath))
@@ -120,7 +120,7 @@ namespace fwp.scenes
             }
 
             List<SceneSubFolder> tabContent = solveTabFolder(sectionPath);
-            
+
             if (tabContent != null)
             {
                 sections.Add(sectionPath, tabContent);
