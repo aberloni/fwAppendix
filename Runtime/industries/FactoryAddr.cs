@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace fwp.industries
 {
+    using System.IO;
     using UnityEngine.AddressableAssets;
     using UnityEngine.ResourceManagement.AsyncOperations;
 
@@ -21,9 +22,47 @@ namespace fwp.industries
             public AsyncOperationHandle<GameObject> asyncOp;
             public GameObject addrBlob;
 
+            public List<Action<Object>> asyncQueue;
+
+            public void queue(Action<Object> callback)
+            {
+                if (asyncQueue == null) asyncQueue = new List<Action<Object>>();
+                asyncQueue.Add(callback);
+            }
+
+            public void assign(GameObject blob)
+            {
+                addrBlob = blob;
+
+                // un-pile queue
+                if (asyncQueue != null)
+                {
+                    IndustriesVerbosity.sLog("@" + addrBlob.name + " de-piling x" + asyncQueue.Count);
+                    foreach (var q in asyncQueue)
+                    {
+                        q.Invoke(addrBlob);
+                    }
+
+                    asyncQueue.Clear();
+                    asyncQueue = null;
+                }
+
+            }
+
             public void free()
             {
                 Addressables.Release(addrBlob);
+
+                if (asyncQueue != null)
+                {
+                    asyncQueue.Clear();
+                    asyncQueue = null;
+                }
+
+                if (asyncOp.IsValid() && !asyncOp.IsDone)
+                {
+                    Debug.LogError("freeing while fetching ??");
+                }
             }
         }
 
@@ -34,13 +73,12 @@ namespace fwp.industries
 
         void fetchAddr(string path, Action<GameObject> onPresence = null)
         {
-            IndustriesVerbosity.sLog("<b>fetch</b>@" + path);
+            IndustriesVerbosity.sLog("<b>fetch</b> ... @" + path);
 
             AddrPair pair = new AddrPair();
+            pairs.Add(path, pair);
 
             pair.asyncOp = Addressables.LoadAssetAsync<GameObject>(path);
-
-            pairs.Add(path, pair);
 
             pair.asyncOp.Completed += (obj) =>
             {
@@ -50,7 +88,7 @@ namespace fwp.industries
 
                         IndustriesVerbosity.sLog("<b>fetch</b>&success @" + path);
 
-                        pair.addrBlob = obj.Result;
+                        pair.assign(obj.Result);
 
                         onPresence?.Invoke(pair.addrBlob);
 
@@ -65,11 +103,26 @@ namespace fwp.industries
 
         }
 
-        void getBlob(string path, Action<GameObject> onPresence)
+        void getBlob(string path, Action<Object> onPresence)
         {
             if (pairs.ContainsKey(path))
             {
-                onPresence(pairs[path].addrBlob);
+                var p = pairs[path];
+
+                if (p.asyncOp.IsValid() && !p.asyncOp.IsDone)
+                {
+                    //Debug.LogError($"addr async @{path} is still fetching");
+                    //Debug.LogError("can't re-ask for another that quickly");
+
+                    IndustriesVerbosity.swLog("addr:queue-ing callback @" + path);
+                    p.queue(onPresence);
+                }
+                else
+                {
+                    //IndustriesVerbosity.sLog("addr:pairs already has @" + path);
+                    onPresence(pairs[path].addrBlob);
+                }
+
             }
             else
             {

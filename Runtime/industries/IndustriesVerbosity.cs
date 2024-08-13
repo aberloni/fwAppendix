@@ -67,4 +67,11 @@ static public class IndustriesVerbosity
         }
     }
 
+    static public void swLog(string msg, object target = null)
+    {
+        if (verbose)
+        {
+            Debug.LogWarning("/! {" + _id + "} " + msg, target as Object);
+        }
+    }
 }
