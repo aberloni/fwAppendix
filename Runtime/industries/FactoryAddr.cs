@@ -9,6 +9,9 @@ namespace fwp.industries
 
     using Object = UnityEngine.Object;
 
+    /// <summary>
+    /// Assets/[factory path]/[sub type] ?(.prefab)
+    /// </summary>
     abstract public class FactoryAddr<Type> : FactoryBase<Type> where Type : class, iFactoryObject
     {
         Dictionary<string, AddrPair> pairs = new Dictionary<string, AddrPair>();
@@ -24,13 +27,14 @@ namespace fwp.industries
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
+        virtual protected bool usePrefabExtension() => true;
+
         void fetchAddr(string path, Action<GameObject> onPresence = null)
         {
 
-            path = "Assets/" + path + ".prefab";
+            path = "Assets/" + path;
+
+            if(usePrefabExtension()) path += ".prefab";
 
             IndustriesVerbosity.sLog("<b>fetch</b>@" + path);
 
