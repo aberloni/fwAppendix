@@ -27,14 +27,14 @@ namespace fwp.industries
             }
         }
 
-        virtual protected bool usePrefabExtension() => true;
+        virtual protected string solvePath(string addrKey)
+        {
+            return "Assets/" + addrKey + ".prefab";
+        }
 
         void fetchAddr(string path, Action<GameObject> onPresence = null)
         {
-
-            path = "Assets/" + path;
-
-            if(usePrefabExtension()) path += ".prefab";
+            path = solvePath(path);
 
             IndustriesVerbosity.sLog("<b>fetch</b>@" + path);
 
