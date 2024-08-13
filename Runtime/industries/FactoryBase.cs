@@ -153,7 +153,7 @@ namespace fwp.industries
         {
             string path = getObjectPath() + "/" + subType;
 
-            log("no " + subType + " available (x" + inactives.Count + ") : new, ASYNC");
+            log("<b>" + subType + "</b> not available (x" + inactives.Count + ") : new, ASYNC");
 
             instantiate(path, (instance) =>
             {
