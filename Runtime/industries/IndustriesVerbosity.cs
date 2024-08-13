@@ -19,7 +19,7 @@ static public class IndustriesVerbosity
     {
         get
         {
-            return _verboseLevel > VerbosityLevel.none;
+            return verboseLevel > VerbosityLevel.none;
         }
         set
         {
@@ -27,33 +27,28 @@ static public class IndustriesVerbosity
         }
     }
 
-    static VerbosityLevel _verboseLevel;
     static public VerbosityLevel verboseLevel
     {
         get
         {
 #if UNITY_EDITOR
-            _verboseLevel = (VerbosityLevel)UnityEditor.EditorPrefs.GetInt(_int_verbose, 0);
+            return (VerbosityLevel)UnityEditor.EditorPrefs.GetInt(_int_verbose, 0);
 #endif
-            return _verboseLevel;
         }
         set
         {
-            if (value != _verboseLevel)
-            {
-
-                _verboseLevel = value;
-
 #if UNITY_EDITOR
                 UnityEditor.EditorPrefs.SetInt(_int_verbose, (int)value);
 #endif
-                Debug.LogWarning(_id + " : verbosity : " + verboseLevel);
-            }
 
+            Debug.LogWarning(_int_verbose + " : verbosity : " + verboseLevel);
         }
     }
 
 #if UNITY_EDITOR
+    [UnityEditor.MenuItem("Window/Appendix/" + _id + "/verbosity:check")]
+    static void miScreensVerboseCheck() => Debug.Log(_int_verbose + ":" + verboseLevel + "?" + verbose);
+
     [UnityEditor.MenuItem("Window/Appendix/" + _id + "/verbosity:off")]
     static void miScreensVerboseNone() => verboseLevel = VerbosityLevel.none;
 
@@ -68,7 +63,7 @@ static public class IndustriesVerbosity
     {
         if (verbose)
         {
-            Debug.Log("{indus} " + msg, target as Object);
+            Debug.Log("{" + _id + "} " + msg, target as Object);
         }
     }
 

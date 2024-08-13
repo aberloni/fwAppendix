@@ -19,7 +19,7 @@ static public class ScreensVerbosity
     {
         get
         {
-            return _verboseLevel > VerbosityLevel.none;
+            return verboseLevel > VerbosityLevel.none;
         }
         set
         {
@@ -27,33 +27,28 @@ static public class ScreensVerbosity
         }
     }
 
-    static VerbosityLevel _verboseLevel;
     static public VerbosityLevel verboseLevel
     {
         get
         {
 #if UNITY_EDITOR
-            _verboseLevel = (VerbosityLevel)UnityEditor.EditorPrefs.GetInt(_int_verbose, 0);
+            return (VerbosityLevel)UnityEditor.EditorPrefs.GetInt(_int_verbose, 0);
 #endif
-            return _verboseLevel;
         }
         set
         {
-            if (value != _verboseLevel)
-            {
-
-                _verboseLevel = value;
-
 #if UNITY_EDITOR
-                UnityEditor.EditorPrefs.SetInt(_int_verbose, (int)value);
+            UnityEditor.EditorPrefs.SetInt(_int_verbose, (int)value);
 #endif
-                Debug.LogWarning("Scenes : verbosity : " + verboseLevel);
-            }
 
+            Debug.LogWarning(_int_verbose + " : verbosity : " + verboseLevel);
         }
     }
 
 #if UNITY_EDITOR
+    [UnityEditor.MenuItem("Window/Appendix/" + _id + "/verbosity:check")]
+    static void miScreensVerboseCheck() => Debug.Log(_int_verbose + ":" + verboseLevel + "?" + verbose);
+
     [UnityEditor.MenuItem("Window/Appendix/" + _id + "/verbosity:off")]
     static void miScreensVerboseNone() => verboseLevel = VerbosityLevel.none;
 
@@ -64,4 +59,11 @@ static public class ScreensVerbosity
     static void miScreensVerboseDeep() => verboseLevel = VerbosityLevel.deep;
 #endif
 
+    static public void sLog(string msg, object target = null)
+    {
+        if (verbose)
+        {
+            Debug.Log("{" + _id + "} " + msg, target as Object);
+        }
+    }
 }
