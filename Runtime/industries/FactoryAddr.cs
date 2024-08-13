@@ -34,17 +34,7 @@ namespace fwp.industries
 
         void fetchAddr(string path, Action<GameObject> onPresence = null)
         {
-            path = solvePath(path);
-
             IndustriesVerbosity.sLog("<b>fetch</b>@" + path);
-
-            /*
-            if (pairs.ContainsKey(path))
-            {
-                onPresence.Invoke(pairs[path].addrBlob);
-                return;
-            }
-            */
 
             AddrPair pair = new AddrPair();
 
@@ -75,26 +65,26 @@ namespace fwp.industries
 
         }
 
-        GameObject getBlob(string path, Action<GameObject> onPresence = null)
+        void getBlob(string path, Action<GameObject> onPresence)
         {
             if (pairs.ContainsKey(path))
             {
-                return pairs[path].addrBlob;
+                onPresence(pairs[path].addrBlob);
             }
-
-            fetchAddr(path, onPresence);
-
-            return null; // use presence callback instead
+            else
+            {
+                fetchAddr(path, onPresence);
+            }
         }
 
         protected override Object instantiate(string path)
         {
-            throw new NotImplementedException("can't instantiate instant using addr");
+            throw new NotImplementedException("<NOT ASYNC> can't instantiate instant using addr");
         }
 
-        protected override void instantiate(string path, Action<UnityEngine.Object> onPresence)
+        protected override void instantiate(string path, Action<Object> onPresence)
         {
-            getBlob(path, (blob) =>
+            getBlob(solvePath(path), (blob) =>
             {
                 onPresence(
                     GameObject.Instantiate(blob));
