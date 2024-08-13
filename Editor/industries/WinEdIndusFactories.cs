@@ -14,11 +14,8 @@ namespace fwp.industries
             EditorWindow.GetWindow(typeof(WinEdIndusFactories));
         }
 
-        List<iFactory> factos;
+        iFactory[] factos;
         bool[] toggleSections;
-
-        Vector2 _cursorPosition = Vector2.zero;
-        Vector2 cursorPosition = Vector2.zero;
 
         Vector2 scroll;
 
@@ -32,7 +29,7 @@ namespace fwp.industries
             if (factos == null || force)
             {
                 factos = FactoriesMgr.getAllFactories();
-                toggleSections = new bool[factos.Count];
+                toggleSections = new bool[factos.Length];
             }
         }
 
@@ -47,19 +44,20 @@ namespace fwp.industries
             if (GUILayout.Button("refresh content"))
             {
                 refreshRefs(true);
+                return;
             }
 
-            if (factos.Count <= 0)
+            if (factos.Length <= 0)
             {
                 GUILayout.Label("has 0 factos");
                 return;
             }
 
-            GUILayout.Label("x" + factos.Count + " factories");
+            GUILayout.Label("x" + factos.Length + " factories / " + toggleSections.Length);
 
             scroll = GUILayout.BeginScrollView(scroll);
 
-            for (int i = 0; i < factos.Count; i++)
+            for (int i = 0; i < factos.Length; i++)
             {
                 toggleSections[i] = drawFacto(factos[i], toggleSections[i]);
             }

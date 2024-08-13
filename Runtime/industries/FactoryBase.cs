@@ -4,9 +4,13 @@ using UnityEngine;
 using System.Collections.ObjectModel;
 using System.Linq;
 
+
 namespace fwp.industries
 {
     using facebook;
+    using System;
+
+    using Object = UnityEngine.Object;
 
     public interface iFactory
     {
@@ -14,8 +18,8 @@ namespace fwp.industries
         public bool hasCandidates(); // factory as any elements ?
         public void recycleAll(); // force a recycling on all active elements
 
-        public void injectObject(iFactoryObject instance);
-        public iFactoryObject extractObject(string uid);
+        //public void injectObject(iFactoryObject instance);
+        //public iFactoryObject extractObject(string uid);
 
 #if UNITY_EDITOR
         /// <summary>
@@ -114,7 +118,7 @@ namespace fwp.industries
         {
             Debug.Assert(actives.Count > 0, GetType() + " can't return random one if active list is empty :: " + actives.Count + "/" + inactives.Count);
 
-            return actives[Random.Range(0, actives.Count)];
+            return actives[UnityEngine.Random.Range(0, actives.Count)];
         }
 
         public FaceType getNextActive(FaceType curr)
@@ -132,24 +136,50 @@ namespace fwp.industries
         }
 
         /// <summary>
+        /// complete path to object
+        /// this will load object blob AND instantiate
+        /// </summary>
+        abstract protected void instantiate(string path, Action<UnityEngine.Object> onPresence);
+
+        /// <summary>
+        /// immediate load, no async
+        /// </summary>
+        abstract protected Object instantiate(string path);
+
+        /// <summary>
+        /// async creation
+        /// </summary>
+        protected void create(string subType, Action<FaceType> onPresence = null)
+        {
+            string path = getObjectPath() + "/" + subType;
+
+            log("no " + subType + " available (x" + inactives.Count + ") : new, ASYNC");
+
+            instantiate(path, (instance) =>
+            {
+                onPresence.Invoke(
+                    solveNew(instance));
+            });
+        }
+
+        /// <summary>
+        /// instant creation
         /// generate a new element in the pool
         /// </summary>
         protected FaceType create(string subType)
         {
-            string path = System.IO.Path.Combine(getObjectPath(), subType);
-            Object obj = Resources.Load(path);
+            string path = getObjectPath() + "/" + subType;
 
-            if (obj == null)
-            {
-                Debug.LogWarning(getStamp() + " /! <color=red>null object</color> path@" + path);
-                return null;
-            }
+            log("no " + subType + " available (x" + inactives.Count + ") : new");
 
-            obj = GameObject.Instantiate(obj);
+            return solveNew(instantiate(path));
+        }
 
-            log(" created:" + obj, obj);
+        FaceType solveNew(Object copy)
+        {
+            log(" created:" + copy, copy);
 
-            GameObject go = obj as GameObject;
+            GameObject go = copy as GameObject;
 
             //Debug.Log("newly created object " + go.name, go);
 
@@ -159,23 +189,65 @@ namespace fwp.industries
             inactives.Add(candidate);
             //recycle(candidate);
 
-            //for refs list
-            //IndusReferenceMgr.refreshGroupByType(factoryTargetType);
-            //IndusReferenceMgr.injectObject(candidate);
-
             return candidate;
         }
-        abstract protected string getObjectPath();
-
-        public iFactoryObject extractObject(string subType) => (iFactoryObject)extract(subType);
 
         /// <summary>
-        /// demander a la factory de filer un element dispo
-        /// subType est le nom du prefab dans le dossier correspondant
+        /// path within Resources/ where to find object to load
+        /// this is only the path, without the name of the object
+        /// object name/uid is located on interface
+        /// 
+        /// ie : "Bullets" -> Resources/Bullets
         /// </summary>
+        abstract protected string getObjectPath();
+
+        //public iFactoryObject extractObject(string subType) => (iFactoryObject)extract(subType);
+
         public FaceType extract(string subType)
         {
-            FaceType obj = null;
+            FaceType instance = extractFromInactives(subType);
+
+            if (instance == null)
+            {
+                instance = create(subType);
+            }
+
+            inject(instance);
+
+            return instance;
+        }
+
+        public void extract(string subType, Action<FaceType> onPresence)
+        {
+            FaceType instance = extractFromInactives(subType);
+
+            if (instance != null) // recycling
+            {
+                inject(instance);
+                onPresence.Invoke(instance);
+            }
+            else
+            {
+                create(subType, (instance) =>
+                {
+                    inject(instance);
+                    onPresence.Invoke(instance);
+                });
+            }
+        }
+
+        /*
+        public T extract<T>(string subType, Action<FaceType> onPresence)
+        {
+            FaceType icand = extract(subType, onPresence);
+            Component com = icand as Component;
+            return com.GetComponent<T>();
+        }
+        */
+
+        FaceType extractFromInactives(string subType)
+        {
+            FaceType instance = null;
 
             //will add an item in inactive
             //and go on
@@ -187,37 +259,13 @@ namespace fwp.industries
                 {
                     if (inactives[i].factoGetCandidateName() == subType)
                     {
-                        obj = inactives[i];
+                        instance = inactives[i];
                     }
                 }
 
             }
 
-            // none available, create a new one
-            if (obj == null)
-            {
-                log("no " + subType + " available (x" + inactives.Count + ") creating one");
-                obj = create(subType);
-            }
-
-            // created object might be null, if resource path is pointing to nothing
-            if (obj == null)
-                return null;
-
-            // make it active
-            inject(obj);
-
-            //va se faire tout seul au setup()
-            //obj.materialize();
-
-            return obj;
-        }
-
-        public T extract<T>(string subType)
-        {
-            FaceType icand = extract(subType);
-            Component com = icand as Component;
-            return com.GetComponent<T>();
+            return instance;
         }
 
         void recycleInternal(FaceType candid)
@@ -288,8 +336,7 @@ namespace fwp.industries
             return dirty;
         }
 
-        public void injectObject(iFactoryObject candid) => inject((FaceType)candid);
-
+        //public void injectObject(iFactoryObject candid) => inject((FaceType)candid);
         //public void inject<FaceType>(FaceType candid) => inject(candid);
 
         /// <summary>
@@ -363,7 +410,7 @@ namespace fwp.industries
             bool showLog = IndusReferenceMgr.verbose;
 
             if (showLog)
-                Debug.Log(getStamp() + content, target as Object);
+                Debug.Log(getStamp() + content, target as UnityEngine.Object);
 #endif
         }
 

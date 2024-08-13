@@ -14,8 +14,9 @@ namespace fwp.industries
 
         /// <summary>
         /// for debug only
+        /// gives copy
         /// </summary>
-        static public List<iFactory> getAllFactories() => factos;
+        static public iFactory[] getAllFactories() => factos.ToArray();
 
         static public void recycleEverything()
         {

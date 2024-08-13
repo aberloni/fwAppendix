@@ -26,7 +26,6 @@ namespace fwp.utils.editor
         private void OnLostFocus()
         {
             verbose = false;
-
             onFocus(false);
         }
 
