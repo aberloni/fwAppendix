@@ -84,10 +84,21 @@ namespace fwp.industries
 
         protected override void instantiate(string path, Action<Object> onPresence)
         {
-            getBlob(solvePath(path), (blob) =>
+            Debug.Assert(onPresence != null, "wrong implem, should have callback here");
+
+            path = solvePath(path);
+
+            getBlob(path, (blob) =>
             {
-                onPresence(
-                    GameObject.Instantiate(blob));
+                Object copy = null;
+
+                if (blob == null) Debug.LogWarning("blob is null @" + path);
+                else
+                {
+                    copy = GameObject.Instantiate(blob);
+                }
+
+                onPresence(copy);
             });
         }
     }
