@@ -407,13 +407,9 @@ namespace fwp.industries
         {
 
 #if UNITY_EDITOR || industries
-            bool showLog = IndusReferenceMgr.verbose;
-
-            if (showLog)
-                Debug.Log(getStamp() + content, target as UnityEngine.Object);
+            IndustriesVerbosity.sLog(getStamp() + content, target as Object);
 #endif
         }
-
 
         /// <summary>
         /// https://forum.unity.com/threads/how-to-check-if-a-gameobject-is-being-destroyed.1030849/

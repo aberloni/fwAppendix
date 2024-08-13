@@ -1,18 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System;
-using System.Linq;
-
-using Object = UnityEngine.Object;
-
-namespace fwp.industries
+﻿namespace fwp.industries
 {
     using facebook;
 
     public class IndusReferenceMgr : Facebook
     {
-        static public bool verbose;
+        static public bool verbose => IndustriesVerbosity.verbose;
 
         static IndusReferenceMgr _instance;
         static public IndusReferenceMgr instance
@@ -23,16 +15,6 @@ namespace fwp.industries
                 return _instance;
             }
         }
-
-#if UNITY_EDITOR
-        [UnityEditor.MenuItem("Window/Industries/(verbose) factory")]
-        static public void toggleVerbose()
-        {
-            IndusReferenceMgr.verbose = !IndusReferenceMgr.verbose;
-            Debug.LogWarning("toggling verbose for factories : " + IndusReferenceMgr.verbose);
-        }
-#endif
-
     }
 
     /*

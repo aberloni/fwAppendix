@@ -32,6 +32,8 @@ namespace fwp.industries
 
             path = "Assets/" + path + ".prefab";
 
+            IndustriesVerbosity.sLog("<b>fetch</b>@" + path);
+
             /*
             if (pairs.ContainsKey(path))
             {
@@ -45,17 +47,23 @@ namespace fwp.industries
             pair.asyncOp = Addressables.LoadAssetAsync<GameObject>(path);
 
             pairs.Add(path, pair);
-            
+
             pair.asyncOp.Completed += (obj) =>
             {
                 switch (obj.Status)
                 {
-                    case AsyncOperationStatus.Failed: Debug.LogError("fail @ " + path); break;
                     case AsyncOperationStatus.Succeeded:
+
+                        IndustriesVerbosity.sLog("<b>fetch</b>&success @" + path);
+
                         pair.addrBlob = obj.Result;
 
                         onPresence?.Invoke(pair.addrBlob);
 
+                        break;
+                    case AsyncOperationStatus.Failed:
+                    default:
+                        Debug.LogError("<b>fetch</b>&failure " + obj.Status + " @ " + path);
                         break;
                 }
 
