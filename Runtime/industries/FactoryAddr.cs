@@ -71,6 +71,12 @@ namespace fwp.industries
             return "Assets/" + addrKey + ".prefab";
         }
 
+        public void prime(string path)
+        {
+            path = solvePath(path);
+            fetchAddr(path, null);
+        }
+
         void fetchAddr(string path, Action<GameObject> onPresence = null)
         {
             IndustriesVerbosity.sLog("<b>fetch</b> ... @" + path);
