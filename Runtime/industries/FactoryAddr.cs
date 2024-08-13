@@ -27,7 +27,6 @@ namespace fwp.industries
             }
         }
 
-
         virtual protected bool usePrefabExtension() => true;
 
         void fetchAddr(string path, Action<GameObject> onPresence = null)
