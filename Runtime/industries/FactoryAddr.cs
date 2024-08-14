@@ -68,12 +68,28 @@ namespace fwp.industries
 
         virtual protected string solvePath(string addrKey)
         {
-            return "Assets/" + addrKey + ".prefab";
+            string ret = "Assets/";
+
+            ret += addrKey;
+
+            ret += ".prefab";
+
+            return ret;
         }
 
-        public void prime(string path)
+        /// <summary>
+        /// only uid
+        /// factory folder will be added if not empty
+        /// </summary>
+        public void prime(string uid)
         {
-            path = solvePath(path);
+            string folder = getObjectPath();
+            if (!string.IsNullOrEmpty(folder))
+            {
+                uid += folder + "/" + uid;
+            }
+
+            string path = solvePath(uid);
             fetchAddr(path, null);
         }
 
