@@ -86,7 +86,7 @@ namespace fwp.industries
             string folder = getObjectPath();
             if (!string.IsNullOrEmpty(folder))
             {
-                uid += folder + "/" + uid;
+                uid = folder + "/" + uid;
             }
 
             string path = solvePath(uid);
