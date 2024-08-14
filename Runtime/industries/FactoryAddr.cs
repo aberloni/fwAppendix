@@ -66,7 +66,10 @@ namespace fwp.industries
             }
         }
 
-        virtual protected string solvePath(string addrKey)
+        /// <summary>
+        /// add default chain stuff
+        /// </summary>
+        virtual protected string solveAddrPath(string addrKey)
         {
             string ret = "Assets/";
 
@@ -83,16 +86,13 @@ namespace fwp.industries
         /// </summary>
         public void prime(string uid)
         {
-            string folder = getObjectPath();
-            if (!string.IsNullOrEmpty(folder))
-            {
-                uid = folder + "/" + uid;
-            }
-
-            string path = solvePath(uid);
+            string path = solveAddrPath(solvePath(uid));
             fetchAddr(path, null);
         }
 
+        /// <summary>
+        /// path = complete path
+        /// </summary>
         void fetchAddr(string path, Action<GameObject> onPresence = null)
         {
             IndustriesVerbosity.sLog("<b>fetch</b> ... @" + path);
@@ -161,7 +161,7 @@ namespace fwp.industries
         {
             Debug.Assert(onPresence != null, "wrong implem, should have callback here");
 
-            path = solvePath(path);
+            path = solveAddrPath(path);
 
             getBlob(path, (blob) =>
             {

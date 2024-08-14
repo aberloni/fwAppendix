@@ -136,7 +136,7 @@ namespace fwp.industries
         }
 
         /// <summary>
-        /// complete path to object
+        /// path = factory folder (if any) / subtype
         /// this will load object blob AND instantiate
         /// </summary>
         abstract protected void instantiate(string path, Action<UnityEngine.Object> onPresence);
@@ -146,15 +146,21 @@ namespace fwp.industries
         /// </summary>
         abstract protected Object instantiate(string path);
 
+        virtual protected string solvePath(string subType)
+        {
+            string folder = getObjectPath();
+            if (!string.IsNullOrEmpty(folder)) subType = folder + "/" + subType;
+            return subType;
+        }
+
         /// <summary>
         /// async creation
         /// </summary>
         protected void create(string subType, Action<FaceType> onPresence = null)
         {
-            string path = getObjectPath() + "/" + subType;
-
             log("<b>" + subType + "</b> not available (x" + inactives.Count + ") : new, ASYNC");
 
+            string path = solvePath(subType);
             instantiate(path, (instance) =>
             {
                 onPresence.Invoke(
