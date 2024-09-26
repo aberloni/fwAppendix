@@ -14,7 +14,7 @@ namespace fwp.industries
             EditorWindow.GetWindow(typeof(WinEdIndusFactories));
         }
 
-        iFactory[] factos;
+        IFactory[] factos;
         bool[] toggleSections;
 
         Vector2 scroll;
@@ -66,7 +66,7 @@ namespace fwp.industries
             //EditorGUILayout.ObjectField("Title", objectHandle, typeof(objectClassName), true);
         }
 
-        bool drawFacto(iFactory facto, bool toggleState)
+        bool drawFacto(IFactory facto, bool toggleState)
         {
             toggleState = EditorGUILayout.Foldout(toggleState, facto.GetType().ToString(), true);
 

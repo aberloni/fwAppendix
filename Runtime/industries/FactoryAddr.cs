@@ -157,7 +157,7 @@ namespace fwp.industries
             throw new NotImplementedException("<NOT ASYNC> can't instantiate instant using addr");
         }
 
-        protected override void instantiate(string path, Action<Object> onPresence)
+        protected override void instantiateAsync(string path, Action<Object> onPresence)
         {
             Debug.Assert(onPresence != null, "wrong implem, should have callback here");
 

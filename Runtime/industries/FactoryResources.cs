@@ -43,7 +43,7 @@ namespace fwp.industries
             return copy;
         }
 
-        protected override void instantiate(string path, Action<Object> onPresence)
+        protected override void instantiateAsync(string path, Action<Object> onPresence)
         {
             //Object blob = checkPresence(path);
             onPresence(instantiate(path));

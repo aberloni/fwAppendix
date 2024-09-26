@@ -12,29 +12,10 @@ namespace fwp.industries
 
     using Object = UnityEngine.Object;
 
-    public interface iFactory
-    {
-        public void refresh(); // refresh content of this factory
-        public bool hasCandidates(); // factory as any elements ?
-        public void recycleAll(); // force a recycling on all active elements
-
-        //public void injectObject(iFactoryObject instance);
-        //public iFactoryObject extractObject(string uid);
-
-#if UNITY_EDITOR
-        /// <summary>
-        /// DEBUG ONLY
-        /// creates a copy in a list
-        /// </summary>
-        public List<iFactoryObject> getActives();
-        public List<iFactoryObject> getInactives();
-#endif
-    }
-
     /// <summary>
     /// wrapper object to make a factory for a specific type
     /// </summary>
-    abstract public class FactoryBase<FaceType> : iFactory where FaceType : class, iFactoryObject
+    abstract public class FactoryBase<FaceType> : IFactory where FaceType : class, iFactoryObject
     {
         /// <summary>
         /// ReadOnly wrapper around list in facebook
@@ -139,7 +120,7 @@ namespace fwp.industries
         /// path = factory folder (if any) / subtype
         /// this will load object blob AND instantiate
         /// </summary>
-        abstract protected void instantiate(string path, Action<UnityEngine.Object> onPresence);
+        abstract protected void instantiateAsync(string path, Action<UnityEngine.Object> onPresence);
 
         /// <summary>
         /// immediate load, no async
@@ -156,12 +137,12 @@ namespace fwp.industries
         /// <summary>
         /// async creation
         /// </summary>
-        protected void create(string subType, Action<FaceType> onPresence = null)
+        protected void createAsync(string subType, Action<FaceType> onPresence = null)
         {
             log("<b>" + subType + "</b> not available (x" + inactives.Count + ") : new, ASYNC");
 
             string path = solvePath(subType);
-            instantiate(path, (instance) =>
+            instantiateAsync(path, (instance) =>
             {
                 onPresence.Invoke(
                     solveNew(instance));
@@ -209,7 +190,23 @@ namespace fwp.industries
 
         //public iFactoryObject extractObject(string subType) => (iFactoryObject)extract(subType);
 
-        public FaceType extract(string subType)
+        /// <summary>
+        /// use fetch instead
+        /// same as fetch, but return interface type
+        /// </summary>
+        public iFactoryObject extract(string uid) => fetch(uid);
+
+        /// <summary>
+        /// use fetch instead
+        /// same as fetch, but return interface type
+        /// </summary>
+        public void extractAsync(string uid, Action<iFactoryObject> onPresence)
+            => fetchAsync(uid, onPresence);
+
+        /// <summary>
+        /// recycle OR create
+        /// </summary>
+        public FaceType fetch(string subType)
         {
             FaceType instance = extractFromInactives(subType);
 
@@ -223,7 +220,10 @@ namespace fwp.industries
             return instance;
         }
 
-        public void extract(string subType, Action<FaceType> onPresence)
+        /// <summary>
+        /// recycle OR create
+        /// </summary>
+        public void fetchAsync(string subType, Action<FaceType> onPresence)
         {
             FaceType instance = extractFromInactives(subType);
 
@@ -234,7 +234,7 @@ namespace fwp.industries
             }
             else
             {
-                create(subType, (instance) =>
+                createAsync(subType, (instance) =>
                 {
                     inject(instance);
                     onPresence.Invoke(instance);
@@ -342,12 +342,11 @@ namespace fwp.industries
             return dirty;
         }
 
-        //public void injectObject(iFactoryObject candid) => inject((FaceType)candid);
-        //public void inject<FaceType>(FaceType candid) => inject(candid);
-
         /// <summary>
-        /// quand un objet est déclaré comme utilisé par le systeme
-        /// généralement cette méthode est appellé a la création d'un objet lié a la facto
+        /// to flag as used by facto
+        /// generaly called when object is created (by facto or instance of a scene)
+        /// - auto if created by factory
+        /// - also used by pre-existing object in scene to flag part of facto
         /// </summary>
         public void inject(FaceType candid)
         {

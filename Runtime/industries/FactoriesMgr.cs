@@ -10,13 +10,13 @@ namespace fwp.industries
     /// </summary>
     static public class FactoriesMgr
     {
-        static private List<iFactory> factos = new List<iFactory>(); // FactoryBase<iFactoryObject>
+        static private List<IFactory> factos = new List<IFactory>(); // FactoryBase<iFactoryObject>
 
         /// <summary>
         /// for debug only
         /// gives copy
         /// </summary>
-        static public iFactory[] getAllFactories() => factos.ToArray();
+        static public IFactory[] getAllFactories() => factos.ToArray();
 
         static public void recycleEverything()
         {
@@ -30,7 +30,7 @@ namespace fwp.industries
         /// <summary>
         /// ie => seek : BrainScrapling
         /// </summary>
-        static public T getFactoryOf<T>() where T : iFactory
+        static public T getFactoryOf<T>() where T : IFactory
         {
             // already exists ?
             foreach (var f in factos)
@@ -57,7 +57,7 @@ namespace fwp.industries
         /// <summary>
         /// create the factory instance
         /// </summary>
-        static private T create<T>() where T : iFactory
+        static private T create<T>() where T : IFactory
         {
             //https://stackoverflow.com/questions/731452/create-instance-of-generic-type-whose-constructor-requires-a-parameter
 
@@ -79,7 +79,7 @@ namespace fwp.industries
             return fb;
         }
 
-        static public void inject(iFactory facto)
+        static public void inject(IFactory facto)
         {
             factos.Add(facto);
         }
