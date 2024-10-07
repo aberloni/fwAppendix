@@ -16,16 +16,6 @@ namespace fwp.scenes
         public Scene handle;
         public SceneLoaderRunner runner;
 
-        public T extract<T>() where T : Component
-        {
-            foreach(var root in handle.GetRootGameObjects())
-            {
-                T cmp = root.GetComponentInChildren<T>();
-                if (cmp != null) return cmp;
-            }
-            return default(T); // null
-        }
-
         public void setup(Scene refScene)
         {
             handle = refScene;
@@ -52,7 +42,7 @@ namespace fwp.scenes
             }
             return null;
         }
-
+        
         /// <summary>
         /// fetch all assocs from given names
         /// called right before calling the actual loading
