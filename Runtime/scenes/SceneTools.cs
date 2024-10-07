@@ -222,12 +222,22 @@ namespace fwp.scenes
             // in project t:Scene
             string[] paths = getProjectAssetScenesPaths();
 
+            // more optimized way !contains comparison
+            sceneName = sceneName += ".unity";
+
             for (int i = 0; i < paths.Length; i++)
             {
+                //  path/to/scene.unity
                 if (!paths[i].Contains(".unity")) continue;
 
                 if (contains && paths[i].Contains(sceneName)) return paths[i];
-                else if (paths[i] == sceneName) return paths[i];
+                else
+                {
+                    // rem .unity
+                    //var path = paths[i].Substring(0, paths[i].IndexOf("."));
+                    
+                    if (paths[i].EndsWith(sceneName)) return paths[i];
+                }
             }
 
             return string.Empty;
