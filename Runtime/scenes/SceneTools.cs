@@ -217,7 +217,7 @@ namespace fwp.scenes
 
 #if UNITY_EDITOR
 
-        static public string getSceneAssetFullPath(string partName)
+        static public string getSceneAssetFullPath(string sceneName, bool contains = true)
         {
             // in project t:Scene
             string[] paths = getProjectAssetScenesPaths();
@@ -225,7 +225,9 @@ namespace fwp.scenes
             for (int i = 0; i < paths.Length; i++)
             {
                 if (!paths[i].Contains(".unity")) continue;
-                if (paths[i].Contains(partName)) return paths[i];
+
+                if (contains && paths[i].Contains(sceneName)) return paths[i];
+                else if (paths[i] == sceneName) return paths[i];
             }
 
             return string.Empty;
