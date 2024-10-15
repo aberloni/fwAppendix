@@ -16,6 +16,12 @@ namespace fwp.industries
             if (!buffer.ContainsKey(path))
             {
                 blob = Resources.Load(path);
+                if(blob == null)
+                {
+                    Debug.LogWarning("/! ?? null object Resources.Load @ " + path);
+                    return null;
+                }
+
                 buffer.Add(path, blob);
             }
             else
@@ -32,13 +38,13 @@ namespace fwp.industries
 
             if (blob == null)
             {
-                Debug.LogWarning("/! <color=red>null object</color> path@" + path);
+                Debug.LogWarning("/! <color=red>null object</color> returned by path = " + path);
                 return null;
             }
 
             var copy = GameObject.Instantiate(blob);
 
-            Debug.Log("created copy : " + copy, copy);
+            //Debug.Log("created copy : " + copy, copy);
 
             return copy;
         }
