@@ -30,7 +30,7 @@ namespace fwp.screens
             return name;
         }
 
-        static public ScreenWrapper openOverlayDelayed(string overlayName, Action onOpened = null, Action onEnded = null)
+        static public ScreenWrapper openOverlayDelayed(string overlayName, Action<ScreenObject> onOpened = null, Action onEnded = null)
         {
             return ScreenWrapper.call(overlayName).setupCallbacks(null, onOpened, onEnded);
         }

@@ -26,7 +26,7 @@ namespace fwp.screens
         /// enum
         /// </summary>
         static public ScreenWrapper call(Enum enu,
-            Action onLoaded = null, Action onOpened = null, Action onEnded = null)
+            Action<ScreenObject> onLoaded = null, Action<ScreenObject> onOpened = null, Action onEnded = null)
         {
             return call(enu.ToString(), onLoaded, onOpened, onEnded);
         }
@@ -35,7 +35,7 @@ namespace fwp.screens
         /// string name
         /// </summary>
         static public ScreenWrapper call(string screenName,
-            Action onLoaded = null, Action onOpened = null, Action onEnded = null)
+            Action<ScreenObject> onLoaded = null, Action<ScreenObject> onOpened = null, Action onEnded = null)
         {
             GameObject obj = new GameObject("~sw-" + screenName);
             var ret = obj.AddComponent<ScreenWrapper>();
@@ -48,8 +48,8 @@ namespace fwp.screens
 
         ScreenObject screen;
 
-        Action onLoaded;
-        Action onOpened;
+        Action<ScreenObject> onLoaded;
+        Action<ScreenObject> onOpened;
         Action onEnded;
 
         public ScreenWrapper setup(string nm)
@@ -69,7 +69,7 @@ namespace fwp.screens
         /// <summary>
         /// given callbacks will OVERRIDE previous ones
         /// </summary>
-        public ScreenWrapper setupCallbacks(Action onLoaded = null, Action onOpened = null, Action onEnded = null)
+        public ScreenWrapper setupCallbacks(Action<ScreenObject> onLoaded = null, Action<ScreenObject> onOpened = null, Action onEnded = null)
         {
             if (onLoaded != null) this.onLoaded = onLoaded;
             if (onOpened != null) this.onOpened = onOpened;
@@ -91,7 +91,7 @@ namespace fwp.screens
 
             // wait for the screen
             while (screen == null) yield return null;
-            this.onLoaded?.Invoke();
+            this.onLoaded?.Invoke(screen);
 
             var animated = screen as ScreenAnimated;
             if (animated != null)
@@ -103,7 +103,7 @@ namespace fwp.screens
 
             yield return null;
 
-            onOpened?.Invoke();
+            onOpened?.Invoke(screen);
 
             Debug.Log("wrapper process : wait for screen to close");
 
