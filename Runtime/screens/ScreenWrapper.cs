@@ -38,8 +38,12 @@ namespace fwp.screens
             Action onLoaded = null, Action onOpened = null, Action onEnded = null)
         {
             GameObject obj = new GameObject("~sw-" + screenName);
-            return obj.AddComponent<ScreenWrapper>().setup(screenName,
-                onLoaded, onOpened, onEnded);
+            var ret = obj.AddComponent<ScreenWrapper>();
+
+            ret.setup(screenName);
+            ret.setupCallbacks(onLoaded, onOpened, onEnded);
+
+            return ret;
         }
 
         ScreenObject screen;
@@ -48,16 +52,21 @@ namespace fwp.screens
         Action onOpened;
         Action onEnded;
 
-        public ScreenWrapper setup(string nm,
-            Action onLoaded = null, Action onOpened = null, Action onEnded = null)
+        public ScreenWrapper setup(string nm)
         {
-            this.onLoaded = onLoaded;
-            this.onOpened = onOpened;
-            this.onEnded = onEnded;
-
-            //Debug.Log(name + " setup");
-
             StartCoroutine(processWrapper(nm));
+
+            return this;
+        }
+
+        /// <summary>
+        /// given callbacks will OVERRIDE previous ones
+        /// </summary>
+        public ScreenWrapper setupCallbacks(Action onLoaded = null, Action onOpened = null, Action onEnded = null)
+        {
+            if (onLoaded != null) this.onLoaded = onLoaded;
+            if (onOpened != null) this.onOpened = onOpened;
+            if (onEnded != null) this.onEnded = onEnded;
 
             return this;
         }

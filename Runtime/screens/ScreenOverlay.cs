@@ -30,6 +30,11 @@ namespace fwp.screens
             return name;
         }
 
+        static public ScreenWrapper openOverlayDelayed(string overlayName, Action onOpened = null, Action onEnded = null)
+        {
+            return ScreenWrapper.call(overlayName).setupCallbacks(null, onOpened, onEnded);
+        }
+
         /// <summary>
         /// will autocomplete prefix "overlay-"
         /// </summary>
