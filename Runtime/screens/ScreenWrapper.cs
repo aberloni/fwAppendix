@@ -59,6 +59,13 @@ namespace fwp.screens
             return this;
         }
 
+        public ScreenObject get() => screen;
+
+        public T get<T>() where T : ScreenObject
+        {
+            return screen as T;
+        }
+
         /// <summary>
         /// given callbacks will OVERRIDE previous ones
         /// </summary>
