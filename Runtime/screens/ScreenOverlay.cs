@@ -21,6 +21,9 @@ namespace fwp.screens
             Debug.Assert(type == ScreenObject.ScreenType.overlay, "INTE, screen must be overlay type");
         }
 
+        /// <summary>
+        /// add "overlay-" in front is missing
+        /// </summary>
         static public string filterName(string name)
         {
             if(!name.StartsWith(overlayPrefix))
@@ -32,7 +35,9 @@ namespace fwp.screens
 
         static public ScreenWrapper openOverlayDelayed(string overlayName, Action<ScreenObject> onOpened = null, Action onEnded = null)
         {
-            return ScreenWrapper.call(overlayName).setupCallbacks(null, onOpened, onEnded);
+            var ret = ScreenWrapper.call(filterName(overlayName));
+            ret.setupCallbacks(null, onOpened, onEnded);
+            return ret;
         }
 
         /// <summary>
