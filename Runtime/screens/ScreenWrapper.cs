@@ -7,33 +7,52 @@ namespace fwp.screens
 {
 
     /// <summary>
+    /// 
+    /// a component that will exist until the screen is unloaded
+    /// 
     /// loading
+    ///     onLoaded
     /// open
-    /// do something
+    ///     onOpened
+    /// 
     /// close
+    ///     onEnded
+    /// 
     /// unload
     /// </summary>
     public class ScreenWrapper : MonoBehaviour
     {
-        static public ScreenWrapper call(System.Enum enu, Action onLoaded = null, Action onEnded = null)
+        /// <summary>
+        /// enum
+        /// </summary>
+        static public ScreenWrapper call(Enum enu,
+            Action onLoaded = null, Action onOpened = null, Action onEnded = null)
         {
-            return call(enu.ToString(), onLoaded, onEnded);
+            return call(enu.ToString(), onLoaded, onOpened, onEnded);
         }
 
-        static public ScreenWrapper call(string screenName, Action onLoaded = null, Action onEnded = null)
+        /// <summary>
+        /// string name
+        /// </summary>
+        static public ScreenWrapper call(string screenName,
+            Action onLoaded = null, Action onOpened = null, Action onEnded = null)
         {
             GameObject obj = new GameObject("~sw-" + screenName);
-            return obj.AddComponent<ScreenWrapper>().setup(screenName, onLoaded, onEnded);
+            return obj.AddComponent<ScreenWrapper>().setup(screenName,
+                onLoaded, onOpened, onEnded);
         }
 
         ScreenObject screen;
 
         Action onLoaded;
+        Action onOpened;
         Action onEnded;
 
-        public ScreenWrapper setup(string nm, Action onLoaded = null, Action onEnded = null)
+        public ScreenWrapper setup(string nm,
+            Action onLoaded = null, Action onOpened = null, Action onEnded = null)
         {
             this.onLoaded = onLoaded;
+            this.onOpened = onOpened;
             this.onEnded = onEnded;
 
             //Debug.Log(name + " setup");
@@ -52,12 +71,23 @@ namespace fwp.screens
                 screen = loadedScreen;
             });
 
-            Debug.Log("wrapper process : waiting for screen ("+nm+")");
+            Debug.Log("wrapper process : waiting for screen (" + nm + ")");
 
             // wait for the screen
             while (screen == null) yield return null;
-
             this.onLoaded?.Invoke();
+
+            var animated = screen as ScreenAnimated;
+            if (animated != null)
+            {
+                Debug.Log("wrapper process : waiting for opening");
+
+                while (!animated.isOpened()) yield return null;
+            }
+
+            yield return null;
+
+            onOpened?.Invoke();
 
             Debug.Log("wrapper process : wait for screen to close");
 
