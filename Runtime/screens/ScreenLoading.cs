@@ -14,7 +14,7 @@ using UnityEngine.UI;
 namespace fwp.screens
 {
     using fwp.scenes;
-    
+
     public class ScreenLoading : ScreenObject
     {
 
@@ -27,16 +27,14 @@ namespace fwp.screens
         {
             base.reactOpen();
 
-            verbosity.Verbosity.logUniversal(
-                verbosity.VerbositySectionUniversal.loading, "loading:open");
+            logScreen("loading:open");
         }
 
         public override void reactClose()
         {
             base.reactClose();
 
-            verbosity.Verbosity.logUniversal(
-                verbosity.VerbositySectionUniversal.loading, "loading:close");
+            logScreen("loading:close");
         }
 
         /// <summary>
