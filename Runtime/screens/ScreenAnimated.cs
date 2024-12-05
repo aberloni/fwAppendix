@@ -234,11 +234,14 @@ namespace fwp.screens
         /// <summary>
         /// check if screen is still animating opening
         /// + additionnal checks possible
+        /// 
+        /// return true keep the process pending
         /// </summary>
         virtual protected bool checkOpening()
         {
+            // not reached OPEN-ED state ?
             AnimatorStateInfo info = _animator.GetCurrentAnimatorStateInfo(0);
-            if (info.IsName(parameters.state_opened)) return true;
+            if (!info.IsName(parameters.state_opened)) return true;
             return false;
         }
 
@@ -304,13 +307,11 @@ namespace fwp.screens
             onClosingAnimationCompleted();
         }
 
-        /// <summary>
-        /// true : when closing is done
-        /// </summary>
         virtual protected bool checkClosing()
         {
             AnimatorStateInfo info = _animator.GetCurrentAnimatorStateInfo(0);
-            if (info.IsName(parameters.state_closed)) return true;
+            if (!info.IsName(parameters.state_closed)) return true;
+
             return false;
         }
 
