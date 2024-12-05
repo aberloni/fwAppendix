@@ -121,6 +121,9 @@ namespace fwp.screens
             openedAnimatedScreens.Remove(this);
         }
 
+        /// <summary>
+        /// to override if animator have difference states names
+        /// </summary>
         virtual protected ScreenAnimatedParameters generateAnimatedParams()
         {
             var _parameters = new ScreenAnimatedParameters();
@@ -145,7 +148,6 @@ namespace fwp.screens
 
         /// <summary>
         /// to prevent screen beeing visible by default
-        /// opti-in open()
         /// </summary>
         virtual protected bool isOpenDuringSetup() => true;
 
@@ -224,11 +226,19 @@ namespace fwp.screens
 
             logScreen("open:wait state:<b>" + parameters.state_opened + "</b>");
 
-            //... do something spec for animating screen
-            IEnumerator process = processWaitUntilState(parameters.state_opened);
-            while (process.MoveNext()) yield return null;
+            while (checkOpening()) yield return null;
 
             onOpeningAnimationDone();
+        }
+
+        /// <summary>
+        /// check if screen is still animating opening
+        /// + additionnal checks possible
+        /// </summary>
+        virtual protected bool checkOpening()
+        {
+            AnimatorStateInfo info = _animator.GetCurrentAnimatorStateInfo(0);
+            return info.IsName(parameters.state_opened);
         }
 
         /// <summary>
@@ -288,11 +298,15 @@ namespace fwp.screens
 
             logScreen("animated:wait state:<b>" + parameters.state_closed + "</b>");
 
-            // wait for closed state
-            IEnumerator process = processWaitUntilState(parameters.state_closed);
-            while (process.MoveNext()) yield return null;
+            while (checkClosing()) yield return null;
 
             onClosingAnimationCompleted();
+        }
+
+        virtual protected bool checkClosing()
+        {
+            AnimatorStateInfo info = _animator.GetCurrentAnimatorStateInfo(0);
+            return info.IsName(parameters.state_closed);
         }
 
         /// <summary>
