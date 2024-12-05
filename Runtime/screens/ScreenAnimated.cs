@@ -238,7 +238,8 @@ namespace fwp.screens
         virtual protected bool checkOpening()
         {
             AnimatorStateInfo info = _animator.GetCurrentAnimatorStateInfo(0);
-            return info.IsName(parameters.state_opened);
+            if (info.IsName(parameters.state_opened)) return true;
+            return false;
         }
 
         /// <summary>
@@ -303,10 +304,14 @@ namespace fwp.screens
             onClosingAnimationCompleted();
         }
 
+        /// <summary>
+        /// true : when closing is done
+        /// </summary>
         virtual protected bool checkClosing()
         {
             AnimatorStateInfo info = _animator.GetCurrentAnimatorStateInfo(0);
-            return info.IsName(parameters.state_closed);
+            if (info.IsName(parameters.state_closed)) return true;
+            return false;
         }
 
         /// <summary>
