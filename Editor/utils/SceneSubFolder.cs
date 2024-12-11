@@ -69,6 +69,14 @@ public class SceneSubFolder
         toggled = EditorGUILayout.Foldout(toggled, folderName + " (x" + scenes.Count + ")", true);
         if (toggled)
         {
+            if (filter.Length <= 0)
+            {
+                if (GUILayout.Button("+all", GUILayout.Width(GuiHelpers.btnSymbWidth)))
+                {
+                    sectionLoadAll();
+                }
+            }
+
             foreach (var profil in scenes)
             {
                 if(profil.matchFilter(filter))
@@ -78,6 +86,17 @@ public class SceneSubFolder
             }
         }
         
+    }
+
+    void sectionLoadAll()
+    {
+        Debug.Log("load all");
+        foreach(var p in scenes)
+        {
+            p.editorLoad(
+                replaceContext: false, 
+                forceAddBuildSettings: true);
+        }
     }
 
     virtual protected void logSceneDetails(SceneProfil profil)
