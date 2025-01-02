@@ -67,6 +67,13 @@ namespace fwp.scenes.utils
 
         }
 
+        protected override void onTabChanged(WrapperTab tab)
+        {
+            base.onTabChanged(tab);
+
+            injectSubSection(tab.path); // tab change, reeval tab content
+        }
+
         public override void refresh(bool force = false)
         {
             base.refresh(force);
@@ -86,13 +93,6 @@ namespace fwp.scenes.utils
                 injectSubSections(state);
             }
 
-        }
-
-        protected override void onTabChanged(WrapperTab tab)
-        {
-            base.onTabChanged(tab);
-
-            injectSubSection(tab.path);
         }
 
         /// <summary>
@@ -128,26 +128,25 @@ namespace fwp.scenes.utils
 
         }
 
-        protected bool drawSubSectionTab(string tabLabel)
+        protected void drawSubSectionTab(string subSectionUid)
         {
             if (sections.Count <= 0)
-                return true;
+                return;
 
-            // not init
-            if(!sections.ContainsKey(tabLabel))
+            List<SceneSubFolder> subList = new List<SceneSubFolder>();
+
+            if (sections.ContainsKey(subSectionUid))
             {
-                return true;
+                subList = sections[subSectionUid];
             }
-
-            var subList = sections[tabLabel];
 
             GUILayout.BeginHorizontal();
 
-            GUILayout.Label($"{tabLabel} has x{subList.Count} sub-sections");
+            GUILayout.Label($"{subSectionUid} has x{subList.Count} sub-sections");
 
             if (GUILayout.Button("ping folder", GUILayout.Width(GuiHelpers.btnLabelWidth)))
             {
-                GuiHelpers.selectFolder(Path.Combine(tabLabel), true);
+                GuiHelpers.selectFolder(subSectionUid, true);
             }
 
             if (GUILayout.Button("upfold all", GUILayout.Width(GuiHelpers.btnLabelWidth)))
@@ -165,7 +164,6 @@ namespace fwp.scenes.utils
                 subList[i].drawSection(filter);
             }
 
-            return false;
         }
 
         /// <summary>

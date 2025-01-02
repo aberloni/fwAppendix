@@ -29,13 +29,11 @@ namespace fwp.utils.editor
 
         /// <summary>
         /// what to draw @runtime
-        /// default is same as edit time
-        /// return null : to draw nothing
-        /// func return true : to draw additionnal content
+        /// default is same as editor
         /// </summary>
         virtual public void populateTabsRuntime(WrapperTabs wt)
         {
-            populateTabsEditor(wt);
+            populateTabsEditor(wt); // default is runtime = editor
         }
 
         public void resetTabSelection()

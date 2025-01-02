@@ -20,7 +20,7 @@ namespace fwp.utils.editor.tabs
         /// <summary>
         /// how to draw content of this tab
         /// </summary>
-        public System.Action drawCallback;
+        public System.Action<string> drawCallback;
 
         /// <summary>
         /// scroll value
@@ -46,10 +46,21 @@ namespace fwp.utils.editor.tabs
 
             drawGUI();
 
+            // to replace drawGUI an inheritence flow
+            // or draw additionnal external content
+            if (drawCallback != null)
+            {
+                drawCallback?.Invoke(path);
+            }
+
             GUILayout.EndScrollView();
         }
 
-        virtual protected void drawGUI() => drawCallback?.Invoke();
+        /// <summary>
+        /// what to draw
+        /// </summary>
+        virtual protected void drawGUI()
+        { }
     }
 
 }

@@ -97,8 +97,9 @@ namespace fwp.utils.editor.tabs
 
         /// <summary>
         /// add various tabs to wrapper
+        /// draw callback will receive path as parameter
         /// </summary>
-        public void add(WinEdTabs window, string path, System.Action draw)
+        public void add(WinEdTabs window, string path, System.Action<string> draw)
         {
             WrapperTab wts = new WrapperTab(window);
             wts.path = path;
