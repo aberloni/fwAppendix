@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-namespace fwp.scenes
+namespace fwp.scenes.utils
 {
     using fwp.appendix;
     using fwp.utils.editor;
@@ -132,6 +132,12 @@ namespace fwp.scenes
         {
             if (sections.Count <= 0)
                 return true;
+
+            // not init
+            if(!sections.ContainsKey(tabLabel))
+            {
+                return true;
+            }
 
             var subList = sections[tabLabel];
 
