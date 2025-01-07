@@ -2,10 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace fwp.utils.editor
+namespace fwp.utils.editor.tabs
 {
-    using fwp.utils.editor.tabs;
-
     /// <summary>
     /// PROVIDE:
     /// tabs for refreshable window
@@ -74,26 +72,27 @@ namespace fwp.utils.editor
 
             drawFilterField();
 
+            // above tabs buttons
             drawAboveTabsHeader();
 
-            // draw labels buttons
+            // tabs buttons
             // +oob check
             if(_state.drawTabsHeader())
             {
-                onTabChanged(_state.getActiveTab());
+                onTabChanged();
             }
 
             GUILayout.Space(15f);
 
-            _state.drawActiveTab();
+            _state.getActiveTab()?.draw();
         }
 
         virtual protected void drawAboveTabsHeader()
         { }
 
-        virtual protected void onTabChanged(WrapperTab tab)
+        virtual protected void onTabChanged()
         {
-            if (verbose) Debug.Log("selected tab #" + tab);
+            if (verbose) Debug.Log("    <b>selected tab</b> #" + tabsState.getActiveTab().Label);
         }
 
 

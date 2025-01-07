@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEditor;
 
 namespace fwp.utils.editor.tabs
 {
@@ -10,38 +11,38 @@ namespace fwp.utils.editor.tabs
         /// <summary>
         /// complete path to section
         /// </summary>
-        public string path;
+        protected string label = string.Empty;
 
-        /// <summary>
-        /// only use for display
-        /// </summary>
-        public string label => path.Substring(path.LastIndexOf("/") + 1);
+        public string Label => label;
 
         /// <summary>
         /// how to draw content of this tab
+        /// param is parent EditorWindow
         /// </summary>
-        public System.Action<string> drawCallback;
+        System.Action drawCallback;
 
         /// <summary>
         /// scroll value
         /// </summary>
-        public Vector2 scroll;
+        Vector2 scroll;
 
         /// <summary>
-        /// owner
+        /// to acces owner
+        /// parent editor window
         /// </summary>
-        protected WinEdTabs window;
+        EditorWindow _window;
 
-        public WrapperTab(WinEdTabs window)
+        public EditorWindow Parent => _window;
+
+        public WrapperTab(UnityEditor.EditorWindow window, string label = null, System.Action drawGUI = null)
         {
-            this.window = window;
+            _window = window;
+            if (label != null) this.label = label;
+            this.drawCallback = drawGUI;
         }
 
         public void draw()
         {
-            if (drawCallback == null)
-                return;
-
             scroll = GUILayout.BeginScrollView(scroll);
 
             drawGUI();
@@ -50,7 +51,7 @@ namespace fwp.utils.editor.tabs
             // or draw additionnal external content
             if (drawCallback != null)
             {
-                drawCallback?.Invoke(path);
+                drawCallback?.Invoke();
             }
 
             GUILayout.EndScrollView();

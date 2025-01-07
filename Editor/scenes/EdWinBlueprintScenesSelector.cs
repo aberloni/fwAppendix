@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-namespace fwp.scenes.utils
+namespace fwp.utils.editor
 {
-    using fwp.appendix;
-    using fwp.utils.editor;
     using fwp.utils.editor.tabs;
+    using fwp.scenes;
 
     /// <summary>
     /// 
@@ -35,7 +34,15 @@ namespace fwp.scenes.utils
         /// </summary>
         Dictionary<string, List<SceneSubFolder>> sections = null;
 
-        public bool hasSections => sections != null && sections.Count > 0;
+        public Dictionary<string, List<SceneSubFolder>> Sections
+        {
+            get
+            {
+                return sections;
+            }
+        }
+
+        public bool HasSections => sections != null && sections.Count > 0;
 
         virtual protected bool useProgressBar() => true;
 
@@ -62,16 +69,18 @@ namespace fwp.scenes.utils
 
             if (gainFocus)
             {
-                if (!hasSections) refresh(true);
+                if (!HasSections) refresh(true);
             }
 
         }
 
-        protected override void onTabChanged(WrapperTab tab)
+        protected override void onTabChanged()
         {
-            base.onTabChanged(tab);
+            base.onTabChanged();
 
-            injectSubSection(tab.path); // tab change, reeval tab content
+            TabSceneSelector tss = tabsState.getActiveTab() as TabSceneSelector;
+
+            injectSubSection(tss.Path); // tab change, reeval tab content
         }
 
         public override void refresh(bool force = false)
@@ -124,44 +133,6 @@ namespace fwp.scenes.utils
             if (tabContent != null)
             {
                 sections.Add(sectionPath, tabContent);
-            }
-
-        }
-
-        protected void drawSubSectionTab(string subSectionUid)
-        {
-            if (sections.Count <= 0)
-                return;
-
-            List<SceneSubFolder> subList = new List<SceneSubFolder>();
-
-            if (sections.ContainsKey(subSectionUid))
-            {
-                subList = sections[subSectionUid];
-            }
-
-            GUILayout.BeginHorizontal();
-
-            GUILayout.Label($"{subSectionUid} has x{subList.Count} sub-sections");
-
-            if (GUILayout.Button("ping folder", GUILayout.Width(GuiHelpers.btnLabelWidth)))
-            {
-                GuiHelpers.selectFolder(subSectionUid, true);
-            }
-
-            if (GUILayout.Button("upfold all", GUILayout.Width(GuiHelpers.btnLabelWidth)))
-            {
-                for (int i = 0; i < subList.Count; i++)
-                {
-                    subList[i].toggled = false;
-                }
-            }
-
-            GUILayout.EndHorizontal();
-
-            for (int i = 0; i < subList.Count; i++)
-            {
-                subList[i].drawSection(filter);
             }
 
         }
@@ -305,7 +276,8 @@ namespace fwp.scenes.utils
 
         public SceneProfil getOpenedProfil()
         {
-            var category = sections[tabsState.getActiveTab().path];
+            TabSceneSelector tss = tabsState.getActiveTab() as TabSceneSelector;
+            var category = sections[tss.Path];
 
             foreach (var profil in category)
             {

@@ -51,7 +51,7 @@ namespace fwp.utils.editor.tabs
                 List<string> output = new List<string>();
                 foreach (var tab in tabs)
                 {
-                    output.Add(tab.label);
+                    output.Add(tab.Label);
                 }
                 return output;
             }
@@ -65,7 +65,7 @@ namespace fwp.utils.editor.tabs
                 List<string> output = new List<string>();
                 foreach (var tab in tabs)
                 {
-                    output.Add(tab.path);
+                    output.Add(tab.Label);
                 }
                 return output;
             }
@@ -76,20 +76,18 @@ namespace fwp.utils.editor.tabs
 
         string wuid;
 
-        public WrapperTabs(string uid)
+        public WrapperTabs(string tuid)
         {
-            wuid = uid;
+            wuid = tuid;
         }
 
         public void selectDefaultTab() => tabActive = 0;
 
         public string getWrapperUid() => wuid;
 
-        public void add(WrapperTab tab)
+        public void addSpecific(WrapperTab tab)
         {
             tabs.Add(tab);
-
-            Debug.Assert(tab.drawCallback != null, "need to feed draw callback");
 
             // store stuff for unity drawing
             tabsContent = TabsHelper.generateTabsDatas(labels.ToArray());
@@ -99,12 +97,13 @@ namespace fwp.utils.editor.tabs
         /// add various tabs to wrapper
         /// draw callback will receive path as parameter
         /// </summary>
-        public void add(WinEdTabs window, string path, System.Action<string> draw)
+        public WrapperTab addTab(WinEdTabs window, string label, System.Action draw = null)
         {
-            WrapperTab wts = new WrapperTab(window);
-            wts.path = path;
-            wts.drawCallback = draw;
-            add(wts);
+            WrapperTab wt = new WrapperTab(window, label, draw);
+
+            addSpecific(wt);
+
+            return wt;
         }
 
         /// <summary>
@@ -128,11 +127,6 @@ namespace fwp.utils.editor.tabs
             }
 
             return false;
-        }
-
-        public void drawActiveTab()
-        {
-            tabs[tabActive].draw();
         }
 
         public WrapperTab getActiveTab() => tabs[tabActive];
