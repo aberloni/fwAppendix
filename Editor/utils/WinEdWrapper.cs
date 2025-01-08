@@ -97,10 +97,10 @@ namespace fwp.utils.editor
 
             GUILayout.BeginHorizontal();
 
-            string vLabel = verbose ? "-v" : "v";
+            string vLabel = verbose ? "-𓆣" : "𓆣";
 
 #if UNITY_6000_0_OR_NEWER
-            vLabel = verbose ? "-𓆣" : "𓆣";
+            vLabel = verbose ? "-🐛" : "🐛";
 #endif
 
             if (GUILayout.Button(vLabel, QuickEditorViewStyles.WinTitleButton))
