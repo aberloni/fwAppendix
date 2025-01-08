@@ -105,6 +105,20 @@ namespace fwp.utils.editor
                 }
             }
 
+            if (HasSections || force)
+            {
+                foreach (var section in sections)
+                {
+                    foreach (var folder in section.Value)
+                    {
+                        foreach (var profil in folder.scenes)
+                        {
+                            profil.refresh();
+                        }
+                    }
+                }
+            }
+
         }
 
         /// <summary>
@@ -148,7 +162,9 @@ namespace fwp.utils.editor
         {
             base.drawFooter();
 
-            SceneSubFolder.drawAutoAddBuildSettings();
+            fwp.appendix.user.EdUserSettings.drawBool("+build settings", 
+                SceneSubFolder._pref_autoAddBuildSettings, 
+                (state) => primeRefresh());
         }
 
         List<SceneSubFolder> solveTabFolder(string tabName)
@@ -187,7 +203,7 @@ namespace fwp.utils.editor
 
                 sub.scenes = kp.Value;
 
-                if (verbose) Debug.Log(sub.stringify());
+                log(sub.stringify());
 
                 output.Add(sub);
             }
@@ -207,8 +223,7 @@ namespace fwp.utils.editor
             // works with Contains
             var cat_paths = SceneTools.getScenesPathsOfCategory(category, true);
 
-            if (verbose)
-                Debug.Log("category <b>" + category + "</b> match paths x" + cat_paths.Count);
+            log("category <b>" + category + "</b> match paths x" + cat_paths.Count);
 
             for (int i = 0; i < cat_paths.Count; i++)
             {
@@ -246,27 +261,20 @@ namespace fwp.utils.editor
                     // this profil is already in list
                     if (found)
                     {
-                        if (verbose) Debug.Log("~ " + sp.label + " (lyrx" + sp.layers.Count + ") @ " + path);
+                        log("~ " + sp.label + " (lyrx" + sp.layers.Count + ") @ " + path);
                     }
                     else
                     {
                         profils.Add(sp);
 
-                        if (verbose) Debug.Log("+ " + sp.label + " (lyrx" + sp.layers.Count + ") @ " + path);
+                        log("+ " + sp.label + " (lyrx" + sp.layers.Count + ") @ " + path);
                     }
 
                 }
             }
 
-            if (verbose)
-            {
-                Debug.Log("solved x" + profils.Count + " profiles");
-                foreach (var p in profils)
-                {
-                    Debug.Log(p.stringify());
-                }
-            }
-
+            log("solved x" + profils.Count + " profiles");
+            foreach (var p in profils) log(p.stringify());
 
 #if UNITY_EDITOR
             if (useProgressBar())

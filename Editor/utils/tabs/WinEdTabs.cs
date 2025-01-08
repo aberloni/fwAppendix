@@ -91,7 +91,7 @@ namespace fwp.utils.editor.tabs
 
         virtual protected void onTabChanged()
         {
-            if (verbose) Debug.Log("    <b>selected tab</b> #" + tabsState.getActiveTab().Label);
+            log("    <b>selected tab</b> #" + tabsState.getActiveTab().Label);
         }
 
 

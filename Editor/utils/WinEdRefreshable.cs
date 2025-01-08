@@ -39,7 +39,11 @@ namespace fwp.utils.editor
         /// ask for a refresh
         /// (ie during GUI phase)
         /// </summary>
-        public void primeRefresh() => _refresh = true;
+        public void primeRefresh()
+        {
+            _refresh = true;
+            log("refresh <b>primed</b>");
+        }
 
         public void refreshVerbose()
         {

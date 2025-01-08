@@ -79,22 +79,22 @@ public class SceneSubFolder
 
             foreach (var profil in scenes)
             {
-                if(profil.matchFilter(filter))
+                if (profil.matchFilter(filter))
                 {
                     drawLineContent(profil);
                 }
             }
         }
-        
+
     }
 
     void sectionLoadAll()
     {
         Debug.Log("load all");
-        foreach(var p in scenes)
+        foreach (var p in scenes)
         {
             p.editorLoad(
-                replaceContext: false, 
+                replaceContext: false,
                 forceAddBuildSettings: true);
         }
     }
@@ -193,23 +193,5 @@ public class SceneSubFolder
         profil.setDirty();
         profil.editorUnload();
     }
-
-    /// <summary>
-    /// helper to draw a line to toggle a bool linked to edpprefs
-    /// </summary>
-    static public void drawToggle(string label, string ppref)
-    {
-        EdUserSettings.drawBool("+" + label, ppref);
-    }
-
-    /// <summary>
-    /// shk
-    /// </summary>
-    static public void drawAutoAddBuildSettings()
-    {
-        drawToggle("build settings", _pref_autoAddBuildSettings);
-    }
-
-
 
 }

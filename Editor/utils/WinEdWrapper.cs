@@ -1,4 +1,4 @@
-using fwp.utils.editor;
+﻿using fwp.utils.editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -25,7 +25,6 @@ namespace fwp.utils.editor
 
         private void OnLostFocus()
         {
-            verbose = false;
             onFocus(false);
         }
 
@@ -96,16 +95,26 @@ namespace fwp.utils.editor
             string winName = getWindowTabName();
             if (verbose) winName += "~";
 
-            if (GUILayout.Button(winName, QuickEditorViewStyles.getWinTitle()))
+            GUILayout.BeginHorizontal();
+
+            if (GUILayout.Button(verbose ? "-🐛" : "🐛", QuickEditorViewStyles.WinTitleButton))
+            {
+                verbose = !verbose;
+                Debug.LogWarning("toggle verbosity : " + verbose);
+            }
+
+            if (GUILayout.Button("🔄", QuickEditorViewStyles.WinTitleButton))
             {
                 onTitleClicked();
             }
+
+            GUILayout.Label(winName, QuickEditorViewStyles.WinTitle);
+
+            GUILayout.EndHorizontal();
         }
 
         virtual protected void onTitleClicked()
         {
-            verbose = true;
-
             log("<b>title clicked</b>");
         }
 
@@ -163,7 +172,11 @@ namespace fwp.utils.editor
             if (spaceMargin > 0f)
                 GUILayout.Space(spaceMargin);
 
+            //GUILayout.BeginHorizontal();
+
             GUILayout.Label(label, QuickEditorViewStyles.getSectionTitle(15, TextAnchor.UpperLeft, leftMargin));
+
+            //GUILayout.EndHorizontal();
         }
 
         static private GUIStyle gButtonSquare;

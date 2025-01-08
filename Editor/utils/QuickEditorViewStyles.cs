@@ -32,24 +32,42 @@ static public class QuickEditorViewStyles
 		return text_inactive;
 	}
 
-	static private GUIStyle gWinTitle;
-	static public GUIStyle getWinTitle()
+	static private GUIStyle gWinTitleButton;
+	static public GUIStyle WinTitleButton
 	{
-		if (gWinTitle == null)
+		get
 		{
+			if (gWinTitleButton != null) return gWinTitleButton;
+
+			gWinTitleButton = new GUIStyle(GUI.skin.button);
+
+			gWinTitleButton.richText = true;
+			gWinTitleButton.alignment = TextAnchor.MiddleCenter;
+			gWinTitleButton.fontSize = 15;
+			gWinTitleButton.margin = new RectOffset(10, 0, 10, 10);
+			//gWinTitleButton.padding = new RectOffset(10, 10, 10, 10);
+			gWinTitleButton.fixedWidth = 50f;
+
+			return gWinTitleButton;
+		}
+	}
+
+	static private GUIStyle gWinTitle;
+	static public GUIStyle WinTitle
+	{
+		get
+        {
+			if (gWinTitle != null) return gWinTitle;
 			gWinTitle = new GUIStyle();
 
 			gWinTitle.richText = true;
-			gWinTitle.alignment = TextAnchor.MiddleCenter;
+			gWinTitle.alignment = TextAnchor.MiddleLeft;
 			gWinTitle.normal.textColor = Color.white;
 			gWinTitle.fontSize = 20;
 			gWinTitle.fontStyle = FontStyle.Bold;
-			gWinTitle.margin = new RectOffset(10, 10, 10, 10);
-			//gWinTitle.padding = new RectOffset(30, 30, 30, 30);
-
+			gWinTitle.margin = new RectOffset(10, 0, 10, 10);
+			return gWinTitle;
 		}
-
-		return gWinTitle;
 	}
 
 	static private GUIStyle gSectionFoldTitle;
