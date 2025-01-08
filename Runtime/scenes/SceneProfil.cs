@@ -44,8 +44,6 @@ namespace fwp.scenes
 
         List<SceneAssoc> _assocs_buff;
 
-        string[] orderPattern = null;
-
         /// <summary>
         /// has found anything
         /// </summary>
@@ -133,12 +131,6 @@ namespace fwp.scenes
 
             Debug.Assert(!string.IsNullOrEmpty(_profilPath), "profil path must not be null : " + _category);
         }
-        
-        protected void optInOrder(string[] pattern)
-        {
-            orderPattern = pattern;
-            sortByPattern();
-        }
 
         /// <summary>
         /// all path to base scene of this profil
@@ -177,26 +169,32 @@ namespace fwp.scenes
             if (verbose) Debug.Log(categoryUid + " : layers x " + layers.Count + ", out of x " + paths.Length + " paths");
         }
 
-        void sortByPattern()
+        public void sortByPattern(string[] suffixes, int[] orders)
         {
-            if (orderPattern == null)
+            if (suffixes == null)
             {
-                if (verbose) Debug.Log(Category+" :     no pattern");
+                if (verbose) Debug.Log(Category + " :     no pattern");
                 return;
             }
 
-            if (verbose) Debug.Log(Category + " order by pattern x" + orderPattern.Length);
+            Debug.Assert(suffixes.Length == orders.Length);
+
+            if (verbose) Debug.Log(Category + " order by pattern x" + suffixes.Length);
 
             // sort by pattern
             List<SceneProfilTarget> output = new List<SceneProfilTarget>();
-            foreach (var suffix in orderPattern)
+            for (int i = 0; i < suffixes.Length; i++)
             {
-                for (int i = 0; i < layers.Count; i++)
+                string suff = suffixes[i];
+                int order = orders[i];
+
+                for (int j = 0; j < layers.Count; j++)
                 {
-                    if (layers[i].IsPriority(suffix))
+                    if (layers[j].IsPriority(suff))
                     {
-                        output.Add(layers[i]);
-                        layers.RemoveAt(i);
+                        layers[j].setOrder(order);
+                        output.Add(layers[j]);
+                        layers.RemoveAt(j);
                     }
                 }
             }
@@ -207,8 +205,7 @@ namespace fwp.scenes
                 output.Add(l);
             }
 
-            // replace
-            layers = output;
+            layers = output; // replace by ordered
         }
 
         public void refresh()

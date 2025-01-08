@@ -3,6 +3,11 @@ using fwp.scenes;
 
 public class SceneProfilTarget
 {
+    public struct PatternOrder
+    {
+        public string suffix;
+        public int order;
+    }
 
     string sceneName = string.Empty;
     int _order = 0;
@@ -21,7 +26,12 @@ public class SceneProfilTarget
     public SceneProfilTarget(string nm, int ord)
     {
         sceneName = nm;
-        _order = ord;
+        setOrder(ord);
+    }
+
+    public void setOrder(int order)
+    {
+        _order = order;
     }
 
     public bool Contains(string filter)
