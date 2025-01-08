@@ -94,12 +94,15 @@ namespace fwp.utils.editor
 
             var state = tabsState; // getter edit/runtime tabs
 
-            if (state != null && sections == null || force)
+            if (state != null)
             {
-                if (sections == null) sections = new Dictionary<string, List<SceneSubFolder>>();
-                else sections.Clear();
+                if (!HasSections || force)
+                {
+                    if (sections == null) sections = new Dictionary<string, List<SceneSubFolder>>();
+                    else sections.Clear();
 
-                injectSubSections(state);
+                    injectSubSections(state);
+                }
             }
 
         }
@@ -109,12 +112,12 @@ namespace fwp.utils.editor
         /// </summary>
         void injectSubSections(WrapperTabs state)
         {
-            var paths = state.paths;
-
-            // each possible labels into sub folder blob
-            foreach (var p in paths)
+            for (int i = 0; i < state.countTabs; i++)
             {
-                injectSubSection(p);
+                var t = state.getTab(i);
+                TabSceneSelector tss = t as TabSceneSelector;
+
+                injectSubSection(tss.Path);
             }
         }
 
@@ -123,16 +126,17 @@ namespace fwp.utils.editor
             //if (verbose) Debug.Log("SceneSelector :: refresh section : " + sectionPath);
 
             // remove if previous
-            if (sections.ContainsKey(sectionPath))
+            if (!sections.ContainsKey(sectionPath))
             {
-                sections.Remove(sectionPath);
+                sections.Add(sectionPath, null);
             }
 
             List<SceneSubFolder> tabContent = solveTabFolder(sectionPath);
 
-            if (tabContent != null)
+            if (tabContent == null) sections.Remove(sectionPath);
+            else
             {
-                sections.Add(sectionPath, tabContent);
+                sections[sectionPath] = tabContent;
             }
 
         }

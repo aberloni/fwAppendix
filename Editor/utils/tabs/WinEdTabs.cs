@@ -55,7 +55,6 @@ namespace fwp.utils.editor.tabs
                 stateRuntime = new WrapperTabs("runtime-" + GetType());
                 populateTabsRuntime(stateRuntime);
             }
-
         }
 
         sealed protected override void draw()

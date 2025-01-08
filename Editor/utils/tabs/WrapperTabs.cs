@@ -39,26 +39,14 @@ namespace fwp.utils.editor.tabs
         public bool isSetup => tabsContent.Length > 0;
         public int countTabs => tabs.Count;
 
+        public WrapperTab getTab(int idx) => tabs[idx];
+
         List<WrapperTab> tabs = new List<WrapperTab>();
 
         // util for unity drawing
         GUIContent[] tabsContent = new GUIContent[0];
 
         public List<string> labels
-        {
-            get
-            {
-                List<string> output = new List<string>();
-                foreach (var tab in tabs)
-                {
-                    output.Add(tab.Label);
-                }
-                return output;
-            }
-
-        }
-
-        public List<string> paths
         {
             get
             {
