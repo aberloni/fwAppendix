@@ -97,7 +97,7 @@ namespace fwp.utils.editor
 
             GUILayout.BeginHorizontal();
 
-            string vLabel = verbose ? "-𓆣" : "𓆣";
+            string vLabel = verbose ? "-@" : "@";
 
 #if UNITY_6000_0_OR_NEWER
             vLabel = verbose ? "-🐛" : "🐛";
