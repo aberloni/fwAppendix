@@ -93,14 +93,13 @@ namespace fwp.utils.editor
         virtual protected void drawHeader()
         {
             string winName = getWindowTabName();
-            if (verbose) winName += "~";
-
+            
             GUILayout.BeginHorizontal();
 
-            string vLabel = verbose ? "-@" : "@";
+            string vLabel = verbose ? "!@" : "@";
 
 #if UNITY_6000_0_OR_NEWER
-            vLabel = verbose ? "-🐛" : "🐛";
+            vLabel = verbose ? "!🐛" : "🐛";
 #endif
 
             if (GUILayout.Button(vLabel, QuickEditorViewStyles.WinTitleButton))
