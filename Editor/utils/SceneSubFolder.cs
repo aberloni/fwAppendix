@@ -19,7 +19,7 @@ public class SceneSubFolder
 
     public string completePath => System.IO.Path.Combine(projectPath, folderName);
 
-    public List<SceneProfil> scenes;
+    public List<SceneProfil> profils = null;
 
     public bool toggled
     {
@@ -47,13 +47,13 @@ public class SceneSubFolder
 
     public bool hasContentMatchingFilter(string filter)
     {
-        if (string.IsNullOrEmpty(filter)) return scenes.Count > 0;
+        if (string.IsNullOrEmpty(filter)) return profils.Count > 0;
 
         int cnt = 0;
-        for (int i = 0; i < scenes.Count; i++)
+        for (int i = 0; i < profils.Count; i++)
         {
             //Debug.Log(scenes[i].label + " vs " + filter);
-            if (scenes[i].matchFilter(filter))
+            if (profils[i].matchFilter(filter))
                 cnt++;
         }
 
@@ -66,7 +66,7 @@ public class SceneSubFolder
         if (!hasContentMatchingFilter(filter)) return;
 
         // sub folder
-        toggled = EditorGUILayout.Foldout(toggled, folderName + " (x" + scenes.Count + ")", true);
+        toggled = EditorGUILayout.Foldout(toggled, folderName + " (x" + profils.Count + ")", true);
         if (toggled)
         {
             if (filter.Length <= 0)
@@ -77,7 +77,7 @@ public class SceneSubFolder
                 }
             }
 
-            foreach (var profil in scenes)
+            foreach (var profil in profils)
             {
                 if (profil.matchFilter(filter))
                 {
@@ -91,7 +91,7 @@ public class SceneSubFolder
     void sectionLoadAll()
     {
         Debug.Log("load all");
-        foreach (var p in scenes)
+        foreach (var p in profils)
         {
             p.editorLoad(
                 replaceContext: false,
@@ -112,7 +112,7 @@ public class SceneSubFolder
             Debug.Log(dep);
 
         // and ping scene
-        GuiHelpers.pingScene(profil.pingScenePath);
+        GuiHelpers.pingScene(profil.PingScenePath);
     }
 
     /// <summary>
@@ -174,7 +174,7 @@ public class SceneSubFolder
     virtual public string stringify()
     {
         //return "@path:" + projectPath + " @folder:" + folderName + ", total scenes x" + scenes.Count;
-        return "@folder:" + folderName + ", total scenes x" + scenes.Count;
+        return "@folder:" + folderName + ", total scenes x" + profils.Count;
     }
 
     public const string _pref_autoAddBuildSettings = "scenesAutoAddBuildSettings";

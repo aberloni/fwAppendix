@@ -111,7 +111,7 @@ namespace fwp.utils.editor
                 {
                     foreach (var folder in section.Value)
                     {
-                        foreach (var profil in folder.scenes)
+                        foreach (var profil in folder.profils)
                         {
                             profil.refresh();
                         }
@@ -162,8 +162,8 @@ namespace fwp.utils.editor
         {
             base.drawFooter();
 
-            fwp.appendix.user.EdUserSettings.drawBool("+build settings", 
-                SceneSubFolder._pref_autoAddBuildSettings, 
+            fwp.appendix.user.EdUserSettings.drawBool("+build settings",
+                SceneSubFolder._pref_autoAddBuildSettings,
                 (state) => primeRefresh());
         }
 
@@ -183,7 +183,7 @@ namespace fwp.utils.editor
             // all profil will be matched based on the parent path
             foreach (SceneProfil profil in profils)
             {
-                string parent = profil.parentPath;
+                string parent = profil.ParentPath;
 
                 //Debug.Log(profil.label + " @ " + profil.parentPath);
 
@@ -201,7 +201,7 @@ namespace fwp.utils.editor
             {
                 SceneSubFolder sub = generateSub(kp.Key);
 
-                sub.scenes = kp.Value;
+                sub.profils = kp.Value;
 
                 log(sub.stringify());
 
@@ -220,10 +220,29 @@ namespace fwp.utils.editor
         {
             List<SceneProfil> profils = new List<SceneProfil>();
 
+            SceneProfil.verbose = verbose;
+
             // works with Contains
             var cat_paths = SceneTools.getScenesPathsOfCategory(category, true);
 
-            log("category <b>" + category + "</b> match paths x" + cat_paths.Count);
+            log("category <b>" + category + "</b>   match paths x" + cat_paths.Count);
+
+            // filter singles
+            List<string> singles = new List<string>();
+            for (int i = 0; i < cat_paths.Count; i++)
+            {
+                string p = cat_paths[i];
+                string context = SceneProfil.extractContextFromPath(SceneTools.removePathBeforeFile(p));
+                Debug.Log(p + " => " + context);
+                if (!singles.Contains(context)) singles.Add(context);
+                else
+                {
+                    cat_paths.RemoveAt(i);
+                    i--;
+                }
+            }
+
+            log("singles category?<b>" + category + "</b>   remaining paths x" + cat_paths.Count);
 
             for (int i = 0; i < cat_paths.Count; i++)
             {
@@ -240,37 +259,18 @@ namespace fwp.utils.editor
                 }
 #endif
 
-                SceneProfil.verbose = verbose;
-
                 // generate a profil with given path
-                SceneProfil sp = generateProfil(path);
+                var sp = generateProfil(path);
 
                 // check if the profil is already part of profils[]
-                if (!sp.HasContent) Debug.LogWarning(path + " has no content");
-                else
+                if (!sp.HasLayers)
                 {
-                    bool found = false;
-
-                    // search in existing profils
-                    foreach (var profil in profils)
-                    {
-                        if (profil.match(sp))
-                            found = true;
-                    }
-
-                    // this profil is already in list
-                    if (found)
-                    {
-                        log("~ " + sp.label + " (lyrx" + sp.layers.Count + ") @ " + path);
-                    }
-                    else
-                    {
-                        profils.Add(sp);
-
-                        log("+ " + sp.label + " (lyrx" + sp.layers.Count + ") @ " + path);
-                    }
-
+                    Debug.LogWarning(path + " has no content");
+                    continue;
                 }
+
+                profils.Add(sp);
+                log(" ADDED PROFIL  label:" + sp.label + " (lyrx" + sp.layers.Count + ") @ " + path);
             }
 
             log("solved x" + profils.Count + " profiles");
@@ -286,6 +286,7 @@ namespace fwp.utils.editor
             return profils;
         }
 
+
         public SceneProfil getOpenedProfil()
         {
             TabSceneSelector tss = tabsState.getActiveTab() as TabSceneSelector;
@@ -293,7 +294,7 @@ namespace fwp.utils.editor
 
             foreach (var profil in category)
             {
-                foreach (var sp in profil.scenes)
+                foreach (var sp in profil.profils)
                 {
                     if (sp.isLoaded()) return sp;
                 }
