@@ -100,7 +100,7 @@ namespace fwp.utils.editor
             string vLabel = verbose ? "-v" : "v";
 
 #if UNITY_6000_0_OR_NEWER
-            vLabel = verbose ? "-🐛" : "🐛";
+            vLabel = verbose ? "-𓆣" : "𓆣";
 #endif
 
             if (GUILayout.Button(vLabel, QuickEditorViewStyles.WinTitleButton))
@@ -109,7 +109,7 @@ namespace fwp.utils.editor
                 Debug.LogWarning("toggle verbosity : " + verbose);
             }
 
-            string rLabel = "φ";
+            string rLabel = "↺";
 
 #if UNITY_6000_0_OR_NEWER
             rLabel = "🔄";
