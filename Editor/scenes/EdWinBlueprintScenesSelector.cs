@@ -231,7 +231,7 @@ namespace fwp.utils.editor
                 SceneProfil sp = generateProfil(path);
 
                 // check if the profil is already part of profils[]
-                if (!sp.hasContent()) Debug.LogWarning(path + " has no content");
+                if (!sp.HasContent) Debug.LogWarning(path + " has no content");
                 else
                 {
                     bool found = false;

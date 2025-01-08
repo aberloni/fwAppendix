@@ -45,11 +45,13 @@ namespace fwp.scenes
         /// <summary>
         /// has found anything
         /// </summary>
-        public bool hasContent()
+        public bool HasContent
         {
-
-            if (layers == null) return false;
-            return layers.Count > 0;
+            get
+            {
+                if (layers == null) return false;
+                return layers.Count > 0;
+            }
         }
 
         /// <summary>
@@ -58,7 +60,7 @@ namespace fwp.scenes
         public bool matchFilter(string filter)
         {
             if (string.IsNullOrEmpty(filter)) return true;
-            if (!hasContent()) return false;
+            if (!HasContent) return false;
 
             filter = filter.ToLower();
 
@@ -432,7 +434,7 @@ namespace fwp.scenes
                 SceneLoaderEditor.unloadScene(deps[i]);
             }
 
-            // NOT STATICS : duh
+            // NOT STATICS : statics are meant to stay loaded
 
             //var sc = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByName(layers[0]);
             //UnityEditor.SceneManagement.EditorSceneManager.CloseScene(sc, true);
@@ -633,7 +635,14 @@ namespace fwp.scenes
             return null;
         }
 
-        virtual public string editor_getButtonName() => label + " (x" + layers.Count + ")";
+        virtual public string editor_getButtonName()
+        {
+            string ret = label;
+            if (layers.Count > 0) ret += " x" + layers.Count;
+            if (deps.Count > 0) ret += " +d" + deps.Count;
+            if (statics.Count > 0) ret += " +s" + statics.Count;
+            return ret;
+        }
 
         virtual public string stringify()
         {

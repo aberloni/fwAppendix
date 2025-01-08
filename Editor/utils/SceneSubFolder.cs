@@ -71,7 +71,7 @@ public class SceneSubFolder
         {
             if (filter.Length <= 0)
             {
-                if (GUILayout.Button("+all", GUILayout.Width(GuiHelpers.btnSymbWidth)))
+                if (GUILayout.Button("+all", GUILayout.Width(GuiHelpers.btnSymbLarge)))
                 {
                     sectionLoadAll();
                 }
