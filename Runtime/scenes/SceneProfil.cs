@@ -453,20 +453,31 @@ namespace fwp.scenes
 
             if (verbose) Debug.Log(getStamp() + " builload");
 
-            loadDeps(() =>
+            loadStatics(() =>
             {
-                loadLayers(() =>
+                if (verbose) Debug.Log(getStamp() + "   statics.loaded");
+
+                loadDeps(() =>
                 {
-                    //Scene? parentScene = extractMainScene(false);
-                    onLoadedCompleted?.Invoke(this);
+                    if (verbose) Debug.Log(getStamp() + "   deps.loaded");
+
+                    loadLayers(() =>
+                    {
+                        if (verbose) Debug.Log(getStamp() + "   layers.loaded");
+
+                        //Scene? parentScene = extractMainScene(false);
+                        onLoadedCompleted?.Invoke(this);
+                    });
                 });
+
             });
 
         }
 
-        void loadDeps(Action onCompletion)
+        void loadDependencies(string[] scenes, Action onCompletion)
         {
-            if (deps.Count <= 0)
+
+            if (scenes.Length <= 0)
             {
                 //Debug.LogWarning(getStamp() + " deps array is empty ?");
                 onCompletion.Invoke();
@@ -475,8 +486,8 @@ namespace fwp.scenes
 
             if (verbose)
             {
-                Debug.Log(getStamp() + " loading deps x" + deps.Count);
-                for (int i = 0; i < deps.Count; i++) Debug.Log(getStamp() + " dep:" + deps[i]);
+                Debug.Log(getStamp() + " load some dependencies x" + scenes.Length);
+                for (int i = 0; i < scenes.Length; i++) Debug.Log(getStamp() + " scene:" + scenes[i]);
             }
 
             float delay = 0f;
@@ -485,11 +496,14 @@ namespace fwp.scenes
             delay = getDebugLoadDelay();
 #endif
 
-            SceneLoader.loadScenes(deps.ToArray(), (SceneAssoc[] scs) =>
+            SceneLoader.loadScenes(scenes, (scs) =>
             {
-                onCompletion.Invoke();
+                onCompletion?.Invoke();
             }, delay);
         }
+
+        void loadStatics(Action onCompletion) => loadDependencies(statics.ToArray(), onCompletion);
+        void loadDeps(Action onCompletion) => loadDependencies(deps.ToArray(), onCompletion);
 
         void loadLayers(Action onCompletion)
         {
