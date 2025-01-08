@@ -44,9 +44,9 @@ static public class QuickEditorViewStyles
 			gWinTitleButton.richText = true;
 			gWinTitleButton.alignment = TextAnchor.MiddleCenter;
 			gWinTitleButton.fontSize = 15;
-			gWinTitleButton.margin = new RectOffset(10, 0, 10, 10);
+			gWinTitleButton.margin = new RectOffset(5, 0, 10, 10);
 			//gWinTitleButton.padding = new RectOffset(10, 10, 10, 10);
-			gWinTitleButton.fixedWidth = 50f;
+			gWinTitleButton.fixedWidth = 40f;
 
 			return gWinTitleButton;
 		}

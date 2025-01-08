@@ -97,13 +97,25 @@ namespace fwp.utils.editor
 
             GUILayout.BeginHorizontal();
 
-            if (GUILayout.Button(verbose ? "-🐛" : "🐛", QuickEditorViewStyles.WinTitleButton))
+            string vLabel = verbose ? "-v" : "v";
+
+#if UNITY_6000_0_OR_NEWER
+            vLabel = verbose ? "-🐛" : "🐛";
+#endif
+
+            if (GUILayout.Button(vLabel, QuickEditorViewStyles.WinTitleButton))
             {
                 verbose = !verbose;
                 Debug.LogWarning("toggle verbosity : " + verbose);
             }
 
-            if (GUILayout.Button("🔄", QuickEditorViewStyles.WinTitleButton))
+            string rLabel = "φ";
+
+#if UNITY_6000_0_OR_NEWER
+            rLabel = "🔄";
+#endif
+
+            if (GUILayout.Button(rLabel, QuickEditorViewStyles.WinTitleButton))
             {
                 onTitleClicked();
             }
