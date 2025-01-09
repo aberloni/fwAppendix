@@ -233,7 +233,7 @@ namespace fwp.utils.editor
             {
                 string p = cat_paths[i];
                 string context = SceneProfil.extractContextFromPath(SceneTools.removePathBeforeFile(p));
-                Debug.Log(p + " => " + context);
+                
                 if (!singles.Contains(context)) singles.Add(context);
                 else
                 {
