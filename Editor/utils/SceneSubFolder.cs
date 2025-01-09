@@ -69,13 +69,21 @@ public class SceneSubFolder
         toggled = EditorGUILayout.Foldout(toggled, folderName + " (x" + profils.Count + ")", true);
         if (toggled)
         {
+            GUILayout.BeginHorizontal();
+
             if (filter.Length <= 0)
             {
+                GUILayout.Label(" ");
                 if (GUILayout.Button("+all", GUILayout.Width(GuiHelpers.btnSymbLarge)))
                 {
-                    sectionLoadAll();
+                    if (EditorUtility.DisplayDialog("add all ?", "are you sure ?", "ok", "nope"))
+                    {
+                        sectionLoadAll();
+                    }
                 }
             }
+
+            GUILayout.EndHorizontal();
 
             foreach (var profil in profils)
             {
