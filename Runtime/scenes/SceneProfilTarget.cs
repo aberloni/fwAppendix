@@ -39,11 +39,6 @@ public class SceneProfilTarget
         return sceneName.ToLower().Contains(filter);
     }
 
-    public void editorUnload()
-    {
-         SceneLoaderEditor.unloadScene(Name);
-    }
-
     public bool HasPriorityOver(SceneProfilTarget other)
     {
         return other.Order < _order;
@@ -53,4 +48,12 @@ public class SceneProfilTarget
     {
         return Name.EndsWith(suffix);
     }
+
+#if UNITY_EDITOR
+    public void editorUnload()
+    {
+        SceneLoaderEditor.unloadScene(Name);
+    }
+#endif
+
 }
