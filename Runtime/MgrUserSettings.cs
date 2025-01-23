@@ -26,7 +26,7 @@ namespace fwp.appendix.user
             logApp(uid, val);
         }
 
-        
+
 
         static public int getInt(string uid, int def) => PlayerPrefs.GetInt(uid, def);
         static public void setInt(string uid, int val)
@@ -49,7 +49,7 @@ namespace fwp.appendix.user
         }
 
 #if UNITY_EDITOR
-        
+
         static bool VerboseEditor => Application.isEditor;
 
         // BOOL
@@ -57,7 +57,7 @@ namespace fwp.appendix.user
         static public void setEdBool(string uid, bool val)
         {
             bool _val = EditorPrefs.GetBool(uid, false);
-            if(_val != val)
+            if (_val != val)
             {
                 EditorPrefs.SetBool(uid, val);
                 logEd(uid, val);
@@ -74,7 +74,7 @@ namespace fwp.appendix.user
         static public void setEdFloat(string uid, float val)
         {
             float _val = EditorPrefs.GetFloat(uid, 0f);
-            if(val != _val)
+            if (val != _val)
             {
                 EditorPrefs.SetFloat(uid, val);
                 logEd(uid, val);
@@ -96,7 +96,7 @@ namespace fwp.appendix.user
         static public void setEdInt(string uid, int val)
         {
             int _val = EditorPrefs.GetInt(uid, 0);
-            if(_val != val)
+            if (_val != val)
             {
                 EditorPrefs.SetInt(uid, val);
                 logEd(uid, val);
@@ -114,7 +114,7 @@ namespace fwp.appendix.user
         static public void setEdString(string uid, string val)
         {
             string _val = EditorPrefs.GetString(uid, string.Empty);
-            if(_val != val)
+            if (_val != val)
             {
                 EditorPrefs.SetString(uid, val);
                 logEd(uid, val);
@@ -124,7 +124,7 @@ namespace fwp.appendix.user
         static void logEd(string uid, object val)
         {
             if (!VerboseEditor) return;
-            Debug.Log("edUserSet:" + uid + ":" + val);
+            Debug.Log("edUserSet:" + uid + ":" + val, val as UnityEngine.Object);
         }
 
 #endif
