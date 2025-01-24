@@ -15,9 +15,9 @@ namespace fwp.scenes.editor
 
         public string PathEnd => path.Substring(path.LastIndexOf("/") + 1);
 
-        EdWinBlueprintScenesSelector Selector => Parent as EdWinBlueprintScenesSelector;
+        WinEdBlueprintScenesSelector Selector => Parent as WinEdBlueprintScenesSelector;
 
-        public TabSceneSelector(EdWinBlueprintScenesSelector window, string path) : base(window)
+        public TabSceneSelector(WinEdBlueprintScenesSelector window, string path) : base(window)
         {
             this.path = path;
             label = PathEnd;

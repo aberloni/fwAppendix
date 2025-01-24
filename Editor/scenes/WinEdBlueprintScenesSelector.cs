@@ -9,22 +9,22 @@ namespace fwp.scenes.editor
 
     /// <summary>
     /// 
-    /// FEED:
-    /// base pathsub section
-    /// 
-    /// PROVIDE:
-    /// buttons to open SceneProfil
-    /// 
+    /// meant to :
     /// give a list of folder to target (tab names)
     /// search within folder all scenes
     /// separate scenes with same parent folder
     /// 
-    /// how to use :
-    /// - inherite of this class to have your own window
-    /// - implement sections names for tabs
-    /// - you can override generateProfil to use some specific SceneProfil
+    /// setup:
+    /// - provide TabSceneSelector(s) in populateTabsEditor
+    /// 
+    /// possible : 
+    /// - override SceneProfil
+    /// - override SceneSubFolder
+    /// - override footer
+    /// - override getWindowTabName
+    /// 
     /// </summary>
-    abstract public class EdWinBlueprintScenesSelector : WinEdTabs
+    abstract public class WinEdBlueprintScenesSelector : WinEdTabs
     {
         /// <summary>
         /// assoc btw tab label and some sub bolbs
