@@ -1,82 +1,86 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-using fwp.utils.editor.tabs;
-using fwp.utils.editor;
-using fwp.appendix;
 
-public class TabSceneSelector : WrapperTab
+namespace fwp.scenes.editor
 {
-    string path;
+    using fwp.utils.editor.tabs;
+    using fwp.utils.editor;
 
-    public string Path => path;
-
-    public string PathEnd => path.Substring(path.LastIndexOf("/") + 1);
-
-    EdWinBlueprintScenesSelector Selector => Parent as EdWinBlueprintScenesSelector;
-
-    public TabSceneSelector(EdWinBlueprintScenesSelector window, string path) : base(window)
+    public class TabSceneSelector : WrapperTab
     {
-        this.path = path;
-        label = PathEnd;
-    }
+        string path;
 
-    protected override void drawGUI()
-    {
-        base.drawGUI();
-        drawSubSectionTab();
-    }
+        public string Path => path;
 
-    /// <summary>
-    /// draw generic tab with scene list
-    /// </summary>
-    void drawSubSectionTab()
-    {
-        string subSectionUid = Path;
+        public string PathEnd => path.Substring(path.LastIndexOf("/") + 1);
 
-        if(!Selector.HasSections)
+        EdWinBlueprintScenesSelector Selector => Parent as EdWinBlueprintScenesSelector;
+
+        public TabSceneSelector(EdWinBlueprintScenesSelector window, string path) : base(window)
         {
-            GUILayout.Label("selector has no sections");
-            return;
+            this.path = path;
+            label = PathEnd;
         }
 
-        var sections = Selector.Sections;
-
-        List<SceneSubFolder> subList = null;
-
-        if (sections.ContainsKey(subSectionUid))
+        protected override void drawGUI()
         {
-            subList = sections[subSectionUid];
+            base.drawGUI();
+            drawSubSectionTab();
         }
 
-        if(subList == null)
+        /// <summary>
+        /// draw generic tab with scene list
+        /// </summary>
+        void drawSubSectionTab()
         {
-            GUILayout.Label("no sublist #" + subSectionUid);
-            return;
-        }
+            string subSectionUid = Path;
 
-        GUILayout.BeginHorizontal();
+            if (!Selector.HasSections)
+            {
+                GUILayout.Label("selector has no sections");
+                return;
+            }
 
-        GUILayout.Label($"{subSectionUid} has x{subList.Count} sub-sections");
+            var sections = Selector.Sections;
 
-        if (GUILayout.Button("ping folder", GUILayout.Width(GuiHelpers.btnLabelWidth)))
-        {
-            GuiHelpers.selectFolder(subSectionUid, true);
-        }
+            List<SceneSubFolder> subList = null;
 
-        if (GUILayout.Button("upfold all", GUILayout.Width(GuiHelpers.btnLabelWidth)))
-        {
+            if (sections.ContainsKey(subSectionUid))
+            {
+                subList = sections[subSectionUid];
+            }
+
+            if (subList == null)
+            {
+                GUILayout.Label("no sublist #" + subSectionUid);
+                return;
+            }
+
+            GUILayout.BeginHorizontal();
+
+            GUILayout.Label($"{subSectionUid} has x{subList.Count} sub-sections");
+
+            if (GUILayout.Button("ping folder", GUILayout.Width(GuiHelpers.btnLabelWidth)))
+            {
+                GuiHelpers.selectFolder(subSectionUid, true);
+            }
+
+            if (GUILayout.Button("upfold all", GUILayout.Width(GuiHelpers.btnLabelWidth)))
+            {
+                for (int i = 0; i < subList.Count; i++)
+                {
+                    subList[i].toggled = false;
+                }
+            }
+
+            GUILayout.EndHorizontal();
+
             for (int i = 0; i < subList.Count; i++)
             {
-                subList[i].toggled = false;
+                subList[i].drawSection(Selector.filter);
             }
-        }
 
-        GUILayout.EndHorizontal();
-
-        for (int i = 0; i < subList.Count; i++)
-        {
-            subList[i].drawSection(Selector.filter);
         }
 
     }

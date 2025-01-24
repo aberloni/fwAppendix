@@ -2,11 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using System;
-using UnityEditor.IMGUI.Controls;
+
 using Object = UnityEngine.Object;
 
-namespace fwp.appendix
+namespace fwp.utils.editor
 {
     static public class GuiHelpers
     {

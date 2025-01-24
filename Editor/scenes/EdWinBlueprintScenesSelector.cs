@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.IO;
 
-namespace fwp.utils.editor
+namespace fwp.scenes.editor
 {
     using fwp.utils.editor.tabs;
     using fwp.scenes;
@@ -303,7 +302,7 @@ namespace fwp.utils.editor
             return null;
         }
 
-        public void selectFolder(string path, bool unfold = false) => fwp.appendix.GuiHelpers.selectFolder(path, unfold);
+        public void selectFolder(string path, bool unfold = false) => fwp.utils.editor.GuiHelpers.selectFolder(path, unfold);
     }
 
 }
