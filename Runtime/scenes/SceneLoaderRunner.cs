@@ -77,7 +77,7 @@ namespace fwp.scenes
             {
                 //Debug.Log(getStamp() + " what about ? " + sceneName, this);
 
-                if(!assocs[i].handle.isLoaded)
+                if (!assocs[i].handle.isLoaded)
                 {
                     StartCoroutine(processLoadScene(assocs[i]));
                 }
@@ -85,14 +85,14 @@ namespace fwp.scenes
             }
 
             int cnt = countStillLoading();
-            if(cnt > 0)
+            if (cnt > 0)
             {
                 SceneLoader.log("    now waiting for x" + cnt + " scenes to be loaded");
 
                 while (cnt > 0)
                 {
                     int _cnt = countStillLoading();
-                    if(_cnt != cnt)
+                    if (_cnt != cnt)
                     {
                         cnt = _cnt;
                         SceneLoader.log("    ... still loading x" + _cnt);
@@ -101,7 +101,7 @@ namespace fwp.scenes
                 }
 
             }
-            
+
             if (SceneLoader.verbose)
             {
                 SceneLoader.log("is <b>done loading</b>", this);
@@ -168,13 +168,22 @@ namespace fwp.scenes
                 //Debug.Log(sceneLoad + " "+async.progress);
             }
 
-            SceneLoader.log("  L <b>" + target + "</b> async is done ... ");
+            SceneLoader.log("  L <b>" + target + "</b> async operation is done ... ");
 
             Scene sc = SceneManager.GetSceneByName(target);
-            
-            if(!sc.isLoaded)
+
+            if (!sc.isLoaded)
             {
-                while (!sc.isLoaded) yield return null;
+                SceneLoader.log(sc.name + " :   async is done but scene is not loaded ?");
+                SceneLoader.log("async allow scene activation ? " + async.allowSceneActivation);
+
+                //int frameCount = Time.frameCount;
+                while (!sc.isLoaded)
+                {
+                    yield return null;
+                }
+
+                SceneLoader.log(sc.name + " :   is now loaded");
             }
 
             assoc.handle = sc;
