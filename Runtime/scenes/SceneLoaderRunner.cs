@@ -19,6 +19,12 @@ namespace fwp.scenes
     /// </summary>
     public class SceneLoaderRunner : MonoBehaviour
     {
+        /// <summary>
+        /// to display some info if a loading takes too long
+        /// - when async is done but scene is not loaded
+        /// </summary>
+        static public float errorDelay = -1f;
+
         SceneAssoc[] assocs;
 
         protected List<Coroutine> queries = new List<Coroutine>();
@@ -177,9 +183,24 @@ namespace fwp.scenes
                 SceneLoader.log(sc.name + " :   async is done but scene is not loaded ?");
                 SceneLoader.log("async allow scene activation ? " + async.allowSceneActivation);
 
+                float time = Time.time;
+
                 //int frameCount = Time.frameCount;
                 while (!sc.isLoaded)
                 {
+
+                    if (errorDelay > 0f && Time.time - time > errorDelay)
+                    {
+                        Debug.LogError("beeing loaded takes too long (more than " + errorDelay + ")");
+                        for (int i = 0; i < SceneManager.sceneCount; i++)
+                        {
+                            Scene scInfo = SceneManager.GetSceneAt(i);
+                            Debug.LogError(scInfo.name + " @ " + scInfo.path + " is " + scInfo.isLoaded + " & " + scInfo.IsValid());
+                        }
+
+                        yield break;
+                    }
+
                     yield return null;
                 }
 
