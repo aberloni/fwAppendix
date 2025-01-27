@@ -19,6 +19,7 @@ namespace fwp.scenes
     /// </summary>
     public class SceneLoaderRunner : MonoBehaviour
     {
+        /*
         /// <summary>
         /// to display some info if a loading takes too long
         /// - when async is done but scene is not loaded
@@ -26,6 +27,7 @@ namespace fwp.scenes
         static float errorDelay = -1f;
         static public void optinErrorDelay(float delay) => errorDelay = delay;
         static public void optoutErrorDelay() => errorDelay = -1f;
+        */
 
         SceneAssoc[] assocs;
 
@@ -139,7 +141,7 @@ namespace fwp.scenes
             }
 
             // callback result
-            if (onComplete != null) onComplete(assocs);
+            onComplete?.Invoke(assocs);
 
             // remove loader
             GameObject.Destroy(gameObject);
@@ -179,18 +181,19 @@ namespace fwp.scenes
             SceneLoader.log("  L <b>" + target + "</b> async operation is done ... ");
 
             Scene sc = SceneManager.GetSceneByName(target);
+            Debug.Assert(sc.IsValid(), "SceneManager could not return a valid scene by NAME : " + target);
 
             if (!sc.isLoaded)
             {
-                SceneLoader.log(sc.name + " :   async is done but scene is not loaded ?");
-                SceneLoader.log("async allow scene activation ? " + async.allowSceneActivation);
+                SceneLoader.log(sc.name + " :   async is done but scene is not loaded ? waiting ...");
+                //SceneLoader.log("async allow scene activation ? " + async.allowSceneActivation);
 
-                float time = Time.time;
+                //float time = Time.time;
 
                 //int frameCount = Time.frameCount;
                 while (!sc.isLoaded)
                 {
-
+                    /*
                     if (errorDelay > 0f && Time.time - time > errorDelay)
                     {
                         Debug.LogError("beeing loaded takes too long (more than " + errorDelay + ")");
@@ -202,6 +205,7 @@ namespace fwp.scenes
 
                         yield break;
                     }
+                    */
 
                     yield return null;
                 }
@@ -213,11 +217,8 @@ namespace fwp.scenes
 
             SceneLoader.log("  L <b>" + target + "</b> is loaded");
 
-            // clean guides
-            SceneLoader.cleanScene(sc);
-
             // feeders of this scene
-            Coroutine feeders = solveFeeders(sc, delegate ()
+            Coroutine feeders = solveFeeders(sc, () => 
             {
                 feeders = null;
             });
@@ -225,12 +226,8 @@ namespace fwp.scenes
 
             SceneLoader.log("'<b>" + target + "</b>' setup");
 
-            if (onComplete != null) onComplete(assoc);
+            onComplete?.Invoke(assoc);
         }
-
-
-
-        //
 
 
         public Coroutine solveFeeders(Scene scene, Action onComplete = null)

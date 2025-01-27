@@ -125,44 +125,6 @@ namespace fwp.scenes
             SceneManager.UnloadSceneAsync(sceneName);
         }
 
-        static public void cleanScene(Scene sc)
-        {
-
-            GameObject[] roots = sc.GetRootGameObjects();
-            //Debug.Log("  L cleaning scene <b>" + sc.name + "</b> from guides objects (" + roots.Length + " roots)");
-            for (int i = 0; i < roots.Length; i++)
-            {
-                removeGuides(roots[i].transform);
-            }
-
-        }
-
-        static protected bool removeGuides(Transform obj)
-        {
-            if (obj.name.StartsWith("~"))
-            {
-                if(verbose)
-                    Debug.Log("   <b>removing guide</b> of name : " + obj.name, obj);
-
-                GameObject.Destroy(obj.gameObject);
-                return true;
-            }
-
-            int safe = 999;
-            int i = 0;
-            while (i < obj.childCount && safe > 0)
-            {
-                var child = obj.GetChild(i);
-                if (!removeGuides(child))
-                {
-                    i++;
-                }
-            }
-            Debug.Assert(safe > 0, "safe! while removing guides");
-
-            return false;
-        }
-
         static private string getActiveSceneName()
         {
             return SceneManager.GetActiveScene().name;

@@ -34,7 +34,7 @@ namespace fwp.scenes
         /// </summary>
         public T extract<T>() where T : Component
         {
-            foreach(var root in handle.GetRootGameObjects())
+            foreach (var root in handle.GetRootGameObjects())
             {
                 T ret = root.GetComponentInChildren<T>();
                 if (ret != null)
@@ -42,7 +42,7 @@ namespace fwp.scenes
             }
             return null;
         }
-        
+
         /// <summary>
         /// fetch all assocs from given names
         /// called right before calling the actual loading
@@ -56,6 +56,12 @@ namespace fwp.scenes
             for (int i = 0; i < sceneNames.Length; i++)
             {
                 string sceneName = sceneNames[i];
+
+                if (sceneName.IndexOf("/") > 0)
+                {
+                    Debug.LogWarning("!! provided scene NAME (" + sceneName + ") is a path");
+                    Debug.LogWarning("scene manager won't be able to return a scene");
+                }
 
                 bool inBSettings = SceneLoader.checkIfInBuildSettings(sceneName);
 
@@ -87,7 +93,7 @@ namespace fwp.scenes
                 var scene = SceneLoader.getLoadedScene(sceneName, warnMissing);
                 if (scene.isLoaded)
                 {
-                    if(warnMissing)
+                    if (warnMissing)
                         Debug.LogWarning("  <b>" + sceneName + "</b> is considered as already loaded, skipping loading of that scene");
 
                     assoc.handle = scene;
