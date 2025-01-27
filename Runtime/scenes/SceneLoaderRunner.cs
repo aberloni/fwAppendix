@@ -23,7 +23,9 @@ namespace fwp.scenes
         /// to display some info if a loading takes too long
         /// - when async is done but scene is not loaded
         /// </summary>
-        static public float errorDelay = -1f;
+        static float errorDelay = -1f;
+        static public void optinErrorDelay(float delay) => errorDelay = delay;
+        static public void optoutErrorDelay() => errorDelay = -1f;
 
         SceneAssoc[] assocs;
 
