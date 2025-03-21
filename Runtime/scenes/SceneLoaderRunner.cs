@@ -36,6 +36,7 @@ namespace fwp.scenes
         static public SceneLoaderRunner createLoader()
         {
             GameObject go = new GameObject("[loader(" + UnityEngine.Random.Range(0, 1000) + ")]");
+            DontDestroyOnLoad(go);
 
             return go.AddComponent<SceneLoaderRunner>();
         }
