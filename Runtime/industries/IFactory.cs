@@ -20,7 +20,7 @@ namespace fwp.industries
         /// factory as any elements ?
         /// has something in pool
         /// </summary>
-        public bool hasCandidates();
+        public bool hasAnyCandidates();
 
         /// <summary>
         /// force a recycling on all active elements
@@ -31,9 +31,14 @@ namespace fwp.industries
         //public void injectObject(iFactoryObject instance);
 
         /// <summary>
-        /// create OR recycle inactive
+        /// create OR recycle from inactives[]
         /// </summary>
         public iFactoryObject extract(string uid);
+
+        /// <summary>
+        /// some factory will need some async behavior (ie : addressables)
+        /// </summary>
+        public void extractAsync(string uid, System.Action<iFactoryObject> onPresence);
 
         /// <summary>
         /// bool is to inject either in inactives or actives list of factory
@@ -43,9 +48,16 @@ namespace fwp.industries
         public bool inject(iFactoryObject candidate, bool isActive);
 
         /// <summary>
-        /// some factory will need some async behavior (ie : addressables)
+        /// keep factory posted
+        /// called by candidate when object is recycled by context
         /// </summary>
-        public void extractAsync(string uid, System.Action<iFactoryObject> onPresence);
+        public bool recycle(iFactoryObject candidate);
+
+        /// <summary>
+        /// keep factory posted
+        /// called by candidate when external pooled object is destroy
+        /// </summary>
+        public bool destroy(iFactoryObject candidate);
 
 #if UNITY_EDITOR
         /// <summary>

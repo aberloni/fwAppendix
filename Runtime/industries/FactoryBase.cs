@@ -63,7 +63,7 @@ namespace fwp.industries
 
         //abstract public System.Type getChildrenType();
 
-        public bool hasCandidates() => actives.Count > 0 || inactives.Count > 0;
+        public bool hasAnyCandidates() => actives.Count > 0 || inactives.Count > 0;
         public bool hasCandidates(int countCheck) => (actives.Count + inactives.Count) >= countCheck;
 
         /// <summary>
@@ -295,6 +295,8 @@ namespace fwp.industries
             }
         }
 
+        public bool recycle(iFactoryObject candid) => recycle(candid as FaceType);
+
         /// <summary>
         /// indiquer a la factory qu'un objet a changé d'état de recyclage
         /// </summary>
@@ -355,7 +357,7 @@ namespace fwp.industries
             return dirty;
         }
 
-        public bool inject(iFactoryObject candid, bool isActive) => inject(candid, isActive);
+        public bool inject(iFactoryObject candid, bool isActive) => inject(candid as FaceType, isActive);
 
         /// <summary>
         /// to flag as used by facto
@@ -392,13 +394,23 @@ namespace fwp.industries
             return dirty;
         }
 
+        public bool destroy(iFactoryObject candid) => destroy(candid as FaceType);
+
         /// <summary>
         /// called by a destroyed object
         /// </summary>
-        public void destroy(FaceType candid)
+        public bool destroy(FaceType candid)
         {
+            // remove from facebook
             IndusReferenceMgr.instance.Delete(candid);
-            if (inactives.IndexOf(candid) > -1) inactives.Remove(candid);
+
+            // remove from actives[]
+            List<FaceType> list = actives as List<FaceType>;
+            list.Remove(candid);
+
+            inactives.Remove(candid);
+
+            return true;
         }
 
         public void recycleAll()
