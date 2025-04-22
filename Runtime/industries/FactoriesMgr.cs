@@ -27,10 +27,7 @@ namespace fwp.industries
             }
         }
 
-        /// <summary>
-        /// get a factory by its subtype
-        /// </summary>
-        static public T getFactoryOf<T>() where T : IFactory
+        static public IFactory getFactoryOf(System.Type type)
         {
             // already exists ?
             foreach (var f in factos)
@@ -40,18 +37,41 @@ namespace fwp.industries
                 {
                     // need to compare type
                     // can't cast if not matching
-                    if (f.isTargetType(typeof(T)))
+                    if (f.isTargetType(type))
                     {
-                        return (T)f;
+                        return f;
                     }
                 }
                 catch
                 {
-                    Debug.LogError("facto cast :: can't cast " + typeof(T));
+                    Debug.LogError("facto cast :: can't cast " + type.ToString());
                 }
             }
 
-            return create<T>();
+            return create(type);
+        }
+
+        /// <summary>
+        /// get a factory by its subtype
+        /// </summary>
+        static public T getFactoryOf<T>() where T : IFactory
+        {
+            var facto = getFactoryOf(typeof(T));
+            return (T)facto;
+        }
+
+        static private IFactory create(Type type)
+        {
+            //https://stackoverflow.com/questions/731452/create-instance-of-generic-type-whose-constructor-requires-a-parameter
+            object instance = Activator.CreateInstance(type);
+
+            IFactory fb = instance as IFactory;
+            Debug.Assert(fb != null, $"implem for {type.ToString()} , check typo ?");
+
+            factos.Add(fb);
+            if (IndusReferenceMgr.verbose) Debug.Log($"Facto:   created new factory <b>{type.ToString()}</b> , total x{factos.Count}");
+
+            return fb;
         }
 
         /// <summary>
@@ -59,24 +79,7 @@ namespace fwp.industries
         /// </summary>
         static private T create<T>() where T : IFactory
         {
-            //https://stackoverflow.com/questions/731452/create-instance-of-generic-type-whose-constructor-requires-a-parameter
-
-            //if (IndusReferenceMgr.verbose) Debug.Log("creating new facto : <b>" + typeof(T) + "</b>");
-
-            T fb;
-
-            object instance = Activator.CreateInstance<T>();
-            Debug.Assert(instance != null);
-
-            fb = (T)instance;
-            Debug.Assert(fb != null, $"implem for {typeof(T)} , check typo ?");
-
-            //FactoryBase fb = (FactoryBase)Activator.CreateInstance(typeof(FactoryBase), new object[] { tarType });
-            factos.Add(fb);
-
-            if (IndusReferenceMgr.verbose) Debug.Log($"Facto:   created new factory <b>{typeof(T)}</b> , total x{factos.Count}");
-
-            return fb;
+            return (T)create(typeof(T));
         }
 
         static public void inject(IFactory facto)
