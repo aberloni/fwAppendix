@@ -7,13 +7,35 @@ namespace fwp.industries
 
     public interface IFactory
     {
-        public void refresh(); // refresh content of this factory
-        public bool hasCandidates(); // factory as any elements ?
-        public void recycleAll(); // force a recycling on all active elements
+        public bool isTargetType(System.Type type);
+
+        /// <summary>
+        /// refresh content of this factory
+        /// </summary>
+        public void refresh();
+
+        /// <summary>
+        /// factory as any elements ?
+        /// has something in pool
+        /// </summary>
+        public bool hasCandidates();
+
+        /// <summary>
+        /// force a recycling on all active elements
+        /// make all element inactive
+        /// </summary>
+        public void recycleAll();
 
         //public void injectObject(iFactoryObject instance);
 
+        /// <summary>
+        /// create OR recycle inactive
+        /// </summary>
         public iFactoryObject extract(string uid);
+
+        /// <summary>
+        /// some factory will need some async behavior (ie : addressables)
+        /// </summary>
         public void extractAsync(string uid, System.Action<iFactoryObject> onPresence);
 
 #if UNITY_EDITOR

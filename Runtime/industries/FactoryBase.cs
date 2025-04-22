@@ -43,6 +43,8 @@ namespace fwp.industries
         /// what kind of object will be created by this factory
         /// </summary>
         protected System.Type getFactoryTargetType() => typeof(FaceType);
+        
+        public bool isTargetType(Type type) => getFactoryTargetType() == type;
 
         public void refresh()
         {
@@ -75,6 +77,9 @@ namespace fwp.industries
 
 #if UNITY_EDITOR
 
+        /// <summary>
+        /// DEBUG
+        /// </summary>
         public List<iFactoryObject> getActives()
         {
             List<iFactoryObject> tmp = new List<iFactoryObject>();
@@ -86,7 +91,7 @@ namespace fwp.industries
         }
 
         /// <summary>
-        /// DEBUG ONLY
+        /// DEBUG
         /// </summary>
         public List<iFactoryObject> getInactives()
         {
@@ -95,13 +100,20 @@ namespace fwp.industries
 
 #endif
 
+        /// <summary>
+        /// get any reference from active list
+        /// null if empty list
+        /// </summary>
         public FaceType getRandomActive()
         {
-            Debug.Assert(actives.Count > 0, GetType() + " can't return random one if active list is empty :: " + actives.Count + "/" + inactives.Count);
-
+            if (actives == null) return null;
+            if (actives.Count <= 0) return null;
             return actives[UnityEngine.Random.Range(0, actives.Count)];
         }
 
+        /// <summary>
+        /// the next one in the last based on given instance
+        /// </summary>
         public FaceType getNextActive(FaceType curr)
         {
             int idx = actives.IndexOf(curr);
@@ -191,8 +203,7 @@ namespace fwp.industries
         //public iFactoryObject extractObject(string subType) => (iFactoryObject)extract(subType);
 
         /// <summary>
-        /// use fetch instead
-        /// same as fetch, but return interface type
+        /// same as fetch, but fetch return generic type
         /// </summary>
         public iFactoryObject extract(string uid) => fetch(uid);
 
@@ -259,7 +270,6 @@ namespace fwp.industries
             //and go on
             if (inactives.Count > 0)
             {
-
                 // search in available pool
                 for (int i = 0; i < inactives.Count; i++)
                 {
@@ -278,7 +288,7 @@ namespace fwp.industries
         {
             if (recycle(candid))
             {
-                candid.factoRecycle();
+                candid.factoRecycleAll();
             }
         }
 
@@ -451,7 +461,7 @@ namespace fwp.industries
         /// not called if app ask for a recycle
         /// only during event when factory is told to recycling everything
         /// </summary>
-        void factoRecycle();
+        void factoRecycleAll();
 
         /// <summary>
         /// when object is added to factory lists

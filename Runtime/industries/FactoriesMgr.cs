@@ -28,7 +28,7 @@ namespace fwp.industries
         }
 
         /// <summary>
-        /// ie => seek : BrainScrapling
+        /// get a factory by its subtype
         /// </summary>
         static public T getFactoryOf<T>() where T : IFactory
         {
@@ -40,7 +40,7 @@ namespace fwp.industries
                 {
                     // need to compare type
                     // can't cast if not matching
-                    if(f.GetType() == typeof(T))
+                    if (f.isTargetType(typeof(T)))
                     {
                         return (T)f;
                     }
