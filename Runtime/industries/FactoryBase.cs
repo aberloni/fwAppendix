@@ -181,7 +181,7 @@ namespace fwp.industries
         /// </summary>
         public iFactoryObject browse(string uid)
         {
-            return extractFromInactives(uid);
+            return extractFromPool(uid);
         }
 
         /// <summary>
@@ -201,7 +201,7 @@ namespace fwp.industries
         /// </summary>
         FaceType fetch(string subType)
         {
-            FaceType instance = extractFromInactives(subType);
+            FaceType instance = extractFromPool(subType);
 
             if (instance == null)
             {
@@ -221,7 +221,7 @@ namespace fwp.industries
         /// </summary>
         void fetchAsync(string subType, Action<FaceType> onPresence)
         {
-            FaceType instance = extractFromInactives(subType);
+            FaceType instance = extractFromPool(subType);
 
             if (instance != null) // found inactive : recycling
             {
@@ -253,13 +253,13 @@ namespace fwp.industries
         }
 
         /// <summary>
-        /// 
+        /// found first non-active candidate of UID
         /// </summary>
-        FaceType extractFromInactives(string uid)
+        FaceType extractFromPool(string uid, bool skipActive = true)
         {
             foreach (var c in pool)
             {
-                if (isCandidateActive(c)) continue;
+                if (skipActive && isCandidateActive(c)) continue;
                 if (c.GetCandidateName() == uid) return c;
             }
 
