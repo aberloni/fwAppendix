@@ -64,9 +64,10 @@ namespace fwp.industries
         /// DEBUG ONLY
         /// creates a copy in a list
         /// </summary>
-        public List<iFactoryObject> getActives();
-        public List<iFactoryObject> getInactives();
+        public List<iFactoryObject> edGetActives();
+        public List<iFactoryObject> edGetInactives();
 #endif
+
     }
 
 }

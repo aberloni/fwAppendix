@@ -83,8 +83,8 @@ namespace fwp.industries
                     facto.recycleAll();
                 }
 
-                drawFactoList("actives", facto.getActives());
-                drawFactoList("inactives", facto.getInactives());
+                drawFactoList("actives", facto.edGetActives());
+                drawFactoList("inactives", facto.edGetInactives());
 
             }
 

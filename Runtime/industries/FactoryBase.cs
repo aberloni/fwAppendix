@@ -4,28 +4,27 @@ using UnityEngine;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-
 namespace fwp.industries
 {
-    using facebook;
     using System;
-
     using Object = UnityEngine.Object;
 
     /// <summary>
     /// wrapper object to make a factory for a specific type
+    /// - actives[] is a copy from the content in facebook
+    /// - pool[] is all element (active or not)
     /// </summary>
     abstract public class FactoryBase<FaceType> : IFactory where FaceType : class, iFactoryObject
     {
         /// <summary>
         /// ReadOnly wrapper around list in facebook
         /// </summary>
-        public ReadOnlyCollection<FaceType> actives = null;
+        ReadOnlyCollection<FaceType> actives = null;
 
         /// <summary>
         /// all objects currently available for recycling
         /// </summary>
-        public List<FaceType> inactives = new List<FaceType>();
+        List<FaceType> pool = null;
 
         System.Type _factoryTargetType;
 
@@ -35,6 +34,7 @@ namespace fwp.industries
 
             // get handle to RO list
             actives = IndusReferenceMgr.instance.GetGroup<FaceType>();
+            pool = new();
 
             if (!Application.isPlaying) refresh(false);
         }
@@ -43,14 +43,14 @@ namespace fwp.industries
         /// what kind of object will be created by this factory
         /// </summary>
         protected System.Type getFactoryTargetType() => typeof(FaceType);
-        
+
         public bool isTargetType(Type type) => getFactoryTargetType() == type;
 
         public void refresh(bool includeInactives)
         {
             log($"refresh(inactives ? {includeInactives})");
 
-            inactives.Clear();
+            pool.Clear();
 
             Object[] presents = (Object[])fwp.appendix.AppendixUtils.gcts(typeof(FaceType), includeInactives);
             for (int i = 0; i < presents.Length; i++)
@@ -63,8 +63,9 @@ namespace fwp.industries
 
         //abstract public System.Type getChildrenType();
 
-        public bool hasAnyCandidates() => actives.Count > 0 || inactives.Count > 0;
-        public bool hasCandidates(int countCheck) => (actives.Count + inactives.Count) >= countCheck;
+        public bool hasAnyCandidates() => pool.Count > 0;
+        public bool hasAnyActiveCandidates() => actives.Count > 0;
+        public bool hasAmountCandidates(int countCheck) => pool.Count >= countCheck;
 
         /// <summary>
         /// cannot implem this
@@ -74,31 +75,6 @@ namespace fwp.industries
         /// just transfert list
         /// </summary>
         //public ReadOnlyCollection<FaceType> getActives() => actives;
-
-#if UNITY_EDITOR
-
-        /// <summary>
-        /// DEBUG
-        /// </summary>
-        public List<iFactoryObject> getActives()
-        {
-            List<iFactoryObject> tmp = new List<iFactoryObject>();
-            foreach (var e in actives)
-            {
-                tmp.Add(e as iFactoryObject);
-            }
-            return tmp;
-        }
-
-        /// <summary>
-        /// DEBUG
-        /// </summary>
-        public List<iFactoryObject> getInactives()
-        {
-            return inactives.Cast<iFactoryObject>().ToList();
-        }
-
-#endif
 
         /// <summary>
         /// get any reference from active list
@@ -151,8 +127,6 @@ namespace fwp.industries
         /// </summary>
         protected void createAsync(string subType, Action<FaceType> onPresence = null)
         {
-            log("<b>" + subType + "</b> not available (x" + inactives.Count + ") : new, ASYNC");
-
             string path = solvePath(subType);
             instantiateAsync(path, (instance) =>
             {
@@ -169,7 +143,7 @@ namespace fwp.industries
         {
             string path = getObjectPath() + "/" + subType;
 
-            log("no " + subType + " available (x" + inactives.Count + ") : new");
+            log("no " + subType + " available (x" + pool.Count + ") : new");
 
             return solveNew(instantiate(path));
         }
@@ -185,8 +159,7 @@ namespace fwp.industries
             FaceType candidate = go.GetComponent<FaceType>();
             Debug.Assert(candidate != null, $"could not retrieve comp<{typeof(FaceType)}> on gObject:{go} ?? generated object is not factory compatible", go);
 
-            inactives.Add(candidate);
-            //recycle(candidate);
+            pool.Add(candidate);
 
             return candidate;
         }
@@ -228,7 +201,7 @@ namespace fwp.industries
                 // but will be added to recycled by default
                 instance = create(subType);
             }
-            
+
             inject(instance); // add to actives[]
 
             return instance;
@@ -265,26 +238,23 @@ namespace fwp.industries
         }
         */
 
-        FaceType extractFromInactives(string subType)
+        bool isCandidateActive(FaceType candidate)
         {
-            FaceType instance = null;
+            return actives.Contains(candidate);
+        }
 
-            //will add an item in inactive
-            //and go on
-            if (inactives.Count > 0)
+        /// <summary>
+        /// 
+        /// </summary>
+        FaceType extractFromInactives(string uid)
+        {
+            foreach (var c in pool)
             {
-                // search in available pool
-                for (int i = 0; i < inactives.Count; i++)
-                {
-                    if (inactives[i].factoGetCandidateName() == subType)
-                    {
-                        instance = inactives[i];
-                    }
-                }
-
+                if (isCandidateActive(c)) continue;
+                if (c.GetCandidateName() == uid) return c;
             }
 
-            return instance;
+            return null;
         }
 
         public bool recycle(iFactoryObject candid) => recycle(candid as FaceType);
@@ -294,33 +264,23 @@ namespace fwp.industries
         /// </summary>
         public bool recycle(FaceType candid)
         {
+            if (!pool.Contains(candid))
+            {
+                log("recycle:   candidate is not part of pool, can't recycle");
+                return false;
+            }
+
             bool dirty = false;
 
-            bool present = actives.Contains(candid);
-            //Debug.Assert(present, candid + " is not in actives array ?");
-            if (present)
+            // remove from active pool
+            if (actives.Contains(candid))
             {
                 IndusReferenceMgr.instance.Delete(candid);
-                //actives.Remove(candid);
-
                 dirty = true;
             }
 
-            present = inactives.Contains(candid);
-            //Debug.Assert(!present, candid + " must not be already in inactives");
-            if (!present)
-            {
-                inactives.Add(candid);
+            // REMOVE PARENTING
 
-                // DO NOT, inf loop
-                //candid.factoRecycle();
-
-                IndusReferenceMgr.instance.Delete(candid); // rem facebook
-
-                dirty = true;
-            }
-
-            // move recycled object into facto scene
             MonoBehaviour comp = candid as MonoBehaviour;
 
             // edge case where recycling is called when destroying the object
@@ -330,21 +290,9 @@ namespace fwp.industries
                 {
                     comp.transform.SetParent(null);
                 }
-
-                // do something more ?
-                //comp.gameObject.SetActive(false);
-                //comp.enabled = false;
-
-                /*
-                //https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager.MoveGameObjectToScene.html
-                UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(
-                    comp.gameObject,
-                    UnityEngine.SceneManagement.SceneManager.GetSceneByName(TinyConst.scene_resources_facto));
-                */
             }
 
-            if (dirty)
-                log(" :: recycle :: " + candid + " :: ↑" + actives.Count + "/ ↓" + inactives.Count);
+            if (dirty) log("recycled:   " + candid + " :: " + stringifyOneLiner());
 
             return dirty;
         }
@@ -363,27 +311,23 @@ namespace fwp.industries
 
             bool dirty = false; // something changed ?
 
-            // remove from inactive
-            if (inactives.Contains(candid))
+            if (!pool.Contains(candid))
             {
-                var list = inactives as List<FaceType>;
-                list.Remove(candid);
+                pool.Add(candid);
                 dirty = true;
             }
-            
-            if(!actives.Contains(candid))
-            {
-                actives.Append(candid);
-                dirty = true;
 
+            if (!actives.Contains(candid))
+            {
                 // also try to add to facebook
                 MonoBehaviour cmp = candid as MonoBehaviour;
                 if (cmp != null) cmp.enabled = true;
                 IndusReferenceMgr.instance.Register<FaceType>(candid);
+
+                dirty = true;
             }
 
-            if (dirty)
-                log("inject :: " + candid + " :: ↑" + actives.Count + "/ ↓" + inactives.Count);
+            if (dirty) log("inject :: " + candid + " :: " + stringifyOneLiner());
 
             return dirty;
         }
@@ -398,11 +342,7 @@ namespace fwp.industries
             // remove from facebook
             IndusReferenceMgr.instance.Delete(candid);
 
-            // remove from actives[]
-            List<FaceType> list = actives as List<FaceType>;
-            list.Remove(candid);
-
-            inactives.Remove(candid);
+            pool.Remove(candid);
 
             return true;
         }
@@ -411,24 +351,26 @@ namespace fwp.industries
         {
             log("recycleAll()");
 
-            List<FaceType> cands = new List<FaceType>();
-            cands.AddRange(actives);
+            // copy, to avoid index shifting
+            List<FaceType> cands = new(actives);
 
             // use INTERNAL to avoid inf loops
 
             for (int i = 0; i < cands.Count; i++)
             {
                 var candid = cands[i];
-                if (recycle(candid))
-                {
-                    candid.factoRecycleAll();
-                }
+
+                recycle(candid);
+
+                candid.OnRecycledByFactory();
             }
 
             Debug.Assert(actives.Count <= 0);
         }
 
         string getStamp() => "<color=#3333aa>" + GetType() + "|" + _factoryTargetType + "</color>";
+
+        public string stringifyOneLiner() => $"↑{actives.Count}/ x{pool.Count}";
 
         void log(string content, object target = null)
         {
@@ -452,37 +394,31 @@ namespace fwp.industries
             return false;
         }
 
+#if UNITY_EDITOR
+
+        /// <summary>
+        /// DEBUG
+        /// </summary>
+        public List<iFactoryObject> edGetActives()
+        {
+            return new(actives);
+        }
+
+        /// <summary>
+        /// DEBUG
+        /// </summary>
+        public List<iFactoryObject> edGetInactives()
+        {
+            List<iFactoryObject> ret = new(pool);
+            foreach (var c in actives)
+            {
+                ret.Remove(c);
+            }
+            return ret;
+        }
+
+#endif
+
     }
 
-    //public interface IFactory{}
-
-    /// <summary>
-    /// make ref compatible with factories
-    /// </summary>
-    public interface iFactoryObject : IFacebook
-    {
-
-        /// <summary>
-        /// the actual name of the object to instantiate
-        /// to be able to compare signatures when extracting and recycling
-        /// Resources/{facto}/{CandidateName}
-        /// </summary>
-        string factoGetCandidateName();
-
-        /// <summary>
-        /// not called if app ask for a recycle
-        /// only during event when factory is told to recycling everything
-        /// </summary>
-        void factoRecycleAll();
-
-        /// <summary>
-        /// when object is added to factory lists
-        /// this is called when factory provide this object
-        /// describe activation
-        /// called when added to actives
-        /// </summary>
-        //void factoMaterialize();
-
-        //string serialize();
-    }
 }
