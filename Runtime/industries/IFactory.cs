@@ -55,7 +55,7 @@ namespace fwp.industries
 
         /// <summary>
         /// keep factory posted
-        /// called by candidate when external pooled object is destroy
+        /// called by candidate when it s destroyed
         /// </summary>
         public bool destroy(iFactoryObject candidate);
 

@@ -27,7 +27,33 @@ namespace fwp.industries
             }
         }
 
-        static public IFactory getFactoryOf(System.Type type)
+        /// <summary>
+        /// checks for explicit factory type
+        /// </summary>
+        static public T getFactory<T>() where T : IFactory
+        {
+            foreach (var f in factos)
+            {
+                try
+                {
+                    if (f.GetType() == typeof(T))
+                    {
+                        return (T)f;
+                    }
+                }
+                catch
+                {
+                    Debug.LogError("facto cast :: can't cast " + typeof(T).ToString());
+                }
+            }
+            return create<T>();
+        }
+
+        /// <summary>
+        /// check if type is candidate type of factory
+        /// instead of checking factory type
+        /// </summary>
+        static public IFactory getFactoryOfCandidateType(Type candidateType)
         {
             // already exists ?
             foreach (var f in factos)
@@ -37,49 +63,52 @@ namespace fwp.industries
                 {
                     // need to compare type
                     // can't cast if not matching
-                    if (f.isTargetType(type))
+                    if (f.isTargetType(candidateType))
                     {
                         return f;
                     }
                 }
                 catch
                 {
-                    Debug.LogError("facto cast :: can't cast " + type.ToString());
+                    Debug.LogError("facto cast :: can't cast " + candidateType.ToString());
                 }
             }
 
-            return create(type);
+            return create(candidateType);
         }
 
-        /// <summary>
-        /// get a factory by its subtype
-        /// </summary>
-        static public T getFactoryOf<T>() where T : IFactory
-        {
-            var facto = getFactoryOf(typeof(T));
-            return (T)facto;
-        }
-
-        static private IFactory create(Type type)
+        static private T create<T>() where T : IFactory
         {
             //https://stackoverflow.com/questions/731452/create-instance-of-generic-type-whose-constructor-requires-a-parameter
-            object instance = Activator.CreateInstance(type);
+            object instance = Activator.CreateInstance<T>();
 
-            IFactory fb = instance as IFactory;
-            Debug.Assert(fb != null, $"implem for {type.ToString()} , check typo ?");
+            T fb = (T)instance;
+            Debug.Assert(fb != null, $"implem for {typeof(T)} , check typo ?");
 
             factos.Add(fb);
-            if (IndusReferenceMgr.verbose) Debug.Log($"Facto:   created new factory <b>{type.ToString()}</b> , total x{factos.Count}");
+            if (IndusReferenceMgr.verbose) Debug.Log($"Facto:   created new factory <b>{typeof(T)}</b> , total x{factos.Count}");
 
             return fb;
         }
 
         /// <summary>
-        /// create the factory instance
+        /// create a factory based on sub type
+        /// FactoryBase<GivenType>
         /// </summary>
-        static private T create<T>() where T : IFactory
+        static private IFactory create(Type subtype)
         {
-            return (T)create(typeof(T));
+            Type ft = typeof(FactoryBase<>).MakeGenericType(subtype);
+
+            //https://stackoverflow.com/questions/731452/create-instance-of-generic-type-whose-constructor-requires-a-parameter
+            object instance = Activator.CreateInstance(ft);
+
+            IFactory fb = instance as IFactory;
+            Debug.Assert(fb != null, $"implem for sub<{subtype.ToString()}< , check typo ?");
+
+            factos.Add(fb);
+            if (IndusReferenceMgr.verbose) Debug.Log($"Facto:   created new factory <b>Factory<{subtype.ToString()}></b> , total x{factos.Count}");
+
+            return fb;
         }
 
         static public void inject(IFactory facto)
