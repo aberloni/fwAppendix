@@ -31,18 +31,13 @@ namespace fwp.industries
         //public void injectObject(iFactoryObject instance);
 
         /// <summary>
-        /// get from active pool only
+        /// READ ONLY
+        /// get from pools actives[] OR recycled[]
         /// </summary>
-        public iFactoryObject browse(string uid);
+        public iFactoryObject browse(string uid, bool fromRecycled);
 
         /// <summary>
-        /// get from recycled pool only
-        /// </summary>
-        public iFactoryObject query(string uid, bool orCreate);
-
-        /// <summary>
-        /// no duplicate ? fetch from pool (active/recycled)
-        /// or from available recycled only
+        /// READ from recycled[]
         /// CREATE if missing
         /// </summary>
         public iFactoryObject extract(string uid);

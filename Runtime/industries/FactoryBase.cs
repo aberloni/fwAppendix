@@ -7,6 +7,7 @@ using System.Linq;
 namespace fwp.industries
 {
     using System;
+    using System.Threading;
     using Object = UnityEngine.Object;
 
     /// <summary>
@@ -175,22 +176,10 @@ namespace fwp.industries
 
         //public iFactoryObject extractObject(string subType) => (iFactoryObject)extract(subType);
 
-        /// <summary>
-        /// get existing reference
-        /// </summary>
-        public iFactoryObject browse(string uid)
+        public iFactoryObject browse(string uid, bool fromRecycled)
         {
+            if(fromRecycled) return extractFromRecycled(uid);
             return extractFromActives(uid);
-        }
-
-        /// <summary>
-        /// get from recycled
-        /// </summary>
-        public iFactoryObject query(string uid, bool orCreate)
-        {
-            iFactoryObject ret = extractFromRecycled(uid);
-            if (orCreate && ret == null) ret = extract(uid);
-            return ret;
         }
 
         /// <summary>
