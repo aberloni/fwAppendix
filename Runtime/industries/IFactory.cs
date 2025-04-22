@@ -31,17 +31,24 @@ namespace fwp.industries
         //public void injectObject(iFactoryObject instance);
 
         /// <summary>
-        /// get pooled item (recycle)
-        /// won't create it if missing
+        /// get from active pool only
         /// </summary>
         public iFactoryObject browse(string uid);
 
         /// <summary>
-        /// create OR recycle from inactives[]
+        /// get from recycled pool only
+        /// </summary>
+        public iFactoryObject query(string uid, bool orCreate);
+
+        /// <summary>
+        /// no duplicate ? fetch from pool (active/recycled)
+        /// or from available recycled only
+        /// CREATE if missing
         /// </summary>
         public iFactoryObject extract(string uid);
 
         /// <summary>
+        /// recycle OR create
         /// some factory will need some async behavior (ie : addressables)
         /// </summary>
         public void extractAsync(string uid, System.Action<iFactoryObject> onPresence);

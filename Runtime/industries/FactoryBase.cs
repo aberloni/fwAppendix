@@ -176,66 +176,63 @@ namespace fwp.industries
         //public iFactoryObject extractObject(string subType) => (iFactoryObject)extract(subType);
 
         /// <summary>
-        /// only try to recycle existing
-        /// won't create new entry
+        /// get existing reference
         /// </summary>
         public iFactoryObject browse(string uid)
         {
-            return extractFromPool(uid);
+            return extractFromActives(uid);
         }
 
         /// <summary>
+        /// get from recycled
+        /// </summary>
+        public iFactoryObject query(string uid, bool orCreate)
+        {
+            iFactoryObject ret = extractFromRecycled(uid);
+            if (orCreate && ret == null) ret = extract(uid);
+            return ret;
+        }
+
+        /// <summary>
+        /// recycle OR create
         /// same as fetch, but fetch return generic type
         /// </summary>
-        public iFactoryObject extract(string uid) => fetch(uid);
+        public iFactoryObject extract(string uid)
+        {
+            iFactoryObject ret = extractFromRecycled(uid);
+
+            // create if missing
+            if (ret == null) ret = create(uid);
+
+            // flag as active
+            if (ret != null) inject(ret);
+
+            return ret;
+        }
 
         /// <summary>
         /// use fetch instead
         /// same as fetch, but return interface type
         /// </summary>
         public void extractAsync(string uid, Action<iFactoryObject> onPresence)
-            => fetchAsync(uid, onPresence);
-
-        /// <summary>
-        /// recycle OR create
-        /// </summary>
-        FaceType fetch(string subType)
         {
-            FaceType instance = extractFromPool(subType);
+            iFactoryObject ret = extractFromRecycled(uid);
 
-            if (instance == null)
+            if (ret == null)
             {
-                // this will only instantiate the object
-                // won't deactivate it by default
-                // but will be added to recycled by default
-                instance = create(subType);
-            }
+                createAsync(uid, (createdInstance) =>
+                {
+                    inject(createdInstance);
+                    onPresence?.Invoke(createdInstance);
+                });
 
-            inject(instance); // add to actives[]
-
-            return instance;
-        }
-
-        /// <summary>
-        /// recycle OR create
-        /// </summary>
-        void fetchAsync(string subType, Action<FaceType> onPresence)
-        {
-            FaceType instance = extractFromPool(subType);
-
-            if (instance != null) // found inactive : recycling
-            {
-                inject(instance);
-                onPresence.Invoke(instance);
             }
             else
             {
-                createAsync(subType, (instance) =>
-                {
-                    inject(instance);
-                    onPresence.Invoke(instance);
-                });
+                inject(ret);
+                onPresence?.Invoke(ret);
             }
+
         }
 
         /*
@@ -252,14 +249,27 @@ namespace fwp.industries
             return actives.Contains(candidate);
         }
 
-        /// <summary>
-        /// found first non-active candidate of UID
-        /// </summary>
-        FaceType extractFromPool(string uid, bool skipActive = true)
+        FaceType extractFromActives(string uid)
+        {
+            foreach (var c in actives)
+            {
+                if (c.GetCandidateName() == uid) return c;
+            }
+            return null;
+        }
+        FaceType extractFromRecycled(string uid)
         {
             foreach (var c in pool)
             {
-                if (skipActive && isCandidateActive(c)) continue;
+                if (isCandidateActive(c)) continue;
+                if (c.GetCandidateName() == uid) return c;
+            }
+            return null;
+        }
+        FaceType extractFromPool(string uid)
+        {
+            foreach (var c in pool)
+            {
                 if (c.GetCandidateName() == uid) return c;
             }
 
