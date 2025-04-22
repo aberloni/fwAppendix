@@ -31,6 +31,12 @@ namespace fwp.industries
         //public void injectObject(iFactoryObject instance);
 
         /// <summary>
+        /// get pooled item (recycle)
+        /// won't create it if missing
+        /// </summary>
+        public iFactoryObject browse(string uid);
+
+        /// <summary>
         /// create OR recycle from inactives[]
         /// </summary>
         public iFactoryObject extract(string uid);

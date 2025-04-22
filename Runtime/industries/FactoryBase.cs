@@ -176,6 +176,15 @@ namespace fwp.industries
         //public iFactoryObject extractObject(string subType) => (iFactoryObject)extract(subType);
 
         /// <summary>
+        /// only try to recycle existing
+        /// won't create new entry
+        /// </summary>
+        public iFactoryObject browse(string uid)
+        {
+            return extractFromInactives(uid);
+        }
+
+        /// <summary>
         /// same as fetch, but fetch return generic type
         /// </summary>
         public iFactoryObject extract(string uid) => fetch(uid);
@@ -190,7 +199,7 @@ namespace fwp.industries
         /// <summary>
         /// recycle OR create
         /// </summary>
-        public FaceType fetch(string subType)
+        FaceType fetch(string subType)
         {
             FaceType instance = extractFromInactives(subType);
 
@@ -210,7 +219,7 @@ namespace fwp.industries
         /// <summary>
         /// recycle OR create
         /// </summary>
-        public void fetchAsync(string subType, Action<FaceType> onPresence)
+        void fetchAsync(string subType, Action<FaceType> onPresence)
         {
             FaceType instance = extractFromInactives(subType);
 
