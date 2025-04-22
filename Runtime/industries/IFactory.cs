@@ -34,7 +34,7 @@ namespace fwp.industries
         /// READ ONLY
         /// get from pools actives[] OR recycled[]
         /// </summary>
-        public iFactoryObject browse(string uid, bool fromRecycled);
+        public iFactoryObject browse(string uid);
 
         /// <summary>
         /// READ from recycled[]

@@ -176,10 +176,9 @@ namespace fwp.industries
 
         //public iFactoryObject extractObject(string subType) => (iFactoryObject)extract(subType);
 
-        public iFactoryObject browse(string uid, bool fromRecycled)
+        public iFactoryObject browse(string uid)
         {
-            if(fromRecycled) return extractFromRecycled(uid);
-            return extractFromActives(uid);
+            return extractFromPool(uid);
         }
 
         /// <summary>
