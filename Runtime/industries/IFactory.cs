@@ -45,7 +45,7 @@ namespace fwp.industries
         /// if active : will also add to matching facebook
         /// return : successful injection
         /// </summary>
-        public bool inject(iFactoryObject candidate, bool isActive);
+        public bool inject(iFactoryObject candidate);
 
         /// <summary>
         /// keep factory posted

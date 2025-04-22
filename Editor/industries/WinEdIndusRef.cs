@@ -6,6 +6,9 @@ using System;
 
 namespace fwp.industries
 {
+    /// <summary>
+    /// view to visualize facebook content
+    /// </summary>
     public class WinEdIndusRef : EditorWindow
     {
         [MenuItem("Window/Industries/(window) indus ref", false, 1)]
@@ -46,18 +49,20 @@ namespace fwp.industries
                 return;
             }
 
-            if (GUILayout.Button("refresh types(s)"))
+            if (GUILayout.Button("refresh facebook list(s)"))
             {
                 updateRefs(true);
             }
 
+            GUILayout.Label("facebook");
+
             if (refTypes.Count <= 0)
             {
-                GUILayout.Label("facebook has 0 type(s)");
+                GUILayout.Label("empty type(s)");
                 return;
             }
 
-            GUILayout.Label("x" + refTypes.Count + " in facebook");
+            GUILayout.Label("types  x" + refTypes.Count + "");
 
             if (GUILayout.Button("refresh list(s)"))
             {

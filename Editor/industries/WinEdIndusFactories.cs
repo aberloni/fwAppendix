@@ -6,6 +6,9 @@ using System;
 
 namespace fwp.industries
 {
+    /// <summary>
+    /// view to visualize content of Factories
+    /// </summary>
     public class WinEdIndusFactories : EditorWindow
     {
         [MenuItem("Window/Industries/(window) indus factories", false, 1)]
@@ -41,15 +44,17 @@ namespace fwp.industries
                 return;
             }
 
-            if (GUILayout.Button("refresh content"))
+            if (GUILayout.Button("refresh factory content"))
             {
                 refreshRefs(true);
                 return;
             }
 
+            GUILayout.Label("factories");
+
             if (factos.Length <= 0)
             {
-                GUILayout.Label("has 0 factos");
+                GUILayout.Label("empty");
                 return;
             }
 

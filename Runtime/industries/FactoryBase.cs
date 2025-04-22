@@ -55,7 +55,7 @@ namespace fwp.industries
             Object[] presents = (Object[])fwp.appendix.AppendixUtils.gcts(typeof(FaceType), includeInactives);
             for (int i = 0; i < presents.Length; i++)
             {
-                inject(presents[i] as FaceType, true);
+                inject(presents[i] as FaceType);
             }
 
             log("refresh:after x{actives.Count}");
@@ -229,7 +229,7 @@ namespace fwp.industries
                 instance = create(subType);
             }
             
-            inject(instance, true); // add to actives[]
+            inject(instance); // add to actives[]
 
             return instance;
         }
@@ -243,14 +243,14 @@ namespace fwp.industries
 
             if (instance != null) // found inactive : recycling
             {
-                inject(instance, true);
+                inject(instance);
                 onPresence.Invoke(instance);
             }
             else
             {
                 createAsync(subType, (instance) =>
                 {
-                    inject(instance, true);
+                    inject(instance);
                     onPresence.Invoke(instance);
                 });
             }
@@ -285,14 +285,6 @@ namespace fwp.industries
             }
 
             return instance;
-        }
-
-        void recycleInternal(FaceType candid)
-        {
-            if (recycle(candid))
-            {
-                candid.factoRecycleAll();
-            }
         }
 
         public bool recycle(iFactoryObject candid) => recycle(candid as FaceType);
@@ -357,7 +349,7 @@ namespace fwp.industries
             return dirty;
         }
 
-        public bool inject(iFactoryObject candid, bool isActive) => inject(candid as FaceType, isActive);
+        public bool inject(iFactoryObject candid) => inject(candid as FaceType);
 
         /// <summary>
         /// to flag as used by facto
@@ -365,19 +357,21 @@ namespace fwp.industries
         /// - auto if created by factory
         /// - also can be used for pre-existing object in scene to flag part of facto
         /// </summary>
-        public bool inject(FaceType candid, bool isActive)
+        public bool inject(FaceType candid)
         {
             Debug.Assert(candid != null, "candid to inject is null ?");
 
-            bool dirty = false;
+            bool dirty = false; // something changed ?
 
-            // was already in inactives ?
-            if (!isActive && !inactives.Contains(candid))
+            // remove from inactive
+            if (inactives.Contains(candid))
             {
-                inactives.Append(candid);
+                var list = inactives as List<FaceType>;
+                list.Remove(candid);
                 dirty = true;
             }
-            else if(isActive && !actives.Contains(candid))
+            
+            if(!actives.Contains(candid))
             {
                 actives.Append(candid);
                 dirty = true;
@@ -424,8 +418,11 @@ namespace fwp.industries
 
             for (int i = 0; i < cands.Count; i++)
             {
-                recycleInternal(cands[i]);
-                //recycle(cands[i]);
+                var candid = cands[i];
+                if (recycle(candid))
+                {
+                    candid.factoRecycleAll();
+                }
             }
 
             Debug.Assert(actives.Count <= 0);
