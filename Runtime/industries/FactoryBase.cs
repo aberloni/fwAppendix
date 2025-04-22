@@ -36,7 +36,7 @@ namespace fwp.industries
             // get handle to RO list
             actives = IndusReferenceMgr.instance.GetGroup<FaceType>();
 
-            if (!Application.isPlaying) refresh();
+            if (!Application.isPlaying) refresh(false);
         }
 
         /// <summary>
@@ -46,16 +46,16 @@ namespace fwp.industries
         
         public bool isTargetType(Type type) => getFactoryTargetType() == type;
 
-        public void refresh()
+        public void refresh(bool includeInactives)
         {
-            log("refresh()");
+            log($"refresh(inactives ? {includeInactives})");
 
             inactives.Clear();
 
-            Object[] presents = (Object[])fwp.appendix.AppendixUtils.gcts(typeof(FaceType));
+            Object[] presents = (Object[])fwp.appendix.AppendixUtils.gcts(typeof(FaceType), includeInactives);
             for (int i = 0; i < presents.Length; i++)
             {
-                inject(presents[i] as FaceType);
+                inject(presents[i] as FaceType, true);
             }
 
             log("refresh:after x{actives.Count}");
@@ -223,10 +223,13 @@ namespace fwp.industries
 
             if (instance == null)
             {
+                // this will only instantiate the object
+                // won't deactivate it by default
+                // but will be added to recycled by default
                 instance = create(subType);
             }
-
-            inject(instance);
+            
+            inject(instance, true); // add to actives[]
 
             return instance;
         }
@@ -238,16 +241,16 @@ namespace fwp.industries
         {
             FaceType instance = extractFromInactives(subType);
 
-            if (instance != null) // recycling
+            if (instance != null) // found inactive : recycling
             {
-                inject(instance);
+                inject(instance, true);
                 onPresence.Invoke(instance);
             }
             else
             {
                 createAsync(subType, (instance) =>
                 {
-                    inject(instance);
+                    inject(instance, true);
                     onPresence.Invoke(instance);
                 });
             }
@@ -352,41 +355,41 @@ namespace fwp.industries
             return dirty;
         }
 
+        public bool inject(iFactoryObject candid, bool isActive) => inject(candid, isActive);
+
         /// <summary>
         /// to flag as used by facto
         /// generaly called when object is created (by facto or instance of a scene)
         /// - auto if created by factory
-        /// - also used by pre-existing object in scene to flag part of facto
+        /// - also can be used for pre-existing object in scene to flag part of facto
         /// </summary>
-        public void inject(FaceType candid)
+        public bool inject(FaceType candid, bool isActive)
         {
             Debug.Assert(candid != null, "candid to inject is null ?");
 
             bool dirty = false;
 
-            if (inactives.Contains(candid))
+            // was already in inactives ?
+            if (!isActive && !inactives.Contains(candid))
             {
-                inactives.Remove(candid);
-
+                inactives.Append(candid);
                 dirty = true;
             }
-
-            if (actives.IndexOf(candid) < 0)
+            else if(isActive && !actives.Contains(candid))
             {
-                // into facebook
-                //actives.Add(candid);
+                actives.Append(candid);
+                dirty = true;
 
+                // also try to add to facebook
                 MonoBehaviour cmp = candid as MonoBehaviour;
                 if (cmp != null) cmp.enabled = true;
-
-                //IndusReferenceMgr.instance.Register((FaceType)candid);
                 IndusReferenceMgr.instance.Register<FaceType>(candid);
-
-                dirty = true;
             }
 
             if (dirty)
                 log("inject :: " + candid + " :: ↑" + actives.Count + "/ ↓" + inactives.Count);
+
+            return dirty;
         }
 
         /// <summary>

@@ -26,10 +26,12 @@ namespace fwp.appendix
 
 	static public class AppendixUtils
 	{
-		static public Object[] gcts(System.Type type)
+		static public Object[] gcts(System.Type type, bool includeInactives)
 		{
 #if UNITY_6000_0_OR_NEWER || UNITY_2023_OR_NEWER
-            return GameObject.FindObjectsByType(type, FindObjectsSortMode.None);
+            return GameObject.FindObjectsByType(type, 
+				includeInactives ? FindObjectsInactive.Include : FindObjectsInactive.Exclude,
+				FindObjectsSortMode.None);
 #else
 			return GameObject.FindObjectsOfType(type);
 #endif

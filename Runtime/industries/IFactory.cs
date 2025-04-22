@@ -11,8 +11,10 @@ namespace fwp.industries
 
         /// <summary>
         /// refresh content of this factory
+        /// find object of type
+        /// (DOES NOT INCLUDE DEACTIVATED OBJECTS)
         /// </summary>
-        public void refresh();
+        public void refresh(bool includeInactives);
 
         /// <summary>
         /// factory as any elements ?
@@ -32,6 +34,13 @@ namespace fwp.industries
         /// create OR recycle inactive
         /// </summary>
         public iFactoryObject extract(string uid);
+
+        /// <summary>
+        /// bool is to inject either in inactives or actives list of factory
+        /// if active : will also add to matching facebook
+        /// return : successful injection
+        /// </summary>
+        public bool inject(iFactoryObject candidate, bool isActive);
 
         /// <summary>
         /// some factory will need some async behavior (ie : addressables)
