@@ -146,13 +146,15 @@ namespace fwp.industries
 
             log("no " + subType + " available (x" + pool.Count + ") : new");
 
-            return solveNew(instantiate(path));
+            var instance = instantiate(path);
+            if (instance == null) return null;
+
+            return solveNew(instance);
         }
 
         FaceType solveNew(Object copy)
         {
-            log(" created:" + copy, copy);
-
+            if(copy == null) return null;
             GameObject go = copy as GameObject;
 
             //Debug.Log("newly created object " + go.name, go);
