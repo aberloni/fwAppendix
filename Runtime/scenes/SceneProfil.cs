@@ -155,9 +155,13 @@ namespace fwp.scenes
         /// </summary>
         void solveLayers(string categoryUid, string[] paths)
         {
+			if (layers == null) layers = new();
+
+			if (paths == null) return;
+
             // solve layers & deps paths
             // adds deps
-            if (layers == null) layers = new List<SceneProfilTarget>();
+            
             layers.Clear();
 
             foreach (var p in paths)
