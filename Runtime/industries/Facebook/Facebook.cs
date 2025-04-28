@@ -41,22 +41,29 @@ namespace fwp.industries.facebook
         /// !OPTI
         /// will refill array based on monobehavior found in context
         /// </summary>
-        void Refresh(IGroup group, MonoBehaviour[] monos)
+        void Refresh(IGroup group, MonoBehaviour[] monos = null)
         {
-            group.Clear();
+            if (monos == null) monos = fwp.appendix.AppendixUtils.gcs<MonoBehaviour>();
 
-            if (monos == null)
-                monos = fwp.appendix.AppendixUtils.gcs<MonoBehaviour>();
+			group.Clear();
 
-            foreach (var m in monos)
+			foreach (var m in monos)
             {
                 group.Add(m);
             }
         }
 
-        public void RefreshAll()
+        public void Refresh(System.Type groupType, MonoBehaviour[] monos = null)
         {
-            var monos = fwp.appendix.AppendixUtils.gcs<MonoBehaviour>();
+			if (!registry.ContainsKey(groupType)) return;
+			Refresh(registry[groupType], monos);
+		}
+        public void Refresh<IGroup>(MonoBehaviour[] monos = null) => Refresh(typeof(IGroup), monos);
+        
+        public void RefreshAll(MonoBehaviour[] monos = null)
+        {
+			if (monos == null) monos = fwp.appendix.AppendixUtils.gcs<MonoBehaviour>();
+
             foreach (var r in registry)
             {
                 Refresh(r.Value, monos);
