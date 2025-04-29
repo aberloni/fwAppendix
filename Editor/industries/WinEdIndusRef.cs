@@ -111,7 +111,7 @@ namespace fwp.industries
 
 					MonoBehaviour mono = elmt as MonoBehaviour;
 					if (mono != null) EditorGUILayout.ObjectField(mono.name, mono, typeof(MonoBehaviour), true);
-					else GUILayout.Label(elmt.GetType().ToString());
+					else GUILayout.Label("/!" + elmt.GetType().ToString());
 
 					GUILayout.EndHorizontal();
 				}
