@@ -49,6 +49,7 @@ namespace fwp.industries
 			}
 
 			GUILayout.Label("facebook");
+			GUILayout.Label(refTypes.Count + " / " + toggleTypes.Length);
 
 			if (toggleTypes.Length <= 0)
 			{
@@ -56,7 +57,7 @@ namespace fwp.industries
 				return;
 			}
 
-			GUILayout.Label("types  x" + toggleTypes.Length + "");
+			GUILayout.Label("types  x" + toggleTypes.Length);
 
 			if (GUILayout.Button("reinject facebook list(s) using context monos"))
 			{
@@ -67,6 +68,9 @@ namespace fwp.industries
 
 			for (int i = 0; i < refTypes.Count; i++)
 			{
+				if (i >= refTypes.Count) continue;
+				if (i >= toggleTypes.Length) continue;
+
 				if (refTypes[i] == null) GUILayout.Label("null type ?");
 				else toggleTypes[i] = drawListType(refTypes[i], toggleTypes[i]);
 			}
