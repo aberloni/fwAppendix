@@ -20,11 +20,6 @@ namespace fwp.industries
 		List<Type> refTypes => IndusReferenceMgr.instance.GetAllTypes();
 		bool[] toggleTypes;
 
-		//MonoBehaviour cursorMono = null;
-
-		Vector2 _cursorPosition = Vector2.zero;
-		Vector2 cursorPosition = Vector2.zero;
-
 		Vector2 scroll;
 
 		void updateRefs(bool force = false)
@@ -63,7 +58,7 @@ namespace fwp.industries
 
 			GUILayout.Label("types  x" + toggleTypes.Length + "");
 
-			if (GUILayout.Button("refresh facebook list(s)"))
+			if (GUILayout.Button("reinject facebook list(s) using context monos"))
 			{
 				IndusReferenceMgr.instance.RefreshAll();
 			}
@@ -93,11 +88,13 @@ namespace fwp.industries
 
 			if (EditorGUI.EndChangeCheck())
 			{
-				if (toggleState) IndusReferenceMgr.instance.Refresh(typ);
+				//...
 			}
 
 			if (toggleState)
 			{
+				if (GUILayout.Button("fetch from monos")) IndusReferenceMgr.instance.Refresh(typ);
+
 				foreach (var elmt in refs)
 				{
 					if (elmt == null)
