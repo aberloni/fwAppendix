@@ -10,759 +10,779 @@ using UnityEditor;
 
 namespace fwp.scenes
 {
-    /// <summary>
-    /// CONTEXT_SCENE{_LAYER}
-    /// associer autour d'une UID un ensemble de scene
-    /// multi layering scenes
-    /// </summary>
-    public class SceneProfil
-    {
-        static public bool verbose = false;
+	/// <summary>
+	/// CONTEXT_SCENE{_LAYER}
+	/// associer autour d'une UID un ensemble de scene
+	/// multi layering scenes
+	/// </summary>
+	public class SceneProfil
+	{
+		static public bool verbose = false;
 
-        string _category; // debug
-        public string Category => _category;
+		string _category; // debug
+		public string Category => _category;
 
-        string _profilDefaultScenePath; // path to first scene found
-        public string PingScenePath => _profilDefaultScenePath;
+		string _profilDefaultScenePath; // path to first scene found
+		public string PingScenePath => _profilDefaultScenePath;
 
-        string _profilPath; // Assets/path/to/profil/scenes
-        public string ParentPath => _profilPath;
+		string _profilPath; // Assets/path/to/profil/scenes
+		public string ParentPath => _profilPath;
 
-        // path : [context]_scene_layer
-        // base_sub(_layer)
-        // base_sub
-        string context; // context OR context_scene
+		// path : [context]_scene_layer
+		// base_sub(_layer)
+		// base_sub
+		string context; // context OR context_scene
 
-        bool _dirty = false;
+		bool _dirty = false;
 
-        public string label => context;
+		public string label => context;
 
-        //these are only scene names (no ext, no path)
-        public List<SceneProfilTarget> layers; // additionnal content of same profil
-        public List<string> deps; // other contextual scenes needed for this profil
-        public List<string> statics; // scene that won't be unload
+		//these are only scene names (no ext, no path)
+		public List<SceneProfilTarget> layers; // additionnal content of same profil
+		public List<string> deps; // other contextual scenes needed for this profil
+		public List<string> statics; // scene that won't be unload
 
-        List<SceneAssoc> _assocs_buff;
+		List<SceneAssoc> _assocs_buff;
 
-        /// <summary>
-        /// has found anything
-        /// </summary>
-        public bool HasLayers
-        {
-            get
-            {
-                if (layers == null) return false;
-                return layers.Count > 0;
-            }
-        }
+		/// <summary>
+		/// has found anything
+		/// </summary>
+		public bool HasLayers
+		{
+			get
+			{
+				if (layers == null) return false;
+				return layers.Count > 0;
+			}
+		}
 
-        public bool matchPath(string path)
-        {
-            return SceneTools.removePathBeforeFile(path) == _category;
-        }
+		public bool IsValid
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(_profilPath)) return false;
+				if (layers.Count <= 0) return false;
+				return true;
+			}
+		}
 
-        /// <summary>
-        /// any of the layer within has filter contains
-        /// </summary>
-        public bool matchFilter(string filter)
-        {
-            if (string.IsNullOrEmpty(filter)) return true;
-            if (!HasLayers) return false;
+		public bool matchPath(string path)
+		{
+			return SceneTools.removePathBeforeFile(path) == _category;
+		}
 
-            filter = filter.ToLower();
+		/// <summary>
+		/// any of the layer within has filter contains
+		/// </summary>
+		public bool matchFilter(string filter)
+		{
+			if (string.IsNullOrEmpty(filter)) return true;
+			if (!HasLayers) return false;
 
-            if (!label.ToLower().Contains(filter))
-            {
-                return false;
-            }
+			filter = filter.ToLower();
 
-            foreach (var l in layers)
-            {
-                if (l.Contains(filter))
-                {
-                    return true;
-                }
-            }
+			if (!label.ToLower().Contains(filter))
+			{
+				return false;
+			}
 
-            return false;
-        }
+			foreach (var l in layers)
+			{
+				if (l.Contains(filter))
+				{
+					return true;
+				}
+			}
 
-        /// <summary>
-        /// categoryUid is uniq PATH to scenes
-        /// OR simply name of a context
-        /// 
-        /// ingame, want to load a scene
-        /// force add to build settings is not available in builds
-        /// </summary>
-        public SceneProfil(string categoryUid)
-        {
-            if (categoryUid.Contains("SceneManagement"))
-            {
-                Debug.LogError("invalid uid : " + categoryUid);
-                return;
-            }
+			return false;
+		}
 
-            // only keep context, remove path
-            // path must be deduce by context
-            _category = SceneTools.removePathBeforeFile(categoryUid);
-            if (verbose) Debug.Log(" + SceneProfil <b>" + _category + "</b>");
+		/// <summary>
+		/// categoryUid is uniq PATH to scenes
+		/// OR simply name of a context
+		/// 
+		/// ingame, want to load a scene
+		/// force add to build settings is not available in builds
+		/// </summary>
+		public SceneProfil(string categoryUid)
+		{
+			if (categoryUid.Contains("SceneManagement"))
+			{
+				Debug.LogError("invalid uid : " + categoryUid);
+				return;
+			}
 
-            //Debug.Assert(categoryUid.Split("_").Length < 2, categoryUid + " cannot be partial : CONTEXT_SCENE_LAYER");
+			// only keep context, remove path
+			// path must be deduce by context
+			_category = SceneTools.removePathBeforeFile(categoryUid);
+			if (verbose) Debug.Log(" + SceneProfil <b>" + _category + "</b>");
 
-            context = extractContextFromPath(_category);
+			//Debug.Assert(categoryUid.Split("_").Length < 2, categoryUid + " cannot be partial : CONTEXT_SCENE_LAYER");
 
-            if (string.IsNullOrEmpty(context))
-            {
-                Debug.LogError("/! profil : input = " + _category + " not compat");
-                return;
-            }
+			context = extractContextFromPath(_category);
 
-            if (verbose) Debug.Log(" + Context      <b>" + context + "</b>");
+			if (string.IsNullOrEmpty(context))
+			{
+				Debug.LogError("/! profil : input = " + _category + " not compat");
+				return;
+			}
 
-            //if (verbose) Debug.Log("solved context : " + context);
-            //Debug.Log(categoryUid + " ? " + solvedCategoryUid);
+			if (verbose) Debug.Log(" + Context      <b>" + context + "</b>");
 
-            solveLayers(categoryUid, getPaths());
+			//if (verbose) Debug.Log("solved context : " + context);
+			//Debug.Log(categoryUid + " ? " + solvedCategoryUid);
 
-            // nothing here
-            // but context might want to add stuff
-            solveDeps();
-            solveStatics();
+			solveLayers(categoryUid, getPaths());
 
-            Debug.Assert(!string.IsNullOrEmpty(_profilPath), "profil path must not be null : " + _category);
-        }
+			// nothing here
+			// but context might want to add stuff
+			solveDeps();
+			solveStatics();
 
-        /// <summary>
-        /// all path to base scene of this profil
-        /// </summary>
-        virtual protected string[] getPaths()
-        {
-            // this might return null
-            // @runtime : if scenes are not present in build settings
-            // must give root name of category (no layer)
-            var paths = filterAllPaths(true);
+			if (!IsValid)
+			{
+				Debug.LogWarning("profil path must not be null : " + _category);
+				Debug.LogWarning("maybe context is not added to build settings");
+			}
+		}
 
-            if (paths == null) return null;
+		/// <summary>
+		/// all path to base scene of this profil
+		/// </summary>
+		virtual protected string[] getPaths()
+		{
+			// this might return null
+			// @runtime : if scenes are not present in build settings
+			// must give root name of category (no layer)
+			var paths = filterAllPaths(true);
 
-            // remove non-compat
-            paths = filterPaths(paths);
+			if (paths == null) return null;
 
-            return paths.ToArray();
-        }
+			// remove non-compat
+			paths = filterPaths(paths);
 
-        /// <summary>
-        /// solve all base scenes of this profil
-        /// </summary>
-        void solveLayers(string categoryUid, string[] paths)
-        {
+			return paths.ToArray();
+		}
+
+		/// <summary>
+		/// solve all base scenes of this profil
+		/// </summary>
+		void solveLayers(string categoryUid, string[] paths)
+		{
 			if (layers == null) layers = new();
 
 			if (paths == null) return;
 
-            // solve layers & deps paths
-            // adds deps
-            
-            layers.Clear();
+			// solve layers & deps paths
+			// adds deps
 
-            foreach (var p in paths)
-            {
-                SceneProfilTarget spt = new SceneProfilTarget(p, 0);
-                layers.Add(spt);
-            }
+			layers.Clear();
 
-            if (verbose) Debug.Log(categoryUid + " : layers x " + layers.Count + ", out of x " + paths.Length + " paths");
-        }
+			foreach (var p in paths)
+			{
+				SceneProfilTarget spt = new SceneProfilTarget(p, 0);
+				layers.Add(spt);
+			}
 
-        public void sortByPattern(string[] suffixes, int[] orders)
-        {
-            if (suffixes == null)
-            {
-                if (verbose) Debug.Log(Category + " :     no pattern");
-                return;
-            }
+			if (verbose) Debug.Log(categoryUid + " : layers x " + layers.Count + ", out of x " + paths.Length + " paths");
+		}
 
-            Debug.Assert(suffixes.Length == orders.Length);
+		public void sortByPattern(string[] suffixes, int[] orders)
+		{
+			if (suffixes == null)
+			{
+				if (verbose) Debug.Log(Category + " :     no pattern");
+				return;
+			}
 
-            if (verbose) Debug.Log(Category + " order by pattern x" + suffixes.Length);
+			Debug.Assert(suffixes.Length == orders.Length);
 
-            // sort by pattern
-            List<SceneProfilTarget> output = new List<SceneProfilTarget>();
-            for (int i = 0; i < suffixes.Length; i++)
-            {
-                string suff = suffixes[i];
-                int order = orders[i];
+			if (verbose) Debug.Log(Category + " order by pattern x" + suffixes.Length);
 
-                for (int j = 0; j < layers.Count; j++)
-                {
-                    if (layers[j].IsPriority(suff))
-                    {
-                        layers[j].setOrder(order);
-                        output.Add(layers[j]);
-                        layers.RemoveAt(j);
-                    }
-                }
-            }
+			// sort by pattern
+			List<SceneProfilTarget> output = new List<SceneProfilTarget>();
+			for (int i = 0; i < suffixes.Length; i++)
+			{
+				string suff = suffixes[i];
+				int order = orders[i];
 
-            // +re-inject ignored by pattern
-            foreach (var l in layers)
-            {
-                output.Add(l);
-            }
+				for (int j = 0; j < layers.Count; j++)
+				{
+					if (layers[j].IsPriority(suff))
+					{
+						layers[j].setOrder(order);
+						output.Add(layers[j]);
+						layers.RemoveAt(j);
+					}
+				}
+			}
 
-            layers = output; // replace by ordered
-        }
+			// +re-inject ignored by pattern
+			foreach (var l in layers)
+			{
+				output.Add(l);
+			}
 
-        public void refresh()
-        {
-            if (Application.isPlaying)
-                return;
+			layers = output; // replace by ordered
+		}
 
-            if (_assocs_buff == null)
-                _dirty = true;
+		public void refresh()
+		{
+			if (Application.isPlaying)
+				return;
 
-            if (_dirty)
-            {
-                fetchAssocs(true);
-            }
+			if (_assocs_buff == null)
+				_dirty = true;
 
-            _dirty = false;
-        }
+			if (_dirty)
+			{
+				fetchAssocs(true);
+			}
 
-        public void setDirty()
-        {
-            _dirty = true;
-        }
+			_dirty = false;
+		}
 
-        void solveProfilPath(string refPath)
-        {
-            Debug.Assert(!string.IsNullOrEmpty(refPath), "no ref path given ?");
-            Debug.Assert(refPath.IndexOf("/") > 0, "path has no '/' ?");
+		public void setDirty()
+		{
+			_dirty = true;
+		}
 
-            // store path to scene (for ping)
-            _profilDefaultScenePath = refPath;
+		void solveProfilPath(string refPath)
+		{
+			Debug.Assert(!string.IsNullOrEmpty(refPath), "no ref path given ?");
+			Debug.Assert(refPath.IndexOf("/") > 0, "path has no '/' ?");
 
-            // keep any of the path as reference
-            // to gatekeep others
-            // remove scene name, keep only path
-            _profilPath = refPath.Substring(0, refPath.LastIndexOf("/"));
+			// store path to scene (for ping)
+			_profilDefaultScenePath = refPath;
 
-            if (verbose) Debug.Log(" + path     <b>" + _profilPath + "</b>");
-        }
+			// keep any of the path as reference
+			// to gatekeep others
+			// remove scene name, keep only path
+			_profilPath = refPath.Substring(0, refPath.LastIndexOf("/"));
 
-        /// <summary>
-        /// extract all suited scenes from assetdatabase
-        /// </summary>
-        List<string> filterAllPaths(bool removeExt = false)
-        {
-            // gets ALL paths containing this cUID
-            // checks if context is contained in scenes path
-            var paths = getPaths(context, removeExt);
-            if (paths.Count <= 0)
-            {
-                Debug.LogWarning($"given base context : <b>{context}</b> => empty paths[] (length = 0)");
-                Debug.LogWarning("target context was <color=red>not added to build settings</color> ?");
-                return null;
-            }
+			if (verbose) Debug.Log(" + path     <b>" + _profilPath + "</b>");
+		}
 
-            solveProfilPath(paths[0]);
+		/// <summary>
+		/// extract all suited scenes from assetdatabase
+		/// </summary>
+		List<string> filterAllPaths(bool removeExt = false)
+		{
+			// gets ALL paths containing this cUID
+			// checks if context is contained in scenes path
+			var paths = getPaths(context, removeExt);
+			if (paths.Count <= 0)
+			{
+				Debug.LogWarning($"given base context : <b>{context}</b> => empty paths[] (length = 0)");
+				Debug.LogWarning("target context was <color=red>not added to build settings</color> ?");
+				return null;
+			}
 
-            // filter paths
-            if (verbose) Debug.Log("filter paths (context:" + context + ") from x" + paths.Count);
+			solveProfilPath(paths[0]);
 
-            for (int i = 0; i < paths.Count; i++)
-            {
-                // same path = keep
-                bool toRemove = !checkSamePath(paths[i]);
+			// filter paths
+			if (verbose) Debug.Log("filter paths (context:" + context + ") from x" + paths.Count);
 
-                if (verbose) Debug.Log("#" + i + " : " + paths[i] + " : removed?" + toRemove);
+			for (int i = 0; i < paths.Count; i++)
+			{
+				// same path = keep
+				bool toRemove = !checkSamePath(paths[i]);
 
-                if (toRemove)
-                {
-                    //Debug.Log("ignored: " + paths[i]);
-                    paths.RemoveAt(i);
-                    i--;
-                }
-            }
+				if (verbose) Debug.Log("#" + i + " : " + paths[i] + " : removed?" + toRemove);
 
-            return paths;
-        }
+				if (toRemove)
+				{
+					//Debug.Log("ignored: " + paths[i]);
+					paths.RemoveAt(i);
+					i--;
+				}
+			}
 
-        public bool match(SceneProfil sp)
-        {
-            return sp.label == label;
-        }
+			return paths;
+		}
 
-        /// <summary>
-        /// returns path to profil
-        /// </summary>
-        List<string> filterPaths(List<string> paths)
-        {
-            //if (verbose) Debug.Log("profil: setup(" + context + ") paths x" + paths.Count);
+		public bool match(SceneProfil sp)
+		{
+			return sp.label == label;
+		}
 
-            Debug.Assert(paths.Count > 0, "paths empty ?");
+		/// <summary>
+		/// returns path to profil
+		/// </summary>
+		List<string> filterPaths(List<string> paths)
+		{
+			//if (verbose) Debug.Log("profil: setup(" + context + ") paths x" + paths.Count);
 
-            // clean paths
-            for (int i = 0; i < paths.Count; i++)
-            {
-                paths[i] = SceneTools.removePathBeforeFile(paths[i]);
-            }
+			Debug.Assert(paths.Count > 0, "paths empty ?");
 
-            return paths;
-        }
+			// clean paths
+			for (int i = 0; i < paths.Count; i++)
+			{
+				paths[i] = SceneTools.removePathBeforeFile(paths[i]);
+			}
 
-        /// <summary>
-        /// force add = force adding all target scene into build settings
-        /// </summary>
-        virtual protected List<string> getPaths(string uid, bool removeExt = false)
-        {
-            var paths = SceneTools.getScenesPathsOfCategory(uid, removeExt);
-            //var paths = SceneTools.getScenesPathsOfCategory(uid);
-            return paths;
-        }
+			return paths;
+		}
 
-        /// <summary>
-        /// ce path est compat avec ce profil ?
-        /// return : true if same path
-        /// </summary>
-        bool checkSamePath(string path)
-        {
-            // both this profil AND given path must share same path
-            string copy = path.Substring(0, path.LastIndexOf("/"));
+		/// <summary>
+		/// force add = force adding all target scene into build settings
+		/// </summary>
+		virtual protected List<string> getPaths(string uid, bool removeExt = false)
+		{
+			var paths = SceneTools.getScenesPathsOfCategory(uid, removeExt);
+			//var paths = SceneTools.getScenesPathsOfCategory(uid);
+			return paths;
+		}
 
-            return copy == _profilPath;
-        }
+		/// <summary>
+		/// ce path est compat avec ce profil ?
+		/// return : true if same path
+		/// </summary>
+		bool checkSamePath(string path)
+		{
+			// both this profil AND given path must share same path
+			string copy = path.Substring(0, path.LastIndexOf("/"));
 
-        /// <summary>
-        /// trying to extract uid aka "context{_scene}" from path
-        /// everything but suffix
-        /// 
-        /// beeing able to solve uids differently
-        /// scene name must always be the last or the n-1
-        /// like : scene-name_layer => scene-name
-        /// 
-        /// base_sub_layer => base_sub
-        /// 
-        /// </summary>
-        static public string extractContextFromPath(string path)
-        {
-            string ret = SceneTools.removePathBeforeFile(path);
-            string[] split = ret.Split('_');
+			return copy == _profilPath;
+		}
 
-            // scene-name
-            if (split.Length <= 0) return ret;
+		/// <summary>
+		/// trying to extract uid aka "context{_scene}" from path
+		/// everything but suffix
+		/// 
+		/// beeing able to solve uids differently
+		/// scene name must always be the last or the n-1
+		/// like : scene-name_layer => scene-name
+		/// 
+		/// base_sub_layer => base_sub
+		/// 
+		/// </summary>
+		static public string extractContextFromPath(string path)
+		{
+			string ret = SceneTools.removePathBeforeFile(path);
+			string[] split = ret.Split('_');
 
-            // base_sub_layer
-            if (split.Length > 2)
-            {
-                ret = ret.Substring(0, ret.LastIndexOf("_"));
-            }
+			// scene-name
+			if (split.Length <= 0) return ret;
 
-            return ret;
-        }
+			// base_sub_layer
+			if (split.Length > 2)
+			{
+				ret = ret.Substring(0, ret.LastIndexOf("_"));
+			}
 
-        /// <summary>
-        /// pile de toutes les scènes qui seront a charger au runtime
-        /// </summary>
-        virtual public void solveDeps()
-        {
-            if (deps == null) deps = new List<string>();
-            deps.Clear();
-        }
+			return ret;
+		}
 
-        virtual public void solveStatics()
-        {
-            if (statics == null) statics = new List<string>();
-            statics.Clear();
-        }
+		/// <summary>
+		/// pile de toutes les scènes qui seront a charger au runtime
+		/// </summary>
+		virtual public void solveDeps()
+		{
+			if (deps == null) deps = new List<string>();
+			deps.Clear();
+		}
 
-        public bool isLoaded()
-        {
-            if (layers.Count <= 0) return false;
-            foreach (var l in layers)
-            {
-                if (!l.IsLoaded)
-                    return false;
-            }
-            return true;
-        }
+		virtual public void solveStatics()
+		{
+			if (statics == null) statics = new List<string>();
+			statics.Clear();
+		}
+
+		public bool isLoaded()
+		{
+			if (layers.Count <= 0) return false;
+			foreach (var l in layers)
+			{
+				if (!l.IsLoaded)
+					return false;
+			}
+			return true;
+		}
 
 #if UNITY_EDITOR
 
-        void forceAddToBuildSettings()
-        {
-            List<EditorBuildSettingsScene> tmp = new List<EditorBuildSettingsScene>();
+		void forceAddToBuildSettings()
+		{
+			List<EditorBuildSettingsScene> tmp = new List<EditorBuildSettingsScene>();
 
-            // keep existing
-            if (EditorBuildSettings.scenes != null)
-            {
-                if (EditorBuildSettings.scenes.Length > 0)
-                    tmp.AddRange(EditorBuildSettings.scenes);
-            }
+			// keep existing
+			if (EditorBuildSettings.scenes != null)
+			{
+				if (EditorBuildSettings.scenes.Length > 0)
+					tmp.AddRange(EditorBuildSettings.scenes);
+			}
 
-            var scenes = filterAllPaths(false); // gather linked scenes
+			var scenes = filterAllPaths(false); // gather linked scenes
 
-            if (scenes.Count <= 0)
-            {
-                if (verbose)
-                    Debug.LogWarning("no scenes returned after filtering ?");
+			if (scenes.Count <= 0)
+			{
+				if (verbose)
+					Debug.LogWarning("no scenes returned after filtering ?");
 
-                return;
-            }
+				return;
+			}
 
-            foreach (string path in scenes)
-            {
-                // no duplicates
-                if (tmp.Exists(x => x.path == path))
-                {
-                    if (verbose)
-                        Debug.LogWarning("duplicate, skipping");
+			foreach (string path in scenes)
+			{
+				// no duplicates
+				if (tmp.Exists(x => x.path == path))
+				{
+					if (verbose)
+						Debug.LogWarning("duplicate, skipping");
 
-                    continue;
-                }
+					continue;
+				}
 
-                // /! path NEEDS extension
-                tmp.Add(new EditorBuildSettingsScene(path, true));
-            }
+				// /! path NEEDS extension
+				tmp.Add(new EditorBuildSettingsScene(path, true));
+			}
 
-            if (tmp.Count <= 0)
-            {
-                if (verbose)
-                    Debug.LogWarning("nothing to add to build settings ?");
+			if (tmp.Count <= 0)
+			{
+				if (verbose)
+					Debug.LogWarning("nothing to add to build settings ?");
 
-                return;
-            }
+				return;
+			}
 
-            //assign
-            EditorBuildSettings.scenes = tmp.ToArray();
+			//assign
+			EditorBuildSettings.scenes = tmp.ToArray();
 
-            if (verbose)
-            {
-                Debug.Log("was (re)added to build settings x" + tmp.Count);
+			if (verbose)
+			{
+				Debug.Log("was (re)added to build settings x" + tmp.Count);
 
-                for (int i = 0; i < EditorBuildSettings.scenes.Length; i++)
-                {
-                    Debug.Log("#" + i + " => " + EditorBuildSettings.scenes[i].path);
-                }
+				for (int i = 0; i < EditorBuildSettings.scenes.Length; i++)
+				{
+					Debug.Log("#" + i + " => " + EditorBuildSettings.scenes[i].path);
+				}
 
-                Debug.Log("total build settings scenes x" + EditorBuildSettings.scenes.Length);
-            }
+				Debug.Log("total build settings scenes x" + EditorBuildSettings.scenes.Length);
+			}
 
-        }
+		}
 
-        /// <summary>
-        /// replace context = remove all other scenes
-        /// </summary>
-        public void editorLoad(bool replaceContext, bool forceAddBuildSettings = false)
-        {
-            // first check that scenes are added to build settings ?
-            if (forceAddBuildSettings) forceAddToBuildSettings();
+		/// <summary>
+		/// replace context = remove all other scenes
+		/// </summary>
+		public void editorLoad(bool replaceContext, bool forceAddBuildSettings = false)
+		{
+			// first check that scenes are added to build settings ?
+			if (forceAddBuildSettings) forceAddToBuildSettings();
 
-            if (verbose)
-                Debug.Log($"SceneProfil:editorLoad <b>{label}</b> ; layers x{layers.Count} & deps x{deps.Count}");
+			if (verbose)
+				Debug.Log($"SceneProfil:editorLoad <b>{label}</b> ; layers x{layers.Count} & deps x{deps.Count}");
 
-            // first : load base scene NON ADDITIVE to replace full context
-            // additive check : might wanna replace context
-            if (layers.Count > 0)
-            {
-                UnityEditor.SceneManagement.OpenSceneMode mode = UnityEditor.SceneManagement.OpenSceneMode.Single;
-                if (!replaceContext) mode = UnityEditor.SceneManagement.OpenSceneMode.Additive;
+			// first : load base scene NON ADDITIVE to replace full context
+			// additive check : might wanna replace context
+			if (layers.Count > 0)
+			{
+				UnityEditor.SceneManagement.OpenSceneMode mode = UnityEditor.SceneManagement.OpenSceneMode.Single;
+				if (!replaceContext) mode = UnityEditor.SceneManagement.OpenSceneMode.Additive;
 
-                string baseScene = layers[0].Name;
-                if (verbose) Debug.Log($"SceneProfil:loading base scene {baseScene}");
-                SceneLoaderEditor.loadScene(baseScene, mode);
-            }
+				string baseScene = layers[0].Name;
+				if (verbose) Debug.Log($"SceneProfil:loading base scene {baseScene}");
+				SceneLoaderEditor.loadScene(baseScene, mode);
+			}
 
-            List<string> toLoads = new List<string>();
+			List<string> toLoads = new List<string>();
 
-            foreach (var l in layers)
-            {
-                toLoads.Add(l.Name);
-            }
+			foreach (var l in layers)
+			{
+				toLoads.Add(l.Name);
+			}
 
-            toLoads.AddRange(deps);
-            toLoads.AddRange(statics);
+			toLoads.AddRange(deps);
+			toLoads.AddRange(statics);
 
-            // load all
-            // layers[0] is empty ?
-            for (int i = 0; i < toLoads.Count; i++)
-            {
-                if (verbose) Debug.Log($"SceneProfil:loading layer:{toLoads[i]}");
-                SceneLoaderEditor.loadScene(toLoads[i]); // additive
-            }
-        }
+			// load all
+			// layers[0] is empty ?
+			for (int i = 0; i < toLoads.Count; i++)
+			{
+				if (verbose) Debug.Log($"SceneProfil:loading layer:{toLoads[i]}");
+				SceneLoaderEditor.loadScene(toLoads[i]); // additive
+			}
+		}
 
-        public void editorUnload()
-        {
-            //solveDeps();
+		public void editorUnload()
+		{
+			//solveDeps();
 
-            if (verbose) Debug.Log($"SceneProfil:unload");
+			if (verbose) Debug.Log($"SceneProfil:unload");
 
-            for (int i = 0; i < layers.Count; i++)
-            {
-                layers[i].editorUnload();
-            }
+			for (int i = 0; i < layers.Count; i++)
+			{
+				layers[i].editorUnload();
+			}
 
-            for (int i = 0; i < deps.Count; i++)
-            {
-                SceneLoaderEditor.unloadScene(deps[i]);
-            }
+			for (int i = 0; i < deps.Count; i++)
+			{
+				SceneLoaderEditor.unloadScene(deps[i]);
+			}
 
-            // NOT STATICS : statics are meant to stay loaded
+			// NOT STATICS : statics are meant to stay loaded
 
-            //var sc = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByName(layers[0]);
-            //UnityEditor.SceneManagement.EditorSceneManager.CloseScene(sc, true);
-        }
+			//var sc = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByName(layers[0]);
+			//UnityEditor.SceneManagement.EditorSceneManager.CloseScene(sc, true);
+		}
 #endif
 
-        /// <summary>
-        /// create a virtual delay after loadings layers & deps
-        /// </summary>
-        virtual protected float getDebugLoadDelay() => 0f;
+		/// <summary>
+		/// create a virtual delay after loadings layers & deps
+		/// </summary>
+		virtual protected float getDebugLoadDelay() => 0f;
 
-        public void buildLoad(Action<SceneProfil> onLoadedCompleted)
-        {
-            //solveDeps();
+		public void buildLoad(Action<SceneProfil> onLoadedCompleted)
+		{
+			//solveDeps();
 
+			if(!IsValid)
+			{
+				Debug.LogWarning("INVALID : can't load : " + context);
+				onLoadedCompleted?.Invoke(this);
+				return;
+			}
 
-            if (verbose) Debug.Log(getStamp() + " builload");
+			if (verbose) Debug.Log(getStamp() + " builload");
 
-            loadStatics(() =>
-            {
-                if (verbose) Debug.Log(getStamp() + "   statics.loaded");
+			loadStatics(() =>
+			{
+				if (verbose) Debug.Log(getStamp() + "   statics.loaded");
 
-                loadDeps(() =>
-                {
-                    if (verbose) Debug.Log(getStamp() + "   deps.loaded");
+				loadDeps(() =>
+				{
+					if (verbose) Debug.Log(getStamp() + "   deps.loaded");
 
-                    loadLayers(() =>
-                    {
-                        if (verbose) Debug.Log(getStamp() + "   layers.loaded");
+					loadLayers(() =>
+					{
+						if (verbose) Debug.Log(getStamp() + "   layers.loaded");
 
-                        //Scene? parentScene = extractMainScene(false);
-                        onLoadedCompleted?.Invoke(this);
-                    });
-                });
+						//Scene? parentScene = extractMainScene(false);
+						onLoadedCompleted?.Invoke(this);
+					});
+				});
 
-            });
+			});
 
-        }
+		}
 
-        void loadDependencies(string[] scenes, Action onCompletion)
-        {
+		void loadDependencies(string[] scenes, Action onCompletion)
+		{
 
-            if (scenes.Length <= 0)
-            {
-                //Debug.LogWarning(getStamp() + " deps array is empty ?");
-                onCompletion.Invoke();
-                return;
-            }
+			if (scenes.Length <= 0)
+			{
+				//Debug.LogWarning(getStamp() + " deps array is empty ?");
+				onCompletion.Invoke();
+				return;
+			}
 
-            if (verbose)
-            {
-                Debug.Log(getStamp() + " load some dependencies x" + scenes.Length);
-                for (int i = 0; i < scenes.Length; i++) Debug.Log(getStamp() + " scene:" + scenes[i]);
-            }
+			if (verbose)
+			{
+				Debug.Log(getStamp() + " load some dependencies x" + scenes.Length);
+				for (int i = 0; i < scenes.Length; i++) Debug.Log(getStamp() + " scene:" + scenes[i]);
+			}
 
-            float delay = 0f;
+			float delay = 0f;
 
 #if UNITY_EDITOR
-            delay = getDebugLoadDelay();
+			delay = getDebugLoadDelay();
 #endif
 
-            SceneLoader.loadScenes(scenes, (scs) =>
-            {
-                onCompletion?.Invoke();
-            }, delay);
-        }
+			SceneLoader.loadScenes(scenes, (scs) =>
+			{
+				onCompletion?.Invoke();
+			}, delay);
+		}
 
-        void loadStatics(Action onCompletion) => loadDependencies(statics.ToArray(), onCompletion);
-        void loadDeps(Action onCompletion) => loadDependencies(deps.ToArray(), onCompletion);
+		void loadStatics(Action onCompletion) => loadDependencies(statics.ToArray(), onCompletion);
+		void loadDeps(Action onCompletion) => loadDependencies(deps.ToArray(), onCompletion);
 
-        void loadLayers(Action onCompletion)
-        {
-            if (layers.Count <= 0)
-            {
-                //Debug.LogWarning(getStamp() + " layers array is empty ?");
-                onCompletion.Invoke();
-                return;
-            }
+		void loadLayers(Action onCompletion)
+		{
+			if (layers.Count <= 0)
+			{
+				//Debug.LogWarning(getStamp() + " layers array is empty ?");
+				onCompletion.Invoke();
+				return;
+			}
 
-            if (verbose)
-            {
-                Debug.Log(getStamp() + " loading layers x" + layers.Count);
-                for (int i = 0; i < layers.Count; i++) Debug.Log(getStamp() + " layer:" + layers[i]);
-            }
+			if (verbose)
+			{
+				Debug.Log(getStamp() + " loading layers x" + layers.Count);
+				for (int i = 0; i < layers.Count; i++) Debug.Log(getStamp() + " layer:" + layers[i]);
+			}
 
-            if (_assocs_buff == null) _assocs_buff = new List<SceneAssoc>();
+			if (_assocs_buff == null) _assocs_buff = new List<SceneAssoc>();
 
-            SceneLoader.loadScenes(getLayersScenes(), (SceneAssoc[] scs) =>
-                {
-                    if (scs.Length <= 0)
-                    {
-                        Debug.LogError("no scenes returned ?");
-                        for (int i = 0; i < layers.Count; i++)
-                        {
-                            Debug.Log("  " + layers[i]);
-                        }
-                    }
+			SceneLoader.loadScenes(getLayersScenes(), (SceneAssoc[] scs) =>
+				{
+					if (scs.Length <= 0)
+					{
+						Debug.LogError("no scenes returned ?");
+						for (int i = 0; i < layers.Count; i++)
+						{
+							Debug.Log("  " + layers[i]);
+						}
+					}
 
-                    _assocs_buff.AddRange(scs);
+					_assocs_buff.AddRange(scs);
 
-                    //Scene main = extractMainScene();
-                    //Debug.Assert(main.IsValid(), getStamp()+" extracted scene : " + main + " is not valid");
+					//Scene main = extractMainScene();
+					//Debug.Assert(main.IsValid(), getStamp()+" extracted scene : " + main + " is not valid");
 
-                    onCompletion.Invoke();
-                });
-        }
+					onCompletion.Invoke();
+				});
+		}
 
-        string[] getLayersScenes()
-        {
-            string[] ret = new string[layers.Count];
-            for (int i = 0; i < layers.Count; i++)
-            {
-                ret[i] = layers[i].Name;
-            }
-            return ret;
-        }
+		string[] getLayersScenes()
+		{
+			string[] ret = new string[layers.Count];
+			for (int i = 0; i < layers.Count; i++)
+			{
+				ret[i] = layers[i].Name;
+			}
+			return ret;
+		}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public void buildUnload(System.Action onUnloadCompleted)
-        {
+		/// <summary>
+		/// 
+		/// </summary>
+		public void buildUnload(System.Action onUnloadCompleted)
+		{
 
-            if (verbose)
-                Debug.Log(getStamp() + " build unload : <b>" + label + "</b>");
+			if (verbose)
+				Debug.Log(getStamp() + " build unload : <b>" + label + "</b>");
 
-            if (layers == null)
-            {
-                if (verbose)
-                    Debug.Log(getStamp() + " null layers");
+			if (layers == null)
+			{
+				if (verbose)
+					Debug.Log(getStamp() + " null layers");
 
-                onUnloadCompleted?.Invoke();
-                return;
-            }
+				onUnloadCompleted?.Invoke();
+				return;
+			}
 
-            if (layers.Count <= 0)
-            {
-                if (verbose)
-                    Debug.Log(getStamp() + " empty layers");
+			if (layers.Count <= 0)
+			{
+				if (verbose)
+					Debug.Log(getStamp() + " empty layers");
 
-                onUnloadCompleted?.Invoke();
-                return;
-            }
+				onUnloadCompleted?.Invoke();
+				return;
+			}
 
-            SceneLoader.unloadScenes(getLayersScenes(), onUnloadCompleted);
-        }
+			SceneLoader.unloadScenes(getLayersScenes(), onUnloadCompleted);
+		}
 
-        List<SceneAssoc> fetchAssocs(bool force)
-        {
-            if (_assocs_buff == null)
-                _assocs_buff = new List<SceneAssoc>();
+		List<SceneAssoc> fetchAssocs(bool force)
+		{
+			if (_assocs_buff == null)
+				_assocs_buff = new List<SceneAssoc>();
 
-            if (_assocs_buff.Count <= 0 || force)
-            {
-                _assocs_buff.Clear();
+			if (_assocs_buff.Count <= 0 || force)
+			{
+				_assocs_buff.Clear();
 
-                _assocs_buff.AddRange(SceneAssoc.solveScenesAssocs(getLayersScenes()));
-                _assocs_buff.AddRange(SceneAssoc.solveScenesAssocs(deps.ToArray()));
+				_assocs_buff.AddRange(SceneAssoc.solveScenesAssocs(getLayersScenes()));
+				_assocs_buff.AddRange(SceneAssoc.solveScenesAssocs(deps.ToArray()));
 
-                //if (verbose) Debug.Log("assocs x" + _assocs_buff.Count);
-            }
+				//if (verbose) Debug.Log("assocs x" + _assocs_buff.Count);
+			}
 
-            return _assocs_buff;
-        }
+			return _assocs_buff;
+		}
 
-        public GameObject extractRoot(string sceneName, string rootName)
-        {
-            Scene? sc = extractScene(sceneName);
+		public GameObject extractRoot(string sceneName, string rootName)
+		{
+			Scene? sc = extractScene(sceneName);
 
-            if (sc == null)
-                return null;
+			if (sc == null)
+				return null;
 
-            foreach (var root in sc.Value.GetRootGameObjects())
-            {
-                if (root.name.Contains(rootName))
-                    return root;
-            }
+			foreach (var root in sc.Value.GetRootGameObjects())
+			{
+				if (root.name.Contains(rootName))
+					return root;
+			}
 
-            return null;
-        }
+			return null;
+		}
 
-        public Scene? extractScene(string nm)
-        {
-            refresh();
+		public Scene? extractScene(string nm)
+		{
+			refresh();
 
-            if (_assocs_buff == null)
-                return null;
+			if (_assocs_buff == null)
+				return null;
 
-            if (_assocs_buff.Count <= 0)
-            {
-                return null;
-            }
+			if (_assocs_buff.Count <= 0)
+			{
+				return null;
+			}
 
-            foreach (var assoc in _assocs_buff)
-            {
-                if (assoc.handle.name.Contains(nm))
-                {
-                    return assoc.handle;
-                }
-            }
+			foreach (var assoc in _assocs_buff)
+			{
+				if (assoc.handle.name.Contains(nm))
+				{
+					return assoc.handle;
+				}
+			}
 
-            return null;
-        }
+			return null;
+		}
 
-        public Scene? extractMainScene()
-        {
-            refresh();
+		public Scene? extractMainScene()
+		{
+			refresh();
 
-            if (_assocs_buff == null)
-                return null;
+			if (_assocs_buff == null)
+				return null;
 
-            if (_assocs_buff.Count <= 0)
-            {
-                return null;
-            }
+			if (_assocs_buff.Count <= 0)
+			{
+				return null;
+			}
 
-            if (_assocs_buff[0].isLoaded())
-            {
-                return _assocs_buff[0].handle;
-            }
+			if (_assocs_buff[0].isLoaded())
+			{
+				return _assocs_buff[0].handle;
+			}
 
-            return null;
-        }
+			return null;
+		}
 
-        virtual public string editor_getButtonName()
-        {
-            string ret = label;
-            if (layers.Count > 0) ret += " x" + layers.Count;
-            if (deps.Count > 0) ret += " +d" + deps.Count;
-            if (statics.Count > 0) ret += " +s" + statics.Count;
-            return ret;
-        }
+		virtual public string editor_getButtonName()
+		{
+			string ret = label;
+			if (layers.Count > 0) ret += " x" + layers.Count;
+			if (deps.Count > 0) ret += " +d" + deps.Count;
+			if (statics.Count > 0) ret += " +s" + statics.Count;
+			return ret;
+		}
 
-        virtual public string stringify()
-        {
-            string output = label;
-            if (!string.IsNullOrEmpty(_profilPath)) output += "     profil path : " + _profilPath;
-            if (layers != null) output += "lyr[" + layers.Count + "] & deps[" + deps.Count + "]";
-            return output;
-        }
+		virtual public string stringify()
+		{
+			string output = label;
+			if (!string.IsNullOrEmpty(_profilPath)) output += "     profil path : " + _profilPath;
+			if (layers != null) output += "lyr[" + layers.Count + "] & deps[" + deps.Count + "]";
+			return output;
+		}
 
-        string getStamp()
-        {
-            return "{SceneProfil} " + stringify();
-        }
+		string getStamp()
+		{
+			return "{SceneProfil} " + stringify();
+		}
 
 
 
-    }
+	}
 
 
 }
 
 public struct SceneAssoc
 {
-    public string path;
-    public Scene handle;
+	public string path;
+	public Scene handle;
 }

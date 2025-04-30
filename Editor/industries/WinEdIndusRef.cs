@@ -95,29 +95,21 @@ namespace fwp.industries
 				//...
 			}
 
-			if (toggleState)
+			if (!toggleState) return false;
+
+			if (GUILayout.Button("fetch from monos")) IndusReferenceMgr.instance.Refresh(typ);
+			foreach (var elmt in refs)
 			{
-				if (GUILayout.Button("fetch from monos")) IndusReferenceMgr.instance.Refresh(typ);
+				if (elmt == null) continue;
 
-				foreach (var elmt in refs)
-				{
-					if (elmt == null)
-					{
-						GUILayout.Label("null");
-						continue;
-					}
-
-					GUILayout.BeginHorizontal();
-
-					MonoBehaviour mono = elmt as MonoBehaviour;
-					if (mono != null) EditorGUILayout.ObjectField(mono.name, mono, typeof(MonoBehaviour), true);
-					else GUILayout.Label("/!" + elmt.GetType().ToString());
-
-					GUILayout.EndHorizontal();
-				}
+				GUILayout.BeginHorizontal();
+				MonoBehaviour mono = elmt as MonoBehaviour;
+				if (mono != null) EditorGUILayout.ObjectField(mono.name, mono, typeof(MonoBehaviour), true);
+				else GUILayout.Label("/!" + elmt.GetType().ToString());
+				GUILayout.EndHorizontal();
 			}
-
-			return toggleState;
+			
+			return true;
 		}
 
 
