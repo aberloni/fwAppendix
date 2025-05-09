@@ -40,18 +40,25 @@ namespace fwp.hardware
 			systemMemorySize = SystemInfo.systemMemorySize;
 		}
 
+		public string stringify()
+		{
+			string ret = "<b>[HARDWARE]</b>";
+			ret += "\nDevice model: " + deviceModel;
+			ret += "\nDevice name: " + deviceName;
+			ret += "\nDevice type: " + deviceType;
+			ret += "\nGraphics device name: " + graphicsDeviceName;
+			ret += "\nGraphics device vendor: " + graphicsDeviceVendor;
+			ret += "\nGraphics device version: " + graphicsDeviceVersion;
+			ret += "\nOS: " + operatingSystem;
+			ret += "\nProcessor count: " + processorCount;
+			ret += "\nProcessor type: " + processorType;
+			ret += "\nMemory size: " + systemMemorySize;
+			return ret;
+		}
+
 		public void log()
 		{
-			Debug.Log("Device model: " + deviceModel);
-			Debug.Log("Device name: " + deviceName);
-			Debug.Log("Device type: " + deviceType);
-			Debug.Log("Graphics device name: " + graphicsDeviceName);
-			Debug.Log("Graphics device vendor: " + graphicsDeviceVendor);
-			Debug.Log("Graphics device version: " + graphicsDeviceVersion);
-			Debug.Log("OS: " + operatingSystem);
-			Debug.Log("Processor count: " + processorCount);
-			Debug.Log("Processor type: " + processorType);
-			Debug.Log("Memory size: " + systemMemorySize);
+			Debug.Log(stringify());
 		}
 
 		/// <summary>
@@ -60,14 +67,22 @@ namespace fwp.hardware
 		public void dump(string subPath = "")
 		{
 			string path = System.IO.Path.Combine(Application.dataPath, subPath, "hardware.dump");
-			System.IO.StreamWriter streamWriter = new(path, false);
+			var sw = new System.IO.StreamWriter(path, false);
+			sw.WriteLine(deviceName);
+			sw.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+			sw.WriteLine(stringify());
 		}
 
 #if UNITY_EDITOR
 		[UnityEditor.MenuItem("Window/Hardware/log")]
-		static void logHardware()
+		static void miLogHardware()
 		{
 			new Hardware().log();
+		}
+		[UnityEditor.MenuItem("Window/Hardware/dump")]
+		static void miDumpHardware()
+		{
+			new Hardware().dump();
 		}
 #endif
 
