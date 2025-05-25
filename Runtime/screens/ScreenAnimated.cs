@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.TextCore;
@@ -15,11 +16,10 @@ namespace fwp.screens
     {
         static public List<ScreenAnimated> openedAnimatedScreens = new List<ScreenAnimated>();
 
-        protected Animator _animator;
-
-        Coroutine _coprocOpening;   // opening
-        Coroutine _coprocClosing;   // closing
-        bool _interactable = false;       // interactable
+        /// <summary>
+        /// animator that will be used to track opening/closing state
+        /// </summary>
+        protected Animator screenAnimator;
 
         /// <summary>
         /// contains all data that can vary in other contexts
@@ -61,10 +61,34 @@ namespace fwp.screens
             }
         }
 
+        /// <summary>
+        /// state name contained in animator
+        /// to be able to track opening/closing
+        /// </summary>
         protected ScreenAnimatedParameters parameters;
+
+        public struct ScreenAnimatedCallbacks
+        {
+            public Action<ScreenAnimated> beforeOpen;
+            public Action<ScreenAnimated> afterOpen;
+
+            public Action<ScreenAnimated> beforeClose;
+        }
+
+        /// <summary>
+        /// some callback bridge available to react to main events
+        /// </summary>
+        public ScreenAnimatedCallbacks callbacks;
 
         //const string STATE_HIDING = "hiding";
         //const string STATE_OPENING = "opening";
+
+        // INTERNALS
+
+        bool _interactable = false;       // interactable
+
+        Coroutine _coprocOpening;   // opening
+        Coroutine _coprocClosing;   // closing
 
         /// <summary>
         /// constructor / awake
@@ -83,32 +107,32 @@ namespace fwp.screens
 
         void solveAnimator()
         {
-            if (_animator == null)
+            if (screenAnimator == null)
             {
-                _animator = GetComponent<Animator>();
-                if (_animator == null)
+                screenAnimator = GetComponent<Animator>();
+                if (screenAnimator == null)
                 {
                     // seek one in immediate children only
                     foreach (Transform child in transform)
                     {
-                        _animator = child.GetComponent<Animator>();
-                        if (_animator != null) break;
+                        screenAnimator = child.GetComponent<Animator>();
+                        if (screenAnimator != null) break;
                     }
                 }
             }
 
-            if (_animator != null)
+            if (screenAnimator != null)
             {
                 // generate params to interact with animator
                 parameters = generateAnimatedParams();
-                if (!parameters.canOpen(_animator))
+                if (!parameters.canOpen(screenAnimator))
                 {
-                    logwScreen("ignore animator : " + _animator + " not compat", _animator);
-                    _animator = null;
+                    logwScreen("ignore animator : " + screenAnimator + " not compat", screenAnimator);
+                    screenAnimator = null;
                 }
             }
 
-            if (_animator == null)
+            if (screenAnimator == null)
             {
                 logwScreen("no animator for animated screen : " + name, this);
             }
@@ -182,6 +206,13 @@ namespace fwp.screens
             ScreenLoading.hideLoadingScreen(); // now animating open screen
         }
 
+        protected override void setupBeforeOpening()
+        {
+            base.setupBeforeOpening();
+
+            callbacks.beforeOpen?.Invoke(this);
+        }
+
 #if UNITY_EDITOR
         [ContextMenu("validator")]
         protected void cmValidator()
@@ -203,26 +234,26 @@ namespace fwp.screens
 
         virtual protected bool hasValidAnimator()
         {
-            if (_animator == null)
+            if (screenAnimator == null)
             {
                 logwScreen("NOK   animator = null");
                 return false;
             }
 
-            if (_animator.runtimeAnimatorController == null)
+            if (screenAnimator.runtimeAnimatorController == null)
             {
                 logwScreen("NOK   animator.controller = null");
                 return false;
             }
 
-            return parameters.canOpen(_animator);
+            return parameters.canOpen(screenAnimator);
         }
 
         IEnumerator processAnimatingOpening()
         {
             Debug.Assert(hasValidAnimator(), "nop");
 
-            _animator.SetBool(parameters.bool_open, true);
+            screenAnimator.SetBool(parameters.bool_open, true);
 
             logScreen("open:wait state:<b>" + parameters.state_opened + "</b>");
 
@@ -235,12 +266,12 @@ namespace fwp.screens
         /// check if screen is still animating opening
         /// + additionnal checks possible
         /// 
-        /// return true keep the process pending
+        /// true : keeps the process pending
         /// </summary>
         virtual protected bool checkOpening()
         {
             // not reached OPEN-ED state ?
-            AnimatorStateInfo info = _animator.GetCurrentAnimatorStateInfo(0);
+            AnimatorStateInfo info = screenAnimator.GetCurrentAnimatorStateInfo(0);
             if (!info.IsName(parameters.state_opened)) return true;
             return false;
         }
@@ -258,12 +289,16 @@ namespace fwp.screens
             _interactable = true;
 
             logScreen("animated:opening:done");
+
+            callbacks.afterOpen?.Invoke(this);
         }
 
         protected override void setupBeforeClosing()
         {
             base.setupBeforeClosing();
             _interactable = false;
+
+            callbacks.beforeClose?.Invoke(this);
         }
 
         public override void reactClose()
@@ -298,7 +333,7 @@ namespace fwp.screens
 
         IEnumerator processAnimatingClosing()
         {
-            _animator.SetBool(parameters.bool_open, false);
+            screenAnimator.SetBool(parameters.bool_open, false);
 
             logScreen("animated:wait state:<b>" + parameters.state_closed + "</b>");
 
@@ -309,7 +344,7 @@ namespace fwp.screens
 
         virtual protected bool checkClosing()
         {
-            AnimatorStateInfo info = _animator.GetCurrentAnimatorStateInfo(0);
+            AnimatorStateInfo info = screenAnimator.GetCurrentAnimatorStateInfo(0);
             if (!info.IsName(parameters.state_closed)) return true;
 
             return false;
@@ -337,33 +372,7 @@ namespace fwp.screens
         public bool isOpening() => _coprocOpening != null;
         public bool isClosing() => _coprocClosing != null;
 
-        /// <summary>
-        /// something above ?
-        /// </summary>
         virtual protected bool isInteractable() => _interactable;
-
-        /// <summary>
-        /// wait for state to start
-        /// state to be focused by animator
-        /// </summary>
-        IEnumerator processWaitUntilState(string state, System.Action onCompletion = null)
-        {
-            //logScreen(" ... wait for state:" + state);
-
-            AnimatorStateInfo info;
-
-            //wait for state to start
-            do
-            {
-                info = _animator.GetCurrentAnimatorStateInfo(0);
-                yield return null;
-            }
-            while (!info.IsName(state));
-
-            //logScreen("state:" + state + " STARTED");
-
-            onCompletion?.Invoke();
-        }
 
         public override string stringify()
         {
