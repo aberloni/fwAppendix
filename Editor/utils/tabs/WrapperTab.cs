@@ -4,16 +4,25 @@ using UnityEditor;
 namespace fwp.utils.editor.tabs
 {
     /// <summary>
+    /// for nested tabs
+    /// </summary>
+    public interface iTab
+    {
+        public string GetTabLabel();
+        public void Draw();
+    }
+
+    /// <summary>
     /// wrapper for one tab
     /// </summary>
-    public class WrapperTab
+    public class WrapperTab : iTab
     {
         /// <summary>
         /// complete path to section
         /// </summary>
         protected string label = string.Empty;
 
-        public string Label => label;
+        public string GetTabLabel() => label;
 
         /// <summary>
         /// how to draw content of this tab
@@ -41,7 +50,7 @@ namespace fwp.utils.editor.tabs
             this.drawCallback = drawGUI;
         }
 
-        public void draw()
+        public void Draw()
         {
             scroll = GUILayout.BeginScrollView(scroll);
 

@@ -127,7 +127,7 @@ namespace fwp.scenes.editor
         {
             for (int i = 0; i < state.countTabs; i++)
             {
-                var t = state.getTab(i);
+                var t = state.getTabByIndex(i);
                 TabSceneSelector tss = t as TabSceneSelector;
 
                 injectSubSection(tss.Path);

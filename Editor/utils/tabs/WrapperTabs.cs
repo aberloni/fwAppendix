@@ -27,10 +27,10 @@ namespace fwp.utils.editor.tabs
             set
             {
                 int idx = value;
-                
+
                 idx = Mathf.Max(0, idx);
-                if(tabs != null && tabs.Count > 0) idx = Mathf.Min(idx, tabs.Count - 1);
-                
+                if (tabs != null && tabs.Count > 0) idx = Mathf.Min(idx, tabs.Count - 1);
+
                 MgrUserSettings.setEdInt(ppUID, idx);
                 //Debug.Log(uid+"?"+value);
             }
@@ -39,9 +39,10 @@ namespace fwp.utils.editor.tabs
         public bool isSetup => tabsContent.Length > 0;
         public int countTabs => tabs.Count;
 
-        public WrapperTab getTab(int idx) => tabs[idx];
+        public iTab getActiveTab() => tabs[tabActive];
+        public iTab getTabByIndex(int idx) => tabs[idx];
 
-        List<WrapperTab> tabs = new List<WrapperTab>();
+        List<iTab> tabs = new List<iTab>();
 
         // util for unity drawing
         GUIContent[] tabsContent = new GUIContent[0];
@@ -53,7 +54,7 @@ namespace fwp.utils.editor.tabs
                 List<string> output = new List<string>();
                 foreach (var tab in tabs)
                 {
-                    output.Add(tab.Label);
+                    output.Add(tab.GetTabLabel());
                 }
                 return output;
             }
@@ -73,7 +74,7 @@ namespace fwp.utils.editor.tabs
 
         public string getWrapperUid() => wuid;
 
-        public void addSpecific(WrapperTab tab)
+        public void addSpecific(iTab tab)
         {
             tabs.Add(tab);
 
@@ -99,13 +100,12 @@ namespace fwp.utils.editor.tabs
         /// </summary>
         public bool drawTabsHeader()
         {
-
             //GUIStyle gs = new GUIStyle(GUI.skin.button)
             //int newTab = GUILayout.Toolbar((int)tabSelected, modeLabels, "LargeButton", GUILayout.Width(toolbarWidth), GUILayout.ExpandWidth(true));
             int newTab = GUILayout.Toolbar(tabActive, tabsContent, "LargeButton");
             //if (newTab != (int)tabSelected) Debug.Log("changed tab ? " + tabSelected);
 
-            if(newTab != tabActive)
+            if (newTab != tabActive)
             {
                 if (newTab >= tabsContent.Length) newTab = tabsContent.Length - 1;
                 if (newTab < 0) newTab = 0;
@@ -117,7 +117,6 @@ namespace fwp.utils.editor.tabs
             return false;
         }
 
-        public WrapperTab getActiveTab() => tabs[tabActive];
     }
 
 

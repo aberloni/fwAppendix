@@ -83,7 +83,7 @@ namespace fwp.utils.editor.tabs
 
             GUILayout.Space(15f);
 
-            _state.getActiveTab()?.draw();
+            _state.getActiveTab()?.Draw();
         }
 
         virtual protected void drawAboveTabsHeader()
@@ -91,7 +91,7 @@ namespace fwp.utils.editor.tabs
 
         virtual protected void onTabChanged()
         {
-            log("    <b>selected tab</b> #" + tabsState.getActiveTab().Label);
+            log("    <b>selected tab</b> #" + tabsState.getActiveTab().GetTabLabel());
         }
 
 
