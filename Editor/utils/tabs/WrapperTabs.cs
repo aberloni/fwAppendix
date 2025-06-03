@@ -48,6 +48,8 @@ namespace fwp.utils.editor.tabs
         // util for unity drawing
         GUIContent[] tabsContent = new GUIContent[0];
 
+        public System.Action<iTab> onTabChanged;
+
         public List<string> labels
         {
             get
@@ -83,8 +85,6 @@ namespace fwp.utils.editor.tabs
             this.label = label;
         }
 
-        public Action<iTab> onTabChanged;
-
         /// <summary>
         /// wuid : ppref identifier
         /// </summary>
@@ -92,6 +92,9 @@ namespace fwp.utils.editor.tabs
         {
             wrapperUID = wuid;
         }
+
+        virtual public void Refresh()
+        { }
 
         public void selectDefaultTab() => tabActive = 0;
 
@@ -133,7 +136,13 @@ namespace fwp.utils.editor.tabs
 
                 tabActive = newTab;
 
-                onTabChanged?.Invoke(getActiveTab());
+                var t = getActiveTab();
+                if(t != null)
+                {
+                    t.Refresh();
+                }
+
+                onTabChanged?.Invoke(t);
             }
         }
 

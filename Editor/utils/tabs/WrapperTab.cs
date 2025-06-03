@@ -8,7 +8,20 @@ namespace fwp.utils.editor.tabs
     /// </summary>
     public interface iTab
     {
+        /// <summary>
+        /// refresh some content
+        /// also called on selection
+        /// </summary>
+        public void Refresh();
+
+        /// <summary>
+        /// tab label display
+        /// </summary>
         public string GetTabLabel();
+
+        /// <summary>
+        /// what to draw when selected
+        /// </summary>
         public void Draw();
     }
 
@@ -23,6 +36,9 @@ namespace fwp.utils.editor.tabs
         protected string label = string.Empty;
 
         public string GetTabLabel() => label;
+
+        virtual public void Refresh()
+        { }
 
         /// <summary>
         /// how to draw content of this tab
