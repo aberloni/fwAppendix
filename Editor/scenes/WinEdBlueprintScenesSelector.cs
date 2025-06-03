@@ -73,9 +73,9 @@ namespace fwp.scenes.editor
 
         }
 
-        protected override void onTabChanged()
+        void onTabChanged(iTab tab)
         {
-            base.onTabChanged();
+            log("tab changed    => <b>" + tab.GetTabLabel() + "</b>");
 
             TabSceneSelector tss = tabsState.getActiveTab() as TabSceneSelector;
 
@@ -101,6 +101,11 @@ namespace fwp.scenes.editor
                     else sections.Clear();
 
                     injectSubSections(state);
+                }
+
+                if (force)
+                {
+                    state.onTabChanged += onTabChanged;
                 }
             }
 
@@ -232,7 +237,7 @@ namespace fwp.scenes.editor
             {
                 string p = cat_paths[i];
                 string context = SceneProfil.extractContextFromPath(SceneTools.removePathBeforeFile(p));
-                
+
                 if (!singles.Contains(context)) singles.Add(context);
                 else
                 {

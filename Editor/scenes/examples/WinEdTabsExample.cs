@@ -11,21 +11,21 @@ namespace fwp.scenes.examples
 
     public class WinEdTabsExample : WinEdTabs
     {
-        [MenuItem("Screen/tabs", false, 1)]
+        //[MenuItem("Screen/tabs", false, 1)]
         static public void init() => GetWindow(typeof(WinEdTabsExample));
 
         public override void populateTabsEditor(WrapperTabs wt)
         {
-            wt.addTab(this, "default", tabDefault);
-            wt.addTab(this, "alt", tabAlt);
+            wt.addGenericTab("default", tabDefault);
+            wt.addGenericTab("alt", tabAlt);
         }
 
         public override void populateTabsRuntime(WrapperTabs wt)
         {
             base.populateTabsRuntime(wt);
 
-            wt.addTab(this, "alt runtime", tabRunAlt);
-            wt.addTab(this, "rnd runtime", tabRandom);
+            wt.addGenericTab("alt runtime", tabRunAlt);
+            wt.addGenericTab("rnd runtime", tabRandom);
         }
 
         void tabRandom()

@@ -5,11 +5,12 @@ using UnityEngine;
 namespace fwp.utils.editor.tabs
 {
     using fwp.appendix.user;
+    using System;
 
     /// <summary>
     /// wrapper that keeps all data of different tabs
     /// </summary>
-    public class WrapperTabs
+    public class WrapperTabs : iTab
     {
         const string _editor__profiler_tab = "tab_scene_profiler";
 
@@ -61,20 +62,40 @@ namespace fwp.utils.editor.tabs
 
         }
 
-        string ppUID => _editor__profiler_tab + "_" + wuid;
+        string ppUID => _editor__profiler_tab + "_" + wrapperUID;
 
-        string wuid;
-
-        public WrapperTabs(string tuid)
+        public string GetTabLabel()
         {
-            wuid = tuid;
+            if (!string.IsNullOrEmpty(label)) return label;
+            return wrapperUID;
+        }
+
+        /// <summary>
+        /// ppref identifier
+        /// </summary>
+        string wrapperUID = string.Empty;
+        public string getWrapperUid() => wrapperUID;
+
+        string label = string.Empty;
+
+        public void setContainerLabel(string label)
+        {
+            this.label = label;
+        }
+
+        public Action<iTab> onTabChanged;
+
+        /// <summary>
+        /// wuid : ppref identifier
+        /// </summary>
+        public WrapperTabs(string wuid)
+        {
+            wrapperUID = wuid;
         }
 
         public void selectDefaultTab() => tabActive = 0;
 
-        public string getWrapperUid() => wuid;
-
-        public void addSpecific(iTab tab)
+        public void addSpecificTab(iTab tab)
         {
             tabs.Add(tab);
 
@@ -86,11 +107,11 @@ namespace fwp.utils.editor.tabs
         /// add various tabs to wrapper
         /// draw callback will receive path as parameter
         /// </summary>
-        public WrapperTab addTab(WinEdTabs window, string label, System.Action draw = null)
+        public WrapperTab addGenericTab(string label, System.Action draw = null)
         {
-            WrapperTab wt = new WrapperTab(window, label, draw);
+            WrapperTab wt = new WrapperTab(label, draw);
 
-            addSpecific(wt);
+            addSpecificTab(wt);
 
             return wt;
         }
@@ -98,7 +119,7 @@ namespace fwp.utils.editor.tabs
         /// <summary>
         /// shortcut to draw a tab header
         /// </summary>
-        public bool drawTabsHeader()
+        void drawTabsHeader()
         {
             //GUIStyle gs = new GUIStyle(GUI.skin.button)
             //int newTab = GUILayout.Toolbar((int)tabSelected, modeLabels, "LargeButton", GUILayout.Width(toolbarWidth), GUILayout.ExpandWidth(true));
@@ -111,12 +132,17 @@ namespace fwp.utils.editor.tabs
                 if (newTab < 0) newTab = 0;
 
                 tabActive = newTab;
-                return true;
-            }
 
-            return false;
+                onTabChanged?.Invoke(getActiveTab());
+            }
         }
 
+        virtual public void Draw()
+        {
+            drawTabsHeader();
+            var t = getActiveTab();
+            if (t != null) t.Draw();
+        }
     }
 
 

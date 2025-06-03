@@ -76,24 +76,15 @@ namespace fwp.utils.editor.tabs
 
             // tabs buttons
             // +oob check
-            if(_state.drawTabsHeader())
-            {
-                onTabChanged();
-            }
-
-            GUILayout.Space(15f);
-
-            _state.getActiveTab()?.Draw();
+            // & draw active tab
+            _state.Draw();
         }
 
+        /// <summary>
+        /// some space above tabs buttons
+        /// </summary>
         virtual protected void drawAboveTabsHeader()
         { }
-
-        virtual protected void onTabChanged()
-        {
-            log("    <b>selected tab</b> #" + tabsState.getActiveTab().GetTabLabel());
-        }
-
 
     }
 

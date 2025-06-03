@@ -5,21 +5,22 @@ using UnityEngine;
 
 using fwp.utils.editor.tabs;
 
-using fwp.scenes;
 using fwp.scenes.editor;
 
 namespace fwp.scenes.examples
 {
-
+    /// <summary>
+    /// example
+    /// </summary>
     public class WinEdSceneSelector : WinEdBlueprintScenesSelector
     {
-        [UnityEditor.MenuItem("Screen/scenes", false, 1)]
+        //[UnityEditor.MenuItem("Screen/scenes", false, 1)]
         static public void init() => GetWindow(typeof(WinEdSceneSelector));
 
         public override void populateTabsEditor(WrapperTabs wt)
         {
-            wt.addSpecific(new TabSceneSelector(this, "scenes/Regions/Biomes"));
-            wt.addSpecific(new TabSceneSelector(this, "scenes/LDs"));
+            wt.addSpecificTab(new TabSceneSelector(this, "scenes/Regions/Biomes"));
+            wt.addSpecificTab(new TabSceneSelector(this, "scenes/LDs"));
         }
 
         protected override SceneProfil generateProfil(string uid)

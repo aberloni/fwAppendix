@@ -28,25 +28,22 @@ namespace fwp.utils.editor.tabs
         /// how to draw content of this tab
         /// param is parent EditorWindow
         /// </summary>
-        System.Action drawCallback;
+        System.Action drawCallback = null;
 
         /// <summary>
         /// scroll value
         /// </summary>
         Vector2 scroll;
 
-        /// <summary>
-        /// to acces owner
-        /// parent editor window
-        /// </summary>
-        EditorWindow _window;
-
-        public EditorWindow Parent => _window;
-
-        public WrapperTab(UnityEditor.EditorWindow window, string label = null, System.Action drawGUI = null)
+        public WrapperTab()
         {
-            _window = window;
-            if (label != null) this.label = label;
+            label = string.Empty;
+            drawCallback = null;
+        }
+
+        public WrapperTab(string label, System.Action drawGUI = null)
+        {
+            this.label = label;
             this.drawCallback = drawGUI;
         }
 

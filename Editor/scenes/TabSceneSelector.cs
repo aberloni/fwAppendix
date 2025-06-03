@@ -15,10 +15,11 @@ namespace fwp.scenes.editor
 
         public string PathEnd => path.Substring(path.LastIndexOf("/") + 1);
 
-        WinEdBlueprintScenesSelector Selector => Parent as WinEdBlueprintScenesSelector;
+        WinEdBlueprintScenesSelector selector;
 
-        public TabSceneSelector(WinEdBlueprintScenesSelector window, string path) : base(window)
+        public TabSceneSelector(WinEdBlueprintScenesSelector window, string path) : base()
         {
+            selector = window;
             this.path = path;
             label = PathEnd;
         }
@@ -36,13 +37,13 @@ namespace fwp.scenes.editor
         {
             string subSectionUid = Path;
 
-            if (!Selector.HasSections)
+            if (!selector.HasSections)
             {
                 GUILayout.Label("selector has no sections");
                 return;
             }
 
-            var sections = Selector.Sections;
+            var sections = selector.Sections;
 
             List<SceneSubFolder> subList = null;
 
@@ -78,7 +79,7 @@ namespace fwp.scenes.editor
 
             for (int i = 0; i < subList.Count; i++)
             {
-                subList[i].drawSection(Selector.filter);
+                subList[i].drawSection(selector.filter);
             }
 
         }
