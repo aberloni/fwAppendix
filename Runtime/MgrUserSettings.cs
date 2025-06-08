@@ -55,12 +55,12 @@ namespace fwp.settings
 			bools[uid].Add(target);
 		}
 
-		static public bool getBool(string uid) => PlayerPrefs.GetFloat(uid, 1f) > 0f;
-		static public void setBool(string uid, bool val = false)
+		static public bool getBool(string uid, bool def = false) => PlayerPrefs.GetInt(uid, def ? 1 : 0) > 0;
+		static public void setBool(string uid, bool val)
 		{
 			if (getBool(uid) == val) return;
 
-			PlayerPrefs.SetFloat(uid, val ? 1f : 0f);
+			PlayerPrefs.SetInt(uid, val ? 1 : 0);
 			log(uid, val);
 			if (bools.ContainsKey(uid)) foreach (var b in bools[uid]) b.applySettings(uid, val);
 
