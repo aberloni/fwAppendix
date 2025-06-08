@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System;
+using fwp.settings.editor;
 
 /// <summary>
 /// EditorGUILayout.Popup("startup room", index, roomLabels);
@@ -18,11 +19,11 @@ namespace fwp.appendix.user
 
         static public bool drawBool(string label, string uid, Action<bool> onChange = null)
         {
-            bool val = MgrUserSettings.getEdBool(uid);
+            bool val = MgrEdUserSettings.getBool(uid);
             bool _val = EditorGUILayout.Toggle(label, val);
             if(val != _val)
             {
-                MgrUserSettings.setEdBool(uid, _val);
+				MgrEdUserSettings.setBool(uid, _val);
                 onChange?.Invoke(_val);
             }
             return _val;
@@ -30,7 +31,7 @@ namespace fwp.appendix.user
 
         static public float drawSlider(string label, string uid, Vector2 range, Action<float> onChange = null)
         {
-            float val = MgrUserSettings.getEdFloat(uid, 1f);
+            float val = MgrEdUserSettings.getFloat(uid, 1f);
             GUILayout.BeginHorizontal();
             GUILayout.Label($"{label} : {val.ToString("0.00")}");
 
@@ -39,7 +40,7 @@ namespace fwp.appendix.user
             float _val = GUILayout.HorizontalSlider(val, range.x, range.y);
             if(_val != val)
             {
-                MgrUserSettings.setEdFloat(uid, _val);
+				MgrEdUserSettings.setFloat(uid, _val);
                 onChange?.Invoke(_val);
             }
             GUILayout.Label(range.y.ToString(), GUILayout.Width(30f));

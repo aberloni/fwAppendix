@@ -1,40 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
-namespace fwp.settings
+namespace fwp.settings.editor
 {
-	public interface iSetting
-	{ }
+	using UnityEditor;
+	using fwp.settings;
 
-	public interface iSettingBool : iSetting
+	static public class MgrEdUserSettings
 	{
-		public void applySettings(bool val);
-	}
-
-	public interface iSettingFloat : iSetting
-	{
-		public void applySettings(float val);
-	}
-
-	public interface iSettingInt : iSetting
-	{
-		public void applySettings(int val);
-	}
-
-	public interface iSettingString : iSetting
-	{
-		public void applySettings(string val);
-	}
-
-	static public class MgrUserSettings
-	{
-		static bool Verbose => !Application.isEditor;
+		static bool Verbose => Application.isEditor;
 
 		static Dictionary<string, List<iSettingBool>> bools = new();
 		static Dictionary<string, List<iSettingFloat>> floats = new();
@@ -55,10 +30,10 @@ namespace fwp.settings
 			bools[uid].Add(target);
 		}
 
-		static public bool getBool(string uid) => PlayerPrefs.GetFloat(uid, 1f) > 0f;
+		static public bool getBool(string uid) => EditorPrefs.GetFloat(uid, 1f) > 0f;
 		static public void setBool(string uid, bool val)
 		{
-			PlayerPrefs.SetFloat(uid, val ? 1f : 0f);
+			EditorPrefs.SetFloat(uid, val ? 1f : 0f);
 			log(uid, val);
 		}
 
@@ -68,10 +43,10 @@ namespace fwp.settings
 			floats[uid].Add(target);
 		}
 
-		static public float getFloat(string uid, float def) => PlayerPrefs.GetFloat(uid, def);
+		static public float getFloat(string uid, float def) => EditorPrefs.GetFloat(uid, def);
 		static public void setFloat(string uid, float val)
 		{
-			PlayerPrefs.SetFloat(uid, val);
+			EditorPrefs.SetFloat(uid, val);
 			log(uid, val);
 		}
 
@@ -81,10 +56,10 @@ namespace fwp.settings
 			ints[uid].Add(target);
 		}
 
-		static public int getInt(string uid, int def) => PlayerPrefs.GetInt(uid, def);
+		static public int getInt(string uid, int def) => EditorPrefs.GetInt(uid, def);
 		static public void setInt(string uid, int val)
 		{
-			PlayerPrefs.SetInt(uid, val);
+			EditorPrefs.SetInt(uid, val);
 			log(uid, val);
 		}
 
@@ -94,17 +69,17 @@ namespace fwp.settings
 			strings[uid].Add(target);
 		}
 
-		static public string getString(string uid, string def) => PlayerPrefs.GetString(uid, def);
+		static public string getString(string uid, string def) => EditorPrefs.GetString(uid, def);
 		static public void setString(string uid, string val)
 		{
-			PlayerPrefs.SetString(uid, val);
+			EditorPrefs.SetString(uid, val);
 			log(uid, val);
 		}
 
 		static void log(string uid, object val)
 		{
 			if (!Verbose) return;
-			Debug.Log("UserSet:" + uid + ":" + val);
+			Debug.Log("edSettings:" + uid + ":" + val, val as UnityEngine.Object);
 		}
 
 	}

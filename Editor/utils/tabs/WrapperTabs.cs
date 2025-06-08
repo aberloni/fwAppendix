@@ -5,7 +5,8 @@ using UnityEngine;
 namespace fwp.utils.editor.tabs
 {
     using fwp.appendix.user;
-    using System;
+	using fwp.settings.editor;
+	using System;
 
     /// <summary>
     /// wrapper that keeps all data of different tabs
@@ -18,7 +19,7 @@ namespace fwp.utils.editor.tabs
         {
             get
             {
-                int idx = MgrUserSettings.getEdInt(ppUID, 0);
+                int idx = MgrEdUserSettings.getInt(ppUID, 0);
 
                 idx = Mathf.Max(0, idx);
                 if (tabs != null && tabs.Count > 0) idx = Mathf.Min(idx, tabs.Count - 1);
@@ -32,7 +33,7 @@ namespace fwp.utils.editor.tabs
                 idx = Mathf.Max(0, idx);
                 if (tabs != null && tabs.Count > 0) idx = Mathf.Min(idx, tabs.Count - 1);
 
-                MgrUserSettings.setEdInt(ppUID, idx);
+                MgrEdUserSettings.setInt(ppUID, idx);
                 //Debug.Log(uid+"?"+value);
             }
         }

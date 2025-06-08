@@ -8,13 +8,14 @@ namespace fwp.scenes
 {
     using fwp.utils.editor;
     using fwp.appendix.user;
+	using fwp.settings.editor;
 
-    /// <summary>
-    /// gather all scenes profiles for a specific folder
-    /// scenes[] will be override externaly
-    /// permet de regrouper les sceneprofil dans un même container
-    /// </summary>
-    public class SceneSubFolder
+	/// <summary>
+	/// gather all scenes profiles for a specific folder
+	/// scenes[] will be override externaly
+	/// permet de regrouper les sceneprofil dans un même container
+	/// </summary>
+	public class SceneSubFolder
     {
         public string projectPath; // where the folder is located in Assets/
         public string folderName; // just folder name
@@ -195,7 +196,7 @@ namespace fwp.scenes
         void onEditorSceneCall(SceneProfil profil, bool replaceContext)
         {
             profil.setDirty();
-            profil.editorLoad(replaceContext, MgrUserSettings.getEdBool(_pref_autoAddBuildSettings));
+            profil.editorLoad(replaceContext, MgrEdUserSettings.getBool(_pref_autoAddBuildSettings));
         }
 
         void onEditorSceneRemoval(SceneProfil profil)
