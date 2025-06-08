@@ -62,7 +62,7 @@ namespace fwp.settings
 
 			PlayerPrefs.SetFloat(uid, val ? 1f : 0f);
 			log(uid, val);
-			foreach (var b in bools[uid]) b.applySettings(uid, val);
+			if (bools.ContainsKey(uid)) foreach (var b in bools[uid]) b.applySettings(uid, val);
 
 		}
 
@@ -79,7 +79,7 @@ namespace fwp.settings
 
 			PlayerPrefs.SetFloat(uid, val);
 			log(uid, val);
-			foreach (var b in floats[uid]) b.applySettings(uid, val);
+			if (floats.ContainsKey(uid)) foreach (var b in floats[uid]) b.applySettings(uid, val);
 		}
 
 		static public void subInt(string uid, iSettingInt target)
@@ -95,7 +95,7 @@ namespace fwp.settings
 
 			PlayerPrefs.SetInt(uid, val);
 			log(uid, val);
-			foreach (var b in ints[uid]) b.applySettings(uid, val);
+			if (ints.ContainsKey(uid)) foreach (var b in ints[uid]) b.applySettings(uid, val);
 		}
 
 		static public void subString(string uid, iSettingString target)
@@ -111,7 +111,7 @@ namespace fwp.settings
 
 			PlayerPrefs.SetString(uid, val);
 			log(uid, val);
-			foreach (var b in strings[uid]) b.applySettings(uid, val);
+			if (strings.ContainsKey(uid)) foreach (var b in strings[uid]) b.applySettings(uid, val);
 		}
 
 		static void log(string uid, object val)
