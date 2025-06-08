@@ -14,22 +14,22 @@ namespace fwp.settings
 
 	public interface iSettingBool : iSetting
 	{
-		public void applySettings(bool val);
+		public void applySettings(string uid, bool val);
 	}
 
 	public interface iSettingFloat : iSetting
 	{
-		public void applySettings(float val);
+		public void applySettings(string uid, float val);
 	}
 
 	public interface iSettingInt : iSetting
 	{
-		public void applySettings(int val);
+		public void applySettings(string uid, int val);
 	}
 
 	public interface iSettingString : iSetting
 	{
-		public void applySettings(string val);
+		public void applySettings(string uid, string val);
 	}
 
 	static public class MgrUserSettings
@@ -56,10 +56,14 @@ namespace fwp.settings
 		}
 
 		static public bool getBool(string uid) => PlayerPrefs.GetFloat(uid, 1f) > 0f;
-		static public void setBool(string uid, bool val)
+		static public void setBool(string uid, bool val = false)
 		{
+			if (getBool(uid) == val) return;
+
 			PlayerPrefs.SetFloat(uid, val ? 1f : 0f);
 			log(uid, val);
+			foreach (var b in bools[uid]) b.applySettings(uid, val);
+
 		}
 
 		static public void subFloat(string uid, iSettingFloat target)
@@ -68,11 +72,14 @@ namespace fwp.settings
 			floats[uid].Add(target);
 		}
 
-		static public float getFloat(string uid, float def) => PlayerPrefs.GetFloat(uid, def);
+		static public float getFloat(string uid, float def = 0f) => PlayerPrefs.GetFloat(uid, def);
 		static public void setFloat(string uid, float val)
 		{
+			if (val == getFloat(uid)) return;
+
 			PlayerPrefs.SetFloat(uid, val);
 			log(uid, val);
+			foreach (var b in floats[uid]) b.applySettings(uid, val);
 		}
 
 		static public void subInt(string uid, iSettingInt target)
@@ -81,11 +88,14 @@ namespace fwp.settings
 			ints[uid].Add(target);
 		}
 
-		static public int getInt(string uid, int def) => PlayerPrefs.GetInt(uid, def);
+		static public int getInt(string uid, int def = 0) => PlayerPrefs.GetInt(uid, def);
 		static public void setInt(string uid, int val)
 		{
+			if (val == getInt(uid)) return;
+
 			PlayerPrefs.SetInt(uid, val);
 			log(uid, val);
+			foreach (var b in ints[uid]) b.applySettings(uid, val);
 		}
 
 		static public void subString(string uid, iSettingString target)
@@ -94,17 +104,20 @@ namespace fwp.settings
 			strings[uid].Add(target);
 		}
 
-		static public string getString(string uid, string def) => PlayerPrefs.GetString(uid, def);
+		static public string getString(string uid, string def = "") => PlayerPrefs.GetString(uid, def);
 		static public void setString(string uid, string val)
 		{
+			if (val == getString(uid)) return;
+
 			PlayerPrefs.SetString(uid, val);
 			log(uid, val);
+			foreach (var b in strings[uid]) b.applySettings(uid, val);
 		}
 
 		static void log(string uid, object val)
 		{
 			if (!Verbose) return;
-			Debug.Log("UserSet:" + uid + ":" + val);
+			Debug.Log("settings.user	" + uid + ":" + val);
 		}
 
 	}
