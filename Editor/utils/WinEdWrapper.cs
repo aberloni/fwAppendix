@@ -1,244 +1,250 @@
-﻿using fwp.utils.editor;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace fwp.utils.editor
 {
-    /// <summary>
-    /// editor window + tools
-    /// </summary>
-    public class WinEdWrapper : EditorWindow
-    {
-        public const float btnSizeXS = 30f;
-        public const float btnSizeS = 50f;
-        public const float btnSizeM = 75f;
-        public const float btnSizeL = 125f;
+	/// <summary>
+	/// editor window + tools
+	/// </summary>
+	public class WinEdWrapper : EditorWindow
+	{
+		public const float btnSizeXS = 30f;
+		public const float btnSizeS = 50f;
+		public const float btnSizeM = 75f;
+		public const float btnSizeL = 125f;
 
-        protected bool verbose = false;
+		protected bool verbose = false;
 
-        virtual protected string getWindowTabName() => GetType().ToString();
+		virtual protected string getWindowTabName() => GetType().ToString();
 
-        private void OnFocus()
-        {
-            onFocus(true);
-        }
+		Vector2 globalScroll;
 
-        private void OnLostFocus()
-        {
-            onFocus(false);
-        }
+		private void OnFocus()
+		{
+			onFocus(true);
+		}
 
-        virtual protected void onFocus(bool gainFocus)
-        { }
+		private void OnLostFocus()
+		{
+			onFocus(false);
+		}
 
-        private void OnEnable()
-        {
-            titleContent = new GUIContent(getWindowTabName());
+		virtual protected void onFocus(bool gainFocus)
+		{ }
 
-            // https://forum.unity.com/threads/editorwindow-how-to-tell-when-returned-to-editor-mode-from-play-mode.541578/
-            EditorApplication.playModeStateChanged += reactPlayModeState;
-            //LogPlayModeState(PlayModeStateChange.EnteredEditMode);
-        }
+		private void OnEnable()
+		{
+			titleContent = new GUIContent(getWindowTabName());
 
-        private void OnDisable()
-        {
-            EditorApplication.playModeStateChanged -= reactPlayModeState;
-        }
+			// https://forum.unity.com/threads/editorwindow-how-to-tell-when-returned-to-editor-mode-from-play-mode.541578/
+			EditorApplication.playModeStateChanged += reactPlayModeState;
+			//LogPlayModeState(PlayModeStateChange.EnteredEditMode);
+		}
 
-        /// <summary>
-        /// when editor changes mode
-        /// </summary>
-        virtual protected void reactPlayModeState(PlayModeStateChange state)
-        {
-            //Debug.Log(state);
-        }
+		private void OnDisable()
+		{
+			EditorApplication.playModeStateChanged -= reactPlayModeState;
+		}
 
+		/// <summary>
+		/// when editor changes mode
+		/// </summary>
+		virtual protected void reactPlayModeState(PlayModeStateChange state)
+		{
+			//Debug.Log(state);
+		}
 
-        private void Update()
-        {
-            update();
+		private void Update()
+		{
+			update();
 
-            if (!Application.isPlaying)
-                updateEditime();
-            else
-                updateRuntime();
-        }
+			if (!Application.isPlaying)
+				updateEditime();
+			else
+				updateRuntime();
+		}
 
-        virtual protected void update()
-        { }
+		virtual protected void update()
+		{ }
 
-        virtual protected void updateEditime()
-        { }
+		virtual protected void updateEditime()
+		{ }
 
-        virtual protected void updateRuntime()
-        { }
+		virtual protected void updateRuntime()
+		{ }
 
+		private void OnGUI()
+		{
+			drawHeader();
 
-        private void OnGUI()
-        {
-            drawHeader();
+			if (!isDrawableAtRuntime())
+			{
+				GUILayout.Label("not @ runtime");
+				return;
+			}
 
-            if (!isDrawableAtRuntime())
-            {
-                GUILayout.Label("not @ runtime");
-                return;
-            }
+			globalScroll = GUILayout.BeginScrollView(globalScroll);
+			draw();
+			GUILayout.EndScrollView();
 
-            draw();
+			drawFooter();
+		}
+		virtual protected bool isDrawableAtRuntime() => true;
 
-            drawFooter();
-        }
-        virtual protected bool isDrawableAtRuntime() => true;
+		virtual protected void drawHeader()
+		{
+			string winName = getWindowTabName();
 
-        virtual protected void drawHeader()
-        {
-            string winName = getWindowTabName();
-            
-            GUILayout.BeginHorizontal();
+			GUILayout.BeginHorizontal();
 
-            string vLabel = verbose ? "!@" : "@";
+			string vLabel = verbose ? "!@" : "@";
 
 #if UNITY_6000_0_OR_NEWER
             vLabel = verbose ? "!🐛" : "🐛";
 #endif
 
-            if (GUILayout.Button(vLabel, QuickEditorViewStyles.WinTitleButton))
-            {
-                verbose = !verbose;
-                Debug.LogWarning("toggle verbosity : " + verbose);
-            }
+			if (GUILayout.Button(vLabel, QuickEditorViewStyles.WinTitleButton))
+			{
+				verbose = !verbose;
+				Debug.LogWarning("toggle verbosity : " + verbose);
+			}
 
-            string rLabel = "↺";
+			string rLabel = "↺";
 
 #if UNITY_6000_0_OR_NEWER
             rLabel = "🔄";
 #endif
 
-            if (GUILayout.Button(rLabel, QuickEditorViewStyles.WinTitleButton))
-            {
-                onTitleClicked();
-            }
+			if (GUILayout.Button(rLabel, QuickEditorViewStyles.WinTitleButton))
+			{
+				onTitleClicked();
+			}
 
-            GUILayout.Label(winName, QuickEditorViewStyles.WinTitle);
+			GUILayout.Label(winName, QuickEditorViewStyles.WinTitle);
 
-            GUILayout.EndHorizontal();
-        }
+			GUILayout.EndHorizontal();
+		}
 
-        virtual protected void onTitleClicked()
-        {
-            log("<b>title clicked</b>");
-        }
+		virtual protected void onTitleClicked()
+		{
+			log("<b>title clicked</b>");
+		}
 
-        /// <summary>
-        /// content to draw in editor window
-        /// after window title
-        /// </summary>
-        virtual protected void draw()
-        { }
+		/// <summary>
+		/// content to draw in editor window
+		/// after window title
+		/// scroll-able
+		/// </summary>
+		virtual protected void draw()
+		{ }
 
-        virtual protected void drawFooter()
-        { }
+		/// <summary>
+		/// something drawn at the bottom of the window
+		/// after the scroll view
+		/// </summary>
+		virtual protected void drawFooter()
+		{ }
 
-        /// <summary>
-        /// helper
-        /// generic button drawer
-        /// </summary>
-        static public bool drawButton(string label)
-        {
-            bool output = false;
+		/// <summary>
+		/// helper
+		/// generic button drawer
+		/// </summary>
+		static public bool drawButton(string label)
+		{
+			bool output = false;
 
-            //EditorGUI.BeginDisabledGroup(select == null);
-            if (GUILayout.Button(label, getButtonSquare(30f, 100f)))
-            {
-                output = true;
-            }
-            //EditorGUI.EndDisabledGroup();
+			//EditorGUI.BeginDisabledGroup(select == null);
+			if (GUILayout.Button(label, getButtonSquare(30f, 100f)))
+			{
+				output = true;
+			}
+			//EditorGUI.EndDisabledGroup();
 
-            return output;
-        }
+			return output;
+		}
 
-        /// <summary>
-        /// helper
-        /// draw button that react to presence of an object
-        /// </summary>
-        static public bool drawButtonReference(string label, GameObject select)
-        {
-            bool output = false;
+		/// <summary>
+		/// helper
+		/// draw button that react to presence of an object
+		/// </summary>
+		static public bool drawButtonReference(string label, GameObject select)
+		{
+			bool output = false;
 
-            EditorGUI.BeginDisabledGroup(select == null);
-            if (GUILayout.Button(label, getButtonSquare()))
-            {
-                output = true;
-            }
-            EditorGUI.EndDisabledGroup();
+			EditorGUI.BeginDisabledGroup(select == null);
+			if (GUILayout.Button(label, getButtonSquare()))
+			{
+				output = true;
+			}
+			EditorGUI.EndDisabledGroup();
 
-            return output;
-        }
+			return output;
+		}
 
-        /// <summary>
-        /// draw a label with speficic style
-        /// </summary>
-        static public void drawSectionTitle(string label, float spaceMargin = 20f, int leftMargin = 10)
-        {
-            if (spaceMargin > 0f)
-                GUILayout.Space(spaceMargin);
+		/// <summary>
+		/// draw a label with speficic style
+		/// </summary>
+		static public void drawSectionTitle(string label, float spaceMargin = 20f, int leftMargin = 10)
+		{
+			if (spaceMargin > 0f)
+				GUILayout.Space(spaceMargin);
 
-            //GUILayout.BeginHorizontal();
+			//GUILayout.BeginHorizontal();
 
-            GUILayout.Label(label, QuickEditorViewStyles.getSectionTitle(15, TextAnchor.UpperLeft, leftMargin));
+			GUILayout.Label(label, QuickEditorViewStyles.getSectionTitle(15, TextAnchor.UpperLeft, leftMargin));
 
-            //GUILayout.EndHorizontal();
-        }
+			//GUILayout.EndHorizontal();
+		}
 
-        static private GUIStyle gButtonSquare;
-        static public GUIStyle getButtonSquare(float height = 50, float width = 80)
-        {
-            if (gButtonSquare == null)
-            {
-                gButtonSquare = new GUIStyle(GUI.skin.button);
-                gButtonSquare.alignment = TextAnchor.MiddleCenter;
-                gButtonSquare.fontSize = 10;
-                gButtonSquare.fixedHeight = height;
-                gButtonSquare.fixedWidth = width;
-                gButtonSquare.normal.textColor = Color.white;
+		static private GUIStyle gButtonSquare;
+		static public GUIStyle getButtonSquare(float height = 50, float width = 80)
+		{
+			if (gButtonSquare == null)
+			{
+				gButtonSquare = new GUIStyle(GUI.skin.button);
+				gButtonSquare.alignment = TextAnchor.MiddleCenter;
+				gButtonSquare.fontSize = 10;
+				gButtonSquare.fixedHeight = height;
+				gButtonSquare.fixedWidth = width;
+				gButtonSquare.normal.textColor = Color.white;
 
-                gButtonSquare.wordWrap = true;
-            }
-            return gButtonSquare;
-        }
+				gButtonSquare.wordWrap = true;
+			}
+			return gButtonSquare;
+		}
 
-        /// <summary>
-        /// helper : focus an element in editor
-        /// +focus in scene view
-        /// </summary>
-        static public void focusElement(GameObject tar, bool alignViewToObject)
-        {
-            Selection.activeGameObject = tar;
-            EditorGUIUtility.PingObject(tar);
+		/// <summary>
+		/// helper : focus an element in editor
+		/// +focus in scene view
+		/// </summary>
+		static public void focusElement(GameObject tar, bool alignViewToObject)
+		{
+			Selection.activeGameObject = tar;
+			EditorGUIUtility.PingObject(tar);
 
-            if (SceneView.lastActiveSceneView != null && alignViewToObject)
-            {
-                SceneView.lastActiveSceneView.AlignViewToObject(tar.transform);
-            }
-        }
+			if (SceneView.lastActiveSceneView != null && alignViewToObject)
+			{
+				SceneView.lastActiveSceneView.AlignViewToObject(tar.transform);
+			}
+		}
 
-        /// <summary>
-        /// will refresh a window by given type
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        static public void setWindowDirty<T>() where T : WinEdRefreshable
-        {
-            if (EditorWindow.HasOpenInstances<T>())
-            {
-                var win = EditorWindow.GetWindow<T>();
-                win.primeRefresh();
-            }
-        }
+		/// <summary>
+		/// will refresh a window by given type
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		static public void setWindowDirty<T>() where T : WinEdRefreshable
+		{
+			if (EditorWindow.HasOpenInstances<T>())
+			{
+				var win = EditorWindow.GetWindow<T>();
+				win.primeRefresh();
+			}
+		}
 
-        protected void log(string content)
-        {
-            if (verbose) Debug.Log(GetType() + " @ " + content);
-        }
-    }
+		protected void log(string content)
+		{
+			if (verbose) Debug.Log(GetType() + " @ " + content);
+		}
+	}
 
 }
