@@ -166,7 +166,7 @@ namespace fwp.scenes.editor
         {
             base.drawFooter();
 
-            fwp.appendix.user.EdUserSettings.drawBool("+build settings",
+            fwp.settings.utils.UtilEdUserSettings.drawBool("+build settings",
                 SceneSubFolder._pref_autoAddBuildSettings,
                 (state) => primeRefresh());
         }

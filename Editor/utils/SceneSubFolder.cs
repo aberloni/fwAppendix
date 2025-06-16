@@ -7,7 +7,6 @@ using UnityEngine;
 namespace fwp.scenes
 {
     using fwp.utils.editor;
-    using fwp.appendix.user;
 	using fwp.settings.editor;
 
 	/// <summary>

@@ -5,8 +5,7 @@ using UnityEngine;
 namespace fwp.settings.editor
 {
 	using UnityEditor;
-	using fwp.settings;
-
+	
 	static public class MgrEdUserSettings
 	{
 		static bool Verbose => Application.isEditor;

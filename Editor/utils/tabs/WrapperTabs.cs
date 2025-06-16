@@ -4,9 +4,7 @@ using UnityEngine;
 
 namespace fwp.utils.editor.tabs
 {
-    using fwp.appendix.user;
 	using fwp.settings.editor;
-	using System;
 
     /// <summary>
     /// wrapper that keeps all data of different tabs

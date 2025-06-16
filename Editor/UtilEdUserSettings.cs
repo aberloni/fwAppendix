@@ -3,18 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System;
-using fwp.settings.editor;
 
-/// <summary>
-/// EditorGUILayout.Popup("startup room", index, roomLabels);
-/// </summary>
-
-namespace fwp.appendix.user
+namespace fwp.settings.utils
 {
+    using fwp.settings.editor;
 
 #if UNITY_EDITOR
 
-    static public class EdUserSettings
+    static public class UtilEdUserSettings
     {
 
         static public bool drawBool(string label, string uid, Action<bool> onChange = null)
