@@ -4,88 +4,95 @@ using UnityEngine;
 
 namespace fwp.utils.editor.tabs
 {
-    /// <summary>
-    /// PROVIDE:
-    /// tabs for refreshable window
-    /// 
-    /// usage:
-    /// override generate methods to feed your own content
-    /// </summary>
-    abstract public class WinEdTabs : WinEdRefreshable
-    {
-        WrapperTabs stateEditime;
-        WrapperTabs stateRuntime;
+	/// <summary>
+	/// PROVIDE:
+	/// tabs for refreshable window
+	/// 
+	/// usage:
+	/// override generate methods to feed your own content
+	/// </summary>
+	abstract public class WinEdTabs : WinEdRefreshable
+	{
+		WrapperTabs stateEditime;
+		WrapperTabs stateRuntime;
 
-        protected WrapperTabs tabsState => Application.isPlaying ? stateRuntime : stateEditime;
+		protected WrapperTabs tabsState => Application.isPlaying ? stateRuntime : stateEditime;
 
-        /// <summary>
-        /// what tabs to draw !runtime
-        /// tab label, gui draw callback
-        /// return : true to draw additionnal content
-        /// </summary>
-        abstract public void populateTabsEditor(WrapperTabs wt);
+		/// <summary>
+		/// what tabs to draw !runtime
+		/// tab label, gui draw callback
+		/// return : true to draw additionnal content
+		/// </summary>
+		abstract public void populateTabsEditor(WrapperTabs wt);
 
-        /// <summary>
-        /// what to draw @runtime
-        /// default is same as editor
-        /// </summary>
-        virtual public void populateTabsRuntime(WrapperTabs wt)
-        {
-            populateTabsEditor(wt); // default is runtime = editor
-        }
+		/// <summary>
+		/// what to draw @runtime
+		/// default is same as editor
+		/// </summary>
+		virtual public void populateTabsRuntime(WrapperTabs wt)
+		{
+			populateTabsEditor(wt); // default is runtime = editor
+		}
 
-        public void resetTabSelection()
-        {
-            tabsState.tabActive = 0;
-        }
-        public void selectTab(int index)
-        {
-            tabsState.tabActive = index;
-        }
+		public void resetTabSelection()
+		{
+			selectTab(0);
+		}
 
-        override public void refresh(bool force = false)
-        {
-            base.refresh(force);
+		public void selectTab(int index)
+		{
+			if (tabsState.tabActive != index)
+			{
+				tabsState.tabActive = index;
+				onTabIndexChanged();
+			}
+		}
 
-            if (force || stateEditime == null || !stateEditime.isSetup)
-            {
-                stateEditime = new WrapperTabs("editor-" + GetType());
-                populateTabsEditor(stateEditime);
+		virtual protected void onTabIndexChanged() { }
 
-                stateRuntime = new WrapperTabs("runtime-" + GetType());
-                populateTabsRuntime(stateRuntime);
-            }
-        }
+		override public void refresh(bool force = false)
+		{
+			base.refresh(force);
 
-        sealed protected override void draw()
-        {
-            base.draw();
+			if (force || stateEditime == null || !stateEditime.isSetup)
+			{
+				stateEditime = new WrapperTabs("editor-" + GetType());
+				populateTabsEditor(stateEditime);
 
-            var _state = tabsState;
+				stateRuntime = new WrapperTabs("runtime-" + GetType());
+				populateTabsRuntime(stateRuntime);
+			}
+		}
 
-            if (_state == null)
-            {
-                GUILayout.Label("no tabs available");
-                return;
-            }
+		sealed protected override void draw()
+		{
+			base.draw();
 
-            drawFilterField();
+			var _state = tabsState;
 
-            // above tabs buttons
-            drawAboveTabsHeader();
+			if (_state == null)
+			{
+				GUILayout.Label("no tabs available");
+				return;
+			}
 
-            // tabs buttons
-            // +oob check
-            // & draw active tab
-            _state.Draw();
-        }
+			drawFilterField();
 
-        /// <summary>
-        /// some space above tabs buttons
-        /// </summary>
-        virtual protected void drawAboveTabsHeader()
-        { }
+			// above tabs buttons
+			drawAboveTabsHeader();
 
-    }
+			// tabs buttons
+			// +oob check
+			// & draw active tab
+			_state.Draw();
+		}
+
+		/// <summary>
+		/// some space above tabs buttons
+		/// </summary>
+		virtual protected void drawAboveTabsHeader()
+		{ }
+
+	}
 
 }
