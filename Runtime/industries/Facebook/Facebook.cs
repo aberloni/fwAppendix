@@ -84,7 +84,7 @@ namespace fwp.industries.facebook
 		/// <summary>
 		/// only removed from matching highest level Type
 		/// </summary>
-		public void Delete<T>(T member) where T : class, IFacebook
+		public void Remove<T>(T member) where T : class, IFacebook
 		{
 			if (member == null)
 				return;
@@ -99,7 +99,7 @@ namespace fwp.industries.facebook
 		/// <summary>
 		/// its type and all castables
 		/// </summary>
-		public void DeleteFromAllGroups(object member)
+		public void RemoveFromAllGroups(object member)
 		{
 			if (member == null)
 			{
