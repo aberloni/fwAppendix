@@ -174,45 +174,7 @@ namespace fwp.screens
 		/// to prevent screen beeing visible by default
 		/// </summary>
 		virtual protected bool isOpenDuringSetup() => true;
-
-		public override void reactOpen()
-		{
-			base.reactOpen();
-
-			//already animating ?
-
-			if (isOpening())
-			{
-				if (verbose)
-				{
-					logwScreen(" => open animated => coroutine d'opening tourne déjà ?");
-					logwScreen(" trying to re-open the same screen during it's opening ?");
-				}
-
-				return;
-			}
-
-			if (hasValidAnimator())
-			{
-				logScreen("animation:  open (animation)");
-				_coprocOpening = StartCoroutine(processAnimatingOpening());
-			}
-			else
-			{
-				logScreen("animation:  open (no animation)");
-				onOpeningAnimationDone();
-			}
-
-			ScreenLoading.hideLoadingScreen(); // now animating open screen
-		}
-
-		protected override void setupBeforeOpening()
-		{
-			base.setupBeforeOpening();
-
-			callbacks.beforeOpen?.Invoke(this);
-		}
-
+		
 #if UNITY_EDITOR
 		[ContextMenu("validator")]
 		protected void cmValidator()
@@ -231,6 +193,35 @@ namespace fwp.screens
 			else logwScreen("canvas : " + canvas.canvas, canvas.canvas);
 		}
 #endif
+
+		protected override void setupBeforeOpening()
+		{
+			base.setupBeforeOpening();
+
+			callbacks.beforeOpen?.Invoke(this);
+		}
+
+		public override void reactOpen()
+		{
+			base.reactOpen();
+
+			//already animating ?
+
+			if (isOpening())
+			{
+				if (verbose)
+				{
+					logwScreen(" => open animated => coroutine d'opening tourne déjà ?");
+					logwScreen(" trying to re-open the same screen during it's opening ?");
+				}
+
+				return;
+			}
+
+			_coprocOpening = StartCoroutine(processAnimatingOpening());
+
+			ScreenLoading.hideLoadingScreen(); // now animating open screen
+		}
 
 		/// <summary>
 		/// called each frame during check open/close
@@ -254,13 +245,15 @@ namespace fwp.screens
 
 		IEnumerator processAnimatingOpening()
 		{
-			if (hasValidAnimator())
+			logScreen("animation:  open");
+
+			if(hasValidAnimator())
 			{
 				screenAnimator.SetBool(parameters.bool_open, true);
 				logScreen("open:wait state:<b>" + parameters.state_opened + "</b>");
 			}
 
-			while (checkOpening()) yield return null;
+			yield return new WaitUntil(() => !checkOpening());
 
 			onOpeningAnimationDone();
 		}
@@ -272,7 +265,7 @@ namespace fwp.screens
 		/// </summary>
 		virtual protected bool checkOpening()
 		{
-			if(hasValidAnimator())
+			if (hasValidAnimator())
 			{
 				// not reached OPEN-ED state ?
 				AnimatorStateInfo info = screenAnimator.GetCurrentAnimatorStateInfo(0);
@@ -329,16 +322,15 @@ namespace fwp.screens
 
 		IEnumerator processAnimatingClosing()
 		{
-			if (!hasValidAnimator()) logScreen("close (not animated)");
-			else
+			if (hasValidAnimator())
 			{
 				logScreen("close (animated)");
 				screenAnimator.SetBool(parameters.bool_open, false);
 				logScreen("animated:wait state:<b>" + parameters.state_closed + "</b>");
 			}
 
-			while (checkClosing()) yield return null;
-
+			yield return new WaitUntil(() => !checkClosing());
+			
 			onClosingAnimationCompleted();
 		}
 
