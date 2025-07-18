@@ -232,17 +232,20 @@ namespace fwp.screens
 		}
 #endif
 
+		/// <summary>
+		/// called each frame during check open/close
+		/// </summary>
 		virtual protected bool hasValidAnimator()
 		{
+			// must have an animator component attached
 			if (screenAnimator == null)
 			{
-				logwScreen("NOK   animator = null");
 				return false;
 			}
 
+			// must have a controller
 			if (screenAnimator.runtimeAnimatorController == null)
 			{
-				logwScreen("NOK   animator.controller = null");
 				return false;
 			}
 
@@ -269,9 +272,13 @@ namespace fwp.screens
 		/// </summary>
 		virtual protected bool checkOpening()
 		{
-			// not reached OPEN-ED state ?
-			AnimatorStateInfo info = screenAnimator.GetCurrentAnimatorStateInfo(0);
-			if (!info.IsName(parameters.state_opened)) return true;
+			if(hasValidAnimator())
+			{
+				// not reached OPEN-ED state ?
+				AnimatorStateInfo info = screenAnimator.GetCurrentAnimatorStateInfo(0);
+				if (!info.IsName(parameters.state_opened)) return true;
+			}
+			
 			return false;
 		}
 
@@ -341,9 +348,12 @@ namespace fwp.screens
 		/// </summary>
 		virtual protected bool checkClosing()
 		{
-			AnimatorStateInfo info = screenAnimator.GetCurrentAnimatorStateInfo(0);
-			if (!info.IsName(parameters.state_closed)) return true;
-
+			if(hasValidAnimator())
+			{
+				AnimatorStateInfo info = screenAnimator.GetCurrentAnimatorStateInfo(0);
+				if (!info.IsName(parameters.state_closed)) return true;
+			}
+			
 			return false;
 		}
 
