@@ -8,467 +8,470 @@ using UnityEngine.UI;
 
 namespace fwp.screens
 {
-    /// <summary>
-    /// wrapper to manage a menu using scenes
-    /// 1x menu is 1x scene and will be loaded when called
-    /// and can be unloaded when the user is done
-    /// 
-    /// show,hide
-    /// updateVisible,updateNotVisible
-    /// 
-    /// visibility is based on activation/deactivation of first child of this component
-    /// to use canvases see ScreenUi
-    /// 
-    /// this layer is not meant to include open/close paradigm
-    /// it's meant to make the screen visible or not
-    /// use ScreenAnimated for open/close paradigm
-    /// </summary>
-    public class ScreenObject : MonoBehaviour
-    {
-        virtual public bool isVerbose => verbose || ScreensManager.isVerbose;
-        public bool verbose = false;
+	/// <summary>
+	/// wrapper to manage a menu using scenes
+	/// 1x menu is 1x scene and will be loaded when called
+	/// and can be unloaded when the user is done
+	/// 
+	/// show,hide
+	/// updateVisible,updateNotVisible
+	/// 
+	/// visibility is based on activation/deactivation of first child of this component
+	/// to use canvases see ScreenUi
+	/// 
+	/// this layer is not meant to include open/close paradigm
+	/// it's meant to make the screen visible or not
+	/// use ScreenAnimated for open/close paradigm
+	/// </summary>
+	public class ScreenObject : MonoBehaviour
+	{
+		virtual public bool isVerbose => verbose || ScreensManager.isVerbose;
+		public bool verbose = false;
 
-        bool _debug = false;
+		bool _debug = false;
 
-        const string screenPrefix = "screen-";
+		const string screenPrefix = "screen-";
 
-        public string getStamp() => Time.frameCount + $"@<color=white>{GetType()}:{name}</color>:   ";
+		public string getStamp() => Time.frameCount + $"@<color=white>{GetType()}:{name}</color>:   ";
 
-        public enum ScreenType
-        {
-            none = 0,
-            menu, // nothing running in background
-            overlay, // ingame overlays
-        }
+		public enum ScreenType
+		{
+			none = 0,
+			menu, // nothing running in background
+			overlay, // ingame overlays
+		}
 
-        /// <summary>
-        /// cumulative states for screens
-        /// </summary>
-        [System.Flags]
-        public enum ScreenTags
-        {
-            none = 0,
-            pauseIngameUpdate = 1, // screen that pauses gameplay
-            blockIngameInput = 2,  // screen that lock inputs
-            stickyVisibility = 4,  // can't be hidden
-            stickyPersistance = 8, // can't be unloaded
-            hideOtherLayerOnShow = 16,
-        };
+		/// <summary>
+		/// cumulative states for screens
+		/// </summary>
+		[System.Flags]
+		public enum ScreenTags
+		{
+			none = 0,
+			pauseIngameUpdate = 1, // screen that pauses gameplay
+			blockIngameInput = 2,  // screen that lock inputs
+			stickyVisibility = 4,  // can't be hidden
+			stickyPersistance = 8, // can't be unloaded
+			hideOtherLayerOnShow = 16,
+		};
 
-        public ScreenType type;
-        public ScreenTags tags;
+		public ScreenType type;
+		public ScreenTags tags;
 
-        ScreenNav nav;
+		ScreenNav nav;
 
-        ScreenModCanvas _canvas;
-        public ScreenModCanvas canvas
-        {
-            get
-            {
-                if (_canvas == null) _canvas = new ScreenModCanvas(this);
-                return _canvas;
-            }
-        }
+		ScreenModCanvas _canvas;
+		public ScreenModCanvas canvas
+		{
+			get
+			{
+				if (_canvas == null) _canvas = new ScreenModCanvas(this);
+				return _canvas;
+			}
+		}
 
-        public Scene getScene() => gameObject.scene;
+		public Scene getScene() => gameObject.scene;
 
-        public bool isSticky() => tags.HasFlag(ScreenTags.stickyVisibility);
+		public bool isSticky() => tags.HasFlag(ScreenTags.stickyVisibility);
 
-        /// <summary>
-        /// @awake active scene is check
-        /// </summary>
-        virtual protected bool isDebugContext() => _debug;
+		/// <summary>
+		/// @awake active scene is check
+		/// </summary>
+		virtual protected bool isDebugContext() => _debug;
 
-        private void Awake()
-        {
-            if (canvas == null)
-            {
-                Debug.LogError("screen framework works only with canvas");
-                enabled = false;
-                return;
-            }
+		private void Awake()
+		{
+			if (canvas == null)
+			{
+				Debug.LogError("screen framework works only with canvas");
+				enabled = false;
+				return;
+			}
 
-            _debug = UnityEngine.SceneManagement.SceneManager.GetActiveScene() == gameObject.scene;
+			_debug = UnityEngine.SceneManagement.SceneManager.GetActiveScene() == gameObject.scene;
 
-            if (type == ScreenType.none)
-            {
-                Debug.LogWarning("integration:missing screen type", this);
-            }
+			if (type == ScreenType.none)
+			{
+				Debug.LogWarning("integration:missing screen type", this);
+			}
 
-            ScreensManager.subScreen(this);
-            screenCreated();
-        }
+			ScreensManager.subScreen(this);
+			screenCreated();
+		}
 
-        virtual protected void screenCreated()
-        {
-            // not shown or hidden :
-            // at this abstract level, keep whatever is setup in editor
+		virtual protected void screenCreated()
+		{
+			// not shown or hidden :
+			// at this abstract level, keep whatever is setup in editor
 
-            logScreen("created");
-        }
+			logScreen("created");
+		}
 
-        /// <summary>
-        /// stay true until hypotetic engine is ready
-        /// </summary>
-        virtual protected bool delayEngineCheck()
-        {
-            return false;
-        }
+		/// <summary>
+		/// stay true until hypotetic engine is ready
+		/// </summary>
+		virtual protected bool delayEngineCheck()
+		{
+			return false;
+		}
 
-        private IEnumerator Start()
-        {
-            if (delayEngineCheck())
-            {
-                logScreen("delay engine : start ...");
-                while (delayEngineCheck()) yield return null;
-                logScreen("delay engine : ... done");
-            }
+		private IEnumerator Start()
+		{
+			if (delayEngineCheck())
+			{
+				logScreen("delay engine : start ...");
+				while (delayEngineCheck()) yield return null;
+				logScreen("delay engine : ... done");
+			}
 
-            // setup will trigger auto opening and setupBeforeOpening
-            screenSetup();
+			// setup will trigger auto opening and setupBeforeOpening
+			screenSetup();
 
-            yield return null;
+			yield return null;
 
-            //"active scene : \" + SceneManager.GetActiveScene().name + \" != \" + gameObject.scene.name;
-            if (isDebugContext())
-            {
-                logScreen("+debug:  gameo scene : " + gameObject.scene.name);
-                screenSetupDebug();
-            }
+			//"active scene : \" + SceneManager.GetActiveScene().name + \" != \" + gameObject.scene.name;
+			if (isDebugContext())
+			{
+				logScreen("+debug:  gameo scene : " + gameObject.scene.name);
+				screenSetupDebug();
+			}
 
-            // for screen watcher order
-            yield return null;
-            yield return null;
-            yield return null;
+			// for screen watcher order
+			yield return null;
+			yield return null;
+			yield return null;
 
-            screenSetupLate();
-        }
+			screenSetupLate();
+		}
 
 #if UNITY_EDITOR
-        private void OnValidate()
-        {
-            validate();
-        }
+		private void OnValidate()
+		{
+			validate();
+		}
 #endif
 
-        virtual protected void validate()
-        { }
+		virtual protected void validate()
+		{ }
 
-        virtual protected void screenSetup()
-        {
-            logScreen("setup");
-        }
+		virtual protected void screenSetup()
+		{
+			logScreen("setup");
+		}
 
-        /// <summary>
-        /// before setup late
-        /// </summary>
-        virtual protected void screenSetupDebug()
-        {
-            logScreen("setup debug");
-        }
+		/// <summary>
+		/// before setup late
+		/// </summary>
+		virtual protected void screenSetupDebug()
+		{
+			logScreen("setup debug");
+		}
 
-        virtual protected void screenSetupLate()
-        {
-            logScreen("setup late");
-        }
+		virtual protected void screenSetupLate()
+		{
+			logScreen("setup late");
+		}
 
-        public void subNavDirection(Action down, Action up, Action left, Action right)
-        {
-            if (nav == null) nav = new ScreenNav();
+		public void subNavDirection(Action down, Action up, Action left, Action right)
+		{
+			if (nav == null) nav = new ScreenNav();
 
-            if (down != null) nav.onPressedDown += down;
-            if (up != null) nav.onPressedUp += up;
-            if (left != null) nav.onPressedLeft += left;
-            if (right != null) nav.onPressedRight += right;
-        }
+			if (down != null) nav.onPressedDown += down;
+			if (up != null) nav.onPressedUp += up;
+			if (left != null) nav.onPressedLeft += left;
+			if (right != null) nav.onPressedRight += right;
+		}
 
-        public void subSkip(Action skip)
-        {
-            if (nav == null) nav = new ScreenNav();
-            nav.onBack += skip;
-        }
+		public void subSkip(Action skip)
+		{
+			if (nav == null) nav = new ScreenNav();
+			nav.onBack += skip;
+		}
 
-        virtual public void reset()
-        { }
+		virtual public void reset()
+		{ }
 
-        private void Update()
-        {
-            menuUpdate();
-        }
+		private void Update()
+		{
+			menuUpdate();
+		}
 
-        /// <summary>
-        /// must be udpated externaly
-        /// update entry point
-        /// </summary>
-        virtual public void menuUpdate()
-        {
-            if (isVisible()) updateScreenVisible();
-            else updateScreenNotVisible();
-        }
+		/// <summary>
+		/// must be udpated externaly
+		/// update entry point
+		/// </summary>
+		virtual public void menuUpdate()
+		{
+			if (isVisible()) updateScreenVisible();
+			else updateScreenNotVisible();
+		}
 
-        virtual protected void updateScreenNotVisible() { }
-        virtual protected void updateScreenVisible()
-        {
-            nav?.update();
-        }
+		virtual protected void updateScreenNotVisible() { }
+		virtual protected void updateScreenVisible()
+		{
+			nav?.update();
+		}
 
-        virtual protected void action_back() { }
+		virtual protected void action_back() { }
 
-        /// <summary>
-        /// ask to change visib
-        /// this will toggle on/off canvas (if any)
-        /// </summary>
-        protected void setVisibility(bool flag)
-        {
-            // no change = do nothing
-            if (isVisible() == flag)
-            {
-                logScreen("visibility? already @ " + flag);
-                return;
-            }
+		/// <summary>
+		/// ask to change visib
+		/// this will toggle on/off canvas (if any)
+		/// </summary>
+		protected void setVisibility(bool flag)
+		{
+			// no change = do nothing
+			if (isVisible() == flag)
+			{
+				logScreen("visibility? already @ " + flag);
+				return;
+			}
 
-            if (!flag && tags.HasFlag(ScreenTags.stickyVisibility))
-            {
-                logwScreen("      can't hide because is setup as sticky");
-                return;
-            }
+			if (!flag && tags.HasFlag(ScreenTags.stickyVisibility))
+			{
+				logwScreen("      can't hide because is setup as sticky");
+				return;
+			}
 
-            setVisible(flag); // visibility
-        }
+			setVisible(flag); // visibility
+		}
 
-        /// <summary>
-        /// describe how to show/hide screen
-        /// this ignores filter checks (sticky)
-        /// </summary>
-        virtual protected void setVisible(bool flag)
-        {
-            logScreen("canvas:visibility:" + flag);
-            canvas.toggleVisible(flag);
-        }
+		/// <summary>
+		/// describe how to show/hide screen
+		/// this ignores filter checks (sticky)
+		/// </summary>
+		virtual protected void setVisible(bool flag)
+		{
+			logScreen("canvas:visibility:" + flag);
+			canvas.toggleVisible(flag);
+		}
 
-        /// <summary>
-        /// routine to describe if screen is visible
-        /// </summary>
-        virtual public bool isVisible()
-        {
-            return canvas.isVisible();
-        }
+		/// <summary>
+		/// routine to describe if screen is visible
+		/// </summary>
+		virtual public bool isVisible()
+		{
+			return canvas.isVisible();
+		}
 
-        [ContextMenu("force show")]
-        protected void ctxm_show()
-        {
-            setVisible(true); // cm
-        }
+		[ContextMenu("force show")]
+		protected void ctxm_show()
+		{
+			setVisible(true); // cm
+		}
 
-        [ContextMenu("force hide")]
-        protected void ctxm_hide()
-        {
-            setVisible(false); // cm
-        }
+		[ContextMenu("force hide")]
+		protected void ctxm_hide()
+		{
+			setVisible(false); // cm
+		}
 
-        virtual protected bool canOpen()
-        {
-            return true;
-        }
+		virtual protected bool canOpen()
+		{
+			return true;
+		}
 
-        public void open()
-        {
-            if (!canOpen())
-            {
-                logScreen("open: can't");
-                return;
-            }
+		public void open()
+		{
+			if (!canOpen())
+			{
+				logScreen("open: can't");
+				return;
+			}
 
-            logScreen("open");
-            nav?.resetTimerNoInteraction();
+			logScreen("open");
+			nav?.resetTimerNoInteraction();
 
-            setupBeforeOpening();
-            reactOpen();
+			setupBeforeOpening();
+			reactOpen();
 
-            // default, canvas needs to be visible
-            setVisibility(true);
-        }
+			// default, canvas needs to be visible
+			setVisibility(true);
+		}
 
-        virtual protected void setupBeforeOpening()
-        { }
+		virtual protected void setupBeforeOpening()
+		{ }
 
-        /// <summary>
-        /// what to do when opening
-        /// (setup is done just before)
-        /// </summary>
-        virtual public void reactOpen()
-        { }
+		/// <summary>
+		/// what to do when opening
+		/// (setup is done just before)
+		/// </summary>
+		virtual public void reactOpen()
+		{
+			onOpeningEnded();
+		}
 
-        virtual protected bool canClose()
-        {
-            return true;
-        }
+		virtual protected void onOpeningEnded()
+		{ }
 
-        public void close()
-        {
-            if (!canClose())
-            {
-                logScreen("close: can't");
-                return;
-            }
+		virtual protected bool canClose() => true;
 
-            logScreen("close");
+		public void close()
+		{
+			if (!canClose())
+			{
+				logScreen("close: can't");
+				return;
+			}
 
-            setupBeforeClosing();
-            reactClose();
-        }
+			logScreen("close");
 
-        virtual protected void setupBeforeClosing()
-        { }
+			setupBeforeClosing();
 
-        /// <summary>
-        /// what to do when close is called
-        /// </summary>
-        virtual public void reactClose()
-        {
-            onClosingAnimationCompleted();
-        }
+			reactClose();
+		}
 
-        /// <summary>
-        /// what to do when screen is finished closing
-        /// </summary>
-        virtual protected void onClosingAnimationCompleted()
-        {
-            logScreen("close:onClosingAnimationCompleted");
+		virtual protected void setupBeforeClosing()
+		{ }
 
-            if (isUnloadAfterClosing()) //won't if sticky persist
-            {
-                unload();
-            }
-            else
-            {
-                setVisibility(false);
-            }
+		/// <summary>
+		/// what to do when close is called
+		/// </summary>
+		virtual public void reactClose()
+		{
+			onClosingEnded();
+		}
 
-        }
+		/// <summary>
+		/// to call when screen has finished it's closing process/animation
+		/// </summary>
+		virtual protected void onClosingEnded()
+		{
+			logScreen("close:onClosingAnimationCompleted");
 
-        /// <summary>
-        /// allow to change behavior
-        /// default : unload the scene after hiding animation is done
-        /// </summary>
-        virtual public bool isUnloadAfterClosing()
-        {
-            return !tags.HasFlag(ScreenTags.stickyPersistance);
-        }
+			if (isUnloadAfterClosing()) //won't if sticky persist
+			{
+				unload();
+			}
+			else
+			{
+				setVisibility(false);
+			}
 
-        /// <summary>
-        /// true = success
-        /// </summary>
-        public bool unload(bool force = false)
-        {
-            if (!force && tags.HasFlag(ScreenTags.stickyPersistance))
-            {
-                Debug.LogWarning("can't unload sticky scenes : " + gameObject.scene.name);
-                return false;
-            }
+		}
 
-            logScreen("unloading <b>" + gameObject.scene.name + "</b>");
+		/// <summary>
+		/// allow to change behavior
+		/// default : unload the scene after hiding animation is done
+		/// </summary>
+		virtual public bool isUnloadAfterClosing()
+		{
+			return !tags.HasFlag(ScreenTags.stickyPersistance);
+		}
 
-            //SceneManager.UnloadSceneAsync(gameObject.scene, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
-            SceneManager.UnloadSceneAsync(gameObject.scene.name);
+		/// <summary>
+		/// true = success
+		/// </summary>
+		public bool unload(bool force = false)
+		{
+			if (!force && tags.HasFlag(ScreenTags.stickyPersistance))
+			{
+				Debug.LogWarning("can't unload sticky scenes : " + gameObject.scene.name);
+				return false;
+			}
 
-            return true;
-        }
+			logScreen("unloading <b>" + gameObject.scene.name + "</b>");
 
-        public bool isInteractive() => nav != null;
+			//SceneManager.UnloadSceneAsync(gameObject.scene, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
+			SceneManager.UnloadSceneAsync(gameObject.scene.name);
 
-        /// <summary>
-        /// when using unity events callbacks
-        /// </summary>
-        virtual public void act_button(Button clickedButton)
-        {
-            //process_button_press(clickedButton.name);
-        }
+			return true;
+		}
 
-        /// <summary>
-        /// screen_[name]
-        /// </summary>
-        public string extractName()
-        {
-            string[] split = name.Split('_'); // (screen_xxx)
-            return split[1].Substring(0, split[1].Length - 1); // remove ')'
-        }
+		public bool isInteractive() => nav != null;
 
-        public bool isScreenOfSceneName(string nm)
-        {
-            //Debug.Log(nm + " vs " + gameObject.scene.name);
-            return gameObject.scene.name.EndsWith(nm);
-        }
+		/// <summary>
+		/// when using unity events callbacks
+		/// </summary>
+		virtual public void act_button(Button clickedButton)
+		{
+			//process_button_press(clickedButton.name);
+		}
 
-        private void OnDestroy()
-        {
-            if (!Application.isPlaying) return;
+		/// <summary>
+		/// screen_[name]
+		/// </summary>
+		public string extractName()
+		{
+			string[] split = name.Split('_'); // (screen_xxx)
+			return split[1].Substring(0, split[1].Length - 1); // remove ')'
+		}
 
-            onScreenDestruction();
-            ScreensManager.unsubScreen(this);
-        }
+		public bool isScreenOfSceneName(string nm)
+		{
+			//Debug.Log(nm + " vs " + gameObject.scene.name);
+			return gameObject.scene.name.EndsWith(nm);
+		}
 
-        virtual protected void onScreenDestruction()
-        {
-            logScreen("destroy");
-        }
+		private void OnDestroy()
+		{
+			if (!Application.isPlaying) return;
 
-        /// <summary>
-        /// to toggle all screens that are not leader
-        /// </summary>
-        public void setStandby(ScreenObject leader)
-        {
-            // no leader = visible
-            bool visi = leader == null;
+			onScreenDestruction();
+			ScreensManager.unsubScreen(this);
+		}
 
-            // is this screen leader
-            if (leader != null)
-                visi = leader == this;
+		virtual protected void onScreenDestruction()
+		{
+			logScreen("destroy");
+		}
 
-            setVisibility(visi); // standby logic
-        }
+		/// <summary>
+		/// to toggle all screens that are not leader
+		/// </summary>
+		public void setStandby(ScreenObject leader)
+		{
+			// no leader = visible
+			bool visi = leader == null;
+
+			// is this screen leader
+			if (leader != null)
+				visi = leader == this;
+
+			setVisibility(visi); // standby logic
+		}
 
 #if UNITY_EDITOR
-        [ContextMenu("stringify")]
-        void cmStringify() => Debug.Log(stringify(), this);
+		[ContextMenu("stringify")]
+		void cmStringify() => Debug.Log(stringify(), this);
 #endif
 
-        virtual public string stringify()
-        {
-            string ret = GetType() + ":" + name;
-            if (isVisible()) ret += " VISIBLE";
-            if (tags.HasFlag(ScreenTags.stickyVisibility)) ret += " STICKY"; // can't hide
-            if (tags.HasFlag(ScreenTags.stickyPersistance)) ret += " PERSIST"; // can't unload
-            return ret;
-        }
+		virtual public string stringify()
+		{
+			string ret = GetType() + ":" + name;
+			if (isVisible()) ret += " VISIBLE";
+			if (tags.HasFlag(ScreenTags.stickyVisibility)) ret += " STICKY"; // can't hide
+			if (tags.HasFlag(ScreenTags.stickyPersistance)) ret += " PERSIST"; // can't unload
+			return ret;
+		}
 
-        protected void logwScreen(string msg, object tar = null)
-        {
-            if (!isVerbose) return;
+		protected void logwScreen(string msg, object tar = null)
+		{
+			if (!isVerbose) return;
 
-            if (tar == null) tar = this;
+			if (tar == null) tar = this;
 
-            Debug.LogWarning(getStamp() + msg, tar as UnityEngine.Object);
-        }
+			Debug.LogWarning(getStamp() + msg, tar as UnityEngine.Object);
+		}
 
-        protected void logScreen(string msg, object target = null)
-        {
-            if (!isVerbose) return;
+		protected void logScreen(string msg, object target = null)
+		{
+			if (!isVerbose) return;
 
-            if (target == null) target = this;
+			if (target == null) target = this;
 
-            Debug.Log(getStamp() + msg, target as UnityEngine.Object);
-        }
+			Debug.Log(getStamp() + msg, target as UnityEngine.Object);
+		}
 
-        // SHKS
+		// SHKS
 
-        static public ScreenWatcher callScreen(ScreenOverlay screen, Action onCompletion)
-            => callScreen(screen, null, null, onCompletion);
+		static public ScreenWatcher callScreen(ScreenOverlay screen, Action onCompletion)
+			=> callScreen(screen, null, null, onCompletion);
 
-        static public ScreenWatcher callScreen(ScreenOverlay screen,
-            Action onCreated = null, Action onOpened = null, Action onClosed = null)
-        {
-            return ScreenWatcher.create(screenPrefix + screen.ToString(), onCreated, onOpened, onClosed);
-        }
-    }
+		static public ScreenWatcher callScreen(ScreenOverlay screen,
+			Action onCreated = null, Action onOpened = null, Action onClosed = null)
+		{
+			return ScreenWatcher.create(screenPrefix + screen.ToString(), onCreated, onOpened, onClosed);
+		}
+	}
 }

@@ -203,7 +203,8 @@ namespace fwp.screens
 
 		public override void reactOpen()
 		{
-			base.reactOpen();
+			// don't, need to wait for animation end
+			//base.reactOpen();
 
 			//already animating ?
 
@@ -253,9 +254,11 @@ namespace fwp.screens
 				logScreen("open:wait state:<b>" + parameters.state_opened + "</b>");
 			}
 
+			logScreen("animated.open.check");
 			yield return new WaitUntil(() => !checkOpening());
+			logScreen("animated.open.check.done");
 
-			onOpeningAnimationDone();
+			onOpeningEnded();
 		}
 
 		/// <summary>
@@ -276,10 +279,12 @@ namespace fwp.screens
 		}
 
 		/// <summary>
-		/// do something at the end of opening animation
+		/// end of opening animation
 		/// </summary>
-		virtual protected void onOpeningAnimationDone()
+		protected override void onOpeningEnded()
 		{
+			base.onOpeningEnded();
+
 			_coprocOpening = null;
 
 			// this is done before "open animation"
@@ -292,24 +297,16 @@ namespace fwp.screens
 			callbacks.afterOpen?.Invoke(this);
 		}
 
-		protected override void setupBeforeClosing()
-		{
-			base.setupBeforeClosing();
-			_interactable = false;
-
-			callbacks.beforeClose?.Invoke(this);
-		}
-
 		public override void reactClose()
 		{
+			// don't, using animation
+			//base.reactClose();
+
 			if (isClosing())
 			{
 				logwScreen(" ... already closing");
 				return;
 			}
-
-			// hide/unload
-			//base.reactClose();
 
 			if (_coprocClosing != null)
 			{
@@ -320,18 +317,31 @@ namespace fwp.screens
 			_coprocClosing = StartCoroutine(processAnimatingClosing());
 		}
 
+		protected override void setupBeforeClosing()
+		{
+			base.setupBeforeClosing();
+			_interactable = false;
+
+			callbacks.beforeClose?.Invoke(this);
+		}
+
 		IEnumerator processAnimatingClosing()
 		{
+			logScreen("animated.closing.animated");
+
 			if (hasValidAnimator())
 			{
-				logScreen("close (animated)");
+				logScreen("+animator");
 				screenAnimator.SetBool(parameters.bool_open, false);
+
 				logScreen("animated:wait state:<b>" + parameters.state_closed + "</b>");
 			}
 
+			logScreen("animated.closing.check");
 			yield return new WaitUntil(() => !checkClosing());
-			
-			onClosingAnimationCompleted();
+			logScreen("animated.closing.check.done");
+
+			onClosingEnded();
 		}
 
 		/// <summary>
@@ -349,12 +359,9 @@ namespace fwp.screens
 			return false;
 		}
 
-		/// <summary>
-		/// do more stuff after closing
-		/// </summary>
-		override protected void onClosingAnimationCompleted()
+		protected override void onClosingEnded()
 		{
-			base.onClosingAnimationCompleted();
+			base.onClosingEnded();
 
 			_coprocClosing = null;
 			_interactable = false;
