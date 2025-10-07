@@ -133,14 +133,7 @@ namespace fwp.screens
 			// setup will trigger auto opening and setupBeforeOpening
 			screenSetup();
 
-			// for screen watcher order
-			yield return null;
-			yield return null;
-			yield return null;
-
-			screenSetupLate();
-
-			//"active scene : \" + SceneManager.GetActiveScene().name + \" != \" + gameObject.scene.name;
+			// must be called before late(), late will open the screen (auto open)
 			if (isDebugContext())
 			{
 				yield return null;
@@ -148,6 +141,14 @@ namespace fwp.screens
 				logScreen("+debug:  gameo scene : " + gameObject.scene.name);
 				screenSetupDebug();
 			}
+
+
+			// for screen watcher order
+			yield return null;
+			yield return null;
+			yield return null;
+
+			screenSetupLate();
 
 			_ready = true;
 		}
@@ -297,6 +298,9 @@ namespace fwp.screens
 			setVisibility(true);
 		}
 
+		/// <summary>
+		/// on open()
+		/// </summary>
 		virtual protected void setupBeforeOpening()
 		{ }
 

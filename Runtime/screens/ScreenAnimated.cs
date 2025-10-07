@@ -36,14 +36,6 @@ namespace fwp.screens
 				return true;
 			}
 
-			/*
-            void logStatePresence(Animator a, string state)
-            {
-                if (!a.HasState(state, 0)) Debug.LogWarning(a.name + " NOK " + state);
-                else Debug.LogWarning(a.name + " OK " + state);
-            }
-            */
-
 			public void logParamPresence(Animator a, string param)
 			{
 				if (!hasParam(a, param)) Debug.LogWarning(a.name + " NOK " + param);
@@ -97,45 +89,36 @@ namespace fwp.screens
 		{
 			base.screenCreated();
 
-			solveAnimator();
+			fetchAnimator();
 
 			openedAnimatedScreens.Add(this);
 
 			// animated must be hidden by default
+			// and animated on opening
 			setVisibility(false);
 		}
 
-		void solveAnimator()
+		protected override void screenSetupLate()
 		{
-			if (screenAnimator == null)
-			{
-				screenAnimator = GetComponent<Animator>();
-				if (screenAnimator == null)
-				{
-					// seek one in immediate children only
-					foreach (Transform child in transform)
-					{
-						screenAnimator = child.GetComponent<Animator>();
-						if (screenAnimator != null) break;
-					}
-				}
-			}
+			base.screenSetupLate();
 
-			if (screenAnimator != null)
+			if (isOpenDuringSetup()) // true by default
 			{
-				// generate params to interact with animator
-				parameters = generateAnimatedParams();
-				if (!parameters.canOpen(screenAnimator))
-				{
-					logwScreen("ignore animator : " + screenAnimator + " not compat", screenAnimator);
-					screenAnimator = null;
-				}
+				logScreen("animated:setup:late:auto open");
+				open();
 			}
+		}
 
-			if (screenAnimator == null)
-			{
-				logwScreen("no animator for animated screen : " + name, this);
-			}
+		/// <summary>
+		/// to prevent screen beeing visible by default
+		/// </summary>
+		virtual protected bool isOpenDuringSetup() => true;
+
+		protected override void setupBeforeOpening()
+		{
+			base.setupBeforeOpening();
+
+			callbacks.beforeOpen?.Invoke(this);
 		}
 
 		protected override void onScreenDestruction()
@@ -159,48 +142,6 @@ namespace fwp.screens
 			return _parameters;
 		}
 
-		protected override void screenSetupLate()
-		{
-			base.screenSetupLate();
-
-			if (isOpenDuringSetup()) // true by default
-			{
-				logScreen("animated:setup:late:auto open");
-				open();
-			}
-		}
-
-		/// <summary>
-		/// to prevent screen beeing visible by default
-		/// </summary>
-		virtual protected bool isOpenDuringSetup() => true;
-		
-#if UNITY_EDITOR
-		[ContextMenu("validator")]
-		protected void cmValidator()
-		{
-			logwScreen("VALIDATOR");
-
-			//fetch animator ref
-			solveAnimator();
-
-			if (!hasValidAnimator())
-			{
-				logwScreen("animator is not valid");
-			}
-
-			if (canvas.canvas == null) logwScreen("no canvas");
-			else logwScreen("canvas : " + canvas.canvas, canvas.canvas);
-		}
-#endif
-
-		protected override void setupBeforeOpening()
-		{
-			base.setupBeforeOpening();
-
-			callbacks.beforeOpen?.Invoke(this);
-		}
-
 		public override void reactOpen()
 		{
 			// don't, need to wait for animation end
@@ -220,35 +161,13 @@ namespace fwp.screens
 			}
 
 			_coprocOpening = StartCoroutine(processAnimatingOpening());
-
-			ScreenLoading.hideLoadingScreen(); // now animating open screen
-		}
-
-		/// <summary>
-		/// called each frame during check open/close
-		/// </summary>
-		virtual protected bool hasValidAnimator()
-		{
-			// must have an animator component attached
-			if (screenAnimator == null)
-			{
-				return false;
-			}
-
-			// must have a controller
-			if (screenAnimator.runtimeAnimatorController == null)
-			{
-				return false;
-			}
-
-			return parameters.canOpen(screenAnimator);
 		}
 
 		IEnumerator processAnimatingOpening()
 		{
 			logScreen("animation:  open");
 
-			if(hasValidAnimator())
+			if (hasValidAnimator())
 			{
 				screenAnimator.SetBool(parameters.bool_open, true);
 				logScreen("open:wait state:<b>" + parameters.state_opened + "</b>");
@@ -264,7 +183,7 @@ namespace fwp.screens
 		/// <summary>
 		/// check if screen is still animating opening
 		/// + additionnal checks possible
-		/// returning true : keeps the process pending
+		/// true : keeps the process pending
 		/// </summary>
 		virtual protected bool checkOpening()
 		{
@@ -274,7 +193,7 @@ namespace fwp.screens
 				AnimatorStateInfo info = screenAnimator.GetCurrentAnimatorStateInfo(0);
 				if (!info.IsName(parameters.state_opened)) return true;
 			}
-			
+
 			return false;
 		}
 
@@ -350,12 +269,12 @@ namespace fwp.screens
 		/// </summary>
 		virtual protected bool checkClosing()
 		{
-			if(hasValidAnimator())
+			if (hasValidAnimator())
 			{
 				AnimatorStateInfo info = screenAnimator.GetCurrentAnimatorStateInfo(0);
 				if (!info.IsName(parameters.state_closed)) return true;
 			}
-			
+
 			return false;
 		}
 
@@ -391,6 +310,89 @@ namespace fwp.screens
 
 			return ret;
 		}
+
+		/// <summary>
+		/// called each frame during check open/close
+		/// </summary>
+		virtual protected bool hasValidAnimator()
+		{
+			// must have an animator component attached
+			if (screenAnimator == null)
+			{
+				return false;
+			}
+
+			// must have a controller
+			if (screenAnimator.runtimeAnimatorController == null)
+			{
+				return false;
+			}
+
+			return parameters.canOpen(screenAnimator);
+		}
+
+		void fetchAnimator()
+		{
+			if (screenAnimator == null)
+			{
+				screenAnimator = GetComponent<Animator>();
+				if (screenAnimator == null)
+				{
+					// seek one in immediate children only
+					foreach (Transform child in transform)
+					{
+						screenAnimator = child.GetComponent<Animator>();
+						if (screenAnimator != null) break;
+					}
+				}
+			}
+
+			if (screenAnimator != null)
+			{
+				// generate params to interact with animator
+				parameters = generateAnimatedParams();
+				if (!parameters.canOpen(screenAnimator))
+				{
+					logwScreen("ignore animator : " + screenAnimator + " not compat", screenAnimator);
+					screenAnimator = null;
+				}
+			}
+
+			if (screenAnimator == null)
+			{
+				logwScreen("no animator for animated screen : " + name, this);
+			}
+		}
+
+#if UNITY_EDITOR
+
+		/// <summary>
+		/// list/log possible issues
+		/// </summary>
+		virtual protected void checkValidator()
+		{
+			//fetch animator ref
+			fetchAnimator();
+
+			if (!hasValidAnimator())
+			{
+				logwScreen(" ? animator is not valid");
+			}
+
+			if (canvas.canvas == null)
+			{
+				logwScreen(" ? no canvas");
+			}
+			else logwScreen("canvas : " + canvas.canvas, canvas.canvas);
+		}
+
+		[ContextMenu("validator.check")]
+		protected void cmValidatorCheck()
+		{
+			checkValidator();
+		}
+
+#endif
 
 		/// <summary>
 		/// search from all opened screens
