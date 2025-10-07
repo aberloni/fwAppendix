@@ -28,7 +28,16 @@ namespace fwp.screens
 		virtual public bool isVerbose => verbose || ScreensManager.isVerbose;
 		public bool verbose = false;
 
+		/// <summary>
+		/// is context  is debug context
+		/// </summary>
 		bool _debug = false;
+
+		/// <summary>
+		/// boot is done, coroutine ended
+		/// </summary>
+		public bool IsReady => _ready;
+		bool _ready = false;
 
 		const string screenPrefix = "screen-";
 
@@ -88,7 +97,7 @@ namespace fwp.screens
 				return;
 			}
 
-			_debug = UnityEngine.SceneManagement.SceneManager.GetActiveScene() == gameObject.scene;
+			_debug = SceneManager.GetActiveScene() == gameObject.scene;
 
 			if (type == ScreenType.none)
 			{
@@ -110,31 +119,19 @@ namespace fwp.screens
 		/// <summary>
 		/// stay true until hypotetic engine is ready
 		/// </summary>
-		virtual protected bool delayEngineCheck()
+		virtual protected IEnumerator delayEngineCheck()
 		{
-			return false;
+			yield return null;
 		}
 
 		private IEnumerator Start()
 		{
-			if (delayEngineCheck())
-			{
-				logScreen("delay engine : start ...");
-				while (delayEngineCheck()) yield return null;
-				logScreen("delay engine : ... done");
-			}
+			Debug.Assert(!_ready, "alreayd ready ?");
+
+			yield return delayEngineCheck();
 
 			// setup will trigger auto opening and setupBeforeOpening
 			screenSetup();
-
-			yield return null;
-
-			//"active scene : \" + SceneManager.GetActiveScene().name + \" != \" + gameObject.scene.name;
-			if (isDebugContext())
-			{
-				logScreen("+debug:  gameo scene : " + gameObject.scene.name);
-				screenSetupDebug();
-			}
 
 			// for screen watcher order
 			yield return null;
@@ -142,6 +139,17 @@ namespace fwp.screens
 			yield return null;
 
 			screenSetupLate();
+
+			//"active scene : \" + SceneManager.GetActiveScene().name + \" != \" + gameObject.scene.name;
+			if (isDebugContext())
+			{
+				yield return null;
+
+				logScreen("+debug:  gameo scene : " + gameObject.scene.name);
+				screenSetupDebug();
+			}
+
+			_ready = true;
 		}
 
 #if UNITY_EDITOR
@@ -432,7 +440,7 @@ namespace fwp.screens
 		}
 
 #if UNITY_EDITOR
-		[ContextMenu("stringify")]
+		[ContextMenu("log.stringify")]
 		void cmStringify() => Debug.Log(stringify(), this);
 #endif
 
