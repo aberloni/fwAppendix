@@ -112,7 +112,7 @@ namespace fwp.screens
 
         IEnumerator closeProcess(string toClose, Action onCompletion)
         {
-            var screen = ScreensManager.getOpenedScreen(toClose);
+            var screen = ScreensManager.getScreen(toClose);
             var screenAnim = screen as ScreenAnimated;
 
             if (screenAnim.isUnloadAfterClosing())

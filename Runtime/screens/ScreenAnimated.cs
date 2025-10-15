@@ -423,7 +423,7 @@ namespace fwp.screens
 
 		static public void toggleScreen(string screenName)
 		{
-			ScreenAnimated so = (ScreenAnimated)ScreensManager.getOpenedScreen(screenName);
+			ScreenAnimated so = (ScreenAnimated)ScreensManager.getScreen(screenName);
 
 			// present ?
 			if (so != null)

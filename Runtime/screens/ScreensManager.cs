@@ -17,7 +17,7 @@ namespace fwp.screens
 		/// list of all opened screens
 		/// </summary>
 		static List<ScreenObject> screens = new List<ScreenObject>();
-		
+
 		//usual screen names
 		public enum ScreenNameGenerics
 		{
@@ -121,36 +121,9 @@ namespace fwp.screens
 			return false;
 		}
 
-		/// <summary>
-		/// to return the screen if already open
-		/// to call the screen use open() flow instead
-		/// </summary>
-		static public ScreenObject getOpenedScreen(ScreenNameGenerics nm) => getOpenedScreen(nm.ToString());
-		static public ScreenObject getOpenedScreen(System.Enum enu) => getOpenedScreen(enu.ToString());
-		static public ScreenObject getOpenedScreen(string nm)
-		{
-			if (screens.Count <= 0)
-			{
-				//Debug.LogWarning("asking for a screen " + nm + " but screen count is 0");
-				return null;
-			}
-
-			ScreenObject so = screens.Select(x => x).Where(x => x.isScreenOfSceneName(nm)).FirstOrDefault();
-
-			/*
-            if (so == null)
-            {
-                Debug.LogWarning($"{getStamp()} getScreen({nm}) <color=red>no screen that END WITH that name</color> (screens count : {screens.Count})");
-                for (int i = 0; i < screens.Count; i++) Debug.Log("  #"+i+","+screens[i]);
-            }
-            */
-
-			return so;
-		}
-
 		static public void unloadScreen(string nm)
 		{
-			ScreenObject so = getOpenedScreen(nm);
+			ScreenObject so = getScreen(nm);
 			if (so != null)
 			{
 				Debug.Log("unloading screen | asked name : " + nm);
@@ -180,7 +153,7 @@ namespace fwp.screens
 		/// </summary>
 		static public void load(string nm, Action<ScreenObject> onCompletion = null)
 		{
-			ScreenObject so = getOpenedScreen(nm);
+			ScreenObject so = getScreen(nm);
 			if (so != null)
 			{
 				if (isVerbose)
@@ -224,7 +197,7 @@ namespace fwp.screens
 
 			//Debug.Log("opening " + scName + " (filter ? " + filter + ")");
 
-			ScreenObject selected = getOpenedScreen(scName);
+			ScreenObject selected = getScreen(scName);
 			if (selected == null)
 			{
 				Debug.LogWarning($"changeScreenVisibleState:{scName} : this ScreenObject doesn't exist ?");
@@ -314,7 +287,7 @@ namespace fwp.screens
 			//ScreenLoading.showLoadingScreen();
 
 			// first search if already exists
-			ScreenObject so = getOpenedScreen(screenName);
+			ScreenObject so = getScreen(screenName);
 			if (so != null)
 			{
 				onComplete(so);
@@ -326,7 +299,7 @@ namespace fwp.screens
 
 			SceneLoader.queryScene(screenName, (assoc) =>
 			{
-				so = getOpenedScreen(screenName);
+				so = getScreen(screenName);
 				if (so == null)
 				{
 					Debug.LogError(getStamp() + " | end of screen loading (name given : " + screenName + ") but no <ScreenObject> returned");
@@ -344,7 +317,7 @@ namespace fwp.screens
 		/// <summary>
 		/// return if loaded/present
 		/// </summary>
-		static public ScreenObject get(Type screenType, string nameContains = "")
+		static public ScreenObject getScreen(Type screenType, string nameContains = "")
 		{
 			foreach (var s in screens)
 			{
@@ -353,8 +326,22 @@ namespace fwp.screens
 			return null;
 		}
 
-		static public ScreenObject get<T>(string nameContains = "") where T : ScreenObject => get(typeof(T), nameContains);
-
+		static public ScreenObject getScreen<T>(string nameContains = "") where T : ScreenObject => getScreen(typeof(T), nameContains);
+		static public ScreenObject getScreen(string nameContains = "") => getScreen(null, nameContains);
+		/// <summary>
+		/// from screens[]
+		/// ( generate new List )
+		/// </summary>
+		static public T[] getScreens<T>() where T : ScreenObject
+		{
+			List<T> ret = new();
+			foreach (var s in screens)
+			{
+				if (s == null) continue;
+				if (s is T sc) ret.Add(sc);
+			}
+			return ret.ToArray();
+		}
 	}
 
 }

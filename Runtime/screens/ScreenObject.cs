@@ -449,15 +449,9 @@ namespace fwp.screens
 
 		public bool IsScreen(Type t, string nameContains = "")
 		{
-			if (GetType() == t)
-			{
-				if (!string.IsNullOrEmpty(nameContains))
-				{
-					return name.Contains(nameContains);
-				}
-				return true;
-			}
-			return false;
+			if (!string.IsNullOrEmpty(nameContains) && !name.Contains(nameContains)) return false;
+			if (t != null && GetType() != t) return false;
+			return true;
 		}
 
 		protected void logwScreen(string msg, object tar = null)
