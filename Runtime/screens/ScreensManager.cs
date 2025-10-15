@@ -326,7 +326,7 @@ namespace fwp.screens
 			return null;
 		}
 
-		static public ScreenObject getScreen<T>(string nameContains = "") where T : ScreenObject => getScreen(typeof(T), nameContains);
+		static public T getScreen<T>(string nameContains = "") where T : ScreenObject => getScreen(typeof(T), nameContains) as T;
 		static public ScreenObject getScreen(string nameContains = "") => getScreen(null, nameContains);
 		/// <summary>
 		/// from screens[]
@@ -342,6 +342,17 @@ namespace fwp.screens
 			}
 			return ret.ToArray();
 		}
+		static public ScreenObject[] getScreens(Type screenType)
+		{
+			List<ScreenObject> ret = new();
+			foreach (var s in screens)
+			{
+				if (s == null) continue;
+				if (s.IsScreen(screenType)) ret.Add(s);
+			}
+			return ret.ToArray();
+		}
+		static public ScreenObject[] getScreens() => getScreens<ScreenObject>();
 	}
 
 }

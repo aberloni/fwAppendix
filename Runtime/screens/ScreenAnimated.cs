@@ -394,35 +394,6 @@ namespace fwp.screens
 
 #endif
 
-		/// <summary>
-		/// search from all opened screens
-		/// </summary>
-		static public ScreenAnimated getScreen(string screenName)
-		{
-			ScreenAnimated[] scs = fwp.appendix.qh.gcs<ScreenAnimated>();
-			for (int i = 0; i < scs.Length; i++)
-			{
-				if (scs[i].isScreenOfSceneName(screenName)) return scs[i];
-			}
-			return null;
-		}
-
-		static public T getScreen<T>(string screenName) where T : ScreenAnimated
-		{
-			T[] scs = fwp.appendix.qh.gcs<T>();
-
-			if (scs.Length <= 0) Debug.LogWarning("no screen <" + typeof(T) + "> present (to return screen of name : " + screenName + ")");
-			else
-			{
-				for (int i = 0; i < scs.Length; i++)
-				{
-					if (scs[i].isScreenOfSceneName(screenName)) return scs[i];
-				}
-			}
-
-			return null;
-		}
-
 		static public void toggleScreen(string screenName)
 		{
 			ScreenAnimated so = (ScreenAnimated)ScreensManager.getScreen(screenName);
