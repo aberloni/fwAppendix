@@ -445,6 +445,21 @@ namespace fwp.screens
 			return ret;
 		}
 
+		public bool IsScreen<T>(string nameContains = "") where T : ScreenObject => IsScreen(typeof(T), nameContains);
+
+		public bool IsScreen(Type t, string nameContains = "")
+		{
+			if (GetType() == t)
+			{
+				if (!string.IsNullOrEmpty(nameContains))
+				{
+					return name.Contains(nameContains);
+				}
+				return true;
+			}
+			return false;
+		}
+
 		protected void logwScreen(string msg, object tar = null)
 		{
 			if (!isVerbose) return;
