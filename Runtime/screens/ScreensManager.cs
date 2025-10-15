@@ -302,7 +302,8 @@ namespace fwp.screens
 				so = getScreen(screenName);
 				if (so == null)
 				{
-					Debug.LogError(getStamp() + " | end of screen loading (name given : " + screenName + ") but no <ScreenObject> returned");
+					Debug.LogError(getStamp() + " | end of screen loading");
+					Debug.LogError(" > name given : " + screenName + " and but no <ScreenObject> returned");
 				}
 				onComplete(so);
 			});
@@ -327,7 +328,14 @@ namespace fwp.screens
 		}
 
 		static public T getScreen<T>(string nameContains = "") where T : ScreenObject => getScreen(typeof(T), nameContains) as T;
-		static public ScreenObject getScreen(string nameContains = "") => getScreen(null, nameContains);
+		static public ScreenObject getScreen(string nameContains)
+		{
+			foreach(var s in screens)
+			{
+				if (s.IsScreen(null, nameContains)) return s;
+			}
+			return null;
+		}
 		/// <summary>
 		/// from screens[]
 		/// ( generate new List )

@@ -459,11 +459,19 @@ namespace fwp.screens
 
 		public bool IsScreen<T>(string nameContains = "") where T : ScreenObject => IsScreen(typeof(T), nameContains);
 
+		/// <summary>
+		/// name contains in gameobject scene, not transform
+		/// </summary>
 		public bool IsScreen(Type t, string nameContains = "")
 		{
-			if (!string.IsNullOrEmpty(nameContains) && !name.Contains(nameContains)) return false;
 			if (t != null && GetType() != t) return false;
-			return true;
+			return IsScreen(nameContains);
+		}
+
+		public bool IsScreen(string nameContains)
+		{
+			if (string.IsNullOrEmpty(nameContains)) return false;
+			return gameObject.scene.name.Contains(nameContains);
 		}
 
 		protected void logwScreen(string msg, object tar = null)
