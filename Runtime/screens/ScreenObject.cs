@@ -464,9 +464,22 @@ namespace fwp.screens
 		/// </summary>
 		public bool IsScreen(Type t, string nameContains = "")
 		{
-			if (t != null && GetType() != t) return false;
-			if (!string.IsNullOrEmpty(nameContains)) return IsScreen(nameContains);
-			return false;
+			if (!string.IsNullOrEmpty(nameContains) && !IsScreen(nameContains))
+			{
+				Debug.Log("missmatch name : " + nameContains + " vs " + gameObject.scene.name);
+				return false;
+			}
+
+			//https://learn.microsoft.com/en-us/dotnet/api/system.type.isassignablefrom?view=net-9.0
+			// Determines whether an instance of a specified param type can be assigned to a variable of the current type.
+
+			if (t != null && !t.IsAssignableFrom(GetType()))
+			{
+				Debug.Log("missmatch type : " + t + " vs " + GetType());
+				return false;
+			}
+
+			return true;
 		}
 
 		/// <summary>

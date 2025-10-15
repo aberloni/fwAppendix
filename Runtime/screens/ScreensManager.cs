@@ -324,15 +324,16 @@ namespace fwp.screens
 			{
 				if (s.IsScreen(screenType, nameContains)) return s;
 			}
+			Debug.Log("no screen <" + screenType + "> & " + nameContains);
 			return null;
 		}
 
 		static public T getScreen<T>(string nameContains = "") where T : ScreenObject => getScreen(typeof(T), nameContains) as T;
 		static public ScreenObject getScreen(string nameContains)
 		{
-			foreach(var s in screens)
+			foreach (var s in screens)
 			{
-				if (s.IsScreen(null, nameContains)) return s;
+				if (s.IsScreen(nameContains)) return s;
 			}
 			return null;
 		}
@@ -363,11 +364,19 @@ namespace fwp.screens
 		static public ScreenObject[] getScreens() => getScreens<ScreenObject>();
 
 #if UNITY_EDITOR
+		[UnityEditor.MenuItem("Window/Appendix/Screens/dump test get")]
+		static void dumpTestGet()
+		{
+			Debug.Log(ScreensManager.getScreen("canvas"));
+			Debug.Log(ScreensManager.getScreen("splashs"));
+			Debug.Log(ScreensManager.getScreen<ScreenObject>());
+		}
+
 		[UnityEditor.MenuItem("Window/Appendix/Screens/dump screens[]")]
 		static void dumpScreens()
 		{
 			Debug.Log("dump x" + screens.Count);
-			foreach(var s in screens)
+			foreach (var s in screens)
 			{
 				Debug.Log(s.stringify());
 			}
