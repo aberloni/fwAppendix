@@ -361,6 +361,18 @@ namespace fwp.screens
 			return ret.ToArray();
 		}
 		static public ScreenObject[] getScreens() => getScreens<ScreenObject>();
+
+#if UNITY_EDITOR
+		[UnityEditor.MenuItem("Window/Appendix/Screens/dump screens[]")]
+		static void dumpScreens()
+		{
+			Debug.Log("dump x" + screens.Count);
+			foreach(var s in screens)
+			{
+				Debug.Log(s.stringify());
+			}
+		}
+#endif
 	}
 
 }

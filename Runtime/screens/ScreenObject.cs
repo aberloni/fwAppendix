@@ -465,13 +465,17 @@ namespace fwp.screens
 		public bool IsScreen(Type t, string nameContains = "")
 		{
 			if (t != null && GetType() != t) return false;
-			return IsScreen(nameContains);
+			if (!string.IsNullOrEmpty(nameContains)) return IsScreen(nameContains);
+			return false;
 		}
 
+		/// <summary>
+		/// scene contains name ?
+		/// </summary>
 		public bool IsScreen(string nameContains)
 		{
-			if (string.IsNullOrEmpty(nameContains)) return false;
-			return gameObject.scene.name.Contains(nameContains);
+			Debug.Assert(!string.IsNullOrEmpty(nameContains), "must provide a comparator", this);
+			return gameObject.scene.name.ToLower().Contains(nameContains.ToLower());
 		}
 
 		protected void logwScreen(string msg, object tar = null)

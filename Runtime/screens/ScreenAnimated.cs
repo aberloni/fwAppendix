@@ -173,7 +173,7 @@ namespace fwp.screens
 				logScreen("open:wait state:<b>" + parameters.state_opened + "</b>");
 			}
 
-			logScreen("animated.open.check");
+			logScreen("animated.open.check ...");
 			yield return new WaitUntil(() => !checkOpening());
 			logScreen("animated.open.check.done");
 
@@ -303,10 +303,10 @@ namespace fwp.screens
 		{
 			string ret = base.stringify();
 
-			if (isOpening()) ret += " OPENING";
-			if (isClosing()) ret += " CLOSING";
-			if (isOpened()) ret += " OPENED";
-			if (isClosed()) ret += " CLOSED";
+			if (isOpening()) ret += " OPENING check?" + checkOpening() + " state?" + parameters.state_opened;
+			if (isClosing()) ret += " CLOSING check?" + checkClosing() + " state?" + parameters.state_closed;
+			if (isOpened()) ret += " OPENED ?" + isOpened();
+			if (isClosed()) ret += " CLOSED ?" + isClosed();
 
 			return ret;
 		}
