@@ -84,7 +84,7 @@ namespace fwp.utils.editor.tabs
 			// tabs buttons
 			// +oob check
 			// & draw active tab
-			_state.Draw();
+			_state.Draw(this);
 		}
 
 		/// <summary>
