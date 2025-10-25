@@ -39,7 +39,13 @@ namespace fwp.utils.editor.tabs
 		public bool isSetup => tabsContent.Length > 0;
 		public int countTabs => tabs.Count;
 
-		public iTab getActiveTab() => tabs[tabActive];
+		public iTab getActiveTab()
+		{
+			if (tabs == null || tabs.Count <= 0) return null;
+			tabActive = Mathf.Clamp(tabActive, 0, tabs.Count - 1);
+			return tabs[tabActive];
+		}
+
 		public iTab getTabByIndex(int idx) => tabs[idx];
 
 		List<iTab> tabs = new List<iTab>();
