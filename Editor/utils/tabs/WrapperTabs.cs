@@ -91,12 +91,15 @@ namespace fwp.utils.editor.tabs
 			this.label = label;
 		}
 
+		protected WinEdTabs owner;
+
 		/// <summary>
 		/// wuid : ppref identifier
 		/// </summary>
-		public WrapperTabs(string wuid)
+		public WrapperTabs(string wuid, WinEdTabs window = null)
 		{
 			wrapperUID = wuid;
+			owner = window;
 		}
 
 		/// <summary>
