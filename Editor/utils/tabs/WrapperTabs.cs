@@ -111,6 +111,11 @@ namespace fwp.utils.editor.tabs
 
 		public void selectDefaultTab() => tabActive = 0;
 
+		virtual public bool hasContentToDraw()
+		{
+			return tabs.Count > 0;
+		}
+
 		public void addSpecificTab(iTab tab)
 		{
 			tabs.Add(tab);
@@ -167,10 +172,23 @@ namespace fwp.utils.editor.tabs
 
 		virtual public void Draw()
 		{
+			// stuff above tabs line
 			drawTabsHeader();
-			drawTabsLine();
-			var t = getActiveTab();
-			if (t != null) t.Draw();
+			
+			// lock ?
+			if(!hasContentToDraw())
+			{
+				GUILayout.Label("nothing here");
+			}
+			else
+			{
+				//tabs line
+				drawTabsLine();
+
+				// active tab
+				var t = getActiveTab();
+				if (t != null) t.Draw();
+			}
 		}
 	}
 
