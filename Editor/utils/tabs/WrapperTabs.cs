@@ -8,6 +8,7 @@ namespace fwp.utils.editor.tabs
 
 	/// <summary>
 	/// wrapper that keeps all data of different tabs
+	/// use add methods to add tabs to this tab
 	/// </summary>
 	public class WrapperTabs : iTab
 	{
@@ -119,9 +120,9 @@ namespace fwp.utils.editor.tabs
 		/// add various tabs to wrapper
 		/// draw callback will receive path as parameter
 		/// </summary>
-		public WrapperTab addGenericTab(string label, System.Action draw = null)
+		public WrapperTab addGenericTab(string label, WinEdTabs window = null, System.Action draw = null)
 		{
-			WrapperTab wt = new WrapperTab(label, draw);
+			WrapperTab wt = new WrapperTab(label, window, draw);
 
 			addSpecificTab(wt);
 
@@ -161,12 +162,12 @@ namespace fwp.utils.editor.tabs
 			}
 		}
 
-		virtual public void Draw(WinEdTabs window)
+		virtual public void Draw()
 		{
 			drawTabsHeader();
 			drawTabsLine();
 			var t = getActiveTab();
-			if (t != null) t.Draw(window);
+			if (t != null) t.Draw();
 		}
 	}
 

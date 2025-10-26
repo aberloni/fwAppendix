@@ -22,7 +22,7 @@ namespace fwp.utils.editor.tabs
 		/// <summary>
 		/// what to draw when selected
 		/// </summary>
-		public void Draw(WinEdTabs window);
+		public void Draw();
 	}
 
 	/// <summary>
@@ -51,23 +51,32 @@ namespace fwp.utils.editor.tabs
 		/// </summary>
 		Vector2 scroll;
 
-		public WrapperTab()
+		protected WinEdTabs owner;
+
+		public WrapperTab(WinEdTabs window = null)
 		{
+			owner = window;
+
 			label = string.Empty;
 			drawCallback = null;
 		}
 
-		public WrapperTab(string label, System.Action drawGUI = null)
+		/// <summary>
+		/// drawGUI = additionnal drawing on top of native draw
+		/// </summary>
+		public WrapperTab(string label, WinEdTabs window = null, System.Action drawGUI = null)
 		{
+			owner = window;
+
 			this.label = label;
 			this.drawCallback = drawGUI;
 		}
 
-		public void Draw(WinEdTabs window)
+		public void Draw()
 		{
 			scroll = GUILayout.BeginScrollView(scroll);
 
-			drawGUI(window);
+			drawGUI();
 
 			// to replace drawGUI an inheritence flow
 			// or draw additionnal external content
@@ -82,7 +91,7 @@ namespace fwp.utils.editor.tabs
 		/// <summary>
 		/// what to draw
 		/// </summary>
-		virtual protected void drawGUI(WinEdTabs window)
+		virtual protected void drawGUI()
 		{ }
 	}
 

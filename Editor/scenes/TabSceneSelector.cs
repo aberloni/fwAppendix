@@ -24,9 +24,9 @@ namespace fwp.scenes.editor
 			label = PathEnd;
 		}
 
-		protected override void drawGUI(WinEdTabs window)
+		protected override void drawGUI()
 		{
-			base.drawGUI(window);
+			base.drawGUI();
 			drawSubSectionTab();
 		}
 
