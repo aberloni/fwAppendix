@@ -17,7 +17,10 @@ namespace fwp.utils.editor
 
 		virtual protected string getWindowTabName() => GetType().ToString();
 
-		Vector2 globalScroll;
+		/// <summary>
+		/// scroll position within the window
+		/// </summary>
+		Vector2 winScroll;
 
 		private void OnFocus()
 		{
@@ -83,7 +86,7 @@ namespace fwp.utils.editor
 				return;
 			}
 
-			globalScroll = GUILayout.BeginScrollView(globalScroll);
+			winScroll = GUILayout.BeginScrollView(winScroll);
 			draw();
 			GUILayout.EndScrollView();
 

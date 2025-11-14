@@ -49,7 +49,7 @@ namespace fwp.utils.editor.tabs
 		/// <summary>
 		/// scroll value
 		/// </summary>
-		Vector2 scroll;
+		Vector2 tabScroll;
 
 		protected WinEdTabs owner;
 
@@ -74,7 +74,7 @@ namespace fwp.utils.editor.tabs
 
 		public void Draw()
 		{
-			scroll = GUILayout.BeginScrollView(scroll);
+			tabScroll = GUILayout.BeginScrollView(tabScroll);
 
 			drawGUI();
 

@@ -79,7 +79,7 @@ namespace fwp.scenes.editor
 
 			for (int i = 0; i < subList.Count; i++)
 			{
-				subList[i].drawSection(selector.filter);
+				subList[i].drawSection(selector.Filter);
 			}
 
 		}
