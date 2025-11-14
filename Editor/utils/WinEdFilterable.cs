@@ -28,7 +28,7 @@ namespace fwp.utils.editor
 
 			if (GUILayout.Button(label_clear, GUILayout.Width(50f)))
 			{
-				filter = string.Empty;
+				_filter = string.Empty;
 			}
 
 			if (_filter != filter)
