@@ -14,14 +14,19 @@ namespace fwp.utils.editor
 		public bool HasFilter => filter.Length > 0;
 		public string Filter => filter;
 
+		public System.Action<string> onFilterValueChanged;
+
+		const string label_filter = "filter";
+		const string label_clear = "clear";
+
 		protected void drawFilterField()
 		{
 			GUILayout.BeginHorizontal();
 
-			GUILayout.Label("filter", GUILayout.Width(50f));
+			GUILayout.Label(label_filter, GUILayout.Width(50f));
 			var _filter = GUILayout.TextArea(filter);
 
-			if (GUILayout.Button("clear", GUILayout.Width(50f)))
+			if (GUILayout.Button(label_clear, GUILayout.Width(50f)))
 			{
 				filter = string.Empty;
 			}
@@ -35,8 +40,10 @@ namespace fwp.utils.editor
 			GUILayout.EndHorizontal();
 		}
 
-		virtual protected void onFilterValueChanged(string newValue)
-		{ }
+		virtual protected void reactFilterValueChanged(string newValue)
+		{
+			onFilterValueChanged?.Invoke(newValue);
+		}
 	}
 
 }

@@ -104,7 +104,15 @@ namespace fwp.utils.editor.tabs
 		{
 			wrapperUID = wuid;
 			owner = window;
+
+			if (window != null)
+			{
+				window.onFilterValueChanged += onFilterValueChanged;
+			}
 		}
+
+		void onFilterValueChanged(string val)
+		{ }
 
 		/// <summary>
 		/// called on tab change
