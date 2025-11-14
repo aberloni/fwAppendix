@@ -41,9 +41,9 @@ namespace fwp.utils.editor.tabs
 
 		public void selectTab(int index)
 		{
-			if (tabsState.tabActive != index)
+			if (tabsState.tabActiveIndex != index)
 			{
-				tabsState.tabActive = index;
+				tabsState.tabActiveIndex = index;
 				onTabIndexChanged();
 			}
 		}

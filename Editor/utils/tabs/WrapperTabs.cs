@@ -14,7 +14,7 @@ namespace fwp.utils.editor.tabs
 	{
 		const string _editor__profiler_tab = "tab_scene_profiler";
 
-		public int tabActive
+		public int tabActiveIndex
 		{
 			get
 			{
@@ -43,8 +43,8 @@ namespace fwp.utils.editor.tabs
 		public iTab getActiveTab()
 		{
 			if (tabs == null || tabs.Count <= 0) return null;
-			tabActive = Mathf.Clamp(tabActive, 0, tabs.Count - 1);
-			return tabs[tabActive];
+			tabActiveIndex = Mathf.Clamp(tabActiveIndex, 0, tabs.Count - 1);
+			return tabs[tabActiveIndex];
 		}
 
 		public iTab getTabByIndex(int idx) => tabs[idx];
@@ -54,6 +54,10 @@ namespace fwp.utils.editor.tabs
 		// util for unity drawing
 		GUIContent[] tabsContent = new GUIContent[0];
 
+		/// <summary>
+		/// for external content reaction
+		/// prefer using local virtual method
+		/// </summary>
 		public System.Action<iTab> onTabChanged;
 
 		public List<string> labels
@@ -109,7 +113,7 @@ namespace fwp.utils.editor.tabs
 		virtual public void Refresh(bool force)
 		{ }
 
-		public void selectDefaultTab() => tabActive = 0;
+		public void selectDefaultTab() => tabActiveIndex = 0;
 
 		virtual public bool hasContentToDraw()
 		{
@@ -150,23 +154,17 @@ namespace fwp.utils.editor.tabs
 		{
 			//GUIStyle gs = new GUIStyle(GUI.skin.button)
 			//int newTab = GUILayout.Toolbar((int)tabSelected, modeLabels, "LargeButton", GUILayout.Width(toolbarWidth), GUILayout.ExpandWidth(true));
-			int newTab = GUILayout.Toolbar(tabActive, tabsContent, "LargeButton");
+			int newTab = GUILayout.Toolbar(tabActiveIndex, tabsContent, "LargeButton");
 			//if (newTab != (int)tabSelected) Debug.Log("changed tab ? " + tabSelected);
 
-			if (newTab != tabActive)
+			if (newTab != tabActiveIndex)
 			{
 				if (newTab >= tabsContent.Length) newTab = tabsContent.Length - 1;
 				if (newTab < 0) newTab = 0;
 
-				tabActive = newTab;
+				tabActiveIndex = newTab;
 
-				var t = getActiveTab();
-				if (t != null)
-				{
-					t.Refresh(true);
-				}
-
-				onTabChanged?.Invoke(t);
+				reactTabChanged(getActiveTab());
 			}
 		}
 
@@ -174,9 +172,9 @@ namespace fwp.utils.editor.tabs
 		{
 			// stuff above tabs line
 			drawTabsHeader();
-			
+
 			// lock ?
-			if(!hasContentToDraw())
+			if (!hasContentToDraw())
 			{
 				GUILayout.Label("nothing here");
 			}
@@ -189,6 +187,19 @@ namespace fwp.utils.editor.tabs
 				var t = getActiveTab();
 				if (t != null) t.Draw();
 			}
+		}
+
+		/// <summary>
+		/// will also refresh the tab
+		/// </summary>
+		virtual protected void reactTabChanged(iTab tab)
+		{
+			if (tab != null)
+			{
+				tab.Refresh(true);
+			}
+
+			onTabChanged?.Invoke(tab);
 		}
 	}
 

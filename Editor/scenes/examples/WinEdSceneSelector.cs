@@ -52,7 +52,7 @@ namespace fwp.scenes.examples
             var state = tabsState;
             if (state != null)
             {
-                return "scene selector " + tabsState.getWrapperUid() + "#" + tabsState.tabActive;
+                return "scene selector " + tabsState.getWrapperUid() + "#" + tabsState.tabActiveIndex;
             }
             else
             {

@@ -51,7 +51,7 @@ namespace fwp.utils.examples
 			var state = tabsState;
 			if (state != null)
 			{
-				return "tab " + tabsState.getWrapperUid() + "#" + tabsState.tabActive;
+				return "tab " + tabsState.getWrapperUid() + "#" + tabsState.tabActiveIndex;
 			}
 			else
 			{
