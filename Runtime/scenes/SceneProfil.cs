@@ -38,9 +38,22 @@ namespace fwp.scenes
 		public string label => context;
 
 		//these are only scene names (no ext, no path)
-		public List<SceneProfilTarget> layers; // additionnal content of same profil
-		public List<string> deps; // other contextual scenes needed for this profil
-		public List<string> statics; // scene that won't be unload
+
+		/// <summary>
+		/// all scenes linked to this profil
+		/// </summary>
+		public List<SceneProfilTarget> layers;
+
+		/// <summary>
+		/// other contextual scenes needed for this profil
+		/// that will be unloaded with profil
+		/// </summary>
+		public List<string> deps;
+
+		/// <summary>
+		/// scenes that won't be unload on profil unload
+		/// </summary>
+		public List<string> statics;
 
 		List<SceneAssoc> _assocs_buff;
 
@@ -167,7 +180,7 @@ namespace fwp.scenes
 		/// <summary>
 		/// solve all base scenes of this profil
 		/// </summary>
-		void solveLayers(string categoryUid, string[] paths)
+		virtual protected void solveLayers(string categoryUid, string[] paths)
 		{
 			if (layers == null) layers = new();
 
@@ -537,7 +550,7 @@ namespace fwp.scenes
 		{
 			//solveDeps();
 
-			if(!IsValid)
+			if (!IsValid)
 			{
 				Debug.LogWarning("INVALID : can't load : " + context);
 				onLoadedCompleted?.Invoke(this);
