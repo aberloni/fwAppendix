@@ -13,10 +13,20 @@ namespace fwp.utils.editor.tabs
 	/// </summary>
 	abstract public class WinEdTabs : WinEdRefreshable
 	{
+		/// <summary>
+		/// all tabs used while out of runtime
+		/// </summary>
 		WrapperTabs stateEditime;
+
+		/// <summary>
+		/// all tabs used during runtime
+		/// </summary>
 		WrapperTabs stateRuntime;
 
-		protected WrapperTabs tabsState => Application.isPlaying ? stateRuntime : stateEditime;
+		/// <summary>
+		/// tabs @editime or @runtime
+		/// </summary>
+		protected WrapperTabs ActiveTabs => Application.isPlaying ? stateRuntime : stateEditime;
 
 		/// <summary>
 		/// what tabs to draw !runtime
@@ -41,9 +51,9 @@ namespace fwp.utils.editor.tabs
 
 		public void selectTab(int index)
 		{
-			if (tabsState.tabActiveIndex != index)
+			if (ActiveTabs.tabActiveIndex != index)
 			{
-				tabsState.tabActiveIndex = index;
+				ActiveTabs.tabActiveIndex = index;
 				onTabIndexChanged();
 			}
 		}
@@ -68,7 +78,7 @@ namespace fwp.utils.editor.tabs
 		{
 			base.draw();
 
-			var _state = tabsState;
+			var _state = ActiveTabs;
 
 			if (_state == null)
 			{

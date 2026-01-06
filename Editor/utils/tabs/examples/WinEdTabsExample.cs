@@ -48,10 +48,10 @@ namespace fwp.utils.examples
 
 		protected override string getWindowTabName()
 		{
-			var state = tabsState;
+			var state = ActiveTabs;
 			if (state != null)
 			{
-				return "tab " + tabsState.getWrapperUid() + "#" + tabsState.tabActiveIndex;
+				return "tab " + ActiveTabs.getWrapperUid() + "#" + ActiveTabs.tabActiveIndex;
 			}
 			else
 			{

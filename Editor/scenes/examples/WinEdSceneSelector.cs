@@ -49,10 +49,10 @@ namespace fwp.scenes.examples
 
         protected override string getWindowTabName()
         {
-            var state = tabsState;
+            var state = ActiveTabs;
             if (state != null)
             {
-                return "scene selector " + tabsState.getWrapperUid() + "#" + tabsState.tabActiveIndex;
+                return "scene selector " + ActiveTabs.getWrapperUid() + "#" + ActiveTabs.tabActiveIndex;
             }
             else
             {
