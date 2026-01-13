@@ -324,7 +324,9 @@ namespace fwp.screens
 			{
 				if (s.IsScreen(screenType, nameContains)) return s;
 			}
-			Debug.Log("no screen <" + screenType + "> & " + nameContains);
+
+			if (isVerbose) Debug.Log("no screen <" + screenType + "> & " + nameContains);
+
 			return null;
 		}
 

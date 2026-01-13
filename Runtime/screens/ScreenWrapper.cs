@@ -51,17 +51,7 @@ namespace fwp.screens
         Action<ScreenObject> onLoaded;
         Action<ScreenObject> onOpened;
         Action onEnded;
-
-        [SerializeField]
-        WatchState state; // read only
-
-        public enum WatchState
-        {
-            open,
-            opened,
-            ended,
-        }
-
+        
         public ScreenWrapper setup(string nm)
         {
             StartCoroutine(processWrapper(nm));
@@ -90,8 +80,6 @@ namespace fwp.screens
 
         IEnumerator processWrapper(string nm)
         {
-            state = WatchState.open;
-
             ScreensManager.open(nm, (ScreenObject loadedScreen) =>
             {
                 screen = loadedScreen;
@@ -100,8 +88,6 @@ namespace fwp.screens
             // wait for the screen
             while (screen == null) yield return null;
             this.onLoaded?.Invoke(screen);
-
-            state = WatchState.opened;
 
             var animated = screen as ScreenAnimated;
             if (animated != null)
@@ -115,8 +101,6 @@ namespace fwp.screens
 
             // wait for screen to close
             while (this.screen != null) yield return null;
-
-            state = WatchState.ended;
 
             this.onEnded?.Invoke();
 

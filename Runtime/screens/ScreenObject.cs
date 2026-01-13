@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -466,7 +465,7 @@ namespace fwp.screens
 		{
 			if (!string.IsNullOrEmpty(nameContains) && !IsScreen(nameContains))
 			{
-				Debug.Log("missmatch name : " + nameContains + " vs " + gameObject.scene.name);
+				if (isVerbose) Debug.Log("missmatch name : " + nameContains + " vs " + gameObject.scene.name);
 				return false;
 			}
 
@@ -475,7 +474,7 @@ namespace fwp.screens
 
 			if (t != null && !t.IsAssignableFrom(GetType()))
 			{
-				Debug.Log("missmatch type : " + t + " vs " + GetType());
+				if (isVerbose) Debug.Log("missmatch type : " + t + " vs " + GetType());
 				return false;
 			}
 
