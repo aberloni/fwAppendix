@@ -7,7 +7,7 @@
         static public bool verbose => IndustriesVerbosity.verbose;
 
         static IndusReferenceMgr _instance;
-        static public IndusReferenceMgr instance
+        static public IndusReferenceMgr Instance
         {
             get
             {
@@ -16,10 +16,17 @@
             }
         }
 
-        /*
+        virtual protected bool mustClearOnStartup() => false;
+
 		[UnityEngine.RuntimeInitializeOnLoadMethod]
-		static void runtime() => instance.Clear();
-        */
+		static void runtime() 
+        {
+            if(Instance.mustClearOnStartup())
+            {
+                Instance.Clear();
+            }
+        }
+        
     }
 
     /*

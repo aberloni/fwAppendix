@@ -34,7 +34,7 @@ namespace fwp.industries
 			_factoryTargetType = getFactoryTargetType();
 
 			// get handle to RO list
-			actives = IndusReferenceMgr.instance.GetGroup<FaceType>();
+			actives = IndusReferenceMgr.Instance.GetGroup<FaceType>();
 			pool = new();
 
 			if (!Application.isPlaying) refresh(false);
@@ -297,7 +297,7 @@ namespace fwp.industries
 			// remove from active pool
 			if (actives.Contains(candid))
 			{
-				IndusReferenceMgr.instance.Remove(candid);
+				IndusReferenceMgr.Instance.Remove(candid);
 				candid.OnRecycled();
 				dirty = true;
 			}
@@ -345,7 +345,7 @@ namespace fwp.industries
 				// also try to add to facebook
 				MonoBehaviour cmp = candid as MonoBehaviour;
 				if (cmp != null) cmp.enabled = true;
-				IndusReferenceMgr.instance.Register<FaceType>(candid);
+				IndusReferenceMgr.Instance.Register<FaceType>(candid);
 
 				dirty = true;
 			}
@@ -363,7 +363,7 @@ namespace fwp.industries
 		public bool destroy(FaceType candid)
 		{
 			// remove from facebook
-			IndusReferenceMgr.instance.Remove(candid);
+			IndusReferenceMgr.Instance.Remove(candid);
 
 			pool.Remove(candid);
 

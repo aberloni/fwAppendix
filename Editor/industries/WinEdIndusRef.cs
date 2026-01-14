@@ -17,7 +17,7 @@ namespace fwp.industries
 			EditorWindow.GetWindow(typeof(WinEdIndusRef));
 		}
 
-		List<Type> refTypes => IndusReferenceMgr.instance.GetAllTypes();
+		List<Type> refTypes => IndusReferenceMgr.Instance.GetAllTypes();
 		bool[] toggleTypes;
 
 		Vector2 scroll;
@@ -49,7 +49,7 @@ namespace fwp.industries
 			if (GUILayout.Button("clear all", GUILayout.Width(100f)))
 			{
 				Debug.LogWarning("clear industries references");
-				IndusReferenceMgr.instance.Clear();
+				IndusReferenceMgr.Instance.Clear();
 			}
 			if (GUILayout.Button("refresh facebook type(s)"))
 			{
@@ -70,7 +70,7 @@ namespace fwp.industries
 
 			if (GUILayout.Button("reinject facebook list(s) using context monos"))
 			{
-				IndusReferenceMgr.instance.RefreshAll();
+				IndusReferenceMgr.Instance.RefreshAll();
 			}
 
 			scroll = GUILayout.BeginScrollView(scroll);
@@ -90,7 +90,7 @@ namespace fwp.industries
 
 		static private bool drawListType(Type typ, bool toggleState)
 		{
-			var refs = IndusReferenceMgr.instance.GetGroup(typ);
+			var refs = IndusReferenceMgr.Instance.GetGroup(typ);
 
 			string nm = typ.ToString();
 			nm += " x" + refs.Count;
@@ -106,7 +106,7 @@ namespace fwp.industries
 
 			if (!toggleState) return false;
 
-			if (GUILayout.Button("fetch from monos")) IndusReferenceMgr.instance.Refresh(typ);
+			if (GUILayout.Button("fetch from monos")) IndusReferenceMgr.Instance.Refresh(typ);
 			foreach (var elmt in refs)
 			{
 				if (elmt == null) continue;
