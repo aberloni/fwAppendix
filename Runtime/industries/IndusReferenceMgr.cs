@@ -15,6 +15,12 @@
                 return _instance;
             }
         }
+        
+		[UnityEngine.RuntimeInitializeOnLoadMethod]
+		static void runtime()
+		{
+			instance.Clear();
+		}
     }
 
     /*
