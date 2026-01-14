@@ -43,13 +43,22 @@ namespace fwp.industries
 				return;
 			}
 
+			GUILayout.Label("facebook");
+
+			GUILayout.BeginHorizontal();
+			if (GUILayout.Button("clear all", GUILayout.Width(100f)))
+			{
+				Debug.LogWarning("clear industries references");
+				IndusReferenceMgr.instance.Clear();
+			}
 			if (GUILayout.Button("refresh facebook type(s)"))
 			{
 				updateRefs(true);
 			}
+			GUILayout.EndHorizontal();
 
-			GUILayout.Label("facebook");
-			GUILayout.Label(refTypes.Count + " / " + toggleTypes.Length);
+			GUILayout.Label("refTypes x" + refTypes.Count);
+			GUILayout.Label("toggleTypes x" + toggleTypes.Length);
 
 			if (toggleTypes.Length <= 0)
 			{
@@ -108,7 +117,7 @@ namespace fwp.industries
 				else GUILayout.Label("/!" + elmt.GetType().ToString());
 				GUILayout.EndHorizontal();
 			}
-			
+
 			return true;
 		}
 

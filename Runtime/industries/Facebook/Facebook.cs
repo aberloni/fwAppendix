@@ -24,6 +24,7 @@ namespace fwp.industries.facebook
 		private Dictionary<Type, IGroup> registry = new Dictionary<Type, IGroup>();
 
 #if UNITY_EDITOR
+
 		/// <summary>
 		/// debug only
 		/// </summary>
@@ -70,6 +71,15 @@ namespace fwp.industries.facebook
 			}
 		}
 #endif
+
+		/// <summary>
+		/// lose ALL refs of ALL groups
+		/// clear registry
+		/// </summary>
+		public void Clear()
+		{
+			registry.Clear();
+		}
 
 		public void Register<T>(T member) where T : class, IFacebook
 		{
