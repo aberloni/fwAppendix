@@ -69,11 +69,18 @@ namespace fwp.scenes
             addWithPrefix(prefix, new string[] { nm });
         }
 
+        /// <summary>
+        /// prefix-
+        /// </summary>
         protected void addWithPrefix(string prefix, string[] names)
         {
+            // no content to add ?
             if (names == null) return;
             if (names.Length <= 0) return;
 
+            // prefix is always : [name]-
+            if(!prefix.EndsWith("-")) prefix += "-";
+            
             for (int i = 0; i < names.Length; i++)
             {
                 scene_names.Add(prefix + names[i]);

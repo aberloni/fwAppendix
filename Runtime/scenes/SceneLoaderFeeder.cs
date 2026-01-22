@@ -53,12 +53,11 @@ namespace fwp.scenes
         /// <returns></returns>
         override protected void solveNames()
         {
-
             if (datas != null)
             {
                 foreach (var d in datas)
                 {
-                    addWithPrefix(d.category, d.scenes);
+                    addWithPrefix(d.category + "-", d.scenes);
                 }
             }
 
