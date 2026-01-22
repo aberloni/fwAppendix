@@ -29,7 +29,7 @@ namespace fwp.scenes
             //Debug.Log(EngineObject.getStamp(this) + " now feeding "+nms.Length+" names", transform);
             //for (int i = 0; i < nms.Length; i++) { Debug.Log("  L " + nms[i]);}
 
-            runner = SceneLoader.loadScenes(scene_names.ToArray(), (assocs) => 
+            runner = SceneLoader.loadScenes(scene_names.ToArray(), (assocs) =>
             {
                 //Debug.Log("feed destroy");
                 GameObject.Destroy(this);
@@ -61,7 +61,7 @@ namespace fwp.scenes
         /// </summary>
         abstract protected void solveNames();
 
-	    protected void addNoPrefix(string nm) => addWithPrefix(string.Empty, nm);
+        protected void addNoPrefix(string nm) => addWithPrefix(string.Empty, nm);
         protected void addNoPrefix(string[] nms) => addWithPrefix(string.Empty, nms);
 
         protected void addWithPrefix(string prefix, string nm)
@@ -79,8 +79,8 @@ namespace fwp.scenes
             if (names.Length <= 0) return;
 
             // prefix is always : [name]-
-            if(!prefix.EndsWith("-")) prefix += "-";
-            
+            if (!string.IsNullOrEmpty(prefix) && !prefix.EndsWith("-")) prefix += "-";
+
             for (int i = 0; i < names.Length; i++)
             {
                 scene_names.Add(prefix + names[i]);
