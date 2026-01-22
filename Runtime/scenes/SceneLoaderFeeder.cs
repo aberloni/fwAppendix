@@ -16,6 +16,16 @@ namespace fwp.scenes
     {
         public bool add_camera;
 
+        [System.Serializable]
+        public struct FeederData
+        {
+            public string category;
+            public string[] scenes;
+        }
+
+        [SerializeField]
+        FeederData[] datas;
+
         [Header("prefix resource-")]
         public string[] resource_names;
 
@@ -31,39 +41,54 @@ namespace fwp.scenes
         [Header("no prefix")]
         public string[] other_names;
 
+        [Header("editor only")]
+        public string[] editor_only_names;
+
+        [Header("#debug only")]
+        public string[] debug_only_names;
+
         /// <summary>
         /// generate list of scenes with exact names
         /// </summary>
         /// <returns></returns>
-        override protected string[] solveNames()
+        override protected void solveNames()
         {
-            base.solveNames();
+
+            if (datas != null)
+            {
+                foreach (var d in datas)
+                {
+                    addWithPrefix(d.category, d.scenes);
+                }
+            }
 
             if (add_camera) addWithPrefix("resource-", "camera");
-
-#if tracker
-    addWithPrefix("resource-", "tracker");
-#endif
 
             addWithPrefix("resource-", resource_names);
             addWithPrefix("ui-", ui_names);
             addWithPrefix("graphics-", graphics_names);
             addWithPrefix("screen-", screens_names);
 
-            addWithPrefix("", other_names);
+#if UNITY_EDITOR
+            addNoPrefix(editor_only_names);
+#endif
 
-            //check si on doit garder l'objet qui porte les feeders
-            MonoBehaviour[] monos = gameObject.GetComponents<MonoBehaviour>();
-            if (monos.Length == 1 && monos[0] == this)
+            if (isDebug())
             {
-                GameObject.Destroy(gameObject);
-            }
-            else
-            {
-                GameObject.Destroy(this);
+                Debug.LogWarning("feeder:<b>debug</b> scenes to load : x" + debug_only_names.Length);
+                addNoPrefix(debug_only_names);
             }
 
-            return scene_names.ToArray();
+            addNoPrefix(other_names);
+        }
+
+        virtual protected bool isDebug()
+        {
+#if debug
+            return true;
+#else
+            return Debug.isDebugBuild;
+#endif
         }
 
 #if UNITY_EDITOR

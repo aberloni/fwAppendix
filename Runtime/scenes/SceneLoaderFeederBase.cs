@@ -1,15 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
-using UnityEngine.SceneManagement;
 
 namespace fwp.scenes
 {
-    public class SceneLoaderFeederBase : MonoBehaviour
+    /// <summary>
+    /// base tooling for injection
+    /// </summary>
+    abstract public class SceneLoaderFeederBase : MonoBehaviour
     {
-        protected List<string> scene_names;
-        protected SceneLoaderRunner runner;
+        List<string> scene_names;
+        SceneLoaderRunner runner;
+
+        public bool isFeeding() => runner != null;
 
         /// <summary>
         /// starts feed process
@@ -17,18 +20,34 @@ namespace fwp.scenes
         /// </summary>
         public void feed()
         {
-            Debug.Log(GetType() + "::feed()", transform);
+            // Debug.Log(GetType() + "::feed()", transform);
 
-            string[] nms = solveNames();
+            if (scene_names == null) scene_names = new();
+            scene_names.Clear();
+            solveNames();
 
             //Debug.Log(EngineObject.getStamp(this) + " now feeding "+nms.Length+" names", transform);
             //for (int i = 0; i < nms.Length; i++) { Debug.Log("  L " + nms[i]);}
 
-            runner = SceneLoader.loadScenes(nms, (assocs) => 
+            runner = SceneLoader.loadScenes(scene_names.ToArray(), (assocs) => 
             {
                 //Debug.Log("feed destroy");
                 GameObject.Destroy(this);
             });
+        }
+
+        protected void solveMultipleFeeders()
+        {
+            //check si on doit garder l'objet qui porte les feeders
+            MonoBehaviour[] monos = gameObject.GetComponents<MonoBehaviour>();
+            if (monos.Length == 1 && monos[0] == this)
+            {
+                GameObject.Destroy(gameObject);
+            }
+            else
+            {
+                GameObject.Destroy(this);
+            }
         }
 
         private void OnDestroy()
@@ -37,14 +56,13 @@ namespace fwp.scenes
             //Debug.Log(EngineObject.getStamp(this) + " done feeding !");
         }
 
-        public bool isFeeding() { return runner != null; }
+        /// <summary>
+        /// use add() helpers
+        /// </summary>
+        abstract protected void solveNames();
 
-        virtual protected string[] solveNames()
-        {
-            if (scene_names == null) scene_names = new List<string>();
-            scene_names.Clear();
-            return scene_names.ToArray();
-        }
+	    protected void addNoPrefix(string nm) => addWithPrefix(string.Empty, nm);
+        protected void addNoPrefix(string[] nms) => addWithPrefix(string.Empty, nms);
 
         protected void addWithPrefix(string prefix, string nm)
         {
@@ -53,15 +71,8 @@ namespace fwp.scenes
 
         protected void addWithPrefix(string prefix, string[] names)
         {
-            if (names == null)
-            {
-                Debug.LogWarning("names is null for prefix " + prefix);
-                return;
-            }
-
+            if (names == null) return;
             if (names.Length <= 0) return;
-
-            //Debug.Log(prefix + " count ? " + names.Length);
 
             for (int i = 0; i < names.Length; i++)
             {
