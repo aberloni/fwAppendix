@@ -6,7 +6,6 @@ namespace fwp.scenes.editor
 {
 	using fwp.utils.editor.tabs;
 	using fwp.scenes;
-	using System.Security.Principal;
 
 	/// <summary>
 	/// 
@@ -178,10 +177,8 @@ namespace fwp.scenes.editor
 		protected override void drawFooter()
 		{
 			base.drawFooter();
-
-			fwp.settings.utils.UtilEdUserSettings.drawBool("+build settings",
-				SceneSubFolder._pref_autoAddBuildSettings,
-				(state) => primeRefresh());
+			
+			drawToggle(SceneSubFolder._pref_autoAddBuildSettings, (state) => primeRefresh());
 		}
 
 		List<SceneSubFolder> solveTabFolder(string tabName)
@@ -231,7 +228,7 @@ namespace fwp.scenes.editor
 		}
 
 		/// <summary>
-		/// génère tout les profiles qui sont de la categorie
+		/// gï¿½nï¿½re tout les profiles qui sont de la categorie
 		/// </summary>
 		protected List<SceneProfil> getProfils(string category)
 		{

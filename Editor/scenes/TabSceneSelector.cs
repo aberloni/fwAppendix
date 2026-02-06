@@ -71,7 +71,7 @@ namespace fwp.scenes.editor
 			{
 				for (int i = 0; i < subList.Count; i++)
 				{
-					subList[i].toggled = false;
+					subList[i].Toggled = false;
 				}
 			}
 

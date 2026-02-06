@@ -12,7 +12,7 @@ namespace fwp.scenes
 	/// <summary>
 	/// gather all scenes profiles for a specific folder
 	/// scenes[] will be override externaly
-	/// permet de regrouper les sceneprofil dans un même container
+	/// regroup sceneprofils in a common container
 	/// </summary>
 	public class SceneSubFolder
     {
@@ -23,7 +23,7 @@ namespace fwp.scenes
 
         public List<SceneProfil> profils = null;
 
-        public bool toggled
+        public bool Toggled
         {
             set
             {
@@ -68,8 +68,8 @@ namespace fwp.scenes
             if (!hasContentMatchingFilter(filter)) return;
 
             // sub folder
-            toggled = EditorGUILayout.Foldout(toggled, folderName + " (x" + profils.Count + ")", true);
-            if (toggled)
+            Toggled = EditorGUILayout.Foldout(Toggled, folderName + " (x" + profils.Count + ")", true);
+            if (Toggled)
             {
                 GUILayout.BeginHorizontal();
 
@@ -187,7 +187,7 @@ namespace fwp.scenes
             return "@folder:" + folderName + ", total scenes x" + profils.Count;
         }
 
-        public const string _pref_autoAddBuildSettings = "scenesAutoAddBuildSettings";
+        public const string _pref_autoAddBuildSettings = "build settings";
 
         /// <summary>
         /// additive only for loading

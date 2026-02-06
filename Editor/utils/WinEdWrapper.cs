@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace fwp.utils.editor
@@ -103,7 +104,7 @@ namespace fwp.utils.editor
 			string vLabel = verbose ? "!@" : "@";
 
 #if UNITY_6000_0_OR_NEWER
-            vLabel = verbose ? "!🐛" : "🐛";
+			vLabel = verbose ? "!🐛" : "🐛";
 #endif
 
 			if (GUILayout.Button(vLabel, QuickEditorViewStyles.WinTitleButton))
@@ -115,7 +116,7 @@ namespace fwp.utils.editor
 			string rLabel = "↺";
 
 #if UNITY_6000_0_OR_NEWER
-            rLabel = "🔄";
+			rLabel = "🔄";
 #endif
 
 			if (GUILayout.Button(rLabel, QuickEditorViewStyles.WinTitleButton))
@@ -242,6 +243,11 @@ namespace fwp.utils.editor
 				var win = EditorWindow.GetWindow<T>();
 				win.primeRefresh();
 			}
+		}
+
+		protected void drawToggle(string ppref, Action<bool> onToggled)
+		{
+			settings.utils.UtilEdUserSettings.drawBool("+" + ppref, ppref, onToggled);
 		}
 
 		protected void log(string content)
