@@ -187,7 +187,7 @@ namespace fwp.scenes
             return "@folder:" + folderName + ", total scenes x" + profils.Count;
         }
 
-        public const string _pref_autoAddBuildSettings = "build settings";
+        public const string _pref_autoAddBuildSettings = "fwp.scenes.build.settings";
 
         /// <summary>
         /// additive only for loading

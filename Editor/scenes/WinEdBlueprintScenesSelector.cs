@@ -178,7 +178,8 @@ namespace fwp.scenes.editor
 		{
 			base.drawFooter();
 			
-			drawToggle(SceneSubFolder._pref_autoAddBuildSettings, (state) => primeRefresh());
+			settings.utils.UtilEdUserSettings.drawBool(
+				"+build settings", SceneSubFolder._pref_autoAddBuildSettings, (state) => primeRefresh());
 		}
 
 		List<SceneSubFolder> solveTabFolder(string tabName)

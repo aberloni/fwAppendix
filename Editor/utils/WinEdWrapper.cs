@@ -244,12 +244,7 @@ namespace fwp.utils.editor
 				win.primeRefresh();
 			}
 		}
-
-		protected void drawToggle(string ppref, Action<bool> onToggled)
-		{
-			settings.utils.UtilEdUserSettings.drawBool("+" + ppref, ppref, onToggled);
-		}
-
+		
 		protected void log(string content)
 		{
 			if (verbose) Debug.Log(GetType() + " @ " + content);
