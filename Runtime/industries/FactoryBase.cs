@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace fwp.industries
 {
 	using System;
-	using System.Threading;
 	using Object = UnityEngine.Object;
 
 	/// <summary>
@@ -17,6 +15,8 @@ namespace fwp.industries
 	/// </summary>
 	abstract public class FactoryBase<FaceType> : IFactory where FaceType : class, iFactoryObject
 	{
+		static public bool Verbose => IndustriesVerbosity.Verbose;
+
 		/// <summary>
 		/// ReadOnly wrapper around list in facebook
 		/// </summary>
@@ -27,7 +27,7 @@ namespace fwp.industries
 		/// </summary>
 		List<FaceType> pool = null;
 
-		System.Type _factoryTargetType;
+		Type _factoryTargetType;
 
 		public FactoryBase()
 		{
@@ -49,7 +49,7 @@ namespace fwp.industries
 
 		public void refresh(bool includeInactives)
 		{
-			log($"refresh(inactives ? {includeInactives})");
+			if (Verbose) log($"refresh(inactives ? {includeInactives})");
 
 			pool.Clear();
 
@@ -59,7 +59,7 @@ namespace fwp.industries
 				inject(presents[i] as FaceType);
 			}
 
-			log("refresh:after x{actives.Count}");
+			if (Verbose) log("refresh:after x{actives.Count}");
 		}
 
 		//abstract public System.Type getChildrenType();
@@ -129,6 +129,7 @@ namespace fwp.industries
 		protected void createAsync(string subType, Action<FaceType> onPresence = null)
 		{
 			string path = solvePath(subType);
+			if (Verbose) log("createAsync: " + path);
 			instantiateAsync(path, (instance) =>
 			{
 				onPresence.Invoke(
@@ -144,10 +145,14 @@ namespace fwp.industries
 		{
 			string path = getObjectPath() + "/" + subType;
 
-			log("no " + subType + " available (x" + pool.Count + ") : new");
+			if (Verbose) log("create: " + path);
 
 			var instance = instantiate(path);
-			if (instance == null) return null;
+			if (instance == null)
+			{
+				if (Verbose) log("create.result.failed: " + path);
+				return null;
+			}
 
 			return solveNew(instance);
 		}
@@ -180,6 +185,7 @@ namespace fwp.industries
 
 		public iFactoryObject browse(string uid)
 		{
+			if (Verbose) log("browse: " + uid);
 			return extractFromPool(uid);
 		}
 
@@ -189,6 +195,7 @@ namespace fwp.industries
 		/// </summary>
 		public iFactoryObject extract(string uid)
 		{
+			if (Verbose) log("extract: " + uid);
 			iFactoryObject ret = extractFromRecycled(uid);
 
 			// create if missing
@@ -206,6 +213,7 @@ namespace fwp.industries
 		/// </summary>
 		public void extractAsync(string uid, Action<iFactoryObject> onPresence)
 		{
+			if (Verbose) log("extractAsync: " + uid);
 			iFactoryObject ret = extractFromRecycled(uid);
 
 			if (ret == null)
@@ -396,7 +404,8 @@ namespace fwp.industries
 		void log(string content, object target = null)
 		{
 
-#if UNITY_EDITOR || industries
+#if UNITY_EDITOR
+			if (!IndustriesVerbosity.Verbose) return;
 			IndustriesVerbosity.sLog(getStamp() + content, target as Object);
 #endif
 		}

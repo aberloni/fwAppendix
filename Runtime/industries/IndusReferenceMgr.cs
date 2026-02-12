@@ -4,8 +4,6 @@
 
     public class IndusReferenceMgr : Facebook
     {
-        static public bool verbose => IndustriesVerbosity.verbose;
-
         static IndusReferenceMgr _instance;
         static public IndusReferenceMgr Instance
         {

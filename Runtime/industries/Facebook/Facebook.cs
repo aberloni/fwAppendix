@@ -21,6 +21,8 @@ namespace fwp.industries.facebook
 	/// </summary>
 	abstract public class Facebook
 	{
+		static public bool Verbose => IndustriesVerbosity.Verbose;
+
 		private Dictionary<Type, IGroup> registry = new Dictionary<Type, IGroup>();
 
 #if UNITY_EDITOR
@@ -78,7 +80,29 @@ namespace fwp.industries.facebook
 		/// </summary>
 		public void Clear()
 		{
+			if (Verbose) log("registry.clear");
 			registry.Clear();
+		}
+
+		/// <summary>
+		/// count elements of type
+		/// filter : component(s) of name
+		/// </summary>
+		public int Count<T>(string filter = null) where T : class, IFacebook
+		{
+			var grp = GetGroupOfType<T>();
+
+			if (string.IsNullOrEmpty(filter)) return grp.members.Count;
+
+			int cnt = 0;
+			foreach (var elmt in grp.members)
+			{
+				if (elmt is Component cmp)
+				{
+					if (cmp.name.Contains(filter)) cnt++;
+				}
+			}
+			return cnt;
 		}
 
 		public void Register<T>(T member) where T : class, IFacebook
@@ -88,7 +112,10 @@ namespace fwp.industries.facebook
 
 			Group<T> group = GetGroupOfType<T>();
 			if (!group.members.Contains(member))
+			{
 				group.members.Add(member);
+				if (Verbose) log($"{typeof(T).ToString()} ++{member.GetType()} x{group.members.Count}");
+			}
 		}
 
 		/// <summary>
@@ -102,6 +129,7 @@ namespace fwp.industries.facebook
 			Group<T> group = GetGroupOfType<T>();
 			if (group.members.Contains(member))
 			{
+				if (Verbose) log($"{typeof(T).ToString()} --{member.GetType()} x{group.members.Count}");
 				group.members.Remove(member);
 			}
 		}
@@ -117,7 +145,7 @@ namespace fwp.industries.facebook
 				return;
 			}
 
-			//Debug.Log("deleting : " + member);
+			if (Verbose) log("removeAll : " + member);
 
 			bool dirty = false;
 
@@ -175,6 +203,12 @@ namespace fwp.industries.facebook
 		private IGroup GetGroupOfType(Type type)
 		{
 			return registry.ContainsKey(type) ? registry[type] : null;
+		}
+
+		protected void log(string msg)
+		{
+			if (!Verbose) return;
+			IndustriesVerbosity.sLog(msg, this);
 		}
 	}
 }

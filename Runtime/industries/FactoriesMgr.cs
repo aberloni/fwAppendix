@@ -10,6 +10,8 @@ namespace fwp.industries
     /// </summary>
     static public class FactoriesMgr
     {
+        static public bool Verbose => IndustriesVerbosity.Verbose;
+    
         static private List<IFactory> factos = new List<IFactory>(); // FactoryBase<iFactoryObject>
 
         /// <summary>
@@ -20,7 +22,7 @@ namespace fwp.industries
 
         static public void recycleEverything()
         {
-            Debug.Log("Facto  :  recycle all");
+            if (Verbose) log("recycleEverything()");
             foreach (var facto in factos)
             {
                 facto.recycleAll();
@@ -86,7 +88,7 @@ namespace fwp.industries
             Debug.Assert(fb != null, $"implem for {typeof(T)} , check typo ?");
 
             factos.Add(fb);
-            if (IndusReferenceMgr.verbose) Debug.Log($"Facto:   created new factory <b>{typeof(T)}</b> , total x{factos.Count}");
+            if (Verbose) log($"Facto:   created new factory <b>{typeof(T)}</b> , total x{factos.Count}");
 
             return fb;
         }
@@ -106,7 +108,7 @@ namespace fwp.industries
             Debug.Assert(fb != null, $"implem for sub<{subtype.ToString()}< , check typo ?");
 
             factos.Add(fb);
-            if (IndusReferenceMgr.verbose) Debug.Log($"Facto:   created new factory <b>Factory<{subtype.ToString()}></b> , total x{factos.Count}");
+            if (Verbose) Debug.Log($"Facto:   created new factory <b>Factory<{subtype.ToString()}></b> , total x{factos.Count}");
 
             return fb;
         }
@@ -114,6 +116,12 @@ namespace fwp.industries
         static public void inject(IFactory facto)
         {
             factos.Add(facto);
+        }
+
+        static public void log(string msg, object tar = null)
+        {
+            if (Verbose) return;
+            IndustriesVerbosity.sLog(msg, tar);
         }
     }
 
