@@ -235,7 +235,7 @@ namespace fwp.scenes
                 {
                     // rem .unity
                     //var path = paths[i].Substring(0, paths[i].IndexOf("."));
-                    
+
                     if (paths[i].EndsWith(sceneName)) return paths[i];
                 }
             }
@@ -281,12 +281,12 @@ namespace fwp.scenes
 
         static public string getPathOfSceneInProject(string sceneName)
         {
-            string[] guids = AssetDatabase.FindAssets("t:Scene");
+            string[] paths = getProjectAssetScenesPaths();
 
-            for (int i = 0; i < guids.Length; i++)
+            for (int i = 0; i < paths.Length; i++)
             {
                 // Assets/Modules/module-a-b.unity
-                string path = AssetDatabase.GUIDToAssetPath(guids[i]);
+                string path = paths[i];
 
                 string pathSceneName = path.Substring(0, path.LastIndexOf("."));
                 pathSceneName = pathSceneName.Substring(pathSceneName.LastIndexOf("/") + 1);
@@ -327,22 +327,26 @@ namespace fwp.scenes
 
         static string[] __scene_paths;
 
+        /// <summary>
+        /// only called on forced refresh
+        /// </summary>
         static public void refreshScenePathBuffer()
         {
-            getProjectAssetScenesPaths(true);
+            fetchProjectAssetScenesPaths();
+        }
+
+        static public string[] getProjectAssetScenesPaths()
+        {
+            if (__scene_paths != null) return __scene_paths;
+            return fetchProjectAssetScenesPaths();
         }
 
         /// <summary>
         /// fetch all scene present in database
         /// this should return all scene in projet
         /// </summary>
-        static public string[] getProjectAssetScenesPaths(bool force = false)
+        static string[] fetchProjectAssetScenesPaths()
         {
-            if (!force)
-            {
-                if (__scene_paths != null) return __scene_paths;
-            }
-
             __scene_paths = AssetDatabase.FindAssets("t:Scene");
 
             if (__scene_paths.Length <= 0)
