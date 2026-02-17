@@ -86,10 +86,9 @@ namespace fwp.scenes.editor
 				sections.Clear();
 			}
 
-			var state = ActiveTabs; // getter edit/runtime tabs
-
-			if (state != null || force) // ed/run tabs
+			if (force) // ed/run tabs
 			{
+				var state = ActiveTabs; // getter edit/runtime tabs
 				injectSubSectionOfActiveTab(state);
 			}
 		}
@@ -209,6 +208,7 @@ namespace fwp.scenes.editor
 				log(sub.stringify());
 
 				output.Add(sub);
+
 			}
 
 			log("folder/solved x" + output.Count + " subs");
