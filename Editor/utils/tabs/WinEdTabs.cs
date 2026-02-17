@@ -51,14 +51,18 @@ namespace fwp.utils.editor.tabs
 
 		public void selectTab(int index)
 		{
+			log("tab.select-ed #" + index);
 			if (ActiveTabs.tabActiveIndex != index)
 			{
 				ActiveTabs.tabActiveIndex = index;
-				onTabIndexChanged();
+				onTabChanged(ActiveTabs.getActiveTab());
 			}
 		}
 
-		virtual protected void onTabIndexChanged() { }
+		virtual protected void onTabChanged(iTab tab)
+		{
+			log("tab.focus-ed: " + tab);
+		}
 
 		override public void refresh(bool force = false)
 		{
@@ -72,6 +76,8 @@ namespace fwp.utils.editor.tabs
 				stateRuntime = new WrapperTabs("runtime-" + GetType());
 				populateTabsRuntime(stateRuntime);
 			}
+
+			stateEditime.onTabChanged += onTabChanged;
 		}
 
 		sealed protected override void draw()

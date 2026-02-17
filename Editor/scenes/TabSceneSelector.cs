@@ -7,6 +7,9 @@ namespace fwp.scenes.editor
 	using fwp.utils.editor.tabs;
 	using fwp.utils.editor;
 
+	/// <summary>
+	/// tab
+	/// </summary>
 	public class TabSceneSelector : WrapperTab
 	{
 		string path;
@@ -20,8 +23,11 @@ namespace fwp.scenes.editor
 		public TabSceneSelector(WinEdBlueprintScenesSelector window, string path) : base()
 		{
 			selector = window;
-			this.path = path;
-			label = PathEnd;
+
+			// remove last "/"
+			this.path = path.EndsWith("/") ? path.Substring(0, path.LastIndexOf("/") - 1) : path;
+
+			setLabel(PathEnd); // autolabel
 		}
 
 		protected override void drawGUI()

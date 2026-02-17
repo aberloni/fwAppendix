@@ -63,6 +63,8 @@ namespace fwp.scenes
         }
 
         /// <summary>
+        /// list of scenes that contains given path
+        /// 
         /// returns path relative to unity project (starts with assets/)
         /// remove sys to remove part of the path outside of unity
         /// </summary>
@@ -72,7 +74,6 @@ namespace fwp.scenes
 
             //if (!folderContains.EndsWith("/")) folderContains += "/";
             if (!folderContains.StartsWith(slash)) folderContains = slash + folderContains;
-            folderContains = folderContains.ToLower();
 
 #if UNITY_EDITOR
             if (!Application.isPlaying)
@@ -85,10 +86,10 @@ namespace fwp.scenes
             if (scenes.Length <= 0)
             {
                 // @runtime / @build, use build settings list instead
-                scenes = getAllBuildSettingsScenes(false);
+                scenes = getAllBuildSettingsScenes();
             }
 
-            List<string> output = new List<string>();
+            List<string> output = new();
 
             if (scenes.Length <= 0)
             {
@@ -330,7 +331,7 @@ namespace fwp.scenes
         /// </summary>
         static void solveProjectAssetScenesPaths()
         {
-            Debug.LogWarning("/! refresh Scene[]");
+            // Debug.LogWarning("/! refresh Scene[]");
             var paths = AssetDatabase.FindAssets("t:Scene");
 
             if (paths.Length <= 0)
@@ -340,12 +341,12 @@ namespace fwp.scenes
                 return;
             }
 
-            Debug.LogWarning("/! replacing GUID x" + paths.Length);
+            // Debug.LogWarning("/! replacing GUID x" + paths.Length);
 
             //replace GUID by full path
             for (int i = 0; i < paths.Length; i++)
             {
-                paths[i] = AssetDatabase.GUIDToAssetPath(paths[i]).ToLower();
+                paths[i] = AssetDatabase.GUIDToAssetPath(paths[i]);
             }
 
             __scene_paths = paths;

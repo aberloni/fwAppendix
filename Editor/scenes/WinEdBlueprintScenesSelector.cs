@@ -6,6 +6,7 @@ namespace fwp.scenes.editor
 {
 	using fwp.utils.editor.tabs;
 	using fwp.scenes;
+	using UnityEngine.Analytics;
 
 	/// <summary>
 	/// 
@@ -51,7 +52,7 @@ namespace fwp.scenes.editor
 		/// </summary>
 		virtual protected SceneProfil generateProfil(string uid)
 		{
-			//Debug.Log("generating default profil : " + uid);
+			// log("profil.generate: " + uid);
 			return new SceneProfil(uid);
 		}
 
@@ -63,13 +64,14 @@ namespace fwp.scenes.editor
 			return new SceneSubFolder(profilUid);
 		}
 
-		void onTabChanged(iTab tab)
-		{
-			log("tab changed    => <b>" + tab.GetTabLabel() + "</b>");
-
-			TabSceneSelector tss = ActiveTabs.getActiveTab() as TabSceneSelector;
-
-			injectSubSection(tss.Path); // tab change, reeval tab content
+        protected override void onTabChanged(iTab tab)
+        {
+            base.onTabChanged(tab);
+			
+			if (tab is TabSceneSelector tss)
+			{
+				injectSubSection(tss.Path); // tab change, reeval tab content
+			}
 		}
 
 		public override void refresh(bool force = false)
@@ -78,61 +80,58 @@ namespace fwp.scenes.editor
 
 			base.refresh(force);
 
-			var state = ActiveTabs; // getter edit/runtime tabs
-
-			if (state != null) // ed/run tabs
+			if (force)
 			{
-				if (!HasSections || force)
-				{
-					if (sections == null) sections = new();
-					else sections.Clear();
-
-					injectSubSections(state);
-				}
-
-				if (force)
-				{
-					state.onTabChanged = null;
-					state.onTabChanged += onTabChanged;
-				}
+				if (sections == null) sections = new();
+				sections.Clear();
 			}
 
-			if (HasSections || force)
+			var state = ActiveTabs; // getter edit/runtime tabs
+
+			if (state != null || force) // ed/run tabs
+			{
+				injectSubSectionOfActiveTab(state);
+			}
+		}
+
+		void refreshSections()
+		{
+			if (HasSections)
 			{
 				foreach (var section in sections)
 				{
 					if (section.Value == null) continue;
 
+					log("section.refresh." + section.Key + "=" + section.Value);
+
 					foreach (var folder in section.Value)
 					{
 						foreach (var profil in folder.profils)
 						{
+							log("profil.refresh." + profil.label);
 							profil.refresh();
 						}
 					}
 				}
 			}
-
 		}
 
 		/// <summary>
 		/// inject all tabs path to sub sections
 		/// </summary>
-		void injectSubSections(WrapperTabs state)
+		void injectSubSectionOfActiveTab(WrapperTabs state)
 		{
-			// no tabs injected
-			if (state == null) return;
+			if (state == null) return; // no tabs injected
 
-			for (int i = 0; i < state.countTabs; i++)
+			var cTab = state.getActiveTab();
+
+			if (cTab == null) return; // no active tab
+
+			if (cTab is TabSceneSelector tss)
 			{
-				var t = state.getTabByIndex(i);
-
-				if (t is TabSceneSelector tss)
-				{
-					injectSubSection(tss.Path);
-				}
-				else Debug.LogWarning($"injection issue ? injected tab {t} is not a <TabSceneSelector>");
+				injectSubSection(tss.Path);
 			}
+			else Debug.LogWarning($"injection issue ? injected tab {cTab} is not a <TabSceneSelector>");
 		}
 
 		void injectSubSection(string sectionPath)
@@ -140,6 +139,8 @@ namespace fwp.scenes.editor
 			//if (verbose) Debug.Log("SceneSelector :: refresh section : " + sectionPath);
 			if (string.IsNullOrEmpty(sectionPath))
 				return;
+
+			if (sections == null) sections = new();
 
 			// remove if previous
 			if (!sections.ContainsKey(sectionPath))
@@ -226,57 +227,53 @@ namespace fwp.scenes.editor
 			// works with Contains
 			var cat_paths = SceneTools.getScenesPathsOfCategory(category, true);
 
-			log("category <b>" + category + "</b>   match paths x" + cat_paths.Count);
 
-			// filter singles
-			List<string> singles = new List<string>();
+			// list of contexts (scenes base_name, without layers)
+			// keep only scene base_name
+			List<string> contexts = new();
 			for (int i = 0; i < cat_paths.Count; i++)
 			{
 				string p = cat_paths[i];
 				string context = SceneProfil.extractContextFromPath(SceneTools.removePathBeforeFile(p));
 
-				if (!singles.Contains(context)) singles.Add(context);
-				else
-				{
-					cat_paths.RemoveAt(i);
-					i--;
-				}
+				if (contexts.Contains(context)) continue;
+				contexts.Add(context);
 			}
 
-			log("singles category?<b>" + category + "</b>   remaining paths x" + cat_paths.Count);
+			log("getProfils() category: <b>" + category + "</b> -> total scenes x" + cat_paths.Count + " & total contexts x" + contexts.Count);
 
-			for (int i = 0; i < cat_paths.Count; i++)
+			for (int i = 0; i < contexts.Count; i++)
 			{
-				string path = cat_paths[i];
+				string ctx = contexts[i];
 
 #if UNITY_EDITOR
 				if (useProgressBar())
 				{
-					float progr = (i * 1f) / (cat_paths.Count * 1f);
+					float progr = (i * 1f) / (contexts.Count * 1f);
 					if (UnityEditor.EditorUtility.DisplayCancelableProgressBar(
 						"generateProfil profil : " + category,
-						"path: " + path, progr))
+						"path: " + ctx, progr))
 					{
-						return null;
+						return null; // cancelled
 					}
 				}
 #endif
 
 				// generate a profil with given path
-				var sp = generateProfil(path);
+				var sp = generateProfil(ctx);
 
 				// check if the profil is already part of profils[]
 				if (!sp.HasLayers)
 				{
-					Debug.LogWarning(path + " has no content");
+					log(ctx + " has no content, don't keep this profil");
 					continue;
 				}
 
 				profils.Add(sp);
-				log(" ADDED PROFIL  label:" + sp.label + " (lyrx" + sp.layers.Count + ") @ " + path);
+				log("+PROFIL label:" + sp.label + " (lyr x" + sp.layers.Count + ") @ " + ctx);
 			}
 
-			log("solved x" + profils.Count + " profiles");
+			log("total profils solved x" + profils.Count);
 			foreach (var p in profils) log(p.stringify());
 
 #if UNITY_EDITOR

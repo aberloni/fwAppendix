@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Codice.CM.WorkspaceServer.Tree.GameUI;
 
 namespace fwp.utils.editor
 {
@@ -16,24 +17,21 @@ namespace fwp.utils.editor
 	{
 		bool _refresh = false;
 
+		protected bool optinFocusRefresh = false;
+
+        protected override void build()
+        {
+            base.build();
+			refresh();
+        }
+
 		protected override void onFocus(bool gainFocus)
 		{
 			base.onFocus(gainFocus);
 
-			if (gainFocus)
+			if (optinFocusRefresh && gainFocus)
 			{
-				refresh(); // passive : on focus gain
-			}
-		}
-
-		override protected void update()
-		{
-			if (_refresh)
-			{
-				_refresh = false;
-				UnityEngine.Profiling.Profiler.BeginSample("fwp.refresh");
-				refresh(true); // primed active refresh
-				UnityEngine.Profiling.Profiler.EndSample();
+				refresh(_refresh); // passive : on focus gain
 			}
 		}
 
@@ -50,7 +48,9 @@ namespace fwp.utils.editor
 		protected override void onRefreshClicked()
 		{
 			base.onRefreshClicked();
-			primeRefresh();
+			UnityEngine.Profiling.Profiler.BeginSample("fwp.refresh");
+			refresh(true);
+			UnityEngine.Profiling.Profiler.EndSample();
 		}
 
 		/// <summary>
@@ -58,7 +58,8 @@ namespace fwp.utils.editor
 		/// </summary>
 		virtual public void refresh(bool force = false)
 		{
-			if (force) log("<b>refresh</b> forced");
+			_refresh = false;
+			if (force) logw("<b>refresh</b> forced");
 		}
 
 	}

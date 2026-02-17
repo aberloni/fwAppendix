@@ -10,28 +10,38 @@ namespace fwp.scenes
 	using fwp.settings.editor;
 
 	/// <summary>
-	/// gather all scenes profiles for a specific folder
-	/// scenes[] will be override externaly
+	/// gather all scenes profils for a specific folder
 	/// regroup sceneprofils in a common container
 	/// </summary>
 	public class SceneSubFolder
     {
-        public string projectPath; // where the folder is located in Assets/
-        public string folderName; // just folder name
+        /// <summary>
+        /// where the folder is located in Assets/
+        /// (without folder name)
+        /// </summary>
+        public string projectPath;
 
-        public string completePath => System.IO.Path.Combine(projectPath, folderName);
+        /// <summary>
+        /// just folder name
+        /// </summary>
+        public string folderName;
+
+        public string CompletePath => System.IO.Path.Combine(projectPath, folderName);
 
         public List<SceneProfil> profils = null;
 
+        /// <summary>
+        /// editor foldout
+        /// </summary>
         public bool Toggled
         {
             set
             {
-                EditorPrefs.SetBool(completePath, value);
+                EditorPrefs.SetBool(CompletePath, value);
             }
             get
             {
-                return EditorPrefs.GetBool(completePath, false);
+                return EditorPrefs.GetBool(CompletePath, false);
             }
         }
 
@@ -100,7 +110,7 @@ namespace fwp.scenes
 
         void sectionLoadAll()
         {
-            Debug.Log("load all");
+            // Debug.Log("load all");
             foreach (var p in profils)
             {
                 p.editorLoad(

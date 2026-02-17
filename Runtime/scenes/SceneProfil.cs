@@ -17,6 +17,9 @@ namespace fwp.scenes
 	/// </summary>
 	public class SceneProfil
 	{
+		/// <summary>
+		/// externaly activated when needed
+		/// </summary>
 		static public bool verbose = false;
 
 		string _category; // debug
@@ -198,7 +201,7 @@ namespace fwp.scenes
 				layers.Add(spt);
 			}
 
-			if (verbose) Debug.Log(categoryUid + " : layers x " + layers.Count + ", out of x " + paths.Length + " paths");
+			if (verbose) Debug.Log(categoryUid + " : layers x " + layers.Count + " (parsed path x " + paths.Length + ")");
 		}
 
 		public void sortByPattern(string[] suffixes, int[] orders)
@@ -236,7 +239,7 @@ namespace fwp.scenes
 			{
 				output.Add(l);
 			}
-			
+
 			layers = output; // replace by ordered
 		}
 
@@ -302,9 +305,11 @@ namespace fwp.scenes
 				// same path = keep
 				bool toRemove = !checkSamePath(paths[i]);
 
-				if (verbose) Debug.Log("#" + i + " : " + paths[i] + " : removed?" + toRemove);
-
-				if (toRemove)
+				if (!toRemove)
+				{
+					if (verbose) Debug.Log("#" + i + " : " + paths[i]);
+				}
+				else
 				{
 					//Debug.Log("ignored: " + paths[i]);
 					paths.RemoveAt(i);

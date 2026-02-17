@@ -23,6 +23,25 @@ namespace fwp.utils.editor
 		/// </summary>
 		Vector2 winScroll;
 
+		private void OnEnable()
+		{
+			titleContent = new GUIContent(getWindowTabName());
+
+			build();
+
+			// https://forum.unity.com/threads/editorwindow-how-to-tell-when-returned-to-editor-mode-from-play-mode.541578/
+			EditorApplication.playModeStateChanged += reactPlayModeState;
+			//LogPlayModeState(PlayModeStateChange.EnteredEditMode);
+		}
+
+		virtual protected void build()
+		{ }
+
+		private void OnDisable()
+		{
+			EditorApplication.playModeStateChanged -= reactPlayModeState;
+		}
+
 		private void OnFocus()
 		{
 			onFocus(true);
@@ -36,20 +55,6 @@ namespace fwp.utils.editor
 		virtual protected void onFocus(bool gainFocus)
 		{ }
 
-		private void OnEnable()
-		{
-			titleContent = new GUIContent(getWindowTabName());
-
-			// https://forum.unity.com/threads/editorwindow-how-to-tell-when-returned-to-editor-mode-from-play-mode.541578/
-			EditorApplication.playModeStateChanged += reactPlayModeState;
-			//LogPlayModeState(PlayModeStateChange.EnteredEditMode);
-		}
-
-		private void OnDisable()
-		{
-			EditorApplication.playModeStateChanged -= reactPlayModeState;
-		}
-
 		/// <summary>
 		/// when editor changes mode
 		/// </summary>
@@ -57,25 +62,6 @@ namespace fwp.utils.editor
 		{
 			//Debug.Log(state);
 		}
-
-		private void Update()
-		{
-			update();
-
-			if (!Application.isPlaying)
-				updateEditime();
-			else
-				updateRuntime();
-		}
-
-		virtual protected void update()
-		{ }
-
-		virtual protected void updateEditime()
-		{ }
-
-		virtual protected void updateRuntime()
-		{ }
 
 		private void OnGUI()
 		{
@@ -244,10 +230,15 @@ namespace fwp.utils.editor
 				win.primeRefresh();
 			}
 		}
-		
+
 		protected void log(string content)
 		{
-			if (verbose) Debug.Log(GetType() + " @ " + content);
+			if (verbose) Debug.Log(GetType() + ": " + content);
+		}
+
+		protected void logw(string content)
+		{
+			if (verbose) Debug.LogWarning(GetType() + ": " + content);
 		}
 	}
 

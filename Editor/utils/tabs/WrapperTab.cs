@@ -56,9 +56,15 @@ namespace fwp.utils.editor.tabs
 		public WrapperTab(WinEdTabs window = null)
 		{
 			owner = window;
+			
+			setLabel(string.Empty);
 
-			label = string.Empty;
 			drawCallback = null;
+		}
+
+		public void setLabel(string nLabel)
+		{
+			label = nLabel;
 		}
 
 		/// <summary>
