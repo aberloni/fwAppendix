@@ -63,21 +63,6 @@ namespace fwp.scenes.editor
 			return new SceneSubFolder(profilUid);
 		}
 
-		protected override void onFocus(bool gainFocus)
-		{
-			base.onFocus(gainFocus);
-
-			if (gainFocus)
-			{
-				if (!HasSections)
-				{
-					log("/? has not section : <b>refresh forced</b>");
-					refresh(true);
-				}
-			}
-
-		}
-
 		void onTabChanged(iTab tab)
 		{
 			log("tab changed    => <b>" + tab.GetTabLabel() + "</b>");
@@ -89,21 +74,17 @@ namespace fwp.scenes.editor
 
 		public override void refresh(bool force = false)
 		{
-			base.refresh(force);
+			if(force) SceneTools.dirtyScenePath();
 
-			if (force)
-			{
-				log("refresh scenes[] buffer");
-				SceneTools.solveProjectAssetScenesPaths();
-			}
+			base.refresh(force);
 
 			var state = ActiveTabs; // getter edit/runtime tabs
 
-			if (state != null)
+			if (state != null) // ed/run tabs
 			{
 				if (!HasSections || force)
 				{
-					if (sections == null) sections = new Dictionary<string, List<SceneSubFolder>>();
+					if (sections == null) sections = new();
 					else sections.Clear();
 
 					injectSubSections(state);
@@ -139,8 +120,8 @@ namespace fwp.scenes.editor
 		/// </summary>
 		void injectSubSections(WrapperTabs state)
 		{
-			if (state == null)
-				return;
+			// no tabs injected
+			if (state == null) return;
 
 			for (int i = 0; i < state.countTabs; i++)
 			{

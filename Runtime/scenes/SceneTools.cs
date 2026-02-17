@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.IO;
-
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -14,6 +12,11 @@ namespace fwp.scenes
 {
     static public class SceneTools
     {
+
+        static string[] __bs_scenes_paths;
+        static string[] __bs_scenes_names;
+        static string[] __scene_paths;
+
 
         const char slash = '/';
         const string sceneExt = ".unity";
@@ -160,7 +163,6 @@ namespace fwp.scenes
 
 #endif
 
-
         static public bool checkIfCanBeLoaded(string sceneName)
         {
             string[] all = getAllBuildSettingsScenes(true);
@@ -181,34 +183,33 @@ namespace fwp.scenes
             return false;
         }
 
-        static public string[] getAllBuildSettingsScenes(bool removePath)
+        static public string[] getAllBuildSettingsScenes(bool removePath = false)
         {
-            List<string> paths = new List<string>();
+            // buff
+            if (removePath && __bs_scenes_names != null) return __bs_scenes_names;
+            else if (__bs_scenes_paths != null) return __bs_scenes_paths;
 
-            //Debug.Log(SceneManager.sceneCountInBuildSettings);
+            __bs_scenes_paths = new string[SceneManager.sceneCountInBuildSettings];
+            __bs_scenes_names = new string[SceneManager.sceneCountInBuildSettings];
 
-
-            for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
+            for (int i = 0; i < __bs_scenes_paths.Length; i++)
             {
                 string path = SceneUtility.GetScenePathByBuildIndex(i);
+                __bs_scenes_paths[i] = path;
 
-                if (removePath)
+                int slashIndex = path.LastIndexOf(slash);
+
+                if (slashIndex >= 0)
                 {
-                    int slashIndex = path.LastIndexOf(slash);
-
-                    if (slashIndex >= 0)
-                    {
-                        path = path.Substring(slashIndex + 1);
-                    }
-
-                    path = path.Remove(path.LastIndexOf(sceneExt));
-
+                    path = path.Substring(slashIndex + 1);
                 }
 
-                paths.Add(path);
+                // remove ext
+                __bs_scenes_names[i] = path.Remove(path.LastIndexOf(sceneExt));
             }
 
-            return paths.ToArray();
+            if (removePath) return __bs_scenes_names;
+            return __bs_scenes_paths;
         }
 
 
@@ -255,7 +256,6 @@ namespace fwp.scenes
             return string.Empty;
         }
 
-
         static public void addSceneToBuildSettings(string sceneName)
         {
             if (isSceneInBuildSettings(sceneName, true)) return;
@@ -274,7 +274,6 @@ namespace fwp.scenes
 
             EditorBuildSettings.scenes = all.ToArray();
         }
-
 
         static public string getPathOfSceneInProject(string sceneName)
         {
@@ -296,10 +295,8 @@ namespace fwp.scenes
             return string.Empty;
         }
 
-
         static public bool isSceneInBuildSettings(string partName, bool hardCheck = false)
         {
-
             string nm = getBuildSettingsSceneFullName(partName);
             if (nm.Length < 0) return false;
 
@@ -307,22 +304,18 @@ namespace fwp.scenes
             return true;
         }
 
-        static public string getBuildSettingsSceneFullName(string partName)
+        static public string getBuildSettingsSceneFullName(string partName, bool removePath = true)
         {
+            // remove ext
             if (partName.EndsWith(sceneExt)) partName = partName.Substring(0, partName.IndexOf(sceneExt));
 
-            string[] all = getAllBuildSettingsScenes(true); // no path
+            var all = getAllBuildSettingsScenes(removePath);
             for (int i = 0; i < all.Length; i++)
             {
-                if (all[i].Contains(partName))
-                {
-                    return all[i];
-                }
+                if (all[i].Contains(partName)) return all[i];
             }
             return string.Empty;
         }
-
-        static string[] __scene_paths;
 
         static public string[] getProjectAssetScenesPaths()
         {
@@ -335,7 +328,7 @@ namespace fwp.scenes
         /// this should return all scene in projet
         /// all paths are lowercased
         /// </summary>
-        static public void solveProjectAssetScenesPaths()
+        static void solveProjectAssetScenesPaths()
         {
             Debug.LogWarning("/! refresh Scene[]");
             var paths = AssetDatabase.FindAssets("t:Scene");
@@ -356,6 +349,16 @@ namespace fwp.scenes
             }
 
             __scene_paths = paths;
+        }
+
+        /// <summary>
+        /// force a refresh of paths for next call
+        /// </summary>
+        static public void dirtyScenePath()
+        {
+            __scene_paths = null;
+            __bs_scenes_names = null;
+            __bs_scenes_paths = null;
         }
 
 #endif
