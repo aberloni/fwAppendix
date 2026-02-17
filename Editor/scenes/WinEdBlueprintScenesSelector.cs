@@ -64,10 +64,10 @@ namespace fwp.scenes.editor
 			return new SceneSubFolder(profilUid);
 		}
 
-        protected override void onTabChanged(iTab tab)
-        {
-            base.onTabChanged(tab);
-			
+		protected override void onTabChanged(iTab tab)
+		{
+			base.onTabChanged(tab);
+
 			if (tab is TabSceneSelector tss)
 			{
 				injectSubSection(tss.Path); // tab change, reeval tab content
@@ -154,6 +154,7 @@ namespace fwp.scenes.editor
 			else
 			{
 				sections[sectionPath] = tabContent;
+				log("section.update: " + sectionPath);
 			}
 
 		}
@@ -180,7 +181,7 @@ namespace fwp.scenes.editor
 
 			Dictionary<string, List<SceneProfil>> list = new Dictionary<string, List<SceneProfil>>();
 
-			//Debug.Log("sorting x" + profils.Count + " profiles");
+			log("folder/sorting x" + profils.Count + " profiles");
 
 			// all profil will be matched based on the parent path
 			foreach (SceneProfil profil in profils)
@@ -210,7 +211,7 @@ namespace fwp.scenes.editor
 				output.Add(sub);
 			}
 
-			//Debug.Log("solved x" + output.Count + " subs");
+			log("folder/solved x" + output.Count + " subs");
 
 			return output;
 		}
@@ -226,7 +227,6 @@ namespace fwp.scenes.editor
 
 			// works with Contains
 			var cat_paths = SceneTools.getScenesPathsOfCategory(category, true);
-
 
 			// list of contexts (scenes base_name, without layers)
 			// keep only scene base_name

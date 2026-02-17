@@ -85,7 +85,7 @@ namespace fwp.scenes
 
                 if (filter.Length <= 0)
                 {
-                    GUILayout.Label(" ");
+                    GUILayout.FlexibleSpace(); // empty line
                     if (GUILayout.Button("+all", GUILayout.Width(GuiHelpers.btnSymbLarge)))
                     {
                         if (EditorUtility.DisplayDialog("add all ?", "are you sure ?", "ok", "nope"))
@@ -125,7 +125,7 @@ namespace fwp.scenes
 
             Debug.Log("  -> layers x" + profil.layers.Count);
             foreach (var elmt in profil.layers)
-                Debug.Log(elmt);
+                Debug.Log(elmt.Name);
 
             Debug.Log("  -> deps x" + profil.deps.Count);
             foreach (var dep in profil.deps)
