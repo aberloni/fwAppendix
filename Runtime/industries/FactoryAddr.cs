@@ -1,20 +1,22 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
+
+#if UNITY_ADDRESSABLES
+    using UnityEngine.AddressableAssets;
+    using UnityEngine.ResourceManagement.AsyncOperations;
+#endif
 
 namespace fwp.industries
 {
-    using System.IO;
-    using UnityEngine.AddressableAssets;
-    using UnityEngine.ResourceManagement.AsyncOperations;
-
-    using Object = UnityEngine.Object;
-
     /// <summary>
     /// Assets/[factory path]/[sub type] ?(.prefab)
     /// </summary>
     abstract public class FactoryAddr<Type> : FactoryBase<Type> where Type : class, iFactoryObject
     {
+#if UNITY_ADDRESSABLES
+
         Dictionary<string, AddrPair> pairs = new Dictionary<string, AddrPair>();
 
         public class AddrPair
@@ -152,6 +154,8 @@ namespace fwp.industries
             }
         }
 
+#endif
+
         protected override Object instantiate(string path)
         {
             throw new NotImplementedException("<NOT ASYNC> can't instantiate instant using addr");
@@ -161,6 +165,7 @@ namespace fwp.industries
         {
             Debug.Assert(onPresence != null, "wrong implem, should have callback here");
 
+#if UNITY_ADDRESSABLES
             path = solveAddrPath(path);
 
             getBlob(path, (blob) =>
@@ -175,7 +180,12 @@ namespace fwp.industries
 
                 onPresence(copy);
             });
+#else
+            onPresence?.Invoke(null);
+#endif
         }
+
+
     }
 
 }
