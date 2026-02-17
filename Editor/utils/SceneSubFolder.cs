@@ -7,13 +7,14 @@ using UnityEngine;
 namespace fwp.scenes
 {
     using fwp.utils.editor;
-	using fwp.settings.editor;
+    using fwp.settings.editor;
+    using System.Runtime.InteropServices;
 
-	/// <summary>
-	/// gather all scenes profils for a specific folder
-	/// regroup sceneprofils in a common container
-	/// </summary>
-	public class SceneSubFolder
+    /// <summary>
+    /// gather all scenes profils for a specific folder
+    /// regroup sceneprofils in a common container
+    /// </summary>
+    public class SceneSubFolder
     {
         /// <summary>
         /// where the folder is located in Assets/
@@ -78,8 +79,14 @@ namespace fwp.scenes
             if (!hasContentMatchingFilter(filter)) return;
 
             // sub folder
-            Toggled = EditorGUILayout.Foldout(Toggled, folderName + " (x" + profils.Count + ")", true);
-            if (Toggled)
+            bool _toggle = EditorGUILayout.Foldout(Toggled, folderName + " (x" + profils.Count + ")", true);
+            if (_toggle != Toggled)
+            {
+                // Debug.Log("toggled: " + folderName + " = " + _toggle);
+                Toggled = _toggle;
+            }
+
+            if (_toggle)
             {
                 GUILayout.BeginHorizontal();
 
