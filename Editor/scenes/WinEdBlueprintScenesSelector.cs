@@ -69,7 +69,11 @@ namespace fwp.scenes.editor
 
 			if (gainFocus)
 			{
-				if (!HasSections) refresh(true);
+				if (!HasSections)
+				{
+					log("/? has not section : <b>refresh forced</b>");
+					refresh(true);
+				}
 			}
 
 		}
@@ -89,7 +93,8 @@ namespace fwp.scenes.editor
 
 			if (force)
 			{
-				SceneTools.refreshScenePathBuffer();
+				log("refresh scenes[] buffer");
+				SceneTools.solveProjectAssetScenesPaths();
 			}
 
 			var state = ActiveTabs; // getter edit/runtime tabs
@@ -145,7 +150,7 @@ namespace fwp.scenes.editor
 				{
 					injectSubSection(tss.Path);
 				}
-				else Debug.LogWarning($"injection issue ? tab of wrapper {t} is not a TabSceneSelector");
+				else Debug.LogWarning($"injection issue ? injected tab {t} is not a <TabSceneSelector>");
 			}
 		}
 
@@ -177,7 +182,7 @@ namespace fwp.scenes.editor
 		protected override void drawFooter()
 		{
 			base.drawFooter();
-			
+
 			settings.utils.UtilEdUserSettings.drawBool(
 				"+build settings", SceneSubFolder._pref_autoAddBuildSettings, (state) => primeRefresh());
 		}
@@ -233,7 +238,7 @@ namespace fwp.scenes.editor
 		/// </summary>
 		protected List<SceneProfil> getProfils(string category)
 		{
-			List<SceneProfil> profils = new List<SceneProfil>();
+			List<SceneProfil> profils = new();
 
 			SceneProfil.verbose = verbose;
 

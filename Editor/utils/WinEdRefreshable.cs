@@ -22,7 +22,7 @@ namespace fwp.utils.editor
 
 			if (gainFocus)
 			{
-				refresh();
+				refresh(); // passive : on focus gain
 			}
 		}
 
@@ -31,7 +31,9 @@ namespace fwp.utils.editor
 			if (_refresh)
 			{
 				_refresh = false;
-				refresh(true);
+				UnityEngine.Profiling.Profiler.BeginSample("fwp.refresh");
+				refresh(true); // primed active refresh
+				UnityEngine.Profiling.Profiler.EndSample();
 			}
 		}
 
@@ -45,15 +47,10 @@ namespace fwp.utils.editor
 			log("refresh <b>primed</b>");
 		}
 
-		public void refreshVerbose()
+		protected override void onRefreshClicked()
 		{
-			refresh(true);
-		}
-
-		protected override void onTitleClicked()
-		{
-			base.onTitleClicked(); // verbose = true
-			refreshVerbose();
+			base.onRefreshClicked();
+			primeRefresh();
 		}
 
 		/// <summary>
@@ -61,7 +58,7 @@ namespace fwp.utils.editor
 		/// </summary>
 		virtual public void refresh(bool force = false)
 		{
-			if (force) log("force <b>refresh</b>");
+			if (force) log("<b>refresh</b> forced");
 		}
 
 	}

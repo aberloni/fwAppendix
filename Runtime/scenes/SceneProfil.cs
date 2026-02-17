@@ -388,7 +388,7 @@ namespace fwp.scenes
 		}
 
 		/// <summary>
-		/// pile de toutes les scènes qui seront a charger au runtime
+		/// pile de toutes les scï¿½nes qui seront a charger au runtime
 		/// </summary>
 		virtual public void solveDeps()
 		{
@@ -628,7 +628,7 @@ namespace fwp.scenes
 
 			if (_assocs_buff == null) _assocs_buff = new List<SceneAssoc>();
 
-			SceneLoader.loadScenes(getLayersScenes(), (SceneAssoc[] scs) =>
+			SceneLoader.loadScenes(getLayersScenesNames(), (SceneAssoc[] scs) =>
 				{
 					if (scs.Length <= 0)
 					{
@@ -648,7 +648,7 @@ namespace fwp.scenes
 				});
 		}
 
-		string[] getLayersScenes()
+		string[] getLayersScenesNames()
 		{
 			string[] ret = new string[layers.Count];
 			for (int i = 0; i < layers.Count; i++)
@@ -685,7 +685,7 @@ namespace fwp.scenes
 				return;
 			}
 
-			SceneLoader.unloadScenes(getLayersScenes(), onUnloadCompleted);
+			SceneLoader.unloadScenes(getLayersScenesNames(), onUnloadCompleted);
 		}
 
 		List<SceneAssoc> fetchAssocs(bool force)
@@ -697,7 +697,7 @@ namespace fwp.scenes
 			{
 				_assocs_buff.Clear();
 
-				_assocs_buff.AddRange(SceneAssoc.solveScenesAssocs(getLayersScenes()));
+				_assocs_buff.AddRange(SceneAssoc.solveScenesAssocs(getLayersScenesNames()));
 				_assocs_buff.AddRange(SceneAssoc.solveScenesAssocs(deps.ToArray()));
 
 				//if (verbose) Debug.Log("assocs x" + _assocs_buff.Count);

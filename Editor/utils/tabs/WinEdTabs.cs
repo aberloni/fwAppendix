@@ -33,15 +33,15 @@ namespace fwp.utils.editor.tabs
 		/// tab label, gui draw callback
 		/// return : true to draw additionnal content
 		/// </summary>
-		abstract public void populateTabsEditor(WrapperTabs wt);
+		abstract public void populateTabsEditor(WrapperTabs tabsSilo);
 
 		/// <summary>
 		/// what to draw @runtime
 		/// default is same as editor
 		/// </summary>
-		virtual public void populateTabsRuntime(WrapperTabs wt)
+		virtual public void populateTabsRuntime(WrapperTabs tabsSilo)
 		{
-			populateTabsEditor(wt); // default is runtime = editor
+			populateTabsEditor(tabsSilo); // default is runtime = editor
 		}
 
 		public void resetTabSelection()

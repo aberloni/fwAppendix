@@ -121,7 +121,7 @@ namespace fwp.utils.editor
 
 			if (GUILayout.Button(rLabel, QuickEditorViewStyles.WinTitleButton))
 			{
-				onTitleClicked();
+				onRefreshClicked();
 			}
 
 			GUILayout.Label(winName, QuickEditorViewStyles.WinTitle);
@@ -129,9 +129,9 @@ namespace fwp.utils.editor
 			GUILayout.EndHorizontal();
 		}
 
-		virtual protected void onTitleClicked()
+		virtual protected void onRefreshClicked()
 		{
-			log("<b>title clicked</b>");
+			log("<b>refresh</b> clicked");
 		}
 
 		/// <summary>
