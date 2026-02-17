@@ -119,6 +119,7 @@ namespace fwp.scenes
 		/// </summary>
 		public SceneProfil(string categoryUid)
 		{
+			// from unity's resources ??
 			if (categoryUid.Contains("SceneManagement"))
 			{
 				Debug.LogError("invalid uid : " + categoryUid);
@@ -235,7 +236,7 @@ namespace fwp.scenes
 			{
 				output.Add(l);
 			}
-
+			
 			layers = output; // replace by ordered
 		}
 

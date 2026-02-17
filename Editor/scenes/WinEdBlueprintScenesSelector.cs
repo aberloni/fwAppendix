@@ -74,7 +74,7 @@ namespace fwp.scenes.editor
 
 		public override void refresh(bool force = false)
 		{
-			if(force) SceneTools.dirtyScenePath();
+			if (force) SceneTools.dirtyScenePath();
 
 			base.refresh(force);
 
@@ -253,7 +253,9 @@ namespace fwp.scenes.editor
 				if (useProgressBar())
 				{
 					float progr = (i * 1f) / (cat_paths.Count * 1f);
-					if (UnityEditor.EditorUtility.DisplayCancelableProgressBar("profil : " + category, "..." + path, progr))
+					if (UnityEditor.EditorUtility.DisplayCancelableProgressBar(
+						"generateProfil profil : " + category,
+						"path: " + path, progr))
 					{
 						return null;
 					}

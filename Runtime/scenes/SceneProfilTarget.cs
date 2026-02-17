@@ -1,7 +1,12 @@
 using UnityEngine;
 using fwp.scenes;
 
-public class SceneProfilTarget
+/// <summary>
+/// Profil Scene wrapper
+/// around scene name
+/// to simplify sorting
+/// </summary>
+public struct SceneProfilTarget
 {
 	public struct PatternOrder
 	{
@@ -9,8 +14,8 @@ public class SceneProfilTarget
 		public int order;
 	}
 
-	string sceneName = string.Empty;
-	int _order = 0;
+	string sceneName;
+	int _order;
 
 	public int Order => _order;
 	public string Name => sceneName;
@@ -26,6 +31,7 @@ public class SceneProfilTarget
 	public SceneProfilTarget(string nm, int ord)
 	{
 		sceneName = nm;
+		_order = 0;
 		setOrder(ord);
 	}
 
