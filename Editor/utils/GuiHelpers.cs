@@ -9,32 +9,7 @@ namespace fwp.utils.editor
 {
     static public class GuiHelpers
     {
-
-        public const float btnSymbWidthSmall = 30f;
-        public const float btnSymbWidth = 40f;
-        public const float btnSymbLarge = 75f;
-        public const float btnLabelWidth = 100f;
-
-        static private GUIStyle gWinTitle;
-        static public GUIStyle getWinTitle()
-        {
-            if (gWinTitle == null)
-            {
-                gWinTitle = new GUIStyle();
-
-                gWinTitle.richText = true;
-                gWinTitle.alignment = TextAnchor.MiddleCenter;
-                gWinTitle.normal.textColor = Color.white;
-                gWinTitle.fontSize = 20;
-                gWinTitle.fontStyle = FontStyle.Bold;
-                gWinTitle.margin = new RectOffset(10, 10, 10, 10);
-                //gWinTitle.padding = new RectOffset(30, 30, 30, 30);
-
-            }
-
-            return gWinTitle;
-        }
-
+        
         public const string pathAssetFolderPrefix = "Assets";
 
         const string pathAssetExtension = ".asset";

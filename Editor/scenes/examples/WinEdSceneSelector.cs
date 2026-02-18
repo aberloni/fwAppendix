@@ -29,10 +29,10 @@ namespace fwp.scenes.examples
             return new CustomProfil(uid);
         }
 
-        protected override SceneSubFolder generateSub(string profilUid)
+        protected override SceneSubFolder generateSub(string profilUid, SceneProfil[] profils)
         {
             //return base.generateSub(profilUid);
-            return new CustomSceneSub(profilUid);
+            return new CustomSceneSub(profilUid, profils);
         }
 
         protected override void drawFooter()

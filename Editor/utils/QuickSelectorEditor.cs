@@ -2,49 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using fwp.utils.editor;
 
 namespace fwp.appendix.utils
 {
     /// <summary>
+    /// WINDOW EDITOR
     /// 
     /// Syntaxe pour ajouter un tooltip au bouton
     /// GUILayout.Button(new GUIContent("Crossblocker","CrossBlocker"), getButtonSquare());
     /// </summary>
     abstract public class QuickSelectorEditor : EditorWindow
     {
-        /*
-        [MenuItem("Tools/open quick selector", false, 0)]
-        static void init()
-        {
-            QuickSelectorEditor quickSelectorWindow = (QuickSelectorEditor)EditorWindow.GetWindow(typeof(QuickSelectorEditor));
-            //quickSelectorWindow.minSize = new Vector2(170f, 360f);
-            quickSelectorWindow.Show();
-        }
-        */
-
-        static private GUIStyle gWinTitle;
-        static protected GUIStyle getWinTitle()
-        {
-            if (gWinTitle == null)
-            {
-                gWinTitle = new GUIStyle();
-
-                gWinTitle.richText = true;
-                gWinTitle.alignment = TextAnchor.MiddleCenter;
-                gWinTitle.normal.textColor = Color.white;
-                gWinTitle.fontSize = 20;
-                gWinTitle.fontStyle = FontStyle.Bold;
-                gWinTitle.margin = new RectOffset(10, 10, 10, 10);
-                //gWinTitle.padding = new RectOffset(30, 30, 30, 30);
-
-            }
-
-            return gWinTitle;
-        }
-
         private void OnGUI()
         {
-            GUILayout.Label("Quick Selector", getWinTitle());
+            GUILayout.Label("Quick Selector", QuickEditorViewStyles.gWinTitle);
 
             //GUILayout.BeginHorizontal();
             //GUILayout.EndHorizontal();

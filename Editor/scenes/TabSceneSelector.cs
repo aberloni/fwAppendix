@@ -20,6 +20,10 @@ namespace fwp.scenes.editor
 
 		WinEdBlueprintScenesSelector selector;
 
+		static readonly GUIContent lblPingFolder = new GUIContent("ping folder");
+		static readonly GUIContent lblUpfoldAll = new GUIContent("upfold all");
+		static readonly GUIContent lblEmpty = new GUIContent("selector has no sections");
+
 		public TabSceneSelector(WinEdBlueprintScenesSelector window, string path) : base()
 		{
 			selector = window;
@@ -45,7 +49,7 @@ namespace fwp.scenes.editor
 
 			if (!selector.HasSections)
 			{
-				GUILayout.Label("selector has no sections");
+				GUILayout.Label(lblEmpty);
 				return;
 			}
 
@@ -65,15 +69,15 @@ namespace fwp.scenes.editor
 			}
 
 			GUILayout.BeginHorizontal();
-
+			
 			GUILayout.Label($"{subSectionUid} has x{subList.Count} sub-sections");
 
-			if (GUILayout.Button("ping folder", GUILayout.Width(GuiHelpers.btnLabelWidth)))
+			if (GUILayout.Button(lblPingFolder, GUILayout.Width(QuickEditorViewStyles.btnL)))
 			{
 				GuiHelpers.selectFolder(subSectionUid, true);
 			}
 
-			if (GUILayout.Button("upfold all", GUILayout.Width(GuiHelpers.btnLabelWidth)))
+			if (GUILayout.Button(lblUpfoldAll, GUILayout.Width(QuickEditorViewStyles.btnL)))
 			{
 				for (int i = 0; i < subList.Count; i++)
 				{

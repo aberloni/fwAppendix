@@ -1,14 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using fwp.scenes;
 
 namespace fwp.scenes.examples
 {
 
     public class CustomSceneSub : SceneSubFolder
     {
-        public CustomSceneSub(string folderPath) : base(folderPath)
+        public CustomSceneSub(string folderPath, SceneProfil[] profils) : base(folderPath, profils)
         {
         }
 

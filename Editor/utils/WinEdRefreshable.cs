@@ -1,9 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor;
-using Codice.CM.WorkspaceServer.Tree.GameUI;
-
 namespace fwp.utils.editor
 {
 	/// <summary>

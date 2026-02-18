@@ -59,11 +59,11 @@ namespace fwp.scenes.editor
 		/// <summary>
 		/// can be replaced by different way to hande subs
 		/// </summary>
-		virtual protected SceneSubFolder generateSub(string profilUid)
+		virtual protected SceneSubFolder generateSub(string profilUid, SceneProfil[] profils)
 		{
-			return new SceneSubFolder(profilUid);
+			return new SceneSubFolder(profilUid, profils);
 		}
-
+		
 		protected override void onTabChanged(iTab tab)
 		{
 			base.onTabChanged(tab);
@@ -90,28 +90,6 @@ namespace fwp.scenes.editor
 			{
 				var state = ActiveTabs; // getter edit/runtime tabs
 				injectSubSectionOfActiveTab(state);
-			}
-		}
-
-		void refreshSections()
-		{
-			if (HasSections)
-			{
-				foreach (var section in sections)
-				{
-					if (section.Value == null) continue;
-
-					log("section.refresh." + section.Key + "=" + section.Value);
-
-					foreach (var folder in section.Value)
-					{
-						foreach (var profil in folder.profils)
-						{
-							log("profil.refresh." + profil.label);
-							profil.refresh();
-						}
-					}
-				}
 			}
 		}
 
@@ -201,9 +179,7 @@ namespace fwp.scenes.editor
 
 			foreach (var kp in list)
 			{
-				SceneSubFolder sub = generateSub(kp.Key);
-
-				sub.profils = kp.Value;
+				SceneSubFolder sub = generateSub(kp.Key, kp.Value.ToArray());
 
 				log(sub.stringify());
 
@@ -286,7 +262,9 @@ namespace fwp.scenes.editor
 			return profils;
 		}
 
-
+		/// <summary>
+		/// retrieve FIRST profil that has some loaded scenes
+		/// </summary>
 		public SceneProfil getOpenedProfil()
 		{
 			TabSceneSelector tss = ActiveTabs.getActiveTab() as TabSceneSelector;
@@ -294,10 +272,8 @@ namespace fwp.scenes.editor
 
 			foreach (var profil in category)
 			{
-				foreach (var sp in profil.profils)
-				{
-					if (sp.isLoaded()) return sp;
-				}
+				var p = profil.GetFirstLoadedProfil();
+				if (p != null) return p;
 			}
 
 			return null;

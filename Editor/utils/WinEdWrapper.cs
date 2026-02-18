@@ -25,8 +25,6 @@ namespace fwp.utils.editor
 
 		private void OnEnable()
 		{
-			titleContent = new GUIContent(getWindowTabName());
-
 			build();
 
 			// https://forum.unity.com/threads/editorwindow-how-to-tell-when-returned-to-editor-mode-from-play-mode.541578/
@@ -42,15 +40,8 @@ namespace fwp.utils.editor
 			EditorApplication.playModeStateChanged -= reactPlayModeState;
 		}
 
-		private void OnFocus()
-		{
-			onFocus(true);
-		}
-
-		private void OnLostFocus()
-		{
-			onFocus(false);
-		}
+		private void OnFocus() => onFocus(true);
+		private void OnLostFocus() => onFocus(false);
 
 		virtual protected void onFocus(bool gainFocus)
 		{ }
@@ -79,6 +70,7 @@ namespace fwp.utils.editor
 
 			drawFooter();
 		}
+		
 		virtual protected bool isDrawableAtRuntime() => true;
 
 		virtual protected void drawHeader()
@@ -93,7 +85,7 @@ namespace fwp.utils.editor
 			vLabel = verbose ? "!🐛" : "🐛";
 #endif
 
-			if (GUILayout.Button(vLabel, QuickEditorViewStyles.WinTitleButton))
+			if (GUILayout.Button(vLabel, QuickEditorViewStyles.gWinTitleButton))
 			{
 				verbose = !verbose;
 				Debug.LogWarning("toggle verbosity : " + verbose);
@@ -105,12 +97,12 @@ namespace fwp.utils.editor
 			rLabel = "🔄";
 #endif
 
-			if (GUILayout.Button(rLabel, QuickEditorViewStyles.WinTitleButton))
+			if (GUILayout.Button(rLabel, QuickEditorViewStyles.gWinTitleButton))
 			{
 				onRefreshClicked();
 			}
 
-			GUILayout.Label(winName, QuickEditorViewStyles.WinTitle);
+			GUILayout.Label(winName, QuickEditorViewStyles.gWinTitle);
 
 			GUILayout.EndHorizontal();
 		}
@@ -174,14 +166,14 @@ namespace fwp.utils.editor
 		/// <summary>
 		/// draw a label with speficic style
 		/// </summary>
-		static public void drawSectionTitle(string label, float spaceMargin = 20f, int leftMargin = 10)
+		static public void drawSectionTitle(string label, float spaceMargin = 20f)
 		{
 			if (spaceMargin > 0f)
 				GUILayout.Space(spaceMargin);
 
 			//GUILayout.BeginHorizontal();
 
-			GUILayout.Label(label, QuickEditorViewStyles.getSectionTitle(15, TextAnchor.UpperLeft, leftMargin));
+			GUILayout.Label(label, QuickEditorViewStyles.gSectionTitle);
 
 			//GUILayout.EndHorizontal();
 		}

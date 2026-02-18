@@ -35,10 +35,9 @@ namespace fwp.scenes
 		// base_sub(_layer)
 		// base_sub
 		string context; // context OR context_scene
+		public string Context => context;
 
 		bool _dirty = false;
-
-		public string label => context;
 
 		//these are only scene names (no ext, no path)
 
@@ -82,6 +81,8 @@ namespace fwp.scenes
 			}
 		}
 
+		public bool match(SceneProfil sp) => sp.context == context;
+
 		public bool matchPath(string path)
 		{
 			return SceneTools.removePathBeforeFile(path) == _category;
@@ -95,9 +96,7 @@ namespace fwp.scenes
 			if (string.IsNullOrEmpty(filter)) return true;
 			if (!HasLayers) return false;
 
-			filter = filter.ToLower();
-
-			if (!label.ToLower().Contains(filter))
+			if (!context.Contains(filter))
 			{
 				return false;
 			}
@@ -112,6 +111,8 @@ namespace fwp.scenes
 
 			return false;
 		}
+
+		readonly public GUIContent label;
 
 		/// <summary>
 		/// categoryUid is uniq PATH to scenes
@@ -137,6 +138,7 @@ namespace fwp.scenes
 			//Debug.Assert(categoryUid.Split("_").Length < 2, categoryUid + " cannot be partial : CONTEXT_SCENE_LAYER");
 
 			context = extractContextFromPath(_category);
+			label = new GUIContent(context);
 
 			if (string.IsNullOrEmpty(context))
 			{
@@ -318,11 +320,6 @@ namespace fwp.scenes
 			}
 
 			return paths;
-		}
-
-		public bool match(SceneProfil sp)
-		{
-			return sp.label == label;
 		}
 
 		/// <summary>
@@ -771,20 +768,15 @@ namespace fwp.scenes
 			return null;
 		}
 
-		virtual public string editor_getButtonName()
-		{
-			string ret = label;
-			if (layers.Count > 0) ret += " x" + layers.Count;
-			if (deps.Count > 0) ret += " +d" + deps.Count;
-			if (statics.Count > 0) ret += " +s" + statics.Count;
-			return ret;
-		}
-
 		virtual public string stringify()
 		{
-			string output = label;
-			if (!string.IsNullOrEmpty(_profilPath)) output += "     profil path : " + _profilPath;
-			if (layers != null) output += "lyr[" + layers.Count + "] & deps[" + deps.Count + "]";
+			string output = "{profil:" + context + "}";
+			if (!string.IsNullOrEmpty(_profilPath)) output += " path:" + _profilPath;
+
+			if (layers != null && layers.Count > 0) output += "lyr[" + layers.Count + "]";
+			if (deps != null && deps.Count > 0) output += " deps[" + deps.Count + "]";
+			if (statics != null && statics.Count > 0) output += " statics[" + statics.Count + "]";
+
 			return output;
 		}
 

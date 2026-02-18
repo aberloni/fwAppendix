@@ -8,7 +8,7 @@ namespace fwp.scenes
 {
     using fwp.utils.editor;
     using fwp.settings.editor;
-    using System.Runtime.InteropServices;
+    using Codice.CM.Client.Gui;
 
     /// <summary>
     /// gather all scenes profils for a specific folder
@@ -29,7 +29,20 @@ namespace fwp.scenes
 
         public string CompletePath => System.IO.Path.Combine(projectPath, folderName);
 
-        public List<SceneProfil> profils = null;
+        SceneProfil[] _profils;
+
+        public bool IsLoaded
+        {
+            get
+            {
+                if (_profils == null) return false;
+                foreach (var sp in _profils)
+                {
+                    if (sp.isLoaded()) return true;
+                }
+                return false;
+            }
+        }
 
         /// <summary>
         /// editor foldout
@@ -46,9 +59,14 @@ namespace fwp.scenes
             }
         }
 
-        public SceneSubFolder(string folderPath)
+        
+        readonly GUIContent gBtnAll = new GUIContent("+all", "load ALL scenes");
+        readonly GUIContent gFoldout;
+
+        public SceneSubFolder(string folderPath, SceneProfil[] profils)
         {
             projectPath = folderPath;
+            _profils = profils;
 
             if (projectPath.Length <= 0)
             {
@@ -56,17 +74,29 @@ namespace fwp.scenes
             }
 
             folderName = folderPath.Substring(folderPath.LastIndexOf("/") + 1);
+
+            gFoldout = new GUIContent(folderName + " (x" + _profils.Length + ")");
+        }
+
+        public SceneProfil GetFirstLoadedProfil()
+        {
+            if (_profils == null) return null;
+            foreach (var sp in _profils)
+            {
+                if (sp.isLoaded()) return sp;
+            }
+            return null;
         }
 
         public bool hasContentMatchingFilter(string filter)
         {
-            if (string.IsNullOrEmpty(filter)) return profils.Count > 0;
+            if (string.IsNullOrEmpty(filter)) return _profils.Length > 0;
 
             int cnt = 0;
-            for (int i = 0; i < profils.Count; i++)
+            for (int i = 0; i < _profils.Length; i++)
             {
                 //Debug.Log(scenes[i].label + " vs " + filter);
-                if (profils[i].matchFilter(filter))
+                if (_profils[i].matchFilter(filter))
                     cnt++;
             }
 
@@ -79,7 +109,7 @@ namespace fwp.scenes
             if (!hasContentMatchingFilter(filter)) return;
 
             // sub folder
-            bool _toggle = EditorGUILayout.Foldout(Toggled, folderName + " (x" + profils.Count + ")", true);
+            bool _toggle = EditorGUILayout.Foldout(Toggled, gFoldout, true);
             if (_toggle != Toggled)
             {
                 // Debug.Log("toggled: " + folderName + " = " + _toggle);
@@ -93,7 +123,7 @@ namespace fwp.scenes
                 if (filter.Length <= 0)
                 {
                     GUILayout.FlexibleSpace(); // empty line
-                    if (GUILayout.Button("+all", GUILayout.Width(GuiHelpers.btnSymbLarge)))
+                    if (GUILayout.Button(gBtnAll, GUILayout.Width(QuickEditorViewStyles.btnL)))
                     {
                         if (EditorUtility.DisplayDialog("add all ?", "are you sure ?", "ok", "nope"))
                         {
@@ -104,7 +134,7 @@ namespace fwp.scenes
 
                 GUILayout.EndHorizontal();
 
-                foreach (var profil in profils)
+                foreach (var profil in _profils)
                 {
                     if (profil.matchFilter(filter))
                     {
@@ -118,7 +148,7 @@ namespace fwp.scenes
         void sectionLoadAll()
         {
             // Debug.Log("load all");
-            foreach (var p in profils)
+            foreach (var p in _profils)
             {
                 p.editorLoad(
                     replaceContext: false,
@@ -150,7 +180,7 @@ namespace fwp.scenes
         {
             GUILayout.BeginHorizontal();
 
-            if (GUILayout.Button("?", GUILayout.Width(GuiHelpers.btnSymbWidthSmall)))
+            if (GUILayout.Button(QuickEditorViewStyles.gQuestionMark, GUILayout.Width(QuickEditorViewStyles.btnS)))
             {
                 logSceneDetails(profil);
             }
@@ -158,7 +188,7 @@ namespace fwp.scenes
             bool load = false;
 
             // scene button
-            if (GUILayout.Button(profil.editor_getButtonName())) // each profil
+            if (GUILayout.Button(profil.label)) // each profil
             {
                 //if (EditorPrefs.GetBool(edLoadDebug)) section[i].loadDebug = true;
                 //profil.editorLoad(false);
@@ -167,11 +197,9 @@ namespace fwp.scenes
             }
 
             // add/remove buttons
-            bool present = SceneTools.isEditorSceneLoaded(profil.label);
-            //bool present = profil.isLoaded();
-            string label = present ? "-" : "+";
+            bool present = SceneTools.isEditorSceneLoaded(profil.Context);
 
-            if (GUILayout.Button(label, GUILayout.Width(GuiHelpers.btnSymbWidth)))
+            if (GUILayout.Button(present ? QuickEditorViewStyles.gMinus : QuickEditorViewStyles.gPlus, GUILayout.Width(QuickEditorViewStyles.btnM)))
             {
                 if (!present)
                 {
@@ -201,7 +229,7 @@ namespace fwp.scenes
         virtual public string stringify()
         {
             //return "@path:" + projectPath + " @folder:" + folderName + ", total scenes x" + scenes.Count;
-            return "@folder:" + folderName + ", total scenes x" + profils.Count;
+            return "@folder:" + folderName + ", total scenes x" + _profils.Length;
         }
 
         public const string _pref_autoAddBuildSettings = "fwp.scenes.build.settings";
