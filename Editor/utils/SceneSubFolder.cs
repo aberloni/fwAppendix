@@ -8,8 +8,7 @@ namespace fwp.scenes
 {
     using fwp.utils.editor;
     using fwp.settings.editor;
-    using Codice.CM.Client.Gui;
-
+    
     /// <summary>
     /// gather all scenes profils for a specific folder
     /// regroup sceneprofils in a common container

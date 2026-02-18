@@ -202,10 +202,7 @@ namespace fwp.utils.editor.tabs
 		/// </summary>
 		virtual protected void reactTabChanged(iTab tab)
 		{
-			if (tab != null)
-			{
-				tab.Refresh(true);
-			}
+			if (tab != null) tab.Refresh(false); // soft refresh on tab swap
 
 			onTabChanged?.Invoke(tab);
 		}

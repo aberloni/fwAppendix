@@ -30,6 +30,8 @@ namespace fwp.utils.editor.tabs
 	/// </summary>
 	public class WrapperTab : iTab
 	{
+		public bool verbose = false;
+		
 		/// <summary>
 		/// complete path to section
 		/// </summary>

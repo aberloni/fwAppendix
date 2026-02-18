@@ -19,20 +19,8 @@ namespace fwp.scenes.examples
 
         public override void populateTabsEditor(WrapperTabs wt)
         {
-            wt.addSpecificTab(new TabSceneSelector(this, "scenes/Regions/Biomes"));
-            wt.addSpecificTab(new TabSceneSelector(this, "scenes/LDs"));
-        }
-
-        protected override SceneProfil generateProfil(string uid)
-        {
-            //return base.generateProfil(uid);
-            return new CustomProfil(uid);
-        }
-
-        protected override SceneSubFolder generateSub(string profilUid, SceneProfil[] profils)
-        {
-            //return base.generateSub(profilUid);
-            return new CustomSceneSub(profilUid, profils);
+            wt.addSpecificTab(new TabCustom(this, "scenes/Regions/Biomes"));
+            wt.addSpecificTab(new TabCustom(this, "scenes/LDs"));
         }
 
         protected override void drawFooter()
@@ -40,7 +28,7 @@ namespace fwp.scenes.examples
             base.drawFooter();
 
             GUILayout.Label("additionnal");
-
+            
             if (GUILayout.Button("ping halpers/"))
             {
                 selectFolder("halpers/", true);
@@ -60,5 +48,25 @@ namespace fwp.scenes.examples
             }
 
         }
+    }
+
+    public class TabCustom : TabSceneSelector
+    {
+        public TabCustom(WinEdBlueprintScenesSelector window, string path) : base(window, path)
+        {
+        }
+
+        protected override SceneProfil generateProfil(string uid)
+        {
+            //return base.generateProfil(uid);
+            return new CustomProfil(uid);
+        }
+
+        protected override SceneSubFolder generateSub(string profilUid, SceneProfil[] profils)
+        {
+            //return base.generateSub(profilUid);
+            return new CustomSceneSub(profilUid, profils);
+        }
+
     }
 }
