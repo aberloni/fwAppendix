@@ -1,6 +1,6 @@
 {
   "name": "com.ab.fwp.appendix",
-  "version": "0.9.5",
+  "version": "0.9.7",
   "displayName": "ab:appendix",
   "description": "extending unity",
   "keywords": [
@@ -16,5 +16,6 @@
     "name": "Andrei Berloni",
     "url": "http://www.andreberlemont.com",
     "email": "dev@andreberlemont.com"
-  }
+  },
+  "unity": "2022.3"
 }
