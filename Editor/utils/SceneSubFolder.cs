@@ -29,14 +29,14 @@ namespace fwp.scenes
 
         public string CompletePath => System.IO.Path.Combine(projectPath, folderName);
 
-        SceneProfil[] _profils;
+        protected SceneProfil[] profils;
 
         public bool IsLoaded
         {
             get
             {
-                if (_profils == null) return false;
-                foreach (var sp in _profils)
+                if (profils == null) return false;
+                foreach (var sp in profils)
                 {
                     if (sp.isLoaded()) return true;
                 }
@@ -66,7 +66,7 @@ namespace fwp.scenes
         public SceneSubFolder(string folderPath, SceneProfil[] profils)
         {
             projectPath = folderPath;
-            _profils = profils;
+            this.profils = profils;
 
             if (projectPath.Length <= 0)
             {
@@ -75,13 +75,13 @@ namespace fwp.scenes
 
             folderName = folderPath.Substring(folderPath.LastIndexOf("/") + 1);
 
-            gFoldout = new GUIContent(folderName + " (x" + _profils.Length + ")");
+            gFoldout = new GUIContent(folderName + " (x" + this.profils.Length + ")");
         }
 
         public SceneProfil GetFirstLoadedProfil()
         {
-            if (_profils == null) return null;
-            foreach (var sp in _profils)
+            if (profils == null) return null;
+            foreach (var sp in profils)
             {
                 if (sp.isLoaded()) return sp;
             }
@@ -90,13 +90,13 @@ namespace fwp.scenes
 
         public bool hasContentMatchingFilter(string filter)
         {
-            if (string.IsNullOrEmpty(filter)) return _profils.Length > 0;
+            if (string.IsNullOrEmpty(filter)) return profils.Length > 0;
 
             int cnt = 0;
-            for (int i = 0; i < _profils.Length; i++)
+            for (int i = 0; i < profils.Length; i++)
             {
                 //Debug.Log(scenes[i].label + " vs " + filter);
-                if (_profils[i].matchFilter(filter))
+                if (profils[i].matchFilter(filter))
                     cnt++;
             }
 
@@ -134,7 +134,7 @@ namespace fwp.scenes
 
                 GUILayout.EndHorizontal();
 
-                foreach (var profil in _profils)
+                foreach (var profil in profils)
                 {
                     if (profil.matchFilter(filter))
                     {
@@ -148,7 +148,7 @@ namespace fwp.scenes
         void sectionLoadAll()
         {
             // Debug.Log("load all");
-            foreach (var p in _profils)
+            foreach (var p in profils)
             {
                 p.editorLoad(
                     replaceContext: false,
@@ -229,7 +229,7 @@ namespace fwp.scenes
         virtual public string stringify()
         {
             //return "@path:" + projectPath + " @folder:" + folderName + ", total scenes x" + scenes.Count;
-            return "@folder:" + folderName + ", total scenes x" + _profils.Length;
+            return "@folder:" + folderName + ", total scenes x" + profils.Length;
         }
 
         public const string _pref_autoAddBuildSettings = "fwp.scenes.build.settings";
