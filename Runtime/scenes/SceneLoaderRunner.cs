@@ -19,6 +19,8 @@ namespace fwp.scenes
     /// </summary>
     public class SceneLoaderRunner : MonoBehaviour
     {
+        const float delay_scene_activation = 0.1f;
+
         /*
         /// <summary>
         /// to display some info if a loading takes too long
@@ -45,11 +47,7 @@ namespace fwp.scenes
         {
             DontDestroyOnLoad(this);
 
-            if (SceneLoader.verbose)
-                Debug.Log("sceneloader:loader created:" + name, this);
-
-            //Debug.Log(EngineObject.getStamp(this) + " created");
-            //SceneLoader.loaders.Add(this);
+            if (SceneLoader.verbose) Debug.Log("sceneloader:loader created:" + name, this);
         }
 
         private void OnDestroy()
@@ -67,18 +65,18 @@ namespace fwp.scenes
 
         IEnumerator processLoadScenes(Action<SceneAssoc[]> onComplete = null, float delayOnCompletion = 0f)
         {
-            SceneLoader.log(" ... processing " + assocs.Length + " scenes", transform);
+            if (SceneLoader.verbose) SceneLoader.log(" ... processing " + assocs.Length + " scenes", transform);
 
             // WAIT FOR ENGINE VALIDITY
             if (Time.frameCount <= 1)
             {
-                SceneLoader.log(" ... waiting for frame 2 ...", this);
+                if (SceneLoader.verbose) SceneLoader.log(" ... waiting for frame 2 ...", this);
 
                 //unity flags scenes as loaded after frame 1
                 //need to wait for when the scene is already present
                 while (Time.frameCount <= 2)
                 {
-                    SceneLoader.log($" @frame {Time.frameCount}", this);
+                    if (SceneLoader.verbose) SceneLoader.log($" @frame {Time.frameCount}", this);
 
                     yield return null;
                 }
@@ -98,7 +96,7 @@ namespace fwp.scenes
             int cnt = countStillLoading();
             if (cnt > 0)
             {
-                SceneLoader.log("    now waiting for x" + cnt + " scenes to be loaded");
+                if (SceneLoader.verbose) SceneLoader.log("    now waiting for x" + cnt + " scenes to be loaded");
 
                 while (cnt > 0)
                 {
@@ -106,7 +104,7 @@ namespace fwp.scenes
                     if (_cnt != cnt)
                     {
                         cnt = _cnt;
-                        SceneLoader.log("    ... still loading x" + _cnt);
+                        if (SceneLoader.verbose) SceneLoader.log("    ... still loading x" + _cnt);
                     }
                     yield return null;
                 }
@@ -115,8 +113,6 @@ namespace fwp.scenes
 
             if (SceneLoader.verbose)
             {
-                SceneLoader.log("is <b>done loading</b>", this);
-
                 for (int i = 0; i < assocs.Length; i++)
                 {
                     Debug.Log("#" + i + " ? " + assocs[i]);
@@ -124,15 +120,15 @@ namespace fwp.scenes
             }
 
             //needed so that all new objects loaded have time to exec build()
-            //ca fait un effet de bord quand on unload le screen dans la frame où il est généré
-            //la callback de sortie du EngineLoader peut demander l'écran qu'on vient de load pour en faire un truc :shrug:
-            //avant qu'on setup des trucs dans l'écran faut que tlm ai fait son build
+            //ca fait un effet de bord quand on unload le screen dans la frame oï¿½ il est gï¿½nï¿½rï¿½
+            //la callback de sortie du EngineLoader peut demander l'ï¿½cran qu'on vient de load pour en faire un truc :shrug:
+            //avant qu'on setup des trucs dans l'ï¿½cran faut que tlm ai fait son build
             yield return null;
 
             // create a arbitrary delay in loading
             if (delayOnCompletion > 0f)
             {
-                SceneLoader.log("DELAY " + delayOnCompletion);
+                if (SceneLoader.verbose) SceneLoader.log("DELAY " + delayOnCompletion);
 
                 while (delayOnCompletion > 0f)
                 {
@@ -168,64 +164,62 @@ namespace fwp.scenes
         {
             string target = assoc.name;
 
-            SceneLoader.log("  L <b>" + target + "</b> loading ... ");
+            float time = Time.unscaledTime;
+            if (SceneLoader.verbose) SceneLoader.log("  L <b>" + target + "</b> loading ... @time:" + time);
 
             // https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager.LoadSceneAsync.html
             // https://docs.unity3d.com/ScriptReference/AsyncOperation.html
             AsyncOperation async = SceneManager.LoadSceneAsync(target, LoadSceneMode.Additive);
-            while (!async.isDone)
+            async.allowSceneActivation = delay_scene_activation != 0f;
+
+            if (!async.allowSceneActivation)
             {
-                yield return null;
-                //Debug.Log(sceneLoad + " "+async.progress);
+                yield return new WaitUntil(() => async.progress >= 0.9f);
+
+                float dt = Time.time - time;
+                if (SceneLoader.verbose) SceneLoader.log(" ... delay activation @dt:" + dt);
+
+                // give time after loading most of the scene
+                yield return new WaitForSeconds(delay_scene_activation);
+
+                // this will trigger activation of scene
+                async.allowSceneActivation = true;
             }
 
-            SceneLoader.log("  L <b>" + target + "</b> async operation is done ... ");
+            yield return new WaitUntil(() => async.isDone);
+
+            if (SceneLoader.verbose) SceneLoader.log("  L <b>" + target + "</b> async operation is done ... ");
 
             Scene sc = SceneManager.GetSceneByName(target);
-            Debug.Assert(sc.IsValid(), "SceneManager could not return a valid scene by NAME : " + target);
+            if (!sc.IsValid())
+            {
+                Debug.LogError("SceneManager could not return a valid scene by NAME : " + target);
+                onComplete?.Invoke(assoc);
+                yield break;
+            }
 
             if (!sc.isLoaded)
             {
-                SceneLoader.log(sc.name + " :   async is done but scene is not loaded ? waiting ...");
+                if (SceneLoader.verbose) SceneLoader.log(sc.name + " :   async is done but scene is not loaded ? waiting ...");
                 //SceneLoader.log("async allow scene activation ? " + async.allowSceneActivation);
 
-                //float time = Time.time;
+                yield return new WaitUntil(() => sc.isLoaded);
 
-                //int frameCount = Time.frameCount;
-                while (!sc.isLoaded)
-                {
-                    /*
-                    if (errorDelay > 0f && Time.time - time > errorDelay)
-                    {
-                        Debug.LogError("beeing loaded takes too long (more than " + errorDelay + ")");
-                        for (int i = 0; i < SceneManager.sceneCount; i++)
-                        {
-                            Scene scInfo = SceneManager.GetSceneAt(i);
-                            Debug.LogError(scInfo.name + " @ " + scInfo.path + " is " + scInfo.isLoaded + " & " + scInfo.IsValid());
-                        }
-
-                        yield break;
-                    }
-                    */
-
-                    yield return null;
-                }
-
-                SceneLoader.log(sc.name + " :   is now loaded");
+                if (SceneLoader.verbose) SceneLoader.log(sc.name + " :   is now loaded");
             }
 
             assoc.handle = sc;
 
-            SceneLoader.log("  L <b>" + target + "</b> is loaded");
+            if (SceneLoader.verbose) SceneLoader.log("  L <b>" + target + "</b> is loaded");
 
             // feeders of this scene
-            Coroutine feeders = solveFeeders(sc, () => 
+            Coroutine feeders = solveFeeders(sc, () =>
             {
                 feeders = null;
             });
             while (feeders != null) yield return null;
 
-            SceneLoader.log("'<b>" + target + "</b>' setup");
+            if (SceneLoader.verbose) SceneLoader.log("'<b>" + target + "</b>' setup");
 
             onComplete?.Invoke(assoc);
         }
@@ -254,7 +248,7 @@ namespace fwp.scenes
                     feeders[i].feed();
                 }
 
-                Debug.Log("waiting for x" + feeders.Count + " feeders");
+                if (SceneLoader.verbose) SceneLoader.log("waiting for x" + feeders.Count + " feeders");
 
                 bool done = false;
                 while (!done)
@@ -271,10 +265,6 @@ namespace fwp.scenes
             onFeedersCompleted?.Invoke();
         }
 
-
-        //
-
-
         public Coroutine asyncUnloadScenes(string[] sceneNames, Action onComplete = null, float onCompletionDelay = 0f)
         {
             return StartCoroutine(processUnload(sceneNames, onComplete, onCompletionDelay));
@@ -286,36 +276,36 @@ namespace fwp.scenes
 
             for (int i = 0; i < sceneNames.Length; i++)
             {
-                Debug.Assert(sceneNames[i] != null, "string is null ?");
-                Debug.Assert(sceneNames[i].Length > 0, "can't unload given empty scene name");
+                if (sceneNames[i] == null) continue;
+                if (sceneNames[i].Length <= 0) continue;
 
                 Scene sc = SceneManager.GetSceneByName(sceneNames[i]);
 
                 if (!sc.IsValid())
                 {
-                    Debug.LogWarning(sceneNames[i] + " not valid ?");
+                    if (SceneLoader.verbose) Debug.LogWarning(sceneNames[i] + " not valid ?");
                     continue;
                 }
 
                 if (!sc.isLoaded)
                 {
-                    Debug.LogWarning(sceneNames[i] + " is not loaded ?");
+                    if (SceneLoader.verbose) Debug.LogWarning(sceneNames[i] + " is not loaded ?");
                     continue;
                 }
 
-                SceneLoader.log("  now unloading {sceneNames[i]} ...");
+                if (SceneLoader.verbose) SceneLoader.log("  now unloading {sceneNames[i]} ...");
 
                 AsyncOperation async = SceneManager.UnloadSceneAsync(sceneNames[i]);
                 if (async == null)
                 {
-                    Debug.LogWarning("no asyncs returned for scene of name " + sceneNames[i]);
+                    if (SceneLoader.verbose) Debug.LogWarning("no asyncs returned for scene of name " + sceneNames[i]);
                     continue;
                 }
 
                 asyncsToUnload.Add(async);
             }
 
-            SceneLoader.log("unloading scenes x" + sceneNames.Length + ", asyncs x" + asyncsToUnload.Count);
+            if (SceneLoader.verbose) SceneLoader.log("unloading scenes x" + sceneNames.Length + ", asyncs x" + asyncsToUnload.Count);
 
             //wait for all
             while (asyncsToUnload.Count > 0)
