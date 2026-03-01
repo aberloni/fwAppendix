@@ -167,7 +167,7 @@ namespace fwp.scenes
 				Context = Group + "_" + Scenette;
 			}
 
-			if (verbose) Debug.Log(" + SceneProfil <b>" + Context + "</b>");
+			if (verbose) Debug.Log("+ SceneProfil <b>" + Context + "</b>");
 
 			label = new GUIContent(Context);
 			if (string.IsNullOrEmpty(Context))
@@ -229,20 +229,16 @@ namespace fwp.scenes
 				layers.Add(spt);
 			}
 
-			if (verbose) Debug.Log(categoryUid + " : layers x " + layers.Count + " (parsed path x " + paths.Length + ")");
+			if (verbose) log(categoryUid + " : layers x " + layers.Count + " (parsed path x " + paths.Length + ")");
 		}
 
 		public void sortByPattern(string[] suffixes, int[] orders)
 		{
-			if (suffixes == null)
-			{
-				if (verbose) Debug.Log(Context + " :     no pattern");
-				return;
-			}
+			if (suffixes == null) return;
 
 			Debug.Assert(suffixes.Length == orders.Length);
 
-			if (verbose) Debug.Log(Context + " order by pattern x" + suffixes.Length);
+			if (verbose) log(Context + " order by pattern x" + suffixes.Length);
 
 			// sort by pattern
 			List<SceneProfilTarget> output = new List<SceneProfilTarget>();
@@ -305,7 +301,7 @@ namespace fwp.scenes
 			// remove scene name, keep only path
 			_profilPath = refPath.Substring(0, refPath.LastIndexOf("/"));
 
-			if (verbose) Debug.Log(" + path     <b>" + _profilPath + "</b>");
+			if (verbose) log(" + path     <b>" + _profilPath + "</b>");
 		}
 
 		/// <summary>
@@ -326,7 +322,7 @@ namespace fwp.scenes
 			solveProfilPath(paths[0]);
 
 			// filter paths
-			if (verbose) Debug.Log("filter paths (context:" + Context + ") from x" + paths.Count);
+			if (verbose) log("filter paths (context:" + Context + ") from x" + paths.Count);
 
 			for (int i = 0; i < paths.Count; i++)
 			{
@@ -487,14 +483,14 @@ namespace fwp.scenes
 
 			if (verbose)
 			{
-				Debug.Log("was (re)added to build settings x" + tmp.Count);
+				log("was (re)added to build settings x" + tmp.Count);
 
 				for (int i = 0; i < EditorBuildSettings.scenes.Length; i++)
 				{
-					Debug.Log("#" + i + " => " + EditorBuildSettings.scenes[i].path);
+					log("#" + i + " => " + EditorBuildSettings.scenes[i].path);
 				}
 
-				Debug.Log("total build settings scenes x" + EditorBuildSettings.scenes.Length);
+				log("total build settings scenes x" + EditorBuildSettings.scenes.Length);
 			}
 
 		}
@@ -507,8 +503,8 @@ namespace fwp.scenes
 			// first check that scenes are added to build settings ?
 			if (forceAddBuildSettings) forceAddToBuildSettings();
 
-			if (verbose)
-				Debug.Log($"SceneProfil:editorLoad <b>{label}</b> ; layers x{layers.Count} & deps x{deps.Count}");
+			log($"editorLoad <b>{label}</b>");
+			if (verbose) Debug.Log(stringify());
 
 			// first : load base scene NON ADDITIVE to replace full context
 			// additive check : might wanna replace context
@@ -518,7 +514,7 @@ namespace fwp.scenes
 				if (!replaceContext) mode = UnityEditor.SceneManagement.OpenSceneMode.Additive;
 
 				string baseScene = layers[0].Name;
-				if (verbose) Debug.Log($"SceneProfil:loading base scene {baseScene}");
+				if (verbose) log($"loading base scene {baseScene}");
 				SceneLoaderEditor.loadScene(baseScene, mode);
 			}
 
@@ -536,7 +532,7 @@ namespace fwp.scenes
 			// layers[0] is empty ?
 			for (int i = 0; i < toLoads.Count; i++)
 			{
-				if (verbose) Debug.Log($"SceneProfil:loading layer:{toLoads[i]}");
+				if (verbose) log($"loading layer:{toLoads[i]}");
 				SceneLoaderEditor.loadScene(toLoads[i]); // additive
 			}
 		}
@@ -545,7 +541,7 @@ namespace fwp.scenes
 		{
 			//solveDeps();
 
-			if (verbose) Debug.Log($"SceneProfil:unload");
+			if (verbose) log($"editorUnload()");
 
 			for (int i = 0; i < layers.Count; i++)
 			{
@@ -580,19 +576,23 @@ namespace fwp.scenes
 				return;
 			}
 
-			if (verbose) Debug.Log(getStamp() + " builload");
+			if (verbose)
+			{
+				log("builLoad()");
+				log(stringify());
+			}
 
 			loadStatics(() =>
 			{
-				if (verbose) Debug.Log(getStamp() + "   statics.loaded");
+				if (verbose) log("statics.loaded");
 
 				loadDeps(() =>
 				{
-					if (verbose) Debug.Log(getStamp() + "   deps.loaded");
+					if (verbose) log("deps.loaded");
 
 					loadLayers(() =>
 					{
-						if (verbose) Debug.Log(getStamp() + "   layers.loaded");
+						if (verbose) log("layers.loaded");
 
 						//Scene? parentScene = extractMainScene(false);
 						onLoadedCompleted?.Invoke(this);
@@ -603,7 +603,7 @@ namespace fwp.scenes
 
 		}
 
-		void loadDependencies(string[] scenes, Action onCompletion)
+		void loadBundle(string[] scenes, Action onCompletion)
 		{
 
 			if (scenes.Length <= 0)
@@ -615,8 +615,8 @@ namespace fwp.scenes
 
 			if (verbose)
 			{
-				Debug.Log(getStamp() + " load some dependencies x" + scenes.Length);
-				for (int i = 0; i < scenes.Length; i++) Debug.Log(getStamp() + " scene:" + scenes[i]);
+				log("load.scenes x" + scenes.Length);
+				for (int i = 0; i < scenes.Length; i++) Debug.Log(" > scene:" + scenes[i]);
 			}
 
 			float delay = 0f;
@@ -627,12 +627,22 @@ namespace fwp.scenes
 
 			SceneLoader.loadScenes(scenes, (scs) =>
 			{
+				if (verbose) log("scenes.loaded");
 				onCompletion?.Invoke();
 			}, delay);
+
 		}
 
-		void loadStatics(Action onCompletion) => loadDependencies(statics.ToArray(), onCompletion);
-		void loadDeps(Action onCompletion) => loadDependencies(deps.ToArray(), onCompletion);
+		void loadStatics(Action onCompletion)
+		{
+			if (verbose) log("load.statics x" + statics.Count);
+			loadBundle(statics.ToArray(), onCompletion);
+		}
+		void loadDeps(Action onCompletion)
+		{
+			if (verbose) log("load.deps x" + statics.Count);
+			loadBundle(deps.ToArray(), onCompletion);
+		}
 
 		void loadLayers(Action onCompletion)
 		{
@@ -645,8 +655,8 @@ namespace fwp.scenes
 
 			if (verbose)
 			{
-				Debug.Log(getStamp() + " loading layers x" + layers.Count);
-				for (int i = 0; i < layers.Count; i++) Debug.Log(getStamp() + " layer:" + layers[i]);
+				log("loading layers x" + layers.Count);
+				for (int i = 0; i < layers.Count; i++) log("layer:" + layers[i]);
 			}
 
 			if (_assocs_buff == null) _assocs_buff = new List<SceneAssoc>();
@@ -658,7 +668,7 @@ namespace fwp.scenes
 						Debug.LogError("no scenes returned ?");
 						for (int i = 0; i < layers.Count; i++)
 						{
-							Debug.Log("  " + layers[i]);
+							Debug.Log("  layer#" + i + " : " + layers[i]);
 						}
 					}
 
@@ -686,14 +696,11 @@ namespace fwp.scenes
 		/// </summary>
 		public void buildUnload(System.Action onUnloadCompleted)
 		{
-
-			if (verbose)
-				Debug.Log(getStamp() + " build unload : <b>" + label + "</b>");
+			if (verbose) log("build unload : <b>" + label + "</b>");
 
 			if (layers == null)
 			{
-				if (verbose)
-					Debug.Log(getStamp() + " null layers");
+				if (verbose) log("null layers");
 
 				onUnloadCompleted?.Invoke();
 				return;
@@ -702,7 +709,7 @@ namespace fwp.scenes
 			if (layers.Count <= 0)
 			{
 				if (verbose)
-					Debug.Log(getStamp() + " empty layers");
+					log("empty layers");
 
 				onUnloadCompleted?.Invoke();
 				return;
@@ -793,11 +800,17 @@ namespace fwp.scenes
 			string output = "{profil:" + Context + "}";
 			if (!string.IsNullOrEmpty(_profilPath)) output += " path:" + _profilPath;
 
-			if (layers != null && layers.Count > 0) output += "lyr[" + layers.Count + "]";
+			if (layers != null && layers.Count > 0) output += " layers[" + layers.Count + "]";
 			if (deps != null && deps.Count > 0) output += " deps[" + deps.Count + "]";
 			if (statics != null && statics.Count > 0) output += " statics[" + statics.Count + "]";
 
 			return output;
+		}
+
+		protected void log(string msg)
+		{
+			if (!verbose) return;
+			Debug.Log("{" + Context + "} > " + msg);
 		}
 
 		string getStamp()
