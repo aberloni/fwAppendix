@@ -3,8 +3,8 @@ using fwp.scenes;
 
 /// <summary>
 /// Profil Scene wrapper
-/// around scene name
-/// to simplify sorting
+/// around specific scene name
+/// -> to simplify sorting
 /// </summary>
 public struct SceneProfilTarget
 {

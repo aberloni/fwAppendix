@@ -7,6 +7,7 @@ namespace fwp.scenes.editor
 	using fwp.utils.editor.tabs;
 	using fwp.utils.editor;
 	using fwp.scenes;
+	using System.Linq;
 
 	/// <summary>
 	/// tab with various sections (foldout)
@@ -59,7 +60,7 @@ namespace fwp.scenes.editor
 			base.Refresh(force);
 
 			if (verbose) Debug.Log("refresh forced?" + force);
-			
+
 			if (force || sections.Count <= 0)
 			{
 				if (sections != null)
@@ -155,10 +156,12 @@ namespace fwp.scenes.editor
 			for (int i = 0; i < cat_paths.Count; i++)
 			{
 				string p = cat_paths[i];
-				string context = SceneProfil.extractContextFromPath(SceneTools.removePathBeforeFile(p));
+				string context = SceneTools.removePathBeforeFile(p);
 
 				if (contexts.Contains(context)) continue;
 				contexts.Add(context);
+
+				Debug.Log("+context	" + p + " => " + context);
 			}
 
 			if (verbose) Debug.Log("getProfils() category: <b>" + category + "</b> -> total scenes x" + cat_paths.Count + " & total contexts x" + contexts.Count);
@@ -169,8 +172,13 @@ namespace fwp.scenes.editor
 
 				UnityEditor.EditorUtility.DisplayProgressBar(pbTitle, "path: " + ctx, (i * 1f) / (contexts.Count * 1f));
 
-				// generate a profil with given path
-				var sp = generateProfil(ctx);
+				Debug.Log("solving context : <color=cyan>" + ctx + "</color>");
+
+				SceneProfil sp = profils.FirstOrDefault(p => p.match(SceneProfil.FilterContext(ctx)));
+				if (sp != null) continue;
+
+				sp = generateProfil(ctx);
+				Debug.Log("generated.profil:" + ctx + " => " + sp.Context);
 
 				// check if the profil is already part of profils[]
 				if (!sp.HasLayers)

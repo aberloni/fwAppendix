@@ -12,7 +12,7 @@ namespace fwp.scenes.examples
                 new string[] { "logic", "debug" },
                 new int[] { 2, 1 });
 
-            Debug.Log("<b>" + Category + "</b>");
+            Debug.Log("<b>" + Context + "</b>");
             for (int i = 0; i < layers.Count; i++)
             {
                 Debug.Log(" --> " + layers[i].Name);
