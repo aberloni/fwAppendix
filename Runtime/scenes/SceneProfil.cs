@@ -659,7 +659,7 @@ namespace fwp.scenes
 			if (verbose)
 			{
 				log("loading layers x" + layers.Count);
-				for (int i = 0; i < layers.Count; i++) log("layer:" + layers[i]);
+				for (int i = 0; i < layers.Count; i++) log("layer:" + layers[i].Name);
 			}
 
 			if (_assocs_buff == null) _assocs_buff = new List<SceneAssoc>();
