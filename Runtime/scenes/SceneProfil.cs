@@ -565,7 +565,10 @@ namespace fwp.scenes
 		/// </summary>
 		virtual protected float getDebugLoadDelay() => 0f;
 
-		public void buildLoad(Action<SceneProfil> onLoadedCompleted)
+		/// <summary>
+		/// load scenes using SceneManagement
+		/// </summary>
+		public void runtimeLoad(Action<SceneProfil> onLoadedCompleted)
 		{
 			//solveDeps();
 
@@ -686,7 +689,7 @@ namespace fwp.scenes
 			string[] ret = new string[layers.Count];
 			for (int i = 0; i < layers.Count; i++)
 			{
-				ret[i] = layers[i].Name;
+				ret[i] = layers[i].Name; // scene name
 			}
 			return ret;
 		}
