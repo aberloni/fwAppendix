@@ -59,7 +59,7 @@ namespace fwp.scenes.editor
 		{
 			base.Refresh(force);
 
-			if (verbose) Debug.Log("refresh forced?" + force);
+			if (force) Debug.Log($"{GetType()}Refresh({force})");
 
 			if (force || sections.Count <= 0)
 			{
@@ -161,7 +161,7 @@ namespace fwp.scenes.editor
 				if (contexts.Contains(context)) continue;
 				contexts.Add(context);
 
-				Debug.Log("+context	" + p + " => " + context);
+				if (verbose) Debug.Log("+context	" + p + " => " + context);
 			}
 
 			if (verbose) Debug.Log("getProfils() category: <b>" + category + "</b> -> total scenes x" + cat_paths.Count + " & total contexts x" + contexts.Count);
@@ -172,13 +172,13 @@ namespace fwp.scenes.editor
 
 				UnityEditor.EditorUtility.DisplayProgressBar(pbTitle, "path: " + ctx, (i * 1f) / (contexts.Count * 1f));
 
-				Debug.Log("solving context : <color=cyan>" + ctx + "</color>");
+				if (verbose) Debug.Log("solving context : <color=cyan>" + ctx + "</color>");
 
 				SceneProfil sp = profils.FirstOrDefault(p => p.match(SceneProfil.FilterContext(ctx)));
 				if (sp != null) continue;
 
 				sp = generateProfil(ctx);
-				Debug.Log("generated.profil:" + ctx + " => " + sp.Context);
+				if (verbose) Debug.Log("generated.profil:" + ctx + " => " + sp.Context);
 
 				// check if the profil is already part of profils[]
 				if (!sp.HasLayers)
