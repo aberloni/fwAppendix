@@ -1,4 +1,5 @@
 ﻿using System;
+using Codice.CM.Client.Gui;
 using UnityEditor;
 using UnityEngine;
 
@@ -19,7 +20,7 @@ namespace fwp.utils.editor
 		virtual protected string getWindowTabName() => GetType().ToString();
 
 		virtual protected bool isDrawableAtRuntime() => true;
-		
+
 		/// <summary>
 		/// scroll position within the window
 		/// </summary>
@@ -56,13 +57,15 @@ namespace fwp.utils.editor
 			//Debug.Log(state);
 		}
 
+		readonly GUIContent labelRuntime = new GUIContent("not @ runtime");
+
 		private void OnGUI()
 		{
 			drawHeader();
 
-			if (!isDrawableAtRuntime())
+			if (!isDrawableAtRuntime() && Application.isPlaying)
 			{
-				GUILayout.Label("not @ runtime");
+				GUILayout.Label(labelRuntime);
 				return;
 			}
 
@@ -72,32 +75,31 @@ namespace fwp.utils.editor
 
 			drawFooter();
 		}
-		
+
+#if UNITY_6000_0_OR_NEWER
+		const string iconVerbose = "💬";
+#else
+		const string iconVerbose = "@";
+#endif
+#if UNITY_6000_0_OR_NEWER
+		const string iconRefresh = "🔄";
+#else
+		const string iconRefresh = "↺";
+#endif
+
 		virtual protected void drawHeader()
 		{
 			string winName = getWindowTabName();
 
 			GUILayout.BeginHorizontal();
 
-			string vLabel = verbose ? "!@" : "@";
-
-#if UNITY_6000_0_OR_NEWER
-			vLabel = verbose ? "!🐛" : "🐛";
-#endif
-
-			if (GUILayout.Button(vLabel, QuickEditorViewStyles.gWinTitleButton))
+			if (GUILayout.Button(verbose ? "+" + iconVerbose : iconVerbose, QuickEditorViewStyles.gWinTitleButton))
 			{
 				verbose = !verbose;
 				Debug.LogWarning("toggle verbosity : " + verbose);
 			}
 
-			string rLabel = "↺";
-
-#if UNITY_6000_0_OR_NEWER
-			rLabel = "🔄";
-#endif
-
-			if (GUILayout.Button(rLabel, QuickEditorViewStyles.gWinTitleButton))
+			if (GUILayout.Button(iconRefresh, QuickEditorViewStyles.gWinTitleButton))
 			{
 				onRefreshClicked();
 			}
