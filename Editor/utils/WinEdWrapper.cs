@@ -1,7 +1,5 @@
-﻿using System;
-using Codice.CM.Client.Gui;
+﻿using UnityEngine;
 using UnityEditor;
-using UnityEngine;
 
 namespace fwp.utils.editor
 {
