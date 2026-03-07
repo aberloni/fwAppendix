@@ -18,6 +18,8 @@ namespace fwp.utils.editor
 
 		virtual protected string getWindowTabName() => GetType().ToString();
 
+		virtual protected bool isDrawableAtRuntime() => true;
+		
 		/// <summary>
 		/// scroll position within the window
 		/// </summary>
@@ -71,8 +73,6 @@ namespace fwp.utils.editor
 			drawFooter();
 		}
 		
-		virtual protected bool isDrawableAtRuntime() => true;
-
 		virtual protected void drawHeader()
 		{
 			string winName = getWindowTabName();

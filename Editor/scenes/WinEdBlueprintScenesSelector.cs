@@ -26,6 +26,8 @@ namespace fwp.scenes.editor
 	/// </summary>
 	abstract public class WinEdBlueprintScenesSelector : WinEdTabs
 	{
+        protected override bool isDrawableAtRuntime() => false;
+		
 		protected override void onTabChanged(iTab tab)
 		{
 			base.onTabChanged(tab);
