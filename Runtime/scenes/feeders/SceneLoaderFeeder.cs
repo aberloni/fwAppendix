@@ -17,8 +17,6 @@ namespace fwp.scenes.feeder
     /// </summary>
     public class SceneLoaderFeeder : SceneLoaderFeederBase
     {
-        public bool add_camera;
-
         [SerializeField]
         FeederData[] datas;
 
@@ -32,11 +30,9 @@ namespace fwp.scenes.feeder
             {
                 foreach (var d in datas)
                 {
-                    addWithPrefix(d.category + "-", d.scenes);
+                    addFeederData(d);
                 }
             }
-
-            if (add_camera) addWithPrefix("resource-", "camera");
         }
 
 #if UNITY_EDITOR
