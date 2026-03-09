@@ -10,7 +10,7 @@ using UnityEditor;
 /// USed to declare specific additionnal scene to load on startup
 /// </summary>
 
-namespace fwp.scenes
+namespace fwp.scenes.feeder
 {
     /// <summary>
     /// multiple categories

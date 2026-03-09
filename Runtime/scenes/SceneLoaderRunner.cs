@@ -234,10 +234,10 @@ namespace fwp.scenes
         {
             ///// feeder, additionnal scenes (from feeder script)
             GameObject[] roots = scene.GetRootGameObjects();
-            List<SceneLoaderFeederBase> feeders = new List<SceneLoaderFeederBase>();
+            List<fwp.scenes.feeder.SceneLoaderFeederBase> feeders = new();
             for (int i = 0; i < roots.Length; i++)
             {
-                feeders.AddRange(roots[i].GetComponentsInChildren<SceneLoaderFeederBase>());
+                feeders.AddRange(roots[i].GetComponentsInChildren<fwp.scenes.feeder.SceneLoaderFeederBase>());
             }
 
             if (feeders.Count > 0)

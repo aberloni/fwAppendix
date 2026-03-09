@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace fwp.scenes
+namespace fwp.scenes.feeder
 {
     /// <summary>
     /// base tooling for injection

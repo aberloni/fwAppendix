@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace fwp.scenes
+namespace fwp.scenes.feeder
 {
 
     public class SceneFeederDebug : SceneLoaderFeederBase
