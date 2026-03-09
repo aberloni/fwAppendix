@@ -6,9 +6,26 @@ namespace fwp.scenes
 {
     /// <summary>
     /// base tooling for injection
+    /// EngineStartup system will catch ALL feeders[] and call feed()
     /// </summary>
     abstract public class SceneLoaderFeederBase : MonoBehaviour
     {
+        [System.Serializable]
+        public struct FeederData
+        {
+            /// <summary>
+            /// categoryUID, prefix of scenes
+            /// "resources" => "resources-input"
+            /// </summary>
+            public string category;
+
+            /// <summary>
+            /// all target scenes to load
+            /// {category}-{scenes[]}
+            /// </summary>
+            public string[] scenes;
+        }
+
         List<string> scene_names;
         SceneLoaderRunner runner;
 
@@ -36,20 +53,6 @@ namespace fwp.scenes
             });
         }
 
-        protected void solveMultipleFeeders()
-        {
-            //check si on doit garder l'objet qui porte les feeders
-            MonoBehaviour[] monos = gameObject.GetComponents<MonoBehaviour>();
-            if (monos.Length == 1 && monos[0] == this)
-            {
-                GameObject.Destroy(gameObject);
-            }
-            else
-            {
-                GameObject.Destroy(this);
-            }
-        }
-
         private void OnDestroy()
         {
             runner = null;
@@ -60,6 +63,15 @@ namespace fwp.scenes
         /// use add() helpers
         /// </summary>
         abstract protected void solveNames();
+
+        protected void addFeederData(FeederData data)
+        {
+            foreach (var sc in data.scenes)
+            {
+                if (string.IsNullOrEmpty(data.category)) addNoPrefix(sc);
+                else addWithPrefix(data.category, sc);
+            }
+        }
 
         protected void addNoPrefix(string nm) => addWithPrefix(string.Empty, nm);
         protected void addNoPrefix(string[] nms) => addWithPrefix(string.Empty, nms);
