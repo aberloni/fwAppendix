@@ -39,15 +39,14 @@ namespace fwp.scenes.feeder
 
             if (isSteam())
             {
-                Debug.LogWarning("FEEDER.STEAM-SDK");
-                addWithPrefix("resource-", "steam");
+                Debug.LogWarning($"feeder:<b>{GetType()}:STEAM</b>");
+                addFeederData(feedSteam);
             }
 
             if (isSwitch())
             {
-                Debug.LogWarning("FEEDER.SWITCH");
-                addWithPrefix("resource-", "switch");
-                // addNoPrefix(switch_only);
+                Debug.LogWarning($"feeder:<b>{GetType()}:SWITCH</b>");
+                addFeederData(feedSwitch);
             }
 
         }
