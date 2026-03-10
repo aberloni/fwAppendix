@@ -15,7 +15,10 @@ namespace fwp.utils.editor
 
 		protected bool verbose = false;
 
-		virtual protected string getWindowTabName() => GetType().ToString();
+		/// <summary>
+		/// title WITHIN the window
+		/// </summary>
+		virtual protected string getWindowTitleName() => GetType().ToString();
 
 		virtual protected bool isDrawableAtRuntime() => true;
 
@@ -87,7 +90,7 @@ namespace fwp.utils.editor
 
 		virtual protected void drawHeader()
 		{
-			string winName = getWindowTabName();
+			string winName = getWindowTitleName();
 
 			GUILayout.BeginHorizontal();
 

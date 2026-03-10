@@ -34,20 +34,7 @@ namespace fwp.scenes.examples
                 selectFolder("halpers/", true);
             }
         }
-
-        protected override string getWindowTabName()
-        {
-            var state = ActiveTabs;
-            if (state != null)
-            {
-                return "scene selector " + ActiveTabs.getWrapperUid() + "#" + ActiveTabs.tabActiveIndex;
-            }
-            else
-            {
-                return "scene selector : no state";
-            }
-
-        }
+        
     }
 
     public class TabCustom : TabSceneSelector

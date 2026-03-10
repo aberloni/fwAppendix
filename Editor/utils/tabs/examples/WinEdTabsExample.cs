@@ -45,19 +45,5 @@ namespace fwp.utils.examples
 		{
 			GUILayout.Label("drawing default alt");
 		}
-
-		protected override string getWindowTabName()
-		{
-			var state = ActiveTabs;
-			if (state != null)
-			{
-				return "tab " + ActiveTabs.getWrapperUid() + "#" + ActiveTabs.tabActiveIndex;
-			}
-			else
-			{
-				return "tab : no state";
-			}
-
-		}
 	}
 }

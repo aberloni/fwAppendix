@@ -16,12 +16,6 @@ namespace fwp.buzz
 	/// </summary>
 	public class Buzz
 	{
-		[RuntimeInitializeOnLoadMethod]
-		static void runtime()
-		{
-			new Buzz();
-		}
-
 		static public Buzz instance;
 
 		List<iBee> lockers = new List<iBee>();
@@ -31,7 +25,6 @@ namespace fwp.buzz
 		public Buzz()
 		{
 			instance = this;
-
 			lockers.Clear();
 		}
 
