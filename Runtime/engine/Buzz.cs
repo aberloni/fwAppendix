@@ -3,6 +3,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace fwp.buzz
 {
@@ -13,14 +14,21 @@ namespace fwp.buzz
 	/// 
 	/// /! THIS WILL LOCK INPUTS UNTIL lockers[] is empty
 	/// 
+	/// __hardlocking__
+	/// each element indicates if it is hardlocking or not
+	/// ie : to display loading screen
+	/// 
 	/// </summary>
 	public class Buzz
 	{
 		static public Buzz instance;
 
-		List<iBee> lockers = new List<iBee>();
+		Dictionary<iBee, bool> lockers = new();
 
-		public Action<bool> onLocked;
+		/// <summary>
+		/// react to sub/unsub events
+		/// </summary>
+		public Action<Buzz> onLockersCountChanged;
 
 		public Buzz()
 		{
@@ -28,30 +36,40 @@ namespace fwp.buzz
 			lockers.Clear();
 		}
 
-		public void sub(iBee bee)
+		public void sub(iBee bee, bool hard = true)
 		{
 			if (!Application.isPlaying) return;
 
-			if (lockers.Contains(bee))
-				return;
+			if (lockers.ContainsKey(bee))
+			{
+				lockers[bee] = hard;
+			}
+			else
+			{
+				lockers.Add(bee, hard);
+				if (lockers.Count > 0) BuzzViewer.fetch();
+			}
 
-			lockers.Add(bee);
-			if (lockers.Count > 0) BuzzViewer.fetch();
-			onLocked?.Invoke(lockers.Count > 0);
+			onLockersCountChanged?.Invoke(this);
 		}
 
 		public void unsub(iBee bee)
 		{
 			if (!Application.isPlaying) return;
 
-			if (!lockers.Contains(bee))
+			if (!lockers.ContainsKey(bee))
 				return;
 
 			lockers.Remove(bee);
-			onLocked?.Invoke(lockers.Count > 0);
+			onLockersCountChanged?.Invoke(this);
 		}
 
-		public bool isBusy()
+		public bool isLockingHard()
+		{
+			return lockers.Any(x => x.Value);
+		}
+
+		public bool isLocking()
 		{
 			return lockers.Count > 0;
 		}
@@ -66,7 +84,8 @@ namespace fwp.buzz
 			string ret = "lockers x" + lockers.Count;
 			foreach (var l in lockers)
 			{
-				ret += "\n[" + l.GetType() + "] " + l.stringifyBeeState();
+				ret += "\n[" + l.Key.GetType() + "] " + l.Key.stringifyBeeState();
+				ret += l.Value ? " +HARD" : " +SOFT";
 			}
 
 			return ret;
@@ -117,7 +136,7 @@ namespace fwp.buzz
 
 		private void LateUpdate()
 		{
-			if (!Buzz.instance.isBusy()) // itself
+			if (!Buzz.instance.isLocking()) // itself
 				GameObject.Destroy(gameObject);
 		}
 
