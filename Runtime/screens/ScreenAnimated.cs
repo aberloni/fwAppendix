@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.TextCore;
+using System;
 
 /// <summary>
 /// ces écrans ne doivent pas avoir de lien fort avec le maze
@@ -17,18 +16,16 @@ namespace fwp.screens
 		static public List<ScreenAnimated> openedAnimatedScreens = new List<ScreenAnimated>();
 
 		/// <summary>
-		/// animator that will be used to track opening/closing state
-		/// </summary>
-		protected Animator screenAnimator;
-
-		/// <summary>
 		/// contains all data that can vary in other contexts
 		/// </summary>
-		public struct ScreenAnimatedParameters
+		[System.Serializable]
+		public class Parameters
 		{
-			public string bool_open;
-			public string state_closed; // name of the state when screen is closed
-			public string state_opened;
+			public Animator animator;
+
+			public string bool_open = "open";
+			public string state_opened = "opened";
+			public string state_closed = "closed"; // name of the state when screen is closed
 
 			public bool canOpen(Animator a)
 			{
@@ -53,17 +50,20 @@ namespace fwp.screens
 			}
 		}
 
+
 		/// <summary>
 		/// state name contained in animator
 		/// to be able to track opening/closing
 		/// </summary>
-		protected ScreenAnimatedParameters parameters;
+		[SerializeField]
+		protected Parameters parameters;
+
+		protected Animator Animator => parameters.animator;
 
 		public struct ScreenAnimatedCallbacks
 		{
 			public Action<ScreenAnimated> beforeOpen;
 			public Action<ScreenAnimated> afterOpen;
-
 			public Action<ScreenAnimated> beforeClose;
 		}
 
@@ -131,16 +131,7 @@ namespace fwp.screens
 		/// <summary>
 		/// to override if animator have difference states names
 		/// </summary>
-		virtual protected ScreenAnimatedParameters generateAnimatedParams()
-		{
-			var _parameters = new ScreenAnimatedParameters();
-
-			_parameters.bool_open = "open";
-			_parameters.state_closed = "closed";
-			_parameters.state_opened = "opened";
-
-			return _parameters;
-		}
+		virtual protected Parameters generateAnimatedParams() => parameters;
 
 		public override void reactOpen()
 		{
@@ -169,7 +160,7 @@ namespace fwp.screens
 
 			if (hasValidAnimator())
 			{
-				screenAnimator.SetBool(parameters.bool_open, true);
+				Animator.SetBool(parameters.bool_open, true);
 				logScreen("open:wait state:<b>" + parameters.state_opened + "</b>");
 			}
 
@@ -190,7 +181,7 @@ namespace fwp.screens
 			if (hasValidAnimator())
 			{
 				// not reached OPEN-ED state ?
-				AnimatorStateInfo info = screenAnimator.GetCurrentAnimatorStateInfo(0);
+				AnimatorStateInfo info = Animator.GetCurrentAnimatorStateInfo(0);
 				if (!info.IsName(parameters.state_opened)) return true;
 			}
 
@@ -250,10 +241,8 @@ namespace fwp.screens
 
 			if (hasValidAnimator())
 			{
-				logScreen("+animator");
-				screenAnimator.SetBool(parameters.bool_open, false);
-
-				logScreen("animated:wait state:<b>" + parameters.state_closed + "</b>");
+				Animator.SetBool(parameters.bool_open, false);
+				logScreen("animatedwait state:<b>" + parameters.state_closed + "</b>");
 			}
 
 			logScreen("animated.closing.check");
@@ -271,7 +260,7 @@ namespace fwp.screens
 		{
 			if (hasValidAnimator())
 			{
-				AnimatorStateInfo info = screenAnimator.GetCurrentAnimatorStateInfo(0);
+				AnimatorStateInfo info = Animator.GetCurrentAnimatorStateInfo(0);
 				if (!info.IsName(parameters.state_closed)) return true;
 			}
 
@@ -317,48 +306,38 @@ namespace fwp.screens
 		virtual protected bool hasValidAnimator()
 		{
 			// must have an animator component attached
-			if (screenAnimator == null)
-			{
+			if (Animator == null)
 				return false;
-			}
 
 			// must have a controller
-			if (screenAnimator.runtimeAnimatorController == null)
-			{
+			if (Animator.runtimeAnimatorController == null)
 				return false;
-			}
 
-			return parameters.canOpen(screenAnimator);
+			return parameters.canOpen(Animator);
 		}
 
 		void fetchAnimator()
 		{
-			if (screenAnimator == null)
+			if (parameters == null)
 			{
-				screenAnimator = GetComponent<Animator>();
-				if (screenAnimator == null)
+				parameters = generateAnimatedParams();
+			}
+
+			if (Animator == null)
+			{
+				parameters.animator = GetComponent<Animator>();
+				if (parameters.animator == null)
 				{
 					// seek one in immediate children only
 					foreach (Transform child in transform)
 					{
-						screenAnimator = child.GetComponent<Animator>();
-						if (screenAnimator != null) break;
+						parameters.animator = child.GetComponent<Animator>();
+						if (parameters.animator != null) break;
 					}
 				}
 			}
 
-			if (screenAnimator != null)
-			{
-				// generate params to interact with animator
-				parameters = generateAnimatedParams();
-				if (!parameters.canOpen(screenAnimator))
-				{
-					logwScreen("ignore animator : " + screenAnimator + " not compat", screenAnimator);
-					screenAnimator = null;
-				}
-			}
-
-			if (screenAnimator == null)
+			if (Animator == null)
 			{
 				logwScreen("no animator for animated screen : " + name, this);
 			}
