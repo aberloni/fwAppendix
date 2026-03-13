@@ -1,60 +1,63 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-using fwp.screens;
-
-/// <summary>
-/// test: open and close overlays
-/// </summary>
-public class OverlayTests : MonoBehaviour
+namespace fwp.examples
 {
-    private void Update()
+
+    using fwp.screens;
+
+    /// <summary>
+    /// test: open and close overlays
+    /// </summary>
+    public class OverlayTests : MonoBehaviour
     {
-        if(Input.GetKeyUp(KeyCode.LeftArrow))
+        private void Update()
         {
-            toggle("test-b");
-        }
-
-        if (Input.GetKeyUp(KeyCode.RightArrow))
-        {
-            toggle("test-a");
-        }
-
-        if(Input.GetKeyUp(KeyCode.UpArrow))
-        {
-            ScreensManager.load("overlay-test-c");
-        }
-
-        if (Input.GetKeyUp(KeyCode.DownArrow))
-        {
-            toggle("test-c");
-        }
-    }
-
-    void toggle(string nm)
-    {
-
-        var overlay = ScreenOverlay.getOverlay(nm);
-        if (overlay != null)
-        {
-            //overlay.verbose = true;
-
-            if (overlay.isVisible())
+            if (Input.GetKeyUp(KeyCode.LeftArrow))
             {
-                overlay.close();
+                toggle("test-b");
+            }
+
+            if (Input.GetKeyUp(KeyCode.RightArrow))
+            {
+                toggle("test-a");
+            }
+
+            if (Input.GetKeyUp(KeyCode.UpArrow))
+            {
+                ScreensManager.load("overlay-test-c");
+            }
+
+            if (Input.GetKeyUp(KeyCode.DownArrow))
+            {
+                toggle("test-c");
+            }
+        }
+
+        void toggle(string nm)
+        {
+
+            var overlay = ScreenOverlay.getOverlay(nm);
+            if (overlay != null)
+            {
+                //overlay.verbose = true;
+
+                if (overlay.isVisible())
+                {
+                    overlay.close();
+                }
+                else
+                {
+                    overlay.open();
+                }
+
+
             }
             else
             {
-                overlay.open();
+                ScreenOverlay.openOverlay(nm);
             }
-            
-            
         }
-        else
-        {
-            ScreenOverlay.openOverlay(nm);
-        }
+
     }
 
 }

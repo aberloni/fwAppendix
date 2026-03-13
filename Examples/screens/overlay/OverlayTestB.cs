@@ -1,27 +1,29 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-using fwp.screens;
-
-public class OverlayTestB : ScreenOverlay
+namespace fwp.examples
 {
+    using fwp.screens;
 
-    protected override void screenSetup()
+    public class OverlayTestB : ScreenOverlay
     {
-        base.screenSetup();
-        subSkip(() =>
+
+        protected override void screenSetup()
         {
-            Debug.Log("skip");
-        });
+            base.screenSetup();
+            subSkip(() =>
+            {
+                Debug.Log("skip");
+            });
+        }
+
+        protected override void updateScreenVisible()
+        {
+            base.updateScreenVisible();
+
+            //Debug.Log("visible");
+        }
+
+
     }
 
-    protected override void updateScreenVisible()
-    {
-        base.updateScreenVisible();
-
-        //Debug.Log("visible");
-    }
-
-    
 }
