@@ -37,7 +37,7 @@ namespace fwp.scenes
                 if (profils == null) return false;
                 foreach (var sp in profils)
                 {
-                    if (sp.isLoaded()) return true;
+                    if (sp.isAllLayersLoaded()) return true;
                 }
                 return false;
             }
@@ -82,7 +82,7 @@ namespace fwp.scenes
             if (profils == null) return null;
             foreach (var sp in profils)
             {
-                if (sp.isLoaded()) return sp;
+                if (sp.isAllLayersLoaded()) return sp;
             }
             return null;
         }
@@ -149,7 +149,7 @@ namespace fwp.scenes
             // Debug.Log("load all");
             foreach (var p in profils)
             {
-                p.editorLoad(
+                p.editorLoadProfil(
                     replaceContext: false,
                     forceAddBuildSettings: true);
             }
@@ -239,13 +239,13 @@ namespace fwp.scenes
         void onEditorSceneCall(SceneProfil profil, bool replaceContext)
         {
             profil.setDirty();
-            profil.editorLoad(replaceContext, MgrEdUserSettings.getBool(_pref_autoAddBuildSettings));
+            profil.editorLoadProfil(replaceContext, MgrEdUserSettings.getBool(_pref_autoAddBuildSettings));
         }
 
         void onEditorSceneRemoval(SceneProfil profil)
         {
             profil.setDirty();
-            profil.editorUnload();
+            profil.editorUnloadProfil();
         }
 
     }

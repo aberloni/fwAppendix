@@ -75,7 +75,7 @@ namespace fwp.scenes
 		/// </summary>
 		public List<string> statics;
 
-		List<SceneAssoc> _assocs_buff;
+		List<SceneTargetLoader> _assocs_buff = null;
 
 		/// <summary>
 		/// has found anything
@@ -130,6 +130,11 @@ namespace fwp.scenes
 
 			return false;
 		}
+
+		/// <summary>
+		/// create a virtual delay after loadings layers & deps
+		/// </summary>
+		virtual protected float getDebugLoadDelay() => 0f;
 
 		readonly public GUIContent label;
 
@@ -421,15 +426,245 @@ namespace fwp.scenes
 			statics.Clear();
 		}
 
-		public bool isLoaded()
+		public bool isSpecificLayersLoaded(string filter)
 		{
-			if (layers.Count <= 0) return false;
+			if (layers.Count <= 0) return true;
+
 			foreach (var l in layers)
 			{
-				if (!l.IsLoaded)
-					return false;
+				if (l.Name.Contains(filter))
+				{
+					if (!l.IsLoaded) return false;
+				}
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		/// all layers[] loaded
+		/// </summary>
+		public bool isAllLayersLoaded()
+		{
+			if (layers.Count > 0)
+			{
+				foreach (var l in layers)
+				{
+					if (!l.IsLoaded) return false;
+				}
 			}
 			return true;
+		}
+
+		/// <summary>
+		/// load scenes using SceneManagement
+		/// </summary>
+		public void runtimeLoadProfil(Action<SceneProfil> onLoadedCompleted)
+		{
+			//solveDeps();
+
+			if (!IsValid)
+			{
+				Debug.LogWarning("INVALID : can't load : " + Context);
+				onLoadedCompleted?.Invoke(this);
+				return;
+			}
+
+			if (verbose)
+			{
+				log("builLoad()");
+				log(stringify());
+			}
+
+			loadStatics(() =>
+			{
+				if (verbose) log("statics.loaded");
+
+				loadDeps(() =>
+				{
+					if (verbose) log("deps.loaded");
+
+					loadLayers(() =>
+					{
+						if (verbose) log("layers.loaded");
+
+						//Scene? parentScene = extractMainScene(false);
+						onLoadedCompleted?.Invoke(this);
+					});
+				});
+
+			});
+
+		}
+
+		void loadStatics(Action onCompletion)
+		{
+			if (verbose) log("load.statics x" + statics.Count);
+			loadScenes(statics.ToArray(), onCompletion);
+		}
+		void loadDeps(Action onCompletion)
+		{
+			if (verbose) log("load.deps x" + statics.Count);
+			loadScenes(deps.ToArray(), onCompletion);
+		}
+
+		void loadLayers(Action onCompletion)
+		{
+			if (layers.Count <= 0)
+			{
+				//Debug.LogWarning(getStamp() + " layers array is empty ?");
+				onCompletion.Invoke();
+				return;
+			}
+
+			if (verbose)
+			{
+				log("loading layers x" + layers.Count);
+				for (int i = 0; i < layers.Count; i++) log("layer:" + layers[i].Name);
+			}
+
+			if (_assocs_buff == null) _assocs_buff = new List<SceneTargetLoader>();
+			else _assocs_buff.Clear();
+
+			SceneLoader.loadScenes(getLayersScenesNames(), (SceneTargetLoader[] scs) =>
+				{
+					solveLoadedTargets(scs);
+					onCompletion.Invoke();
+				});
+		}
+
+		void loadScenes(string[] scenes, Action onCompletion)
+		{
+
+			if (scenes.Length <= 0)
+			{
+				//Debug.LogWarning(getStamp() + " deps array is empty ?");
+				onCompletion.Invoke();
+				return;
+			}
+
+			if (verbose)
+			{
+				log("load.scenes x" + scenes.Length);
+				for (int i = 0; i < scenes.Length; i++) Debug.Log(" > scene:" + scenes[i]);
+			}
+
+			float delay = 0f;
+
+#if UNITY_EDITOR
+			delay = getDebugLoadDelay();
+#endif
+
+			SceneLoader.loadScenes(scenes, (scs) =>
+			{
+				if (verbose) log("scenes.loaded");
+				onCompletion?.Invoke();
+			}, delay);
+
+		}
+
+		void solveLoadedTargets(SceneTargetLoader[] scs)
+		{
+			if (scs.Length <= 0)
+			{
+				Debug.LogError("no scenes returned ?");
+				for (int i = 0; i < layers.Count; i++)
+				{
+					Debug.Log("  layer#" + i + " : " + layers[i]);
+				}
+			}
+
+			_assocs_buff.AddRange(scs);
+		}
+
+		/// <summary>
+		/// return a list of layers[] scenes filtered by selector pattern
+		/// </summary>
+		public SceneProfilTarget[] SelectLayersTargets(string selector)
+		{
+			List<SceneProfilTarget> ret = new();
+			for (int i = 0; i < layers.Count; i++)
+			{
+				if (!layers[i].Name.Contains(selector)) continue;
+				ret.Add(layers[i]);
+			}
+			return ret.ToArray();
+		}
+
+		/// <summary>
+		/// return a list of layers[] names filtered by selector pattern
+		/// </summary>
+		public string[] SelectLayersNames(string selector)
+		{
+			List<string> ret = new();
+			for (int i = 0; i < layers.Count; i++)
+			{
+				if (!layers[i].Name.Contains(selector)) continue;
+				ret.Add(layers[i].Name);
+			}
+			return ret.ToArray();
+		}
+
+		public void runtimeLoadSpecifics(string[] targets, Action onCompleted = null)
+			=> loadScenes(targets, onCompleted);
+
+		public void runtimeUnloadSpecifics(string[] targets, Action onCompleted = null)
+		{
+			SceneLoader.unloadScenes(targets, onCompleted);
+		}
+
+		/// <summary>
+		/// transform layers[] to string[] of Names
+		/// </summary>
+		protected string[] getLayersScenesNames()
+		{
+			string[] ret = new string[layers.Count];
+			for (int i = 0; i < layers.Count; i++)
+			{
+				ret[i] = layers[i].Name; // scene name
+			}
+			return ret;
+		}
+
+		public void runtimeUnload(Action onUnloadCompleted)
+		{
+			if (!Application.isPlaying) return;
+
+			if (verbose) log("build unload : <b>" + label + "</b>");
+
+			if (layers == null)
+			{
+				if (verbose) log("null layers");
+
+				onUnloadCompleted?.Invoke();
+				return;
+			}
+
+			if (layers.Count <= 0)
+			{
+				if (verbose)
+					log("empty layers");
+
+				onUnloadCompleted?.Invoke();
+				return;
+			}
+
+			SceneLoader.unloadScenes(getLayersScenesNames(), onUnloadCompleted);
+		}
+
+		List<SceneTargetLoader> fetchAssocs(bool force)
+		{
+			if (_assocs_buff.Count <= 0 || force)
+			{
+				_assocs_buff.Clear();
+
+				_assocs_buff.AddRange(SceneTargetLoader.solveScenesAssocs(getLayersScenesNames()));
+				_assocs_buff.AddRange(SceneTargetLoader.solveScenesAssocs(deps.ToArray()));
+
+				//if (verbose) Debug.Log("assocs x" + _assocs_buff.Count);
+			}
+
+			return _assocs_buff;
 		}
 
 #if UNITY_EDITOR
@@ -498,7 +733,7 @@ namespace fwp.scenes
 		/// <summary>
 		/// replace context = remove all other scenes
 		/// </summary>
-		public void editorLoad(bool replaceContext, bool forceAddBuildSettings = false)
+		public void editorLoadProfil(bool replaceContext, bool forceAddBuildSettings = false)
 		{
 			// first check that scenes are added to build settings ?
 			if (forceAddBuildSettings) forceAddToBuildSettings();
@@ -537,7 +772,7 @@ namespace fwp.scenes
 			}
 		}
 
-		public void editorUnload()
+		public void editorUnloadProfil()
 		{
 			//solveDeps();
 
@@ -559,185 +794,6 @@ namespace fwp.scenes
 			//UnityEditor.SceneManagement.EditorSceneManager.CloseScene(sc, true);
 		}
 #endif
-
-		/// <summary>
-		/// create a virtual delay after loadings layers & deps
-		/// </summary>
-		virtual protected float getDebugLoadDelay() => 0f;
-
-		/// <summary>
-		/// load scenes using SceneManagement
-		/// </summary>
-		public void runtimeLoad(Action<SceneProfil> onLoadedCompleted)
-		{
-			//solveDeps();
-
-			if (!IsValid)
-			{
-				Debug.LogWarning("INVALID : can't load : " + Context);
-				onLoadedCompleted?.Invoke(this);
-				return;
-			}
-
-			if (verbose)
-			{
-				log("builLoad()");
-				log(stringify());
-			}
-
-			loadStatics(() =>
-			{
-				if (verbose) log("statics.loaded");
-
-				loadDeps(() =>
-				{
-					if (verbose) log("deps.loaded");
-
-					loadLayers(() =>
-					{
-						if (verbose) log("layers.loaded");
-
-						//Scene? parentScene = extractMainScene(false);
-						onLoadedCompleted?.Invoke(this);
-					});
-				});
-
-			});
-
-		}
-
-		void loadBundle(string[] scenes, Action onCompletion)
-		{
-
-			if (scenes.Length <= 0)
-			{
-				//Debug.LogWarning(getStamp() + " deps array is empty ?");
-				onCompletion.Invoke();
-				return;
-			}
-
-			if (verbose)
-			{
-				log("load.scenes x" + scenes.Length);
-				for (int i = 0; i < scenes.Length; i++) Debug.Log(" > scene:" + scenes[i]);
-			}
-
-			float delay = 0f;
-
-#if UNITY_EDITOR
-			delay = getDebugLoadDelay();
-#endif
-
-			SceneLoader.loadScenes(scenes, (scs) =>
-			{
-				if (verbose) log("scenes.loaded");
-				onCompletion?.Invoke();
-			}, delay);
-
-		}
-
-		void loadStatics(Action onCompletion)
-		{
-			if (verbose) log("load.statics x" + statics.Count);
-			loadBundle(statics.ToArray(), onCompletion);
-		}
-		void loadDeps(Action onCompletion)
-		{
-			if (verbose) log("load.deps x" + statics.Count);
-			loadBundle(deps.ToArray(), onCompletion);
-		}
-
-		void loadLayers(Action onCompletion)
-		{
-			if (layers.Count <= 0)
-			{
-				//Debug.LogWarning(getStamp() + " layers array is empty ?");
-				onCompletion.Invoke();
-				return;
-			}
-
-			if (verbose)
-			{
-				log("loading layers x" + layers.Count);
-				for (int i = 0; i < layers.Count; i++) log("layer:" + layers[i].Name);
-			}
-
-			if (_assocs_buff == null) _assocs_buff = new List<SceneAssoc>();
-
-			SceneLoader.loadScenes(getLayersScenesNames(), (SceneAssoc[] scs) =>
-				{
-					if (scs.Length <= 0)
-					{
-						Debug.LogError("no scenes returned ?");
-						for (int i = 0; i < layers.Count; i++)
-						{
-							Debug.Log("  layer#" + i + " : " + layers[i]);
-						}
-					}
-
-					_assocs_buff.AddRange(scs);
-
-					//Scene main = extractMainScene();
-					//Debug.Assert(main.IsValid(), getStamp()+" extracted scene : " + main + " is not valid");
-
-					onCompletion.Invoke();
-				});
-		}
-
-		string[] getLayersScenesNames()
-		{
-			string[] ret = new string[layers.Count];
-			for (int i = 0; i < layers.Count; i++)
-			{
-				ret[i] = layers[i].Name; // scene name
-			}
-			return ret;
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		public void buildUnload(System.Action onUnloadCompleted)
-		{
-			if (verbose) log("build unload : <b>" + label + "</b>");
-
-			if (layers == null)
-			{
-				if (verbose) log("null layers");
-
-				onUnloadCompleted?.Invoke();
-				return;
-			}
-
-			if (layers.Count <= 0)
-			{
-				if (verbose)
-					log("empty layers");
-
-				onUnloadCompleted?.Invoke();
-				return;
-			}
-
-			SceneLoader.unloadScenes(getLayersScenesNames(), onUnloadCompleted);
-		}
-
-		List<SceneAssoc> fetchAssocs(bool force)
-		{
-			if (_assocs_buff == null)
-				_assocs_buff = new List<SceneAssoc>();
-
-			if (_assocs_buff.Count <= 0 || force)
-			{
-				_assocs_buff.Clear();
-
-				_assocs_buff.AddRange(SceneAssoc.solveScenesAssocs(getLayersScenesNames()));
-				_assocs_buff.AddRange(SceneAssoc.solveScenesAssocs(deps.ToArray()));
-
-				//if (verbose) Debug.Log("assocs x" + _assocs_buff.Count);
-			}
-
-			return _assocs_buff;
-		}
 
 		public GameObject extractRoot(string sceneName, string rootName)
 		{
@@ -800,12 +856,23 @@ namespace fwp.scenes
 
 		virtual public string stringify()
 		{
-			string output = "{profil:" + Context + "}";
+			string output = getStamp();
 			if (!string.IsNullOrEmpty(_profilPath)) output += " path:" + _profilPath;
 
-			if (layers != null && layers.Count > 0) output += " layers[" + layers.Count + "]";
+			if (layers != null && layers.Count > 0)
+			{
+				output += " layers[" + layers.Count + "]";
+			}
 			if (deps != null && deps.Count > 0) output += " deps[" + deps.Count + "]";
 			if (statics != null && statics.Count > 0) output += " statics[" + statics.Count + "]";
+
+			if (layers != null)
+			{
+				foreach (var l in layers)
+				{
+					output += "\n  lyr#" + l.Name + "?" + l.IsLoaded;
+				}
+			}
 
 			return output;
 		}
@@ -816,11 +883,7 @@ namespace fwp.scenes
 			Debug.Log("{" + Context + "} > " + msg);
 		}
 
-		string getStamp()
-		{
-			return "{SceneProfil} " + stringify();
-		}
-
+		string getStamp() => "{" + GetType() + ":" + Context + "} ";
 
 		static public string FilterContext(string context)
 		{

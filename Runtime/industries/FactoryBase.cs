@@ -220,7 +220,8 @@ namespace fwp.industries
 			{
 				createAsync(uid, (createdInstance) =>
 				{
-					inject(createdInstance);
+					if (createdInstance == null) Debug.LogWarning($"createAsync.failed : uid={uid}, null instance");
+					else inject(createdInstance);
 					onPresence?.Invoke(createdInstance);
 				});
 
@@ -338,7 +339,11 @@ namespace fwp.industries
 		/// </summary>
 		public bool inject(FaceType candid)
 		{
-			Debug.Assert(candid != null, "candid to inject is null ?");
+			if (candid == null)
+			{
+				Debug.LogWarning($"<{GetType()}>.inject() can't inject null given candidate <{typeof(FaceType)}>");
+				return false;
+			}
 
 			bool dirty = false; // something changed ?
 

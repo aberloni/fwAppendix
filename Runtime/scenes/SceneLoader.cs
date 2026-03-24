@@ -16,7 +16,7 @@ namespace fwp.scenes
     {
         static public bool verbose = false;
 
-        static public List<SceneAssoc> loaders = new List<SceneAssoc>();
+        static public List<SceneTargetLoader> loaders = new List<SceneTargetLoader>();
 
         public const string prefixResource = "resource-";
 
@@ -46,18 +46,18 @@ namespace fwp.scenes
             return Time.frameCount + "@SceneLoader| ";
         }
 
-        static public SceneLoaderRunner loadScenes(string[] nms, Action<SceneAssoc[]> onComplete = null, float onCompletionDelay = 0f)
+        static public SceneLoaderRunner loadScenes(string[] nms, Action<SceneTargetLoader[]> onComplete = null, float onCompletionDelay = 0f)
         {
             var loader = SceneLoaderRunner.createLoader();
             loader.asyncLoadScenes(nms, onComplete, onCompletionDelay);
             return loader;
         }
 
-        static public SceneLoaderRunner loadScene(string nm, Action<SceneAssoc> onComplete = null, float onCompletionDelay = 0f)
+        static public SceneLoaderRunner loadScene(string nm, Action<SceneTargetLoader> onComplete = null, float onCompletionDelay = 0f)
         {
             // only one
             return loadScenes(new string[] { nm }, 
-                (SceneAssoc[] scs) =>
+                (SceneTargetLoader[] scs) =>
                 {
                     onComplete?.Invoke(scs[0]);
                 }, onCompletionDelay);
@@ -101,18 +101,18 @@ namespace fwp.scenes
             }
         }
 
-        static public Coroutine queryScene(string sceneName, Action<SceneAssoc> onComplete = null)
+        static public Coroutine queryScene(string sceneName, Action<SceneTargetLoader> onComplete = null)
         {
-            return queryScenes(new string[] { sceneName }, (SceneAssoc[] scs) =>
+            return queryScenes(new string[] { sceneName }, (SceneTargetLoader[] scs) =>
             {
-                SceneAssoc sa = null;
+                SceneTargetLoader sa = null;
 
                 if (scs != null && scs.Length > 0) sa = scs[0];
                 
                 onComplete?.Invoke(sa);
             });
         }
-        static public Coroutine queryScenes(string[] sceneNames, Action<SceneAssoc[]> onComplete = null)
+        static public Coroutine queryScenes(string[] sceneNames, Action<SceneTargetLoader[]> onComplete = null)
         {
             return SceneLoaderRunner.createLoader().asyncLoadScenes(sceneNames, onComplete);
         }

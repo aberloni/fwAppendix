@@ -14,7 +14,7 @@ namespace fwp.utils.editor.tabs
 	{
 		const string _editor__profiler_tab = "tab_scene_profiler";
 
-		public int tabActiveIndex
+		public int TabActiveIndex
 		{
 			get
 			{
@@ -37,19 +37,29 @@ namespace fwp.utils.editor.tabs
 			}
 		}
 
-		public bool isSetup => tabsContent.Length > 0;
-		public int countTabs => tabs.Count;
+		string ppUID => _editor__profiler_tab + "_" + wrapperUID;
+
+		public bool IsSetup => tabsContent.Length > 0;
+		public int CountTabs => tabs.Count;
 
 		public iTab getActiveTab()
 		{
 			if (tabs == null || tabs.Count <= 0) return null;
-			tabActiveIndex = Mathf.Clamp(tabActiveIndex, 0, tabs.Count - 1);
-			return tabs[tabActiveIndex];
+			TabActiveIndex = Mathf.Clamp(TabActiveIndex, 0, tabs.Count - 1);
+			return tabs[TabActiveIndex].tab;
 		}
 
-		public iTab getTabByIndex(int idx) => tabs[idx];
+		virtual public bool IsAvailable() => true;
 
-		List<iTab> tabs = new List<iTab>();
+		public iTab getTabByIndex(int idx) => tabs[idx].tab;
+
+		struct TabContent
+		{
+			public iTab tab;
+			public GUIContent content;
+		}
+
+		List<TabContent> tabs = new();
 
 		// util for unity drawing
 		GUIContent[] tabsContent = new GUIContent[0];
@@ -59,22 +69,6 @@ namespace fwp.utils.editor.tabs
 		/// prefer using local virtual method
 		/// </summary>
 		public System.Action<iTab> onTabChanged;
-
-		public List<string> labels
-		{
-			get
-			{
-				List<string> output = new List<string>();
-				foreach (var tab in tabs)
-				{
-					output.Add(tab.GetTabLabel());
-				}
-				return output;
-			}
-
-		}
-
-		string ppUID => _editor__profiler_tab + "_" + wrapperUID;
 
 		public string GetTabLabel()
 		{
@@ -121,19 +115,35 @@ namespace fwp.utils.editor.tabs
 		virtual public void Refresh(bool force)
 		{ }
 
-		public void selectDefaultTab() => tabActiveIndex = 0;
+		public void selectDefaultTab() => TabActiveIndex = 0;
 
 		virtual public bool hasContentToDraw()
 		{
 			return tabs.Count > 0;
 		}
 
+		GUIContent[] generateContents()
+		{
+			var ret = new List<GUIContent>();
+			foreach (var t in tabs)
+			{
+				if (!t.tab.IsAvailable()) continue;
+				ret.Add(t.content);
+			}
+			return ret.ToArray();
+		}
+
 		public void addSpecificTab(iTab tab)
 		{
-			tabs.Add(tab);
+			tabs.Add(new TabContent()
+			{
+				tab = tab,
+				content = new GUIContent(tab.GetTabLabel())
+			});
 
-			// store stuff for unity drawing
-			tabsContent = TabsHelper.generateTabsDatas(labels.ToArray());
+			tabsContent = generateContents();
+
+			owner?.refresh();
 		}
 
 		/// <summary>
@@ -155,6 +165,9 @@ namespace fwp.utils.editor.tabs
 		virtual protected void drawTabsHeader()
 		{ }
 
+
+		const string buttonLarge = "LargeButton";
+
 		/// <summary>
 		/// line of tabs
 		/// </summary>
@@ -162,15 +175,15 @@ namespace fwp.utils.editor.tabs
 		{
 			//GUIStyle gs = new GUIStyle(GUI.skin.button)
 			//int newTab = GUILayout.Toolbar((int)tabSelected, modeLabels, "LargeButton", GUILayout.Width(toolbarWidth), GUILayout.ExpandWidth(true));
-			int newTab = GUILayout.Toolbar(tabActiveIndex, tabsContent, "LargeButton");
+			int newTab = GUILayout.Toolbar(TabActiveIndex, tabsContent, buttonLarge);
 			//if (newTab != (int)tabSelected) Debug.Log("changed tab ? " + tabSelected);
 
-			if (newTab != tabActiveIndex)
+			if (newTab != TabActiveIndex)
 			{
 				if (newTab >= tabsContent.Length) newTab = tabsContent.Length - 1;
 				if (newTab < 0) newTab = 0;
 
-				tabActiveIndex = newTab;
+				TabActiveIndex = newTab;
 
 				reactTabChanged(getActiveTab());
 			}
@@ -206,6 +219,7 @@ namespace fwp.utils.editor.tabs
 
 			onTabChanged?.Invoke(tab);
 		}
+
 	}
 
 

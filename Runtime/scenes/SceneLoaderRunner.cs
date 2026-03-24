@@ -31,7 +31,7 @@ namespace fwp.scenes
         static public void optoutErrorDelay() => errorDelay = -1f;
         */
 
-        SceneAssoc[] assocs;
+        SceneTargetLoader[] assocs;
 
         protected List<Coroutine> queries = new List<Coroutine>();
 
@@ -56,14 +56,14 @@ namespace fwp.scenes
             //SceneLoader.loaders.Remove(this);
         }
 
-        public Coroutine asyncLoadScenes(string[] sceneNames, Action<SceneAssoc[]> onComplete = null, float delayOnCompletion = 0f)
+        public Coroutine asyncLoadScenes(string[] sceneNames, Action<SceneTargetLoader[]> onComplete = null, float delayOnCompletion = 0f)
         {
-            assocs = SceneAssoc.solveScenesAssocs(sceneNames, true);
+            assocs = SceneTargetLoader.solveScenesAssocs(sceneNames, true);
 
             return StartCoroutine(processLoadScenes(onComplete, delayOnCompletion));
         }
 
-        IEnumerator processLoadScenes(Action<SceneAssoc[]> onComplete = null, float delayOnCompletion = 0f)
+        IEnumerator processLoadScenes(Action<SceneTargetLoader[]> onComplete = null, float delayOnCompletion = 0f)
         {
             if (SceneLoader.verbose) SceneLoader.log(" ... processing " + assocs.Length + " scenes", transform);
 
@@ -160,7 +160,7 @@ namespace fwp.scenes
         /// <summary>
         /// process to load an instance
         /// </summary>
-        IEnumerator processLoadScene(SceneAssoc assoc, Action<SceneAssoc> onComplete = null)
+        IEnumerator processLoadScene(SceneTargetLoader assoc, Action<SceneTargetLoader> onComplete = null)
         {
             string target = assoc.name;
 

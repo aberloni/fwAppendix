@@ -52,9 +52,9 @@ namespace fwp.utils.editor.tabs
 		public void selectTab(int index)
 		{
 			log("tab.select-ed #" + index);
-			if (ActiveTabs.tabActiveIndex != index)
+			if (ActiveTabs.TabActiveIndex != index)
 			{
-				ActiveTabs.tabActiveIndex = index;
+				ActiveTabs.TabActiveIndex = index;
 				onTabChanged(ActiveTabs.getActiveTab());
 			}
 		}
@@ -68,7 +68,7 @@ namespace fwp.utils.editor.tabs
 		{
 			base.refresh(force);
 
-			if (force || stateEditime == null || !stateEditime.isSetup)
+			if (force || stateEditime == null || !stateEditime.IsSetup)
 			{
 				stateEditime = new WrapperTabs("editor-" + GetType());
 				populateTabsEditor(stateEditime);

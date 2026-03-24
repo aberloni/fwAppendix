@@ -23,6 +23,11 @@ namespace fwp.utils.editor.tabs
 		/// what to draw when selected
 		/// </summary>
 		public void Draw();
+
+		/// <summary>
+		/// will be part of list of tabs
+		/// </summary>
+		public bool IsAvailable();
 	}
 
 	/// <summary>
@@ -101,6 +106,8 @@ namespace fwp.utils.editor.tabs
 		/// </summary>
 		virtual protected void drawGUI()
 		{ }
-	}
+
+        virtual public bool IsAvailable() => true;
+    }
 
 }

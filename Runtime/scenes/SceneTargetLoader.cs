@@ -10,7 +10,7 @@ namespace fwp.scenes
     /// meant to wrap load state of a scene
     /// used during load & in profils
     /// </summary>
-    public class SceneAssoc
+    public class SceneTargetLoader
     {
         public string name;
         public Scene handle;
@@ -47,11 +47,11 @@ namespace fwp.scenes
         /// fetch all assocs from given names
         /// called right before calling the actual loading
         /// </summary>
-        static public SceneAssoc[] solveScenesAssocs(string[] sceneNames, bool warnMissing = false)
+        static public SceneTargetLoader[] solveScenesAssocs(string[] sceneNames, bool warnMissing = false)
         {
             SceneLoader.log($" ... now filtering x{sceneNames.Length} scene names");
 
-            List<SceneAssoc> output = new List<SceneAssoc>();
+            List<SceneTargetLoader> output = new List<SceneTargetLoader>();
 
             for (int i = 0; i < sceneNames.Length; i++)
             {
@@ -85,7 +85,7 @@ namespace fwp.scenes
                 }
                 */
 
-                SceneAssoc assoc = new SceneAssoc();
+                SceneTargetLoader assoc = new SceneTargetLoader();
                 assoc.name = sceneName;
 
                 // don't double load same scene
