@@ -134,7 +134,7 @@ namespace fwp.scenes
 		/// <summary>
 		/// create a virtual delay after loadings layers & deps
 		/// </summary>
-		virtual protected float getDebugLoadDelay() => 0f;
+		virtual protected float ed_getDebugLoadDelay() => 0f;
 
 		readonly public GUIContent label;
 
@@ -552,7 +552,7 @@ namespace fwp.scenes
 			float delay = 0f;
 
 #if UNITY_EDITOR
-			delay = getDebugLoadDelay();
+			delay = ed_getDebugLoadDelay();
 #endif
 
 			SceneLoader.loadScenes(scenes, (scs) =>
@@ -626,7 +626,7 @@ namespace fwp.scenes
 			return ret;
 		}
 
-		public void runtimeUnload(Action onUnloadCompleted)
+		public void runtimeUnloadProfil(Action onUnloadCompleted)
 		{
 			if (!Application.isPlaying) return;
 
@@ -654,6 +654,8 @@ namespace fwp.scenes
 
 		List<SceneTargetLoader> fetchAssocs(bool force)
 		{
+			if (_assocs_buff == null) _assocs_buff = new();
+
 			if (_assocs_buff.Count <= 0 || force)
 			{
 				_assocs_buff.Clear();
