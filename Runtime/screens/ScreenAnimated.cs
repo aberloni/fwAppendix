@@ -60,27 +60,10 @@ namespace fwp.screens
 
 		protected Animator Animator => parameters.animator;
 
-		public struct ScreenAnimatedCallbacks
-		{
-			public Action<ScreenAnimated> beforeOpen;
-			public Action<ScreenAnimated> afterOpen;
-			public Action<ScreenAnimated> beforeClose;
-		}
-
-		/// <summary>
-		/// some callback bridge available to react to main events
-		/// </summary>
-		public ScreenAnimatedCallbacks callbacks;
-
 		//const string STATE_HIDING = "hiding";
 		//const string STATE_OPENING = "opening";
 
 		// INTERNALS
-
-		bool _interactable = false;       // interactable
-
-		Coroutine _coprocOpening;   // opening
-		Coroutine _coprocClosing;   // closing
 
 		/// <summary>
 		/// constructor / awake
@@ -114,9 +97,9 @@ namespace fwp.screens
 		/// </summary>
 		virtual protected bool isOpenDuringSetup() => true;
 
-		protected override void setupBeforeOpening()
+		protected override void reactBeforeOpening()
 		{
-			base.setupBeforeOpening();
+			base.reactBeforeOpening();
 
 			callbacks.beforeOpen?.Invoke(this);
 		}
@@ -133,29 +116,8 @@ namespace fwp.screens
 		/// </summary>
 		virtual protected Parameters generateAnimatedParams() => parameters;
 
-		public override void reactOpen()
-		{
-			// don't, need to wait for animation end
-			//base.reactOpen();
-
-			//already animating ?
-
-			if (isOpening())
-			{
-				if (verbose)
-				{
-					logwScreen(" => open animated => coroutine d'opening tourne déjà ?");
-					logwScreen(" trying to re-open the same screen during it's opening ?");
-				}
-
-				return;
-			}
-
-			_coprocOpening = StartCoroutine(processAnimatingOpening());
-		}
-
-		IEnumerator processAnimatingOpening()
-		{
+        protected override IEnumerator execOpening()
+        {
 			logScreen("animation:  open");
 
 			if (hasValidAnimator())
@@ -165,10 +127,8 @@ namespace fwp.screens
 			}
 
 			logScreen("animated.open.check ...");
-			yield return new WaitUntil(() => !checkOpening());
-			logScreen("animated.open.check.done");
 
-			onOpeningEnded();
+			yield return base.execOpening();
 		}
 
 		/// <summary>
@@ -191,47 +151,22 @@ namespace fwp.screens
 		/// <summary>
 		/// end of opening animation
 		/// </summary>
-		protected override void onOpeningEnded()
+		protected override void reactAfterOpening()
 		{
-			base.onOpeningEnded();
-
-			_coprocOpening = null;
+			base.reactAfterOpening();
 
 			// this is done before "open animation"
 			//toggleVisible(true); // opening animation done : jic
-
-			_interactable = true;
 
 			logScreen("animated:opening:done");
 
 			callbacks.afterOpen?.Invoke(this);
 		}
 
-		public override void reactClose()
+		protected override void reactBeforeClosing()
 		{
-			// don't, using animation
-			//base.reactClose();
-
-			if (isClosing())
-			{
-				logwScreen(" ... already closing");
-				return;
-			}
-
-			if (_coprocClosing != null)
-			{
-				StopCoroutine(_coprocClosing);
-				_coprocClosing = null;
-			}
-
-			_coprocClosing = StartCoroutine(processAnimatingClosing());
-		}
-
-		protected override void setupBeforeClosing()
-		{
-			base.setupBeforeClosing();
-			_interactable = false;
-
+			base.reactBeforeClosing();
+			
 			callbacks.beforeClose?.Invoke(this);
 		}
 
@@ -249,7 +184,7 @@ namespace fwp.screens
 			yield return new WaitUntil(() => !checkClosing());
 			logScreen("animated.closing.check.done");
 
-			onClosingEnded();
+			reactAfterClosing();
 		}
 
 		/// <summary>
@@ -266,28 +201,7 @@ namespace fwp.screens
 
 			return false;
 		}
-
-		protected override void onClosingEnded()
-		{
-			base.onClosingEnded();
-
-			_coprocClosing = null;
-			_interactable = false;
-		}
-
-		/// <summary>
-		/// /! 
-		/// APRES anim open
-		/// AVANT anim close
-		/// </summary>
-		public bool isOpened() => _interactable;
-		public bool isClosed() => !isVisible();
-
-		public bool isOpening() => _coprocOpening != null;
-		public bool isClosing() => _coprocClosing != null;
-
-		virtual protected bool isInteractable() => _interactable;
-
+		
 		public override string stringify()
 		{
 			string ret = base.stringify();

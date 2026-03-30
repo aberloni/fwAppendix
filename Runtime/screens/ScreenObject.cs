@@ -24,6 +24,19 @@ namespace fwp.screens
 	/// </summary>
 	public class ScreenObject : MonoBehaviour
 	{
+		public struct ScreenCallbacks
+		{
+			public Action<ScreenObject> beforeOpen;
+			public Action<ScreenObject> afterOpen;
+			public Action<ScreenObject> beforeClose;
+			public Action<ScreenObject> afterClose;
+		}
+
+		/// <summary>
+		/// some callback bridge available to react to main events
+		/// </summary>
+		public ScreenCallbacks callbacks;
+
 		virtual public bool isVerbose => verbose || ScreensManager.isVerbose;
 		public bool verbose = false;
 
@@ -66,6 +79,9 @@ namespace fwp.screens
 		public ScreenType type;
 		public ScreenTags tags;
 
+		/// <summary>
+		/// module to control menu with arrows
+		/// </summary>
 		ScreenNav nav;
 
 		ScreenModCanvas _canvas;
@@ -86,6 +102,23 @@ namespace fwp.screens
 		/// @awake active scene is check
 		/// </summary>
 		virtual protected bool isDebugContext() => _debug;
+
+		Coroutine _coprocOpening;   // opening
+		Coroutine _coprocClosing;   // closing
+
+		bool _interactable = false;       // interactable
+
+		public bool isOpened() => _interactable;
+		public bool isClosed() => !isVisible();
+
+		public bool isOpening() => _coprocOpening != null;
+		public bool isClosing() => _coprocClosing != null;
+
+		/// <summary>
+		/// temp unallow input
+		/// </summary>
+		virtual protected bool isInteractable() => _interactable;
+		protected void setInteractable(bool flag) => _interactable = flag;
 
 		private void Awake()
 		{
@@ -210,9 +243,19 @@ namespace fwp.screens
 		/// </summary>
 		virtual public void menuUpdate()
 		{
-			if (isVisible()) updateScreenVisible();
+			if (isVisible())
+			{
+				updateScreenVisible();
+				if (isInteractable()) updateInteractable();
+			}
 			else updateScreenNotVisible();
 		}
+
+		/// <summary>
+		/// update as long as user have control
+		/// </summary>
+		virtual protected void updateInteractable()
+		{ }
 
 		virtual protected void updateScreenNotVisible() { }
 		virtual protected void updateScreenVisible()
@@ -290,30 +333,39 @@ namespace fwp.screens
 			logScreen("open");
 			nav?.resetTimerNoInteraction();
 
-			setupBeforeOpening();
-			reactOpen();
+			reactBeforeOpening();
+			callbacks.beforeOpen?.Invoke(this);
 
 			// default, canvas needs to be visible
 			setVisibility(true);
+
+			_coprocOpening = StartCoroutine(execOpening());
 		}
 
-		/// <summary>
-		/// on open()
-		/// </summary>
-		virtual protected void setupBeforeOpening()
-		{ }
-
-		/// <summary>
-		/// what to do when opening
-		/// (setup is done just before)
-		/// </summary>
-		virtual public void reactOpen()
+		virtual protected IEnumerator execOpening()
 		{
-			onOpeningEnded();
+			yield return null;
+			reactAfterOpening();
+			callbacks.afterOpen?.Invoke(this);
+
+			_coprocOpening = null;
 		}
 
-		virtual protected void onOpeningEnded()
-		{ }
+		/// <summary>
+		/// before visibility
+		/// </summary>
+		virtual protected void reactBeforeOpening()
+		{
+			_interactable = false;
+		}
+
+		/// <summary>
+		/// after visibility + open.exec
+		/// </summary>
+		virtual protected void reactAfterOpening()
+		{
+			_interactable = true;
+		}
 
 		virtual protected bool canClose() => true;
 
@@ -327,26 +379,31 @@ namespace fwp.screens
 
 			logScreen("close");
 
-			setupBeforeClosing();
+			callbacks.beforeClose?.Invoke(this);
+			reactBeforeClosing();
 
-			reactClose();
+			_coprocClosing = StartCoroutine(execClosing());
 		}
 
-		virtual protected void setupBeforeClosing()
-		{ }
-
-		/// <summary>
-		/// what to do when close is called
-		/// </summary>
-		virtual public void reactClose()
+		virtual protected IEnumerator execClosing()
 		{
-			onClosingEnded();
+			yield return null;
+
+			reactAfterClosing();
+			callbacks.afterClose?.Invoke(this);
+
+			_coprocClosing = null;
+		}
+
+		virtual protected void reactBeforeClosing()
+		{
+			_interactable = false;
 		}
 
 		/// <summary>
 		/// to call when screen has finished it's closing process/animation
 		/// </summary>
-		virtual protected void onClosingEnded()
+		virtual protected void reactAfterClosing()
 		{
 			logScreen("close:onClosingAnimationCompleted");
 
@@ -358,7 +415,6 @@ namespace fwp.screens
 			{
 				setVisibility(false);
 			}
-
 		}
 
 		/// <summary>
@@ -388,8 +444,6 @@ namespace fwp.screens
 
 			return true;
 		}
-
-		public bool isInteractive() => nav != null;
 
 		/// <summary>
 		/// when using unity events callbacks

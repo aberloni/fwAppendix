@@ -19,16 +19,36 @@ namespace fwp.examples
 			return parameters;
 		}
 
-		protected override void onOpeningEnded()
+		protected override void reactAfterOpening()
 		{
-			base.onOpeningEnded();
+			base.reactAfterOpening();
 			Animator.SetBool(bool_fade, true);
+
+			Debug.Log("open.after");
 		}
 
-		protected override void updateScreenVisible()
-		{
-			base.updateScreenVisible();
+        protected override void reactBeforeOpening()
+        {
+            base.reactBeforeOpening();
+			Debug.Log("open.before");
+        }
 
+        protected override void reactBeforeClosing()
+        {
+            base.reactBeforeClosing();
+			Debug.Log("close.before");
+        }
+
+        protected override void reactAfterClosing()
+        {
+            base.reactAfterClosing();
+			Debug.Log("close.after");
+        }
+
+        protected override void updateInteractable()
+        {
+            base.updateInteractable();
+			
 			var state = Animator.GetCurrentAnimatorStateInfo(0);
 
 			if (state.IsName(state_fadein))
@@ -38,6 +58,7 @@ namespace fwp.examples
 
 			if (state.IsName(state_fadeout))
 			{
+				Debug.Log("CLOSE");
 				close();
 			}
 		}

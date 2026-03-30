@@ -23,17 +23,15 @@ namespace fwp.screens
         Camera cam;
         public Text txt;
 
-        public override void reactOpen()
+        protected override void reactBeforeOpening()
         {
-            base.reactOpen();
-
+            base.reactBeforeOpening();
             logScreen("loading:open");
         }
 
-        public override void reactClose()
+        protected override void reactBeforeClosing()
         {
-            base.reactClose();
-
+            base.reactBeforeClosing();
             logScreen("loading:close");
         }
 
