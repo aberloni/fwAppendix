@@ -1,9 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
-using NUnit.Framework.Constraints;
-using PlasticPipe.PlasticProtocol.Client.Proxies;
 
 /// <summary>
 /// ces écrans ne doivent pas avoir de lien fort avec le maze
