@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using NUnit.Framework.Constraints;
 
 /// <summary>
 /// ces écrans ne doivent pas avoir de lien fort avec le maze
@@ -116,17 +117,19 @@ namespace fwp.screens
 		/// </summary>
 		virtual protected Parameters generateAnimatedParams() => parameters;
 
-        protected override IEnumerator execOpening()
-        {
+		protected override IEnumerator execOpening()
+		{
 			logScreen("animation:  open");
 
 			if (hasValidAnimator())
 			{
 				Animator.SetBool(parameters.bool_open, true);
 				logScreen("open:wait state:<b>" + parameters.state_opened + "</b>");
-			}
 
-			logScreen("animated.open.check ...");
+				// not reached OPEN-ED state ?
+				AnimatorStateInfo info = Animator.GetCurrentAnimatorStateInfo(0);
+				yield return new WaitUntil(() => info.IsName(parameters.state_opened));
+			}
 
 			yield return base.execOpening();
 		}
@@ -138,13 +141,6 @@ namespace fwp.screens
 		/// </summary>
 		virtual protected bool checkOpening()
 		{
-			if (hasValidAnimator())
-			{
-				// not reached OPEN-ED state ?
-				AnimatorStateInfo info = Animator.GetCurrentAnimatorStateInfo(0);
-				if (!info.IsName(parameters.state_opened)) return true;
-			}
-
 			return false;
 		}
 
@@ -166,11 +162,11 @@ namespace fwp.screens
 		protected override void reactBeforeClosing()
 		{
 			base.reactBeforeClosing();
-			
+
 			callbacks.beforeClose?.Invoke(this);
 		}
 
-		IEnumerator processAnimatingClosing()
+		protected override IEnumerator execClosing()
 		{
 			logScreen("animated.closing.animated");
 
@@ -178,36 +174,20 @@ namespace fwp.screens
 			{
 				Animator.SetBool(parameters.bool_open, false);
 				logScreen("animatedwait state:<b>" + parameters.state_closed + "</b>");
-			}
 
-			logScreen("animated.closing.check");
-			yield return new WaitUntil(() => !checkClosing());
-			logScreen("animated.closing.check.done");
-
-			reactAfterClosing();
-		}
-
-		/// <summary>
-		/// return true to keep check active
-		/// false : finished
-		/// </summary>
-		virtual protected bool checkClosing()
-		{
-			if (hasValidAnimator())
-			{
 				AnimatorStateInfo info = Animator.GetCurrentAnimatorStateInfo(0);
-				if (!info.IsName(parameters.state_closed)) return true;
+				yield return new WaitUntil(() => info.IsName(parameters.state_closed));
 			}
 
-			return false;
+			yield return base.execClosing();
 		}
-		
+
 		public override string stringify()
 		{
 			string ret = base.stringify();
 
-			if (isOpening()) ret += " OPENING check?" + checkOpening() + " state?" + parameters.state_opened;
-			if (isClosing()) ret += " CLOSING check?" + checkClosing() + " state?" + parameters.state_closed;
+			if (isOpening()) ret += " OPENING state?" + parameters.state_opened;
+			if (isClosing()) ret += " CLOSING state?" + parameters.state_closed;
 			if (isOpened()) ret += " OPENED ?" + isOpened();
 			if (isClosed()) ret += " CLOSED ?" + isClosed();
 
