@@ -22,43 +22,32 @@ namespace fwp.examples
 		protected override void reactAfterOpening()
 		{
 			base.reactAfterOpening();
-			Animator.SetBool(bool_fade, true);
 
-			Debug.Log("open.after");
+			Animator.SetBool(bool_fade, true);
 		}
 
-        protected override void reactBeforeOpening()
-        {
-            base.reactBeforeOpening();
-			Debug.Log("open.before");
-        }
+		public override void menuUpdate()
+		{
+			base.menuUpdate();
+			// Debug.Log("visible?" + isVisible());Debug.Log("interact?" + isInteractable());
+		}
 
-        protected override void reactBeforeClosing()
-        {
-            base.reactBeforeClosing();
-			Debug.Log("close.before");
-        }
+		protected override void updateInteractable()
+		{
+			base.updateInteractable();
 
-        protected override void reactAfterClosing()
-        {
-            base.reactAfterClosing();
-			Debug.Log("close.after");
-        }
-
-        protected override void updateInteractable()
-        {
-            base.updateInteractable();
-			
 			var state = Animator.GetCurrentAnimatorStateInfo(0);
+			Debug.Log(state.shortNameHash);
 
 			if (state.IsName(state_fadein))
 			{
+				Debug.Log("fade.out");
 				Animator.SetBool(bool_fade, false);
 			}
 
 			if (state.IsName(state_fadeout))
 			{
-				Debug.Log("CLOSE");
+				Debug.Log("close");
 				close();
 			}
 		}

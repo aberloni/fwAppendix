@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using NUnit.Framework.Constraints;
+using PlasticPipe.PlasticProtocol.Client.Proxies;
 
 /// <summary>
 /// ces écrans ne doivent pas avoir de lien fort avec le maze
@@ -44,6 +45,7 @@ namespace fwp.screens
 			{
 				foreach (var p in a.parameters)
 				{
+					// Debug.Log(p.name+" vs "+param);
 					if (p.name == param)
 						return true;
 				}
@@ -119,16 +121,15 @@ namespace fwp.screens
 
 		protected override IEnumerator execOpening()
 		{
-			logScreen("animation:  open");
+			logScreen("animation:  open | animator?" + hasValidAnimator());
 
 			if (hasValidAnimator())
 			{
 				Animator.SetBool(parameters.bool_open, true);
-				logScreen("open:wait state:<b>" + parameters.state_opened + "</b>");
+				logScreen("open		wait state:<b>" + parameters.state_opened + "</b>");
 
 				// not reached OPEN-ED state ?
-				AnimatorStateInfo info = Animator.GetCurrentAnimatorStateInfo(0);
-				yield return new WaitUntil(() => info.IsName(parameters.state_opened));
+				yield return new WaitUntil(() => Animator.GetCurrentAnimatorStateInfo(0).IsName(parameters.state_opened));
 			}
 
 			yield return base.execOpening();
@@ -175,8 +176,7 @@ namespace fwp.screens
 				Animator.SetBool(parameters.bool_open, false);
 				logScreen("animatedwait state:<b>" + parameters.state_closed + "</b>");
 
-				AnimatorStateInfo info = Animator.GetCurrentAnimatorStateInfo(0);
-				yield return new WaitUntil(() => info.IsName(parameters.state_closed));
+				yield return new WaitUntil(() => Animator.GetCurrentAnimatorStateInfo(0).IsName(parameters.state_closed));
 			}
 
 			yield return base.execClosing();
@@ -201,13 +201,26 @@ namespace fwp.screens
 		{
 			// must have an animator component attached
 			if (Animator == null)
+			{
+				logwScreen("animator is null");
 				return false;
+			}
+				
 
 			// must have a controller
 			if (Animator.runtimeAnimatorController == null)
+			{
+				logwScreen("animator has no controller");
 				return false;
+			}
+				
+			if(!parameters.canOpen(Animator))
+			{
+				logwScreen("animator has no param open");
+				return false;
+			}
 
-			return parameters.canOpen(Animator);
+			return true;
 		}
 
 		void fetchAnimator()

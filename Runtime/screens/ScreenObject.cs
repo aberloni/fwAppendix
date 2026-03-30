@@ -357,6 +357,7 @@ namespace fwp.screens
 		virtual protected void reactBeforeOpening()
 		{
 			_interactable = false;
+			logScreen("open.before");
 		}
 
 		/// <summary>
@@ -365,6 +366,7 @@ namespace fwp.screens
 		virtual protected void reactAfterOpening()
 		{
 			_interactable = true;
+			logScreen("open.after");
 		}
 
 		virtual protected bool canClose() => true;
@@ -398,6 +400,7 @@ namespace fwp.screens
 		virtual protected void reactBeforeClosing()
 		{
 			_interactable = false;
+			logScreen("close.before");
 		}
 
 		/// <summary>
@@ -405,7 +408,7 @@ namespace fwp.screens
 		/// </summary>
 		virtual protected void reactAfterClosing()
 		{
-			logScreen("close:onClosingAnimationCompleted");
+			logScreen("close.after");
 
 			if (isUnloadAfterClosing()) //won't if sticky persist
 			{
@@ -415,6 +418,8 @@ namespace fwp.screens
 			{
 				setVisibility(false);
 			}
+
+
 		}
 
 		/// <summary>
