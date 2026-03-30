@@ -12,7 +12,7 @@ namespace fwp.screens
 {
 	abstract public class ScreenAnimated : ScreenObject
 	{
-		static public List<ScreenAnimated> openedAnimatedScreens = new List<ScreenAnimated>();
+		static public List<ScreenAnimated> openedAnimatedScreens = new();
 
 		/// <summary>
 		/// contains all data that can vary in other contexts
@@ -22,9 +22,18 @@ namespace fwp.screens
 		{
 			public Animator animator;
 
+			[Header("params")]
 			public string bool_open = "open";
+
+			[Header("states")]
 			public string state_opened = "opened";
 			public string state_closed = "closed"; // name of the state when screen is closed
+
+			/// <summary>
+			/// to bypass current opened/opening state
+			/// </summary>
+			[Header("triggers")]
+			public string trig_close = "";
 
 			public bool canOpen(Animator a)
 			{
@@ -47,6 +56,14 @@ namespace fwp.screens
 						return true;
 				}
 				return false;
+			}
+
+			public void TriggerClose()
+			{
+				if (animator != null && !string.IsNullOrEmpty(trig_close))
+				{
+					animator.SetTrigger(trig_close);
+				}
 			}
 		}
 
@@ -133,16 +150,6 @@ namespace fwp.screens
 		}
 
 		/// <summary>
-		/// check if screen is still animating opening
-		/// + additionnal checks possible
-		/// true : keeps the process pending
-		/// </summary>
-		virtual protected bool checkOpening()
-		{
-			return false;
-		}
-
-		/// <summary>
 		/// end of opening animation
 		/// </summary>
 		protected override void reactAfterOpening()
@@ -160,6 +167,8 @@ namespace fwp.screens
 		protected override void reactBeforeClosing()
 		{
 			base.reactBeforeClosing();
+
+			parameters?.TriggerClose();
 
 			callbacks.beforeClose?.Invoke(this);
 		}
@@ -202,7 +211,7 @@ namespace fwp.screens
 				logwScreen("animator is null");
 				return false;
 			}
-				
+
 
 			// must have a controller
 			if (Animator.runtimeAnimatorController == null)
@@ -210,8 +219,8 @@ namespace fwp.screens
 				logwScreen("animator has no controller");
 				return false;
 			}
-				
-			if(!parameters.canOpen(Animator))
+
+			if (!parameters.canOpen(Animator))
 			{
 				logwScreen("animator has no param open");
 				return false;

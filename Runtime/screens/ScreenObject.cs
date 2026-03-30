@@ -241,24 +241,19 @@ namespace fwp.screens
 		/// must be udpated externaly
 		/// update entry point
 		/// </summary>
-		virtual public void menuUpdate()
+		void menuUpdate()
 		{
-			if (isVisible())
-			{
-				updateScreenVisible();
-				if (isInteractable()) updateInteractable();
-			}
-			else updateScreenNotVisible();
+			if (isVisible()) updateVisible();
 		}
 
+		virtual protected void updateVisible()
+		{
+			if (isInteractable()) updateInteractable();
+		}
 		/// <summary>
 		/// update as long as user have control
 		/// </summary>
 		virtual protected void updateInteractable()
-		{ }
-
-		virtual protected void updateScreenNotVisible() { }
-		virtual protected void updateScreenVisible()
 		{
 			nav?.update();
 		}
@@ -387,6 +382,12 @@ namespace fwp.screens
 			_coprocClosing = StartCoroutine(execClosing());
 		}
 
+		virtual protected void reactBeforeClosing()
+		{
+			_interactable = false;
+			logScreen("close.before");
+		}
+
 		virtual protected IEnumerator execClosing()
 		{
 			yield return null;
@@ -395,12 +396,6 @@ namespace fwp.screens
 			callbacks.afterClose?.Invoke(this);
 
 			_coprocClosing = null;
-		}
-
-		virtual protected void reactBeforeClosing()
-		{
-			_interactable = false;
-			logScreen("close.before");
 		}
 
 		/// <summary>

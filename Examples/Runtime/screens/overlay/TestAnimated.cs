@@ -25,12 +25,7 @@ namespace fwp.examples
 
 			Animator.SetBool(bool_fade, true);
 		}
-
-		public override void menuUpdate()
-		{
-			base.menuUpdate();
-			// Debug.Log("visible?" + isVisible());Debug.Log("interact?" + isInteractable());
-		}
+		
 
 		protected override void updateInteractable()
 		{

@@ -16,12 +16,6 @@ namespace fwp.examples
             });
         }
 
-        protected override void updateScreenVisible()
-        {
-            base.updateScreenVisible();
-
-            //Debug.Log("visible");
-        }
 
 
     }
