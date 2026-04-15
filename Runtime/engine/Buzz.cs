@@ -30,6 +30,15 @@ namespace fwp.buzz
 		/// </summary>
 		public Action<Buzz> onLockersCountChanged;
 
+		/// <summary>
+		/// need to display buzz state on screen
+		/// aka : use buzz viewer
+		/// </summary>
+		virtual protected bool isVisible()
+		{
+			return Debug.isDebugBuild;
+		}
+
 		public Buzz()
 		{
 			instance = this;
@@ -47,7 +56,7 @@ namespace fwp.buzz
 			else
 			{
 				lockers.Add(bee, hard);
-				if (lockers.Count > 0) BuzzViewer.fetch();
+				if (lockers.Count > 0 && isVisible()) BuzzViewer.fetch();
 			}
 
 			onLockersCountChanged?.Invoke(this);
@@ -92,58 +101,4 @@ namespace fwp.buzz
 		}
 	}
 
-	/// <summary>
-	/// buzz:bee
-	/// locking if subbed
-	/// </summary>
-	public interface iBee
-	{
-		/// <summary>
-		/// showed on screen while this bee is subbed
-		/// </summary>
-		public string stringifyBeeState();
-	}
-
-	/// <summary>
-	/// + feedback why locking
-	/// </summary>
-	public interface iBeeDyn : iBee
-	{
-		/// <summary>
-		/// method to modify bee state
-		/// </summary>
-		public void setBuzz(string msg);
-
-		public void clearBuzz(); // reset bee state
-	}
-
-	public class BuzzViewer : MonoBehaviour
-	{
-		static public BuzzViewer fetch()
-		{
-			// no VIEW if buzz in not active
-			if (Buzz.instance == null) return null;
-
-			var bv = FindAnyObjectByType<BuzzViewer>();
-			if (bv != null) return bv;
-			return new GameObject("~buzz").AddComponent<BuzzViewer>();
-		}
-
-		private void Awake()
-		{
-			DontDestroyOnLoad(this);
-		}
-
-		private void LateUpdate()
-		{
-			if (!Buzz.instance.isLocking()) // itself
-				GameObject.Destroy(gameObject);
-		}
-
-		const float w = 300f;
-		private void OnGUI()
-		{
-			GUI.Label(new Rect(Screen.width - w, 30, w, 800), Buzz.instance.stringify());
-		}
-	}
 }
