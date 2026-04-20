@@ -79,8 +79,11 @@ namespace fwp.utils.editor.tabs
 
 			stateEditime.onTabChanged += onTabChanged;
 
-			// trigger a refresh of current tab
-			onTabChanged(ActiveTabs.getActiveTab());
+			if(ActiveTabs != null)
+			{
+				// trigger a refresh of current tab
+				onTabChanged(ActiveTabs.getActiveTab());
+			}
 		}
 
 		sealed protected override void draw()
