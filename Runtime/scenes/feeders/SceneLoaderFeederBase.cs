@@ -10,6 +10,9 @@ namespace fwp.scenes.feeder
     /// </summary>
     abstract public class SceneLoaderFeederBase : MonoBehaviour
     {
+        static List<SceneLoaderFeederBase> feedings = new();
+        static public bool IsFeeding => feedings.Count > 0;
+
         [System.Serializable]
         public struct FeederData
         {
@@ -32,11 +35,24 @@ namespace fwp.scenes.feeder
         public bool isFeeding() => runner != null;
 
         /// <summary>
+        /// this feeder will start feeding when loaded
+        /// false: need to call feed() by hand
+        /// </summary>
+        virtual protected bool isAutoFeed() => true;
+        
+        void Start()
+        {
+            if (isAutoFeed()) feed();
+        }
+
+        /// <summary>
         /// starts feed process
         /// contextCall is meant to filter if feeder must be called again
         /// </summary>
         public void feed()
         {
+            feedings.Add(this);
+
             // Debug.Log(GetType() + "::feed()", transform);
 
             if (scene_names == null) scene_names = new();
@@ -55,6 +71,8 @@ namespace fwp.scenes.feeder
 
         private void OnDestroy()
         {
+            feedings.Remove(this);
+
             runner = null;
             //Debug.Log(EngineObject.getStamp(this) + " done feeding !");
         }

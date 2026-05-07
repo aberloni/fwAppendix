@@ -4,7 +4,7 @@ namespace fwp.scenes.feeder
 {
 
     /// <summary>
-    /// feeder +switch platform
+    /// a feeder that will only work on specific platforms
     /// </summary>
     public class SceneFeederPlatforms : SceneLoaderFeederBase
     {

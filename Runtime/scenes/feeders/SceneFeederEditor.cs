@@ -2,7 +2,9 @@ using UnityEngine;
 
 namespace fwp.scenes.feeder
 {
-
+    /// <summary>
+    /// a feeder that will work only in editor
+    /// </summary>
     public class SceneFeederEditor : SceneLoaderFeederBase
     {
         [Header("#UNITY_EDITOR")]
