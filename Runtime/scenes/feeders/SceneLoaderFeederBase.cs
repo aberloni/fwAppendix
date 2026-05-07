@@ -39,10 +39,16 @@ namespace fwp.scenes.feeder
         /// false: need to call feed() by hand
         /// </summary>
         virtual protected bool isAutoFeed() => true;
-        
-        void Start()
+
+        IEnumerator Start()
         {
-            if (isAutoFeed()) feed();
+            if (isAutoFeed())
+            {
+                // can't load scenes until frame 2
+                yield return new WaitUntil(() => Time.frameCount > 2);
+
+                feed();
+            }
         }
 
         /// <summary>
@@ -51,6 +57,8 @@ namespace fwp.scenes.feeder
         /// </summary>
         public void feed()
         {
+            Debug.Assert(Time.frameCount > 2, "can't load scenes until frame 2");
+
             feedings.Add(this);
 
             // Debug.Log(GetType() + "::feed()", transform);
