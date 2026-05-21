@@ -58,6 +58,12 @@ namespace fwp.scenes.feeder
         public void feed()
         {
             Debug.Assert(Time.frameCount > 2, "can't load scenes until frame 2");
+            
+            if(feedings.Contains(this))
+            {
+                Debug.LogWarning("already contained in feedings[], ISSUE");
+                return;
+            }
 
             feedings.Add(this);
 
@@ -139,8 +145,11 @@ namespace fwp.scenes.feeder
             Debug.Log("feeders x" + feedings.Count);
             foreach (var f in feedings)
             {
-                Debug.Log(" > " + f.name + " feed?" + f.isFeeding(), f);
-
+                if(f == null) Debug.LogWarning("null feeder in feeding array ?");
+                else
+                {
+                    Debug.Log(" > " + f.name + " feed?" + f.isFeeding(), f);
+                }
             }
         }
     }

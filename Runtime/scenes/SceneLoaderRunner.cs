@@ -250,15 +250,10 @@ namespace fwp.scenes
 
                 if (SceneLoader.verbose) SceneLoader.log("waiting for x" + feeders.Count + " feeders");
 
-                bool done = false;
-                while (!done)
+                // wait for all feeders to be done
+                for (int i = 0; i < feeders.Count; i++)
                 {
-                    done = true;
-                    for (int i = 0; i < feeders.Count; i++)
-                    {
-                        if (feeders[i] != null) done = false;
-                    }
-                    yield return null;
+                    yield return new WaitUntil(() => feeders[i] == null);
                 }
             }
 
