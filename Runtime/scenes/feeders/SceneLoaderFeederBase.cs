@@ -130,5 +130,19 @@ namespace fwp.scenes.feeder
             return scene_names.ToArray();
         }
 
+#if UNITY_EDITOR
+        [UnityEditor.MenuItem("Window/fwp/(log) feeders ?")]
+        static void cmLog()
+        {
+            Debug.Log("feeding ? " + IsFeeding);
+
+            Debug.Log("feeders x" + feedings.Count);
+            foreach (var f in feedings)
+            {
+                Debug.Log(" > " + f.name + " feed?" + f.isFeeding(), f);
+
+            }
+        }
     }
+#endif
 }
