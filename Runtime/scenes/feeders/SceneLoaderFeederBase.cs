@@ -58,8 +58,8 @@ namespace fwp.scenes.feeder
         public void feed()
         {
             Debug.Assert(Time.frameCount > 2, "can't load scenes until frame 2");
-            
-            if(feedings.Contains(this))
+
+            if (feedings.Contains(this))
             {
                 Debug.LogWarning("already contained in feedings[], ISSUE");
                 return;
@@ -137,21 +137,26 @@ namespace fwp.scenes.feeder
         }
 
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("Window/fwp/(log) feeders ?")]
-        static void cmLog()
+        static public class FeederUtilsEditor
         {
-            Debug.Log("feeding ? " + IsFeeding);
-
-            Debug.Log("feeders x" + feedings.Count);
-            foreach (var f in feedings)
+            [UnityEditor.MenuItem("Window/fwp/(log) feeders ?")]
+            static void cmLog()
             {
-                if(f == null) Debug.LogWarning("null feeder in feeding array ?");
-                else
+                Debug.Log("feeding ? " + IsFeeding);
+
+                Debug.Log("feeders x" + feedings.Count);
+                foreach (var f in feedings)
                 {
-                    Debug.Log(" > " + f.name + " feed?" + f.isFeeding(), f);
+                    if (f == null) Debug.LogWarning("null feeder in feeding array ?");
+                    else
+                    {
+                        Debug.Log(" > " + f.name + " feed?" + f.isFeeding(), f);
+                    }
                 }
             }
+
         }
-    }
 #endif
+
+    }
 }
