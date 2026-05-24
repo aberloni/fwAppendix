@@ -5,7 +5,7 @@ using UnityEngine;
 namespace fwp.scenes.examples
 {
 
-    public class CustomSceneSub : SceneSubFolder
+    public class CustomSceneSub : fwp.scenes.ed.SceneSubFolder
     {
         public CustomSceneSub(string folderPath, SceneProfil[] profils) : base(folderPath, profils)
         {

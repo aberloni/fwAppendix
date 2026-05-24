@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 
-namespace fwp.scenes.editor
+namespace fwp.scenes.ed
 {
 	using fwp.utils.editor.tabs;
 	using fwp.utils.editor;
@@ -22,9 +22,9 @@ namespace fwp.scenes.editor
 
 		WinEdBlueprintScenesSelector winSelector;
 
-		static readonly GUIContent lblPingFolder = new GUIContent("ping folder");
-		static readonly GUIContent lblUpfoldAll = new GUIContent("upfold all");
-		static readonly GUIContent lblEmpty = new GUIContent("selector has no sections");
+		static readonly GUIContent lblPingFolder = new("ping folder");
+		static readonly GUIContent lblUpfoldAll = new("upfold all");
+		static readonly GUIContent lblEmpty = new("selector has no sections");
 
 		List<SceneSubFolder> sections = new();
 
@@ -100,7 +100,7 @@ namespace fwp.scenes.editor
 				return null;
 			}
 
-			Dictionary<string, List<SceneProfil>> list = new Dictionary<string, List<SceneProfil>>();
+			Dictionary<string, List<SceneProfil>> list = new();
 
 			if (verbose) Debug.Log("folder/sorting x" + profils.Count + " profiles");
 
@@ -119,16 +119,13 @@ namespace fwp.scenes.editor
 				list[parent].Add(profil);
 			}
 
-			List<SceneSubFolder> output = new List<SceneSubFolder>();
+			List<SceneSubFolder> output = new();
 
 			foreach (var kp in list)
 			{
 				SceneSubFolder sub = generateSub(kp.Key, kp.Value.ToArray());
-
 				if (verbose) Debug.Log(sub.stringify());
-
 				output.Add(sub);
-
 			}
 
 			if (verbose) Debug.Log("folder/solved x" + output.Count + " subs");
@@ -142,7 +139,7 @@ namespace fwp.scenes.editor
 		/// </summary>
 		protected List<SceneProfil> edGetProfilsOfCategory(string category)
 		{
-			List<SceneProfil> profils = new();
+			List<SceneProfil> retProfils = new();
 
 			string pbTitle = "getProfils(" + category + ")";
 			UnityEditor.EditorUtility.DisplayProgressBar(pbTitle, string.Empty, 0f);
@@ -174,7 +171,7 @@ namespace fwp.scenes.editor
 
 				if (verbose) Debug.Log("solving context : <color=cyan>" + ctx + "</color>");
 
-				SceneProfil sp = profils.FirstOrDefault(p => p.match(SceneProfil.FilterContext(ctx)));
+				SceneProfil sp = retProfils.FirstOrDefault(p => p.match(SceneProfil.FilterContext(ctx)));
 				if (sp != null) continue;
 
 				sp = generateProfil(ctx);
@@ -187,16 +184,16 @@ namespace fwp.scenes.editor
 					continue;
 				}
 
-				profils.Add(sp);
+				retProfils.Add(sp);
 				if (verbose) Debug.Log("+PROFIL label:" + sp.label + " (lyr x" + sp.layers.Count + ") @ " + ctx);
 			}
 
-			if (verbose) Debug.Log("total profils solved x" + profils.Count);
+			if (verbose) Debug.Log("total profils solved x" + retProfils.Count);
 			// foreach (var p in profils) if(verbose) Debug.Log(p.stringify());
 
 			UnityEditor.EditorUtility.ClearProgressBar();
 
-			return profils;
+			return retProfils;
 		}
 
 	}

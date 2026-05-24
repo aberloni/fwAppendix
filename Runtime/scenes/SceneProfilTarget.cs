@@ -1,59 +1,61 @@
 using UnityEngine;
 using fwp.scenes;
 
-/// <summary>
-/// Profil Scene wrapper
-/// around specific scene name
-/// -> to simplify sorting
-/// </summary>
-public struct SceneProfilTarget
+namespace fwp.scenes
 {
-	public struct PatternOrder
+
+	/// <summary>
+	/// (scene wrapper) for specific scene name
+	/// -> to simplify sorting
+	/// </summary>
+	public struct SceneProfilTarget
 	{
-		public string suffix;
-		public int order;
-	}
-
-	string sceneName;
-	int _order;
-
-	public int Order => _order;
-	public string Name => sceneName;
-
-	public bool IsLoaded
-	{
-		get
+		public struct PatternOrder
 		{
-			return UnityEngine.SceneManagement.SceneManager.GetSceneByName(Name).isLoaded;
+			public string suffix;
+			public int order;
 		}
-	}
 
-	public SceneProfilTarget(string nm, int ord)
-	{
-		sceneName = nm;
-		_order = 0;
-		setOrder(ord);
-	}
+		string sceneName;
+		int _order;
 
-	public void setOrder(int order)
-	{
-		_order = order;
-	}
+		public int Order => _order;
+		public string Name => sceneName;
 
-	public bool Contains(string filter)
-	{
-		return sceneName.ToLower().Contains(filter);
-	}
+		public bool IsLoaded
+		{
+			get
+			{
+				return UnityEngine.SceneManagement.SceneManager.GetSceneByName(Name).isLoaded;
+			}
+		}
 
-	public bool HasPriorityOver(SceneProfilTarget other)
-	{
-		return other.Order < _order;
-	}
+		public SceneProfilTarget(string nm, int ord)
+		{
+			sceneName = nm;
+			_order = 0;
+			setOrder(ord);
+		}
 
-	public bool IsPriority(string suffix)
-	{
-		return Name.EndsWith(suffix);
-	}
+		public void setOrder(int order)
+		{
+			_order = order;
+		}
+
+		public bool Contains(string filter)
+		{
+			return sceneName.ToLower().Contains(filter);
+		}
+
+		public bool HasPriorityOver(SceneProfilTarget other)
+		{
+			return other.Order < _order;
+		}
+
+		public bool IsPriority(string suffix)
+		{
+			return Name.EndsWith(suffix);
+		}
 
 #if UNITY_EDITOR
 	public void editorUnload()
@@ -61,5 +63,7 @@ public struct SceneProfilTarget
 		SceneLoaderEditor.unloadScene(Name);
 	}
 #endif
+
+	}
 
 }
