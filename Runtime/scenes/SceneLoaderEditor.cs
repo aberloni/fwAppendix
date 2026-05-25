@@ -61,10 +61,12 @@ namespace fwp.scenes
         {
             var sc = UnityEditor.SceneManagement.EditorSceneManager.GetSceneByName(nm);
 
-            if (verbose)
-                Debug.Log("(editor) CloseScene(" + nm + ")");
-
-            EditorSceneManager.CloseScene(sc, true);
+            if(sc.IsValid())
+            {
+                if (verbose) Debug.Log("(editor) CloseScene(" + nm + ")");
+                EditorSceneManager.CloseScene(sc, true);
+            }
+            
         }
 
 #endif
