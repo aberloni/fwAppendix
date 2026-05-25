@@ -12,10 +12,11 @@ using UnityEditor;
 namespace fwp.scenes
 {
 	/// <summary>
-	/// CONTEXT <=> GROUP_SCENE{_LAYER}
+	/// multi layering scenes around a UID
+	/// group of scenes[] associated to a specific UID
 	/// 
-	/// associer autour d'une UID un ensemble de scene
-	/// multi layering scenes
+	/// CONTEXT = GROUP_SCENETTE{_LAYER}
+	/// 
 	/// </summary>
 	public class SceneProfil
 	{
@@ -324,7 +325,7 @@ namespace fwp.scenes
 
 		public void refresh()
 		{
-			if (Application.isPlaying)
+			if (Application.isPlaying) 
 				return;
 
 			if (_assocs_buff == null)
@@ -792,6 +793,12 @@ namespace fwp.scenes
 		/// </summary>
 		public void editorLoadProfil(bool replaceContext, bool forceAddBuildSettings = false)
 		{
+			if(Application.isPlaying)
+			{
+				Debug.LogWarning("maybe not at runtime ? let me know why");
+				return;
+			}
+
 			// first check that scenes are added to build settings ?
 			if (forceAddBuildSettings) forceAddToBuildSettings();
 
@@ -815,12 +822,8 @@ namespace fwp.scenes
 			foreach (var l in layers) toLoads.Add(l.Name);
 			toLoads.AddRange(deps);
 			toLoads.AddRange(statics);
-
-			if(!Application.isPlaying)
-			{
-				toLoads.AddRange(ed_leveldesigns);
-			}
-
+			toLoads.AddRange(ed_leveldesigns);
+			
 			// load all
 			// layers[0] is empty ?
 			for (int i = 0; i < toLoads.Count; i++)
