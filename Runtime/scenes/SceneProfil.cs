@@ -69,18 +69,17 @@ namespace fwp.scenes
 		/// other contextual scenes needed for this profil
 		/// that will be unloaded with profil
 		/// </summary>
-		public List<string> deps;
+		public List<string> deps = null;
 
 		/// <summary>
 		/// scenes that won't be unload on profil unload
 		/// </summary>
-		public List<string> statics;
+		public List<string> statics = null;
 
 		/// <summary>
-		/// (editor only, not at runtime)
-		/// all additionnal layers for editing / level design
+		/// specific scene that are helper and not used in final app
 		/// </summary>
-		public List<string> ed_leveldesigns = null;
+		public List<string> helpers = null;
 
 		List<SceneTargetLoader> _assocs_buff = null;
 
@@ -188,6 +187,8 @@ namespace fwp.scenes
 				return;
 			}
 
+			solveHelperLayers();
+
 			// base layer search
 			solveLayers(Context, getPaths());
 
@@ -202,7 +203,7 @@ namespace fwp.scenes
 				Debug.LogWarning("maybe context is not added to build settings");
 			}
 
-			solveEdLevelDesign();
+			solveHelperLayers();
 		}
 
 		/// <summary>
@@ -477,10 +478,13 @@ namespace fwp.scenes
 			statics.Clear();
 		}
 
-		virtual public void solveEdLevelDesign()
+		/// <summary>
+		/// all scenes FROM LAYERS that are level design helpers
+		/// </summary>
+		virtual public void solveHelperLayers()
 		{
-			if (ed_leveldesigns == null) ed_leveldesigns = new();
-			ed_leveldesigns.Clear();
+			if (helpers == null) helpers = new();
+			helpers.Clear();
 		}
 
 		public bool isSpecificLayersLoaded(string filter)
@@ -822,7 +826,7 @@ namespace fwp.scenes
 			foreach (var l in layers) toLoads.Add(l.Name);
 			toLoads.AddRange(deps);
 			toLoads.AddRange(statics);
-			toLoads.AddRange(ed_leveldesigns);
+			toLoads.AddRange(helpers);
 			
 			// load all
 			// layers[0] is empty ?
@@ -841,7 +845,7 @@ namespace fwp.scenes
 
 			foreach(var l in layers) l.editorUnload();
 			foreach(var d in deps) SceneLoaderEditor.unloadScene(d);
-			foreach(var ed in ed_leveldesigns) SceneLoaderEditor.unloadScene(ed);
+			foreach(var ed in helpers) SceneLoaderEditor.unloadScene(ed);
 
 			// NOT STATICS : statics are meant to stay loaded
 
@@ -929,9 +933,9 @@ namespace fwp.scenes
 				}
 			}
 
-			if (ed_leveldesigns != null)
+			if (helpers != null)
 			{
-				foreach (var ld in ed_leveldesigns)
+				foreach (var ld in helpers)
 				{
 					output += "\n  ld#" + ld;
 				}
