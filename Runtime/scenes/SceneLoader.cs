@@ -35,15 +35,14 @@ namespace fwp.scenes
 
         static public void log(string content, UnityEngine.Object context = null)
         {
-            if (!verbose)
-                return;
-
-            Debug.Log(getStamp() + content, context);
+            if (!verbose) return;
+            Debug.Log("<SceneLoader> (@" + Time.frameCount + ") | " + content, context);
         }
 
-        static public string getStamp()
+        static public void logw(string content, UnityEngine.Object context = null)
         {
-            return Time.frameCount + "@SceneLoader| ";
+            if (!verbose) return;
+            Debug.LogWarning("<SceneLoader> /!\\ (@" + Time.frameCount + ") | " + content, context);
         }
 
         static public SceneLoaderRunner loadScenes(string[] nms, Action<SceneTargetLoader[]> onComplete = null, float onCompletionDelay = 0f)
@@ -56,49 +55,11 @@ namespace fwp.scenes
         static public SceneLoaderRunner loadScene(string nm, Action<SceneTargetLoader> onComplete = null, float onCompletionDelay = 0f)
         {
             // only one
-            return loadScenes(new string[] { nm }, 
+            return loadScenes(new string[] { nm },
                 (SceneTargetLoader[] scs) =>
                 {
                     onComplete?.Invoke(scs[0]);
                 }, onCompletionDelay);
-        }
-
-        static public void unloadScene(Scene sc)
-        {
-            unloadScene(sc.name);
-        }
-
-        static public void unloadScene(string nm, Action onComplete = null)
-        {
-            if (nm.Length <= 0)
-            {
-                Debug.LogWarning("given name is empty, nothing to unload ?");
-                onComplete();
-                return;
-            }
-
-            unloadScenes(new string[] { nm }, onComplete);
-        }
-
-        static public void unloadScenes(string[] nms, Action onComplete = null)
-        {
-            SceneLoaderRunner.createLoader().asyncUnloadScenes(nms, onComplete);
-        }
-
-        static public void unloadScenesInstant(Scene sc) { unloadScenesInstant(new string[] { sc.name }); }
-        static public void unloadScenesInstant(string[] nms)
-        {
-            for (int i = 0; i < nms.Length; i++)
-            {
-                Scene sc = getLoadedScene(nms[i], true);
-                if (sc.isLoaded)
-                {
-                    if(verbose)
-                        Debug.Log("unloading : " + sc.name);
-
-                    SceneManager.UnloadSceneAsync(nms[i]);
-                }
-            }
         }
 
         static public Coroutine queryScene(string sceneName, Action<SceneTargetLoader> onComplete = null)
@@ -108,7 +69,7 @@ namespace fwp.scenes
                 SceneTargetLoader sa = null;
 
                 if (scs != null && scs.Length > 0) sa = scs[0];
-                
+
                 onComplete?.Invoke(sa);
             });
         }
@@ -119,7 +80,7 @@ namespace fwp.scenes
 
         static public void unloadSceneByExactName(string sceneName)
         {
-            if(verbose)
+            if (verbose)
                 Debug.Log("unloading <b>" + sceneName + "</b>");
 
             SceneManager.UnloadSceneAsync(sceneName);
@@ -201,7 +162,7 @@ namespace fwp.scenes
         /// </summary>
         static public Scene getLoadedScene(string strictSceneName, bool warnMissing)
         {
-            if(Application.isPlaying)
+            if (Application.isPlaying)
             {
                 if (Time.frameCount < 2)
                 {
@@ -209,7 +170,7 @@ namespace fwp.scenes
                     return default(Scene);
                 }
             }
-            
+
             for (int i = 0; i < SceneManager.sceneCount; i++)
             {
                 Scene sc = SceneManager.GetSceneAt(i);

@@ -267,7 +267,7 @@ namespace fwp.scenes
 
         IEnumerator processUnload(string[] sceneNames, Action onComplete = null, float onCompletionDelay = 0f)
         {
-            List<AsyncOperation> asyncsToUnload = new List<AsyncOperation>();
+            List<AsyncOperation> asyncsToUnload = new();
 
             for (int i = 0; i < sceneNames.Length; i++)
             {
@@ -278,51 +278,56 @@ namespace fwp.scenes
 
                 if (!sc.IsValid())
                 {
-                    if (SceneLoader.verbose) Debug.LogWarning(sceneNames[i] + " not valid ?");
+                    SceneLoader.logw("scene not valid : " + sceneNames[i]);
                     continue;
                 }
 
                 if (!sc.isLoaded)
                 {
-                    if (SceneLoader.verbose) Debug.LogWarning(sceneNames[i] + " is not loaded ?");
+                    SceneLoader.logw("scene not loaded : " + sceneNames[i]);
                     continue;
                 }
-
-                if (SceneLoader.verbose) SceneLoader.log("  now unloading {sceneNames[i]} ...");
 
                 AsyncOperation async = SceneManager.UnloadSceneAsync(sceneNames[i]);
                 if (async == null)
                 {
-                    if (SceneLoader.verbose) Debug.LogWarning("no asyncs returned for scene of name " + sceneNames[i]);
+                    SceneLoader.logw("no asyncs returned for scene of name " + sceneNames[i]);
                     continue;
                 }
+
+                SceneLoader.log("+unload: " + sceneNames[i]);
 
                 asyncsToUnload.Add(async);
             }
 
-            if (SceneLoader.verbose) SceneLoader.log("unloading scenes x" + sceneNames.Length + ", asyncs x" + asyncsToUnload.Count);
+            if (SceneLoader.verbose) SceneLoader.log("unload | asked scenes x" + sceneNames.Length + " -> asyncs x" + asyncsToUnload.Count);
 
-            //wait for all
-            while (asyncsToUnload.Count > 0)
+
+            if (asyncsToUnload.Count > 0)
             {
-                while (!asyncsToUnload[0].isDone) yield return null;
-                asyncsToUnload.RemoveAt(0);
-                yield return null;
+                SceneLoader.log("waiting for asyncs x" + asyncsToUnload.Count);
+
+                //wait for all
+                while (asyncsToUnload.Count > 0)
+                {
+                    yield return new WaitUntil(() => asyncsToUnload[0].isDone);
+
+                    asyncsToUnload.RemoveAt(0);
+
+                    SceneLoader.log("... asyncs x" + asyncsToUnload.Count);
+                    yield return null;
+                }
             }
+
+
 
             if (onCompletionDelay > 0f)
             {
-                while (onCompletionDelay > 0f)
-                {
-                    onCompletionDelay -= Time.deltaTime;
-                    yield return null;
-                }
-
-                yield return null;
+                SceneLoader.log("unload-post delayed:" + asyncsToUnload.Count);
+                yield return new WaitForSeconds(onCompletionDelay);
             }
 
-            if (onComplete != null) onComplete();
-
+            onComplete?.Invoke();
             GameObject.Destroy(gameObject);
         }
 

@@ -610,7 +610,7 @@ namespace fwp.scenes
 
 		public void runtimeUnloadSpecifics(string[] targets, Action onCompleted = null)
 		{
-			SceneLoader.unloadScenes(targets, onCompleted);
+			SceneUnloader.unloadScenes(targets, onCompleted);
 		}
 
 		/// <summary>
@@ -649,7 +649,7 @@ namespace fwp.scenes
 				return;
 			}
 
-			SceneLoader.unloadScenes(getLayersScenesNames(), onUnloadCompleted);
+			SceneUnloader.unloadScenes(getLayersScenesNames(), onUnloadCompleted);
 		}
 
 		List<SceneTargetLoader> fetchAssocs(bool force)
