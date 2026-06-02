@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace fwp.scenes.editor
+namespace fwp.scenes.ed
 {
 	using fwp.utils.editor.tabs;
 	using fwp.scenes;

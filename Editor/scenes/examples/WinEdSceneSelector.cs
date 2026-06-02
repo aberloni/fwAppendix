@@ -5,7 +5,7 @@ using UnityEngine;
 
 using fwp.utils.editor.tabs;
 
-using fwp.scenes.editor;
+using fwp.scenes.ed;
 
 namespace fwp.scenes.examples
 {
@@ -37,7 +37,7 @@ namespace fwp.scenes.examples
         
     }
 
-    public class TabCustom : TabSceneSelector
+    public class TabCustom : fwp.scenes.ed.TabSceneSelector
     {
         public TabCustom(WinEdBlueprintScenesSelector window, string path) : base(window, path)
         {

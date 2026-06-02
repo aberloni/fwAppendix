@@ -4,11 +4,11 @@ using UnityEditor;
 using UnityEngine;
 
 
-namespace fwp.scenes
+namespace fwp.scenes.ed
 {
     using fwp.utils.editor;
     using fwp.settings.editor;
-    
+
     /// <summary>
     /// gather all scenes profils for a specific folder
     /// regroup sceneprofils in a common container
@@ -58,7 +58,7 @@ namespace fwp.scenes
             }
         }
 
-        
+
         readonly GUIContent gBtnAll = new GUIContent("+all", "load ALL scenes");
         readonly GUIContent gFoldout;
 
@@ -184,15 +184,21 @@ namespace fwp.scenes
                 logSceneDetails(profil);
             }
 
-            bool load = false;
+            bool changed = false;
 
             // scene button
             if (GUILayout.Button(profil.label)) // each profil
             {
-                //if (EditorPrefs.GetBool(edLoadDebug)) section[i].loadDebug = true;
-                //profil.editorLoad(false);
-                onEditorSceneCall(profil, true);
-                load = true;
+                // check if any changes pending before changing scene
+                if(EdScenesUtils.CheckAndPromptUnsavedScenes())
+                {
+                    //if (EditorPrefs.GetBool(edLoadDebug)) section[i].loadDebug = true;
+                    //profil.editorLoad(false);
+                    onEditorSceneCall(profil, replaceContext: true);
+                    changed = true;
+                }
+
+                
             }
 
             // add/remove buttons
@@ -200,29 +206,33 @@ namespace fwp.scenes
 
             if (GUILayout.Button(present ? QuickEditorViewStyles.gMinus : QuickEditorViewStyles.gPlus, GUILayout.Width(QuickEditorViewStyles.btnM)))
             {
-                if (!present)
+                if (!present) // not already present : ADD
                 {
-                    onEditorSceneCall(profil, false);
-                    reactSceneCall(profil, true);
-                    load = true;
+                    onEditorSceneCall(profil, replaceContext: false);
+                    reactSceneAdded(profil); // after loaded
                 }
-                else
+                else // already loaded : REMOVE
                 {
+                    reactSceneRemoved(profil); // before removal
                     onEditorSceneRemoval(profil);
-                    reactSceneCall(profil, false);
                 }
+
+                changed = true;
             }
 
             GUILayout.EndHorizontal();
 
-            return load;
+            return changed;
         }
 
         /// <summary>
         /// when user calls for a scene
         /// load or unload
         /// </summary>
-        virtual protected void reactSceneCall(SceneProfil profil, bool load)
+        virtual protected void reactSceneRemoved(SceneProfil profil)
+        { }
+
+        virtual protected void reactSceneAdded(SceneProfil profil)
         { }
 
         virtual public string stringify()

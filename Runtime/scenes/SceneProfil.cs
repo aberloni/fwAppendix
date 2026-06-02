@@ -12,10 +12,11 @@ using UnityEditor;
 namespace fwp.scenes
 {
 	/// <summary>
-	/// CONTEXT <=> GROUP_SCENE{_LAYER}
+	/// multi layering scenes around a UID
+	/// group of scenes[] associated to a specific UID
 	/// 
-	/// associer autour d'une UID un ensemble de scene
-	/// multi layering scenes
+	/// CONTEXT = GROUP_SCENETTE{_LAYER}
+	/// 
 	/// </summary>
 	public class SceneProfil
 	{
@@ -62,18 +63,23 @@ namespace fwp.scenes
 		/// <summary>
 		/// all scenes linked to this profil
 		/// </summary>
-		public List<SceneProfilTarget> layers;
+		public List<SceneProfilTarget> layers = null;
 
 		/// <summary>
 		/// other contextual scenes needed for this profil
 		/// that will be unloaded with profil
 		/// </summary>
-		public List<string> deps;
+		public List<string> deps = null;
 
 		/// <summary>
 		/// scenes that won't be unload on profil unload
 		/// </summary>
-		public List<string> statics;
+		public List<string> statics = null;
+
+		/// <summary>
+		/// specific scene that are helper and not used in final app
+		/// </summary>
+		public List<string> helpers = null;
 
 		List<SceneTargetLoader> _assocs_buff = null;
 
@@ -181,6 +187,8 @@ namespace fwp.scenes
 				return;
 			}
 
+			solveHelperLayers();
+
 			// base layer search
 			solveLayers(Context, getPaths());
 
@@ -194,6 +202,8 @@ namespace fwp.scenes
 				Debug.LogWarning("profil path must not be null : " + Context);
 				Debug.LogWarning("maybe context is not added to build settings");
 			}
+
+			solveHelperLayers();
 		}
 
 		/// <summary>
@@ -228,13 +238,55 @@ namespace fwp.scenes
 
 			layers.Clear();
 
+			string[] layers_to_ignore = getFilteredLayers();
+
 			foreach (var p in paths)
 			{
+				if (layers_to_ignore != null)
+				{
+					// must be ignored ?
+					bool found = false;
+					foreach (var f in layers_to_ignore)
+					{
+						if (p.Contains(f)) found = true;
+					}
+
+					if (found) continue;
+				}
+
 				SceneProfilTarget spt = new SceneProfilTarget(p, 0);
 				layers.Add(spt);
 			}
 
 			if (verbose) log(categoryUid + " : layers x " + layers.Count + " (parsed path x " + paths.Length + ")");
+		}
+
+		/// <summary>
+		/// [optin] default is OFF (null)
+		/// list of pattern[] to exclude scenes from layers
+		/// </summary>
+		virtual protected string[] getFiltersOuts() => null;
+
+		/// <summary>
+		/// list of scene name that should be removed from layers
+		/// </summary>
+		public string[] getFilteredLayers()
+		{
+			var fs = getFiltersOuts();
+			if (fs == null) return null;
+
+			List<string> ret = new();
+			foreach (var lyr in layers)
+			{
+				bool found = false;
+				foreach (var f in fs)
+				{
+					if (lyr.Name.Contains(f)) found = true;
+				}
+
+				if (found) ret.Add(lyr.Name);
+			}
+			return ret.ToArray();
 		}
 
 		public void sortByPattern(string[] suffixes, int[] orders)
@@ -274,7 +326,7 @@ namespace fwp.scenes
 
 		public void refresh()
 		{
-			if (Application.isPlaying)
+			if (Application.isPlaying) 
 				return;
 
 			if (_assocs_buff == null)
@@ -416,14 +468,23 @@ namespace fwp.scenes
 		/// </summary>
 		virtual public void solveDeps()
 		{
-			if (deps == null) deps = new List<string>();
+			if (deps == null) deps = new();
 			deps.Clear();
 		}
 
 		virtual public void solveStatics()
 		{
-			if (statics == null) statics = new List<string>();
+			if (statics == null) statics = new();
 			statics.Clear();
+		}
+
+		/// <summary>
+		/// all scenes FROM LAYERS that are level design helpers
+		/// </summary>
+		virtual public void solveHelperLayers()
+		{
+			if (helpers == null) helpers = new();
+			helpers.Clear();
 		}
 
 		public bool isSpecificLayersLoaded(string filter)
@@ -535,7 +596,6 @@ namespace fwp.scenes
 
 		void loadScenes(string[] scenes, Action onCompletion)
 		{
-
 			if (scenes.Length <= 0)
 			{
 				//Debug.LogWarning(getStamp() + " deps array is empty ?");
@@ -737,6 +797,12 @@ namespace fwp.scenes
 		/// </summary>
 		public void editorLoadProfil(bool replaceContext, bool forceAddBuildSettings = false)
 		{
+			if(Application.isPlaying)
+			{
+				Debug.LogWarning("maybe not at runtime ? let me know why");
+				return;
+			}
+
 			// first check that scenes are added to build settings ?
 			if (forceAddBuildSettings) forceAddToBuildSettings();
 
@@ -755,16 +821,13 @@ namespace fwp.scenes
 				SceneLoaderEditor.loadScene(baseScene, mode);
 			}
 
-			List<string> toLoads = new List<string>();
+			List<string> toLoads = new();
 
-			foreach (var l in layers)
-			{
-				toLoads.Add(l.Name);
-			}
-
+			foreach (var l in layers) toLoads.Add(l.Name);
 			toLoads.AddRange(deps);
 			toLoads.AddRange(statics);
-
+			toLoads.AddRange(helpers);
+			
 			// load all
 			// layers[0] is empty ?
 			for (int i = 0; i < toLoads.Count; i++)
@@ -780,15 +843,9 @@ namespace fwp.scenes
 
 			if (verbose) log($"editorUnload()");
 
-			for (int i = 0; i < layers.Count; i++)
-			{
-				layers[i].editorUnload();
-			}
-
-			for (int i = 0; i < deps.Count; i++)
-			{
-				SceneLoaderEditor.unloadScene(deps[i]);
-			}
+			foreach(var l in layers) l.editorUnload();
+			foreach(var d in deps) SceneLoaderEditor.unloadScene(d);
+			foreach(var ed in helpers) SceneLoaderEditor.unloadScene(ed);
 
 			// NOT STATICS : statics are meant to stay loaded
 
@@ -873,6 +930,14 @@ namespace fwp.scenes
 				foreach (var l in layers)
 				{
 					output += "\n  lyr#" + l.Name + "?" + l.IsLoaded;
+				}
+			}
+
+			if (helpers != null)
+			{
+				foreach (var ld in helpers)
+				{
+					output += "\n  ld#" + ld;
 				}
 			}
 
