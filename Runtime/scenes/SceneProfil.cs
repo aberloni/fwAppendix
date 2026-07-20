@@ -4,6 +4,8 @@ using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -85,6 +87,12 @@ namespace fwp.scenes
 		/// keep handle of all loaded layers
 		/// </summary>
 		List<SceneTargetLoader> _assocs_buff = new();
+
+		/// <summary>
+		/// OPTIN
+		/// separate layer scenes by order magnitude
+		/// </summary>
+		Dictionary<int, string[]> _ordered_scenes = null;
 
 		/// <summary>
 		/// has found anything
@@ -295,7 +303,7 @@ namespace fwp.scenes
 		/// <summary>
 		/// each profil with suffixes will be assigned matching order
 		/// </summary>
-		public void sortByPattern(string[] suffixes, int[] orders)
+		public SceneProfil sortByPattern(string[] suffixes, int[] orders)
 		{
 			if (suffixes == null) return;
 
@@ -328,6 +336,8 @@ namespace fwp.scenes
 			}
 
 			layers = output; // replace by ordered
+
+			return this;
 		}
 
 		public void refresh()
@@ -579,6 +589,32 @@ namespace fwp.scenes
 		{
 			_assocs_buff.Clear();
 
+			// optin
+			if (_ordered_scenes != null)
+			{
+				int cnt = _ordered_scenes.Count;
+				foreach (var kp in _ordered_scenes)
+				{
+					loadScenes(kp.Value, (scs) =>
+					{
+						//record loaded scene
+						keepLoadedTargets(scs);
+
+						// wait for all orders
+						cnt--;
+
+						// all done and loaded
+						if (cnt <= 0)
+						{
+							onCompletion?.Invoke();
+						}
+					});
+				}
+
+				return;
+			}
+
+			// fallback, normal load of all layers, unsorted
 			loadScenes(getLayersScenesNames(),
 				(scs) =>
 				{
@@ -664,15 +700,21 @@ namespace fwp.scenes
 		/// <summary>
 		/// separate scenes names to load by order magnitude
 		/// </summary>
-		protected Dictionary<int, List<string>> getLayersOrdered()
+		public SceneProfil optinLayersOrdered()
 		{
 			var ret = new Dictionary<int, List<string>>();
+
 			foreach (var l in layers)
 			{
 				if (!ret.ContainsKey(l.Order)) ret.Add(l.Order, new());
 				ret[l.Order].Add(l.Name);
 			}
-			return ret;
+
+			_ordered_scenes = ret
+				.OrderBy(kp => kp.Key)
+				.ToDictionary(kv => kv.Key, kv => kv.Value.ToArray());
+
+			return this;
 		}
 
 		/// <summary>
