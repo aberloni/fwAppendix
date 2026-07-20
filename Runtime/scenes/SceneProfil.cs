@@ -320,10 +320,20 @@ namespace fwp.scenes
 
 				for (int j = 0; j < layers.Count; j++)
 				{
-					if (!layers[j].IsPriority(suff)) continue;
-					layers[j].setOrder(order);
-					output.Add(layers[j]);
-					layers.RemoveAt(j);
+					var lyr = layers[j];
+					if (!lyr.IsPriority(suff)) continue;
+
+					// inject order
+					lyr.setOrder(order);
+
+					// pile in output stack
+					output.Add(lyr);
+
+					log(" >> " + lyr.Name + " order:" + lyr.Order);
+
+					// remove modified from stack
+					layers.Remove(lyr);
+					j--;
 				}
 			}
 
