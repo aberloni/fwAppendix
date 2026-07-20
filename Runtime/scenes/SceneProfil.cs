@@ -331,7 +331,7 @@ namespace fwp.scenes
 			foreach (var l in layers)
 			{
 				output.Add(l);
-				log(" > " + l.Name);
+				log(" > #" + l.Order + " : " + l.Name);
 			}
 
 			layers = output; // replace by ordered
