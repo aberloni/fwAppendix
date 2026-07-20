@@ -601,39 +601,45 @@ namespace fwp.scenes
 			// optin
 			if (_ordered_scenes != null)
 			{
-				log("order load layers (delay order:" + SceneLoaderRunner.settings.delayEachGroup + ")");
-
-				int cnt = _ordered_scenes.Count;
-				foreach (var kp in _ordered_scenes)
-				{
-					SceneLoader.loadScenes(kp.Value, (scs) =>
+				// load by group layered
+				loadLayerNested(0, onCompletion);
+			}
+			else
+			{
+				// normal load of all layers, unsorted
+				loadScenes(getLayersScenesNames(),
+					(scs) =>
 					{
-						//record loaded scene
+						// record loaded scenes
 						keepLoadedTargets(scs);
 
-						// wait for all orders
-						cnt--;
+						onCompletion?.Invoke();
+					});
+			}
 
-						// all done and loaded
-						if (cnt <= 0)
-						{
-							onCompletion?.Invoke();
-						}
-					}, SceneLoaderRunner.settings.delayEachGroup);
-				}
+		}
 
+		void loadLayerNested(int index, Action cmpl)
+		{
+			if (_ordered_scenes == null) return;
+
+			log("order load layers (delay order:" + SceneLoaderRunner.settings.delayEachGroup + ")");
+
+			if (index >= _ordered_scenes.Count)
+			{
+				cmpl?.Invoke();
 				return;
 			}
 
-			// fallback, normal load of all layers, unsorted
-			loadScenes(getLayersScenesNames(),
-				(scs) =>
-				{
-					// record loaded scenes
-					keepLoadedTargets(scs);
+			SceneLoader.loadScenes(_ordered_scenes[index], (scs) =>
+			{
+				//record loaded scene
+				keepLoadedTargets(scs);
 
-					onCompletion?.Invoke();
-				});
+				// load next group
+				loadLayerNested(index + 1, cmpl);
+
+			}, SceneLoaderRunner.settings.delayEachGroup);
 		}
 
 		void loadScenes(string[] scenes, Action<SceneTargetLoader[]> onCompletion)
