@@ -716,6 +716,18 @@ namespace fwp.scenes
 				.OrderBy(kp => kp.Key)
 				.ToDictionary(kv => kv.Key, kv => kv.Value.ToArray());
 
+			if (verbose)
+			{
+				foreach (var kp in _ordered_scenes)
+				{
+					Debug.Log($"[{kp.Key} => {kp.Value.Length}]");
+					foreach (var l in kp.Value)
+					{
+						Debug.Log($" > {l}");
+					}
+				}
+			}
+
 			return this;
 		}
 
