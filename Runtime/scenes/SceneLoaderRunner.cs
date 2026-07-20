@@ -19,6 +19,8 @@ namespace fwp.scenes
     /// </summary>
     public class SceneLoaderRunner : MonoBehaviour
     {
+        static public bool optin_stable_framerate = false;
+
         const float delay_scene_activation = 0.1f;
 
         /*
@@ -56,7 +58,7 @@ namespace fwp.scenes
             //SceneLoader.loaders.Remove(this);
         }
 
-        public Coroutine asyncLoadScenes(string[] sceneNames, Action<SceneTargetLoader[]> onComplete = null, float delayOnCompletion = 0f)
+        public Coroutine coroLoadScenes(string[] sceneNames, Action<SceneTargetLoader[]> onComplete = null, float delayOnCompletion = 0f)
         {
             assocs = SceneTargetLoader.solveScenesAssocs(sceneNames, true);
 
@@ -128,13 +130,11 @@ namespace fwp.scenes
             // create a arbitrary delay in loading
             if (delayOnCompletion > 0f)
             {
-                if (SceneLoader.verbose) SceneLoader.log("DELAY " + delayOnCompletion);
+                // lock loading until framerate is stable
+                yield return new WaitUntil(() => Time.deltaTime < 0.1f);
 
-                while (delayOnCompletion > 0f)
-                {
-                    delayOnCompletion -= Time.deltaTime;
-                    yield return null;
-                }
+                if (SceneLoader.verbose) SceneLoader.log("DELAY " + delayOnCompletion);
+                yield return new WaitForSeconds(delayOnCompletion);
             }
 
             // callback result
@@ -327,10 +327,37 @@ namespace fwp.scenes
                 yield return new WaitForSeconds(onCompletionDelay);
             }
 
+            if (optin_stable_framerate)
+            {
+                yield return WaitUntilAboveFps();
+            }
+
             onComplete?.Invoke();
             GameObject.Destroy(gameObject);
         }
 
-    }
+        /// <summary>
+        /// meant to track if framerate is stable before continuing
+        /// </summary>
+        static public IEnumerator WaitUntilAboveFps(float targetFps = 30f, int consecutiveFrames = 5, float timeout = 5f)
+        {
+            float maxDelta = 1f / targetFps;
+            int okCount = 0;
+            float elapsed = 0f;
 
+            while (okCount < consecutiveFrames && elapsed < timeout)
+            {
+                yield return null;
+                float delta = Time.unscaledDeltaTime;
+
+                if (delta < maxDelta)
+                    okCount++;
+                else
+                    okCount = 0;
+
+                elapsed += delta;
+            }
+        }
+
+    }
 }

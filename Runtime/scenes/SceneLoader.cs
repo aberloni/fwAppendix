@@ -48,7 +48,7 @@ namespace fwp.scenes
         static public SceneLoaderRunner loadScenes(string[] nms, Action<SceneTargetLoader[]> onComplete = null, float onCompletionDelay = 0f)
         {
             var loader = SceneLoaderRunner.createLoader();
-            loader.asyncLoadScenes(nms, onComplete, onCompletionDelay);
+            loader.coroLoadScenes(nms, onComplete, onCompletionDelay);
             return loader;
         }
 
@@ -75,7 +75,7 @@ namespace fwp.scenes
         }
         static public Coroutine queryScenes(string[] sceneNames, Action<SceneTargetLoader[]> onComplete = null)
         {
-            return SceneLoaderRunner.createLoader().asyncLoadScenes(sceneNames, onComplete);
+            return SceneLoaderRunner.createLoader().coroLoadScenes(sceneNames, onComplete);
         }
 
         static public void unloadSceneByExactName(string sceneName)

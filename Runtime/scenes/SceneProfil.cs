@@ -595,7 +595,7 @@ namespace fwp.scenes
 				int cnt = _ordered_scenes.Count;
 				foreach (var kp in _ordered_scenes)
 				{
-					loadScenes(kp.Value, (scs) =>
+					SceneLoader.loadScenes(kp.Value, (scs) =>
 					{
 						//record loaded scene
 						keepLoadedTargets(scs);
