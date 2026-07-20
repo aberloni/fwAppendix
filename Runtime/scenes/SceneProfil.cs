@@ -332,7 +332,7 @@ namespace fwp.scenes
 					log(" >> " + lyr.Name + " order:" + lyr.Order);
 
 					// remove modified from stack
-					layers.Remove(lyr);
+					layers.RemoveAt(j);
 					j--;
 				}
 			}
