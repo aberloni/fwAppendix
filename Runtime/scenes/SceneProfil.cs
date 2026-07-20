@@ -608,7 +608,7 @@ namespace fwp.scenes
 						{
 							onCompletion?.Invoke();
 						}
-					});
+					}, SceneLoaderRunner.settings.delayEachGroup);
 				}
 
 				return;

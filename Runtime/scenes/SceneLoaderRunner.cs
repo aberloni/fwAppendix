@@ -19,7 +19,29 @@ namespace fwp.scenes
     /// </summary>
     public class SceneLoaderRunner : MonoBehaviour
     {
-        static public bool optin_stable_framerate = false;
+        public class LoadingSetts
+        {
+            /// <summary>
+            /// delay between each scene
+            /// </summary>
+            public float delayEach = 0f;
+
+
+            /// <summary>
+            /// delay between order group
+            /// </summary>
+            public float delayEachGroup = 0f;
+
+            /// <summary>
+            /// wait for framerate to be stable
+            /// </summary>
+            public bool stable_framerate = false;
+        }
+
+        /// <summary>
+        /// settings to manage how loading behav
+        /// </summary>
+        static public LoadingSetts settings = new();
 
         const float delay_scene_activation = 0.1f;
 
@@ -319,18 +341,14 @@ namespace fwp.scenes
                 }
             }
 
-
-
             if (onCompletionDelay > 0f)
             {
                 SceneLoader.log("unload-post delayed:" + asyncsToUnload.Count);
                 yield return new WaitForSeconds(onCompletionDelay);
             }
 
-            if (optin_stable_framerate)
-            {
-                yield return WaitUntilAboveFps();
-            }
+            if (settings.delayEach > 0f) yield return new WaitForSeconds(settings.delayEach);
+            if (settings.stable_framerate) yield return WaitUntilAboveFps();
 
             onComplete?.Invoke();
             GameObject.Destroy(gameObject);
