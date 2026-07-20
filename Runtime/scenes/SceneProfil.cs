@@ -309,10 +309,10 @@ namespace fwp.scenes
 
 			Debug.Assert(suffixes.Length == orders.Length);
 
-			if (verbose) log(Context + " order by pattern x" + suffixes.Length);
+			log(Context + " | order by pattern x" + suffixes.Length);
 
 			// sort by pattern
-			List<SceneProfilTarget> output = new List<SceneProfilTarget>();
+			List<SceneProfilTarget> output = new();
 			for (int i = 0; i < suffixes.Length; i++)
 			{
 				string suff = suffixes[i];
@@ -320,12 +320,10 @@ namespace fwp.scenes
 
 				for (int j = 0; j < layers.Count; j++)
 				{
-					if (layers[j].IsPriority(suff))
-					{
-						layers[j].setOrder(order);
-						output.Add(layers[j]);
-						layers.RemoveAt(j);
-					}
+					if (!layers[j].IsPriority(suff)) continue;
+					layers[j].setOrder(order);
+					output.Add(layers[j]);
+					layers.RemoveAt(j);
 				}
 			}
 
@@ -333,6 +331,7 @@ namespace fwp.scenes
 			foreach (var l in layers)
 			{
 				output.Add(l);
+				log(" > " + l.Name);
 			}
 
 			layers = output; // replace by ordered
