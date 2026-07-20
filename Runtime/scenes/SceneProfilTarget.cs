@@ -41,13 +41,11 @@ namespace fwp.scenes
 			}
 		}
 
-		public SceneProfilTarget(string nm, int ord)
+		public SceneProfilTarget(string nm)
 		{
 			sceneName = nm;
 			order = 0;
 			delayOrder = 0;
-			
-			setOrder(ord);
 		}
 
 		public void setOrder(int ord)

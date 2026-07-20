@@ -265,7 +265,7 @@ namespace fwp.scenes
 					if (found) continue;
 				}
 
-				SceneProfilTarget spt = new SceneProfilTarget(p, 0);
+				SceneProfilTarget spt = new SceneProfilTarget(p);
 				layers.Add(spt);
 			}
 
@@ -331,7 +331,7 @@ namespace fwp.scenes
 			foreach (var l in layers)
 			{
 				output.Add(l);
-				log(" > #" + l.Order + " : " + l.Name);
+				log(" >> " + l.Name + " order:" + l.Order);
 			}
 
 			layers = output; // replace by ordered
