@@ -592,7 +592,7 @@ namespace fwp.scenes
 			// optin
 			if (_ordered_scenes != null)
 			{
-				log("order load layers");
+				log("order load layers (delay order:" + SceneLoaderRunner.settings.delayEachGroup + ")");
 
 				int cnt = _ordered_scenes.Count;
 				foreach (var kp in _ordered_scenes)

@@ -347,8 +347,17 @@ namespace fwp.scenes
                 yield return new WaitForSeconds(onCompletionDelay);
             }
 
-            if (settings.delayEach > 0f) yield return new WaitForSeconds(settings.delayEach);
-            if (settings.stable_framerate) yield return WaitUntilAboveFps();
+            if (settings.delayEach > 0f)
+            {
+                SceneLoader.log("settings.delay:" + asyncsToUnload.Count);
+                yield return new WaitForSeconds(settings.delayEach);
+            }
+            if (settings.stable_framerate)
+            {
+                SceneLoader.log("settings.stable?" + Time.frameCount);
+                yield return WaitUntilAboveFps();
+                SceneLoader.log("settings.stable!" + Time.frameCount);
+            }
 
             onComplete?.Invoke();
             GameObject.Destroy(gameObject);
