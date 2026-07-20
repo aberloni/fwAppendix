@@ -81,7 +81,10 @@ namespace fwp.scenes
 		/// </summary>
 		public List<string> helpers = null;
 
-		List<SceneTargetLoader> _assocs_buff = null;
+		/// <summary>
+		/// keep handle of all loaded layers
+		/// </summary>
+		List<SceneTargetLoader> _assocs_buff = new();
 
 		/// <summary>
 		/// has found anything
@@ -289,6 +292,9 @@ namespace fwp.scenes
 			return ret.ToArray();
 		}
 
+		/// <summary>
+		/// each profil with suffixes will be assigned matching order
+		/// </summary>
 		public void sortByPattern(string[] suffixes, int[] orders)
 		{
 			if (suffixes == null) return;
@@ -326,7 +332,7 @@ namespace fwp.scenes
 
 		public void refresh()
 		{
-			if (Application.isPlaying) 
+			if (Application.isPlaying)
 				return;
 
 			if (_assocs_buff == null)
@@ -522,8 +528,6 @@ namespace fwp.scenes
 		/// </summary>
 		public void runtimeLoadProfil(Action<SceneProfil> onLoadedCompleted)
 		{
-			//solveDeps();
-
 			if (!IsValid)
 			{
 				Debug.LogWarning("INVALID : can't load : " + Context);
@@ -531,75 +535,66 @@ namespace fwp.scenes
 				return;
 			}
 
-			if (verbose)
-			{
-				log("builLoad()");
-				log(stringify());
-			}
-
+			log("> load.statics x" + statics.Count);
 			loadStatics(() =>
 			{
-				if (verbose) log("statics.loaded");
-
+				log("> load.deps x" + statics.Count);
 				loadDeps(() =>
 				{
-					if (verbose) log("deps.loaded");
-
+					log("> load.layers x" + layers.Count);
 					loadLayers(() =>
 					{
-						if (verbose) log("layers.loaded");
-
-						//Scene? parentScene = extractMainScene(false);
 						onLoadedCompleted?.Invoke(this);
 					});
 				});
-
 			});
-
 		}
 
-		void loadStatics(Action onCompletion)
+		/// <summary>
+		/// global scenes (across project)
+		/// </summary>
+		virtual protected void loadStatics(Action onCompletion)
 		{
-			if (verbose) log("load.statics x" + statics.Count);
-			loadScenes(statics.ToArray(), onCompletion);
-		}
-		void loadDeps(Action onCompletion)
-		{
-			if (verbose) log("load.deps x" + statics.Count);
-			loadScenes(deps.ToArray(), onCompletion);
-		}
-
-		void loadLayers(Action onCompletion)
-		{
-			if (layers.Count <= 0)
+			loadScenes(statics.ToArray(), (scs) =>
 			{
-				//Debug.LogWarning(getStamp() + " layers array is empty ?");
-				onCompletion.Invoke();
-				return;
-			}
+				onCompletion?.Invoke();
+			});
+		}
 
-			if (verbose)
+		/// <summary>
+		/// specific profil dependencies
+		/// </summary>
+		virtual protected void loadDeps(Action onCompletion)
+		{
+			loadScenes(deps.ToArray(), (scs) =>
 			{
-				log("loading layers x" + layers.Count);
-				for (int i = 0; i < layers.Count; i++) log("layer:" + layers[i].Name);
-			}
+				onCompletion?.Invoke();
+			});
+		}
 
-			if (_assocs_buff == null) _assocs_buff = new List<SceneTargetLoader>();
-			else _assocs_buff.Clear();
+		/// <summary>
+		/// 
+		/// </summary>
+		virtual protected void loadLayers(Action onCompletion)
+		{
+			_assocs_buff.Clear();
 
-			SceneLoader.loadScenes(getLayersScenesNames(), (SceneTargetLoader[] scs) =>
+			loadScenes(getLayersScenesNames(),
+				(scs) =>
 				{
-					solveLoadedTargets(scs);
-					onCompletion.Invoke();
+					// record loaded scenes
+					keepLoadedTargets(scs);
+
+					onCompletion?.Invoke();
 				});
 		}
 
-		void loadScenes(string[] scenes, Action onCompletion)
+		void loadScenes(string[] scenes, Action<SceneTargetLoader[]> onCompletion)
 		{
 			if (scenes.Length <= 0)
 			{
 				//Debug.LogWarning(getStamp() + " deps array is empty ?");
-				onCompletion.Invoke();
+				onCompletion.Invoke(new SceneTargetLoader[0]);
 				return;
 			}
 
@@ -615,26 +610,16 @@ namespace fwp.scenes
 			delay = ed_getDebugLoadDelay();
 #endif
 
-			SceneLoader.loadScenes(scenes, (scs) =>
-			{
-				if (verbose) log("scenes.loaded");
-				onCompletion?.Invoke();
-			}, delay);
-
+			SceneLoader.loadScenes(scenes, onCompletion, delay);
 		}
 
-		void solveLoadedTargets(SceneTargetLoader[] scs)
+		void keepLoadedTargets(SceneTargetLoader[] scs)
 		{
-			if (scs.Length <= 0)
+			foreach (var s in scs)
 			{
-				Debug.LogError("no scenes returned ?");
-				for (int i = 0; i < layers.Count; i++)
-				{
-					Debug.Log("  layer#" + i + " : " + layers[i]);
-				}
+				if (_assocs_buff.Contains(s)) continue;
+				_assocs_buff.Add(s);
 			}
-
-			_assocs_buff.AddRange(scs);
 		}
 
 		/// <summary>
@@ -666,11 +651,28 @@ namespace fwp.scenes
 		}
 
 		public void runtimeLoadSpecifics(string[] targets, Action onCompleted = null)
-			=> loadScenes(targets, onCompleted);
+			=> loadScenes(targets, (scs) =>
+			{
+				onCompleted?.Invoke();
+			});
 
 		public void runtimeUnloadSpecifics(string[] targets, Action onCompleted = null)
 		{
 			SceneUnloader.unloadScenes(targets, onCompleted);
+		}
+
+		/// <summary>
+		/// separate scenes names to load by order magnitude
+		/// </summary>
+		protected Dictionary<int, List<string>> getLayersOrdered()
+		{
+			var ret = new Dictionary<int, List<string>>();
+			foreach (var l in layers)
+			{
+				if (!ret.ContainsKey(l.Order)) ret.Add(l.Order, new());
+				ret[l.Order].Add(l.Name);
+			}
+			return ret;
 		}
 
 		/// <summary>
@@ -714,16 +716,11 @@ namespace fwp.scenes
 
 		List<SceneTargetLoader> fetchAssocs(bool force)
 		{
-			if (_assocs_buff == null) _assocs_buff = new();
-
 			if (_assocs_buff.Count <= 0 || force)
 			{
 				_assocs_buff.Clear();
-
 				_assocs_buff.AddRange(SceneTargetLoader.solveScenesAssocs(getLayersScenesNames()));
 				_assocs_buff.AddRange(SceneTargetLoader.solveScenesAssocs(deps.ToArray()));
-
-				//if (verbose) Debug.Log("assocs x" + _assocs_buff.Count);
 			}
 
 			return _assocs_buff;
@@ -733,7 +730,7 @@ namespace fwp.scenes
 
 		void forceAddToBuildSettings()
 		{
-			List<EditorBuildSettingsScene> tmp = new List<EditorBuildSettingsScene>();
+			List<EditorBuildSettingsScene> tmp = new();
 
 			// keep existing
 			if (EditorBuildSettings.scenes != null)
@@ -797,7 +794,7 @@ namespace fwp.scenes
 		/// </summary>
 		public void editorLoadProfil(bool replaceContext, bool forceAddBuildSettings = false)
 		{
-			if(Application.isPlaying)
+			if (Application.isPlaying)
 			{
 				Debug.LogWarning("maybe not at runtime ? let me know why");
 				return;
@@ -827,7 +824,7 @@ namespace fwp.scenes
 			toLoads.AddRange(deps);
 			toLoads.AddRange(statics);
 			toLoads.AddRange(helpers);
-			
+
 			// load all
 			// layers[0] is empty ?
 			for (int i = 0; i < toLoads.Count; i++)
@@ -843,9 +840,9 @@ namespace fwp.scenes
 
 			if (verbose) log($"editorUnload()");
 
-			foreach(var l in layers) l.editorUnload();
-			foreach(var d in deps) SceneLoaderEditor.unloadScene(d);
-			foreach(var ed in helpers) SceneLoaderEditor.unloadScene(ed);
+			foreach (var l in layers) l.editorUnload();
+			foreach (var d in deps) SceneLoaderEditor.unloadScene(d);
+			foreach (var ed in helpers) SceneLoaderEditor.unloadScene(ed);
 
 			// NOT STATICS : statics are meant to stay loaded
 
@@ -944,6 +941,7 @@ namespace fwp.scenes
 			return output;
 		}
 
+		[System.Diagnostics.Conditional("UNITY_EDITOR")]
 		protected void log(string msg)
 		{
 			if (!verbose) return;

@@ -17,10 +17,21 @@ namespace fwp.scenes
 		}
 
 		string sceneName;
-		int _order;
-
-		public int Order => _order;
 		public string Name => sceneName;
+
+		/// <summary>
+		/// priority in loading order
+		/// </summary>
+		int order;
+		public int Order => order;
+
+		/// <summary>
+		/// stage of loading, to separate when this profil is loaded
+		/// 0 = normal load
+		/// 1 = later
+		/// </summary>
+		uint delayOrder;
+		public uint Delay => delayOrder;
 
 		public bool IsLoaded
 		{
@@ -33,23 +44,20 @@ namespace fwp.scenes
 		public SceneProfilTarget(string nm, int ord)
 		{
 			sceneName = nm;
-			_order = 0;
+			order = 0;
+			delayOrder = 0;
+			
 			setOrder(ord);
 		}
 
-		public void setOrder(int order)
+		public void setOrder(int ord)
 		{
-			_order = order;
+			order = ord;
 		}
 
 		public bool Contains(string filter)
 		{
 			return sceneName.ToLower().Contains(filter);
-		}
-
-		public bool HasPriorityOver(SceneProfilTarget other)
-		{
-			return other.Order < _order;
 		}
 
 		public bool IsPriority(string suffix)
