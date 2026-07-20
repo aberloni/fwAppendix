@@ -305,7 +305,7 @@ namespace fwp.scenes
 		/// </summary>
 		public SceneProfil sortByPattern(string[] suffixes, int[] orders)
 		{
-			if (suffixes == null) return;
+			if (suffixes == null) return this;
 
 			Debug.Assert(suffixes.Length == orders.Length);
 
