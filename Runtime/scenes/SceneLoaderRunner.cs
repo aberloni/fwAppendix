@@ -22,6 +22,11 @@ namespace fwp.scenes
         public class LoadingSetts
         {
             /// <summary>
+            /// time before triggering allowSceneActivation
+            /// </summary>
+            public float delay_scene_activation = 0.1f;
+
+            /// <summary>
             /// delay between each scene
             /// </summary>
             public float delayEach = 0f;
@@ -42,8 +47,6 @@ namespace fwp.scenes
         /// settings to manage how loading behav
         /// </summary>
         static public LoadingSetts settings = new();
-
-        const float delay_scene_activation = 0.1f;
 
         /*
         /// <summary>
@@ -192,7 +195,7 @@ namespace fwp.scenes
             // https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager.LoadSceneAsync.html
             // https://docs.unity3d.com/ScriptReference/AsyncOperation.html
             AsyncOperation async = SceneManager.LoadSceneAsync(target, LoadSceneMode.Additive);
-            async.allowSceneActivation = delay_scene_activation != 0f;
+            async.allowSceneActivation = settings.delay_scene_activation != 0f;
 
             if (!async.allowSceneActivation)
             {
@@ -202,7 +205,7 @@ namespace fwp.scenes
                 if (SceneLoader.verbose) SceneLoader.log(" ... delay activation @dt:" + dt);
 
                 // give time after loading most of the scene
-                yield return new WaitForSeconds(delay_scene_activation);
+                yield return new WaitForSeconds(settings.delay_scene_activation);
 
                 // this will trigger activation of scene
                 async.allowSceneActivation = true;

@@ -619,6 +619,9 @@ namespace fwp.scenes
 
 		}
 
+		/// <summary>
+		/// use order separation to delay load per group
+		/// </summary>
 		void loadLayerNested(int index, Action cmpl)
 		{
 			if (_ordered_scenes == null) return;
@@ -642,6 +645,11 @@ namespace fwp.scenes
 			}, SceneLoaderRunner.settings.delayEachGroup);
 		}
 
+		/// <summary>
+		/// wrapper to add
+		/// - debug listing
+		/// - editor delay
+		/// </summary>
 		void loadScenes(string[] scenes, Action<SceneTargetLoader[]> onCompletion)
 		{
 			if (scenes.Length <= 0)
@@ -703,6 +711,9 @@ namespace fwp.scenes
 			return ret.ToArray();
 		}
 
+		/// <summary>
+		/// just load specific scenes
+		/// </summary>
 		public void runtimeLoadSpecifics(string[] targets, Action onCompleted = null)
 			=> loadScenes(targets, (scs) =>
 			{
