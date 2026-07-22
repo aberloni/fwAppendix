@@ -55,15 +55,28 @@ namespace fwp.scenes.feeder
         /// starts feed process
         /// contextCall is meant to filter if feeder must be called again
         /// </summary>
-        public void feed()
+        public void doFeed()
         {
-            Debug.Assert(Time.frameCount > 2, "can't load scenes until frame 2");
+            if (isFeeding()) return;
 
+            // this feeder will boot on its own
+            if (isAutoFeed()) return;
+
+            // this feeder already started
+            if (feedings.Contains(this)) return;
+
+            feed();
+        }
+
+        void feed()
+        {
             if (feedings.Contains(this))
             {
                 Debug.LogWarning("<color=red>ISSUE</color> already contained in feedings[] ; feed " + name + " called twice ?", this);
                 return;
             }
+
+            Debug.Assert(Time.frameCount > 2, "can't load scenes until frame 2");
 
             feedings.Add(this);
 

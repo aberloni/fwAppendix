@@ -270,7 +270,7 @@ namespace fwp.scenes
                 //start
                 for (int i = 0; i < feeders.Count; i++)
                 {
-                    feeders[i].feed();
+                    feeders[i].doFeed();
                 }
 
                 if (SceneLoader.verbose) SceneLoader.log("waiting for x" + feeders.Count + " feeders");
