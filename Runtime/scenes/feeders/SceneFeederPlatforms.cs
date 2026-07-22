@@ -39,18 +39,18 @@ namespace fwp.scenes.feeder
 
             if (isSteam())
             {
-                Debug.LogWarning($"feeder:<b>{GetType()}:STEAM</b>");
+                Debug.Log($"feeder:<b>STEAM</b>", this);
                 addFeederData(feedSteam);
             }
 
             if (isSwitch())
             {
-                Debug.LogWarning($"feeder:<b>{GetType()}:SWITCH</b>");
+                Debug.Log($"feeder:<b>SWITCH</b>", this);
                 addFeederData(feedSwitch);
             }
 
         }
-        
+
     }
 
 }

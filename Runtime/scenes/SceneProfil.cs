@@ -628,8 +628,23 @@ namespace fwp.scenes
 
 			log("order load layers (delay order:" + SceneLoaderRunner.settings.delayEachGroup + ")");
 
+			// arrived at last group
 			if (index >= _ordered_scenes.Count)
 			{
+				cmpl?.Invoke();
+				return;
+			}
+
+			// issue detection
+			if (!_ordered_scenes.ContainsKey(index))
+			{
+				Debug.LogError($"index:{index} not contained in ordered dico ↓↓↓");
+				foreach (var kp in _ordered_scenes)
+				{
+					Debug.Log("> " + kp.Key);
+					foreach (var s in kp.Value) Debug.Log(">> " + s);
+				}
+
 				cmpl?.Invoke();
 				return;
 			}

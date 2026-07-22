@@ -7,13 +7,14 @@ namespace fwp.scenes.feeder
     {
 
         [Header("isDebugBuild")]
+
         public FeederData scenes;
 
         protected override void solveNames()
         {
             if (isDebug())
             {
-                Debug.LogWarning($"feeder:<b>{GetType()}</b>");
+                Debug.LogWarning($"feeder.debug:<b>{GetType()}</b>");
                 addFeederData(scenes);
             }
         }

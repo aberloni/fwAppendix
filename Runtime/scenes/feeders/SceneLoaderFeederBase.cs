@@ -61,7 +61,7 @@ namespace fwp.scenes.feeder
 
             if (feedings.Contains(this))
             {
-                Debug.LogWarning("already contained in feedings[], ISSUE");
+                Debug.LogWarning("<color=red>ISSUE</color> already contained in feedings[] ; feed called twice ?", this);
                 return;
             }
 
