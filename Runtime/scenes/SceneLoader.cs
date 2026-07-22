@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
+using UnityEditor.SearchService;
 
 /// <summary>
 /// Un loader indépendant a qui on peut demander de load une scene spécifique
@@ -52,10 +53,18 @@ namespace fwp.scenes
             return loader;
         }
 
-        static public SceneLoaderRunner loadScene(string nm)
+        static public void loadScene(string nm, Action<SceneTargetLoader> onCompletion)
         {
             // only one
-            return loadScenes(new string[] { nm });
+            var r = loadScenes(new string[] { nm });
+            r.onCompletion = (scs) =>
+            {
+                if (onCompletion != null)
+                {
+                    if (scs.Length > 0) onCompletion?.Invoke(scs[0]);
+                    else onCompletion?.Invoke(null);
+                }
+            };
         }
 
         static public SceneLoaderRunner queryScene(string sceneName) => queryScenes(new string[] { sceneName });
