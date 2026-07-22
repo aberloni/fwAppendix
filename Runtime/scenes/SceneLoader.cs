@@ -52,18 +52,18 @@ namespace fwp.scenes
             return loader;
         }
 
-        static public void loadScene(string nm, Action<SceneTargetLoader> onCompletion)
+        static public SceneLoaderRunner loadScene(string nm, Action<SceneTargetLoader> onCompletion = null)
         {
             // only one
             var r = loadScenes(new string[] { nm });
-            r.onCompletion = (scs) =>
+            if (onCompletion != null)
             {
-                if (onCompletion != null)
+                r.onCompletion = (scs) =>
                 {
-                    if (scs.Length > 0) onCompletion?.Invoke(scs[0]);
-                    else onCompletion?.Invoke(null);
-                }
-            };
+                    onCompletion.Invoke(scs[0]);
+                };
+            }
+            return r;
         }
 
         static public SceneLoaderRunner queryScene(string sceneName) => queryScenes(new string[] { sceneName });
