@@ -302,6 +302,7 @@ namespace fwp.scenes
 
 		/// <summary>
 		/// each profil with suffixes will be assigned matching order
+		/// output layers MUST have continuous ordering and start at 0
 		/// </summary>
 		public SceneProfil sortByPattern(string[] suffixes, int[] orders)
 		{
@@ -311,29 +312,42 @@ namespace fwp.scenes
 
 			log(Context + " | order by pattern x" + suffixes.Length);
 
-			// sort by pattern
 			List<SceneProfilTarget> output = new();
+
+			int group = -1;
+			int _last_weight = int.MinValue;
+
 			for (int i = 0; i < suffixes.Length; i++)
 			{
 				string suff = suffixes[i];
-				int order = orders[i];
+				int weight = orders[i];
 
+				// collect matches for this suffix first
+				List<SceneProfilTarget> matched = new();
 				for (int j = 0; j < layers.Count; j++)
 				{
 					var lyr = layers[j];
 					if (!lyr.IsPriority(suff)) continue;
 
-					// inject order
-					lyr.setOrder(order);
-
-					// pile in output stack
-					output.Add(lyr);
-
-					log(" >> " + lyr.Name + " order:" + lyr.Order);
-
-					// remove modified from stack
+					matched.Add(lyr);
 					layers.RemoveAt(j);
 					j--;
+				}
+
+				// no layers for this suffix -> don't consume a group slot
+				if (matched.Count == 0) continue;
+
+				// new group only when weight actually changes
+				if (weight != _last_weight)
+				{
+					group++;
+					_last_weight = weight;
+				}
+
+				foreach (var lyr in matched)
+				{
+					lyr.setOrder(group);
+					output.Add(lyr);
 				}
 			}
 
@@ -341,10 +355,9 @@ namespace fwp.scenes
 			foreach (var l in layers)
 			{
 				output.Add(l);
-				log(" >> " + l.Name + " order:" + l.Order);
 			}
 
-			layers = output; // replace by ordered
+			layers = output;
 
 			return this;
 		}
