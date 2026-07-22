@@ -19,34 +19,39 @@ namespace fwp.scenes
     /// </summary>
     public class SceneLoaderRunner : MonoBehaviour
     {
-        public class LoadingSetts
+        /// <summary>
+        /// to modify behavior of loading
+        /// </summary>
+        public RunnerSettings settings;
+        
+        public class RunnerSettings
         {
             /// <summary>
             /// time before triggering allowSceneActivation
+            /// if >0 will delay trigger
             /// </summary>
-            public float delay_scene_activation = 0.1f;
+            public float delay_scene_activation;
 
             /// <summary>
             /// delay between each scene
             /// </summary>
-            public float delayEach = 0f;
-
+            public float delayEach;
 
             /// <summary>
             /// delay between order group
             /// </summary>
-            public float delayEachGroup = 0f;
+            public float delayEachGroup;
 
             /// <summary>
             /// wait for framerate to be stable
             /// </summary>
-            public bool stable_framerate = false;
-        }
+            public bool stable_framerate;
 
-        /// <summary>
-        /// settings to manage how loading behav
-        /// </summary>
-        static public LoadingSetts settings = new();
+            /// <summary>
+            /// wait a bit after loading
+            /// </summary>
+            public float delayOnCompletion;
+        }
 
         /*
         /// <summary>
@@ -58,7 +63,15 @@ namespace fwp.scenes
         static public void optoutErrorDelay() => errorDelay = -1f;
         */
 
-        SceneTargetLoader[] assocs;
+        /// <summary>
+        /// all element loaded during this process
+        /// </summary>
+        public SceneTargetLoader[] assocs;
+
+        /// <summary>
+        /// when process completes
+        /// </summary>
+        public System.Action<SceneTargetLoader[]> onCompletion;
 
         protected List<Coroutine> queries = new List<Coroutine>();
 
@@ -79,22 +92,24 @@ namespace fwp.scenes
 
         private void OnDestroy()
         {
+            onCompletion?.Invoke(assocs);
+            
             //Debug.Log(EngineObject.getStamp(this) + " destroyed");
             //SceneLoader.loaders.Remove(this);
         }
 
-        public Coroutine coroLoadScenes(string[] sceneNames, Action<SceneTargetLoader[]> onComplete = null, float delayOnCompletion = 0f)
+        public SceneLoaderRunner coroLoadScenes(string[] sceneNames)
         {
             assocs = SceneTargetLoader.solveScenesAssocs(sceneNames, true);
-
-            return StartCoroutine(processLoadScenes(onComplete, delayOnCompletion));
+            StartCoroutine(dequeueScenes());
+            return this;
         }
 
-        IEnumerator processLoadScenes(Action<SceneTargetLoader[]> onComplete = null, float delayOnCompletion = 0f)
+        IEnumerator dequeueScenes()
         {
             if (SceneLoader.verbose) SceneLoader.log(" ... processing " + assocs.Length + " scenes", transform);
 
-            // WAIT FOR ENGINE VALIDITY
+            // WAIT FOR uENGINE VALIDITY
             if (Time.frameCount <= 1)
             {
                 if (SceneLoader.verbose) SceneLoader.log(" ... waiting for frame 2 ...", this);
@@ -109,15 +124,17 @@ namespace fwp.scenes
                 }
             }
 
+            //delay to leave time for settings assign
+            yield return null;
+
             for (int i = 0; i < assocs.Length; i++)
             {
                 //Debug.Log(getStamp() + " what about ? " + sceneName, this);
 
                 if (!assocs[i].handle.isLoaded)
                 {
-                    StartCoroutine(processLoadScene(assocs[i]));
+                    StartCoroutine(dequeueScene(assocs[i], settings));
                 }
-
             }
 
             int cnt = countStillLoading();
@@ -138,14 +155,6 @@ namespace fwp.scenes
 
             }
 
-            if (SceneLoader.verbose)
-            {
-                for (int i = 0; i < assocs.Length; i++)
-                {
-                    Debug.Log("#" + i + " ? " + assocs[i]);
-                }
-            }
-
             //needed so that all new objects loaded have time to exec build()
             //ca fait un effet de bord quand on unload le screen dans la frame o� il est g�n�r�
             //la callback de sortie du EngineLoader peut demander l'�cran qu'on vient de load pour en faire un truc :shrug:
@@ -153,17 +162,14 @@ namespace fwp.scenes
             yield return null;
 
             // create a arbitrary delay in loading
-            if (delayOnCompletion > 0f)
+            if (settings != null && settings.delayOnCompletion > 0f)
             {
                 // lock loading until framerate is stable
                 yield return new WaitUntil(() => Time.deltaTime < 0.1f);
 
-                if (SceneLoader.verbose) SceneLoader.log("DELAY " + delayOnCompletion);
-                yield return new WaitForSeconds(delayOnCompletion);
+                if (SceneLoader.verbose) SceneLoader.log("DELAY " + settings.delayOnCompletion);
+                yield return new WaitForSeconds(settings.delayOnCompletion);
             }
-
-            // callback result
-            onComplete?.Invoke(assocs);
 
             // remove loader
             GameObject.Destroy(gameObject);
@@ -185,7 +191,7 @@ namespace fwp.scenes
         /// <summary>
         /// process to load an instance
         /// </summary>
-        IEnumerator processLoadScene(SceneTargetLoader assoc, Action<SceneTargetLoader> onComplete = null)
+        IEnumerator dequeueScene(SceneTargetLoader assoc, RunnerSettings settings = null)
         {
             string target = assoc.name;
 
@@ -195,10 +201,15 @@ namespace fwp.scenes
             // https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager.LoadSceneAsync.html
             // https://docs.unity3d.com/ScriptReference/AsyncOperation.html
             AsyncOperation async = SceneManager.LoadSceneAsync(target, LoadSceneMode.Additive);
-            async.allowSceneActivation = settings.delay_scene_activation != 0f;
 
+            if(settings != null && settings.delay_scene_activation > 0)
+            {
+                async.allowSceneActivation = settings.delay_scene_activation != 0f;
+            }
+            
             if (!async.allowSceneActivation)
             {
+                //wait for loading to be done
                 yield return new WaitUntil(() => async.progress >= 0.9f);
 
                 float dt = Time.time - time;
@@ -219,7 +230,6 @@ namespace fwp.scenes
             if (!sc.IsValid())
             {
                 Debug.LogError("SceneManager could not return a valid scene by NAME : " + target);
-                onComplete?.Invoke(assoc);
                 yield break;
             }
 
@@ -245,8 +255,6 @@ namespace fwp.scenes
             while (feeders != null) yield return null;
 
             if (SceneLoader.verbose) SceneLoader.log("'<b>" + target + "</b>' setup");
-
-            onComplete?.Invoke(assoc);
         }
 
 
@@ -348,18 +356,6 @@ namespace fwp.scenes
             {
                 SceneLoader.log("unload-post delayed:" + asyncsToUnload.Count);
                 yield return new WaitForSeconds(onCompletionDelay);
-            }
-
-            if (settings.delayEach > 0f)
-            {
-                SceneLoader.log("settings.delay:" + asyncsToUnload.Count);
-                yield return new WaitForSeconds(settings.delayEach);
-            }
-            if (settings.stable_framerate)
-            {
-                SceneLoader.log("settings.stable?" + Time.frameCount);
-                yield return WaitUntilAboveFps();
-                SceneLoader.log("settings.stable!" + Time.frameCount);
             }
 
             onComplete?.Invoke();

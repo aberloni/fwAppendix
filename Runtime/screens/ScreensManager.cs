@@ -297,7 +297,8 @@ namespace fwp.screens
 			if (isVerbose)
 				Debug.Log("loadMissingScreen | screen to open : <b>" + screenName + "</b>");
 
-			SceneLoader.queryScene(screenName, (assoc) =>
+			var runner = SceneLoader.queryScene(screenName);
+			runner.onCompletion = (scs) =>
 			{
 				so = getScreen(screenName);
 				if (so == null)
@@ -306,8 +307,7 @@ namespace fwp.screens
 					Debug.LogError(" > name given : " + screenName + " and but no <ScreenObject> returned");
 				}
 				onComplete(so);
-			});
-
+			};
 		}
 
 		static string getStamp()

@@ -632,6 +632,8 @@ namespace fwp.scenes
 
 		}
 
+		virtual protected SceneLoaderRunner.RunnerSettings GetLoadSettings() => null;
+
 		/// <summary>
 		/// use order separation to delay load per group
 		/// </summary>
@@ -639,7 +641,7 @@ namespace fwp.scenes
 		{
 			if (_ordered_scenes == null) return;
 
-			log("order load layers (delay order:" + SceneLoaderRunner.settings.delayEachGroup + ")");
+			log("order load layers");
 
 			// arrived at last group
 			if (index >= _ordered_scenes.Count)
@@ -662,15 +664,18 @@ namespace fwp.scenes
 				return;
 			}
 
-			SceneLoader.loadScenes(_ordered_scenes[index], (scs) =>
+			var _sett = GetLoadSettings();
+
+			var runner = SceneLoader.loadScenes(_ordered_scenes[index]);
+			runner.settings = _sett ?? runner.settings;
+			runner.onCompletion = (scs) =>
 			{
 				//record loaded scene
 				keepLoadedTargets(scs);
 
 				// load next group
 				loadLayerNested(index + 1, cmpl);
-
-			}, SceneLoaderRunner.settings.delayEachGroup);
+			};
 		}
 
 		/// <summary>
@@ -699,7 +704,8 @@ namespace fwp.scenes
 			delay = ed_getDebugLoadDelay();
 #endif
 
-			SceneLoader.loadScenes(scenes, onCompletion, delay);
+			var r = SceneLoader.loadScenes(scenes);
+			r.onCompletion = onCompletion;
 		}
 
 		void keepLoadedTargets(SceneTargetLoader[] scs)

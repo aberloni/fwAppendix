@@ -89,11 +89,12 @@ namespace fwp.scenes.feeder
             //Debug.Log(EngineObject.getStamp(this) + " now feeding "+nms.Length+" names", transform);
             //for (int i = 0; i < nms.Length; i++) { Debug.Log("  L " + nms[i]);}
 
-            runner = SceneLoader.loadScenes(scene_names.ToArray(), (assocs) =>
+            runner = SceneLoader.loadScenes(scene_names.ToArray());
+            runner.onCompletion = (scs) =>
             {
                 //Debug.Log("feed destroy");
                 GameObject.Destroy(this);
-            });
+            };
         }
 
         private void OnDestroy()

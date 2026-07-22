@@ -51,7 +51,7 @@ namespace fwp.scenes
         {
             SceneLoader.log($" ... now filtering x{sceneNames.Length} scene names");
 
-            List<SceneTargetLoader> output = new List<SceneTargetLoader>();
+            List<SceneTargetLoader> output = new();
 
             for (int i = 0; i < sceneNames.Length; i++)
             {

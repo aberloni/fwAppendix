@@ -45,37 +45,23 @@ namespace fwp.scenes
             Debug.LogWarning("<SceneLoader> /!\\ (@" + Time.frameCount + ") | " + content, context);
         }
 
-        static public SceneLoaderRunner loadScenes(string[] nms, Action<SceneTargetLoader[]> onComplete = null, float onCompletionDelay = 0f)
+        static public SceneLoaderRunner loadScenes(string[] nms)
         {
             var loader = SceneLoaderRunner.createLoader();
-            loader.coroLoadScenes(nms, onComplete, onCompletionDelay);
+            loader.coroLoadScenes(nms);
             return loader;
         }
 
-        static public SceneLoaderRunner loadScene(string nm, Action<SceneTargetLoader> onComplete = null, float onCompletionDelay = 0f)
+        static public SceneLoaderRunner loadScene(string nm)
         {
             // only one
-            return loadScenes(new string[] { nm },
-                (SceneTargetLoader[] scs) =>
-                {
-                    onComplete?.Invoke(scs[0]);
-                }, onCompletionDelay);
+            return loadScenes(new string[] { nm });
         }
 
-        static public Coroutine queryScene(string sceneName, Action<SceneTargetLoader> onComplete = null)
+        static public SceneLoaderRunner queryScene(string sceneName) => queryScenes(new string[] { sceneName });
+        static public SceneLoaderRunner queryScenes(string[] sceneNames)
         {
-            return queryScenes(new string[] { sceneName }, (SceneTargetLoader[] scs) =>
-            {
-                SceneTargetLoader sa = null;
-
-                if (scs != null && scs.Length > 0) sa = scs[0];
-
-                onComplete?.Invoke(sa);
-            });
-        }
-        static public Coroutine queryScenes(string[] sceneNames, Action<SceneTargetLoader[]> onComplete = null)
-        {
-            return SceneLoaderRunner.createLoader().coroLoadScenes(sceneNames, onComplete);
+            return SceneLoaderRunner.createLoader().coroLoadScenes(sceneNames);
         }
 
         static public void unloadSceneByExactName(string sceneName)
