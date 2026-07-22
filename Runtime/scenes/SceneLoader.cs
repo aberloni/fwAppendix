@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
-using UnityEditor.SearchService;
 
 /// <summary>
 /// Un loader indépendant a qui on peut demander de load une scene spécifique
