@@ -31,13 +31,13 @@ namespace fwp.platforms
         static void miSwitch() => force(Platform.switch_1);
 #endif
 
-        static public void force(Platform p) => current = p;
+        static public void force(Platform p) => Current = p;
 
         static public bool IsSwitch
         {
             get
             {
-                switch (current)
+                switch (Current)
                 {
                     case Platform.switch_1:
                     case Platform.switch_2:
@@ -65,17 +65,19 @@ namespace fwp.platforms
         /// </summary>
         static public bool IsSet => _loaded && _current != Platform.none;
 
+        static public bool Is(Platform p) => Current == p;
+
         /// <summary>
         /// what platform forced to ?
         /// </summary>
-        static Platform current
+        static public Platform Current
         {
             get
             {
                 if (!_loaded) load();
                 return _current;
             }
-            set
+            private set
             {
                 _current = value;
                 save();
