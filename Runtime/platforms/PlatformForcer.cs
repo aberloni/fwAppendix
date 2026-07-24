@@ -88,10 +88,14 @@ namespace fwp.platforms
         {
             get
             {
-                // return Application.dataPath.GetHashCode();
+#if UNITY_EDITOR
                 return UnityEditor.PlayerSettings.productGUID.ToString();
+#else
+                return Application.dataPath.GetHashCode();
+#endif
             }
         }
+
         static string kPrefKey = "fwp.platform.forced_" + uniqKey;
 
         static void load()
