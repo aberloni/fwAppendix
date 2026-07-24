@@ -63,12 +63,13 @@ namespace fwp.scenes
 			private set;
 			get;
 		}
-		
+
+#if UNITY_EDITOR
 		public Scene ContextScene
 		{
 			get
 			{
-				if (Presence)
+				if (EditorPresence)
 				{
 					return SceneManager.GetSceneByName(Context);
 				}
@@ -76,7 +77,8 @@ namespace fwp.scenes
 			}
 		}
 
-		public bool Presence => SceneTools.isEditorSceneLoaded(Context);
+		public bool EditorPresence => SceneTools.isEditorSceneLoaded(Context);
+#endif
 
 		bool _dirty = false;
 

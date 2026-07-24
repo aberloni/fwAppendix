@@ -8,9 +8,7 @@ namespace fwp.scenes.ed
 {
     using fwp.utils.editor;
     using fwp.settings.editor;
-    using UnityEngine.SceneManagement;
-    using UnityEditor.SearchService;
-
+    
     /// <summary>
     /// gather all scenes profils for a specific folder
     /// regroup sceneprofils in a common container
@@ -205,7 +203,7 @@ namespace fwp.scenes.ed
             }
 
             // add/remove buttons
-            bool _present = profil.Presence;
+            bool _present = profil.EditorPresence;
 
             if (_present && GUILayout.Button(QuickEditorViewStyles.gArrow, GUILayout.Width(QuickEditorViewStyles.btnM)))
             {
