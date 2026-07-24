@@ -63,7 +63,7 @@ namespace fwp.platforms
         /// <summary>
         /// was forced to something
         /// </summary>
-        static public bool IsSet => _loaded && _current != Platform.none;
+        static public bool IsSet => Current != Platform.none;
 
         static public bool Is(Platform p) => Current == p;
 
