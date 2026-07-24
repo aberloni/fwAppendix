@@ -1,4 +1,6 @@
 
+using UnityEngine;
+
 namespace fwp.platforms
 {
     static public class PlatformForcer
@@ -91,8 +93,8 @@ namespace fwp.platforms
 #if UNITY_EDITOR
                 return UnityEditor.PlayerSettings.productGUID.ToString();
 #else
-                return Application.dataPath.GetHashCode();
-#endif
+                return Application.dataPath.GetHashCode().ToString();
+#endif          
             }
         }
 
