@@ -8,6 +8,8 @@ namespace fwp.scenes.ed
 {
     using fwp.utils.editor;
     using fwp.settings.editor;
+    using UnityEngine.SceneManagement;
+    using UnityEditor.SearchService;
 
     /// <summary>
     /// gather all scenes profils for a specific folder
@@ -179,6 +181,7 @@ namespace fwp.scenes.ed
         {
             GUILayout.BeginHorizontal();
 
+            // left (?)
             if (GUILayout.Button(QuickEditorViewStyles.gQuestionMark, GUILayout.Width(QuickEditorViewStyles.btnS)))
             {
                 logSceneDetails(profil);
@@ -190,7 +193,7 @@ namespace fwp.scenes.ed
             if (GUILayout.Button(profil.label)) // each profil
             {
                 // check if any changes pending before changing scene
-                if(EdScenesUtils.CheckAndPromptUnsavedScenes())
+                if (EdScenesUtils.CheckAndPromptUnsavedScenes())
                 {
                     //if (EditorPrefs.GetBool(edLoadDebug)) section[i].loadDebug = true;
                     //profil.editorLoad(false);
@@ -198,15 +201,23 @@ namespace fwp.scenes.ed
                     changed = true;
                 }
 
-                
+
             }
 
             // add/remove buttons
-            bool present = SceneTools.isEditorSceneLoaded(profil.Context);
+            bool _present = profil.Presence;
 
-            if (GUILayout.Button(present ? QuickEditorViewStyles.gMinus : QuickEditorViewStyles.gPlus, GUILayout.Width(QuickEditorViewStyles.btnM)))
+            if (_present && GUILayout.Button(QuickEditorViewStyles.gArrow, GUILayout.Width(QuickEditorViewStyles.btnM)))
             {
-                if (!present) // not already present : ADD
+                fwp.appendix.utils.AppendixSceneViewUtils.FrameSceneView(
+                    profil.ContextScene,
+                    1.5f, 30);
+            }
+
+            // right "+/-"
+            if (GUILayout.Button(_present ? QuickEditorViewStyles.gMinus : QuickEditorViewStyles.gPlus, GUILayout.Width(QuickEditorViewStyles.btnM)))
+            {
+                if (!_present) // not already present : ADD
                 {
                     onEditorSceneCall(profil, replaceContext: false);
                     reactSceneAdded(profil); // after loaded

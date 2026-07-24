@@ -13,6 +13,12 @@ using UnityEditor;
 
 namespace fwp.scenes
 {
+	public struct SceneAssoc
+	{
+		public string path;
+		public Scene handle;
+	}
+
 	/// <summary>
 	/// multi layering scenes around a UID
 	/// group of scenes[] associated to a specific UID
@@ -57,6 +63,20 @@ namespace fwp.scenes
 			private set;
 			get;
 		}
+		
+		public Scene ContextScene
+		{
+			get
+			{
+				if (Presence)
+				{
+					return SceneManager.GetSceneByName(Context);
+				}
+				return default(Scene);
+			}
+		}
+
+		public bool Presence => SceneTools.isEditorSceneLoaded(Context);
 
 		bool _dirty = false;
 
@@ -1077,10 +1097,4 @@ namespace fwp.scenes
 	}
 
 
-}
-
-public struct SceneAssoc
-{
-	public string path;
-	public Scene handle;
 }

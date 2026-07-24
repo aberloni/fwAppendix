@@ -22,6 +22,7 @@ namespace fwp.utils.editor
 		public static readonly GUIContent gQuestionMark = new GUIContent("?");
 		public static readonly GUIContent gPlus = new GUIContent("+");
 		public static readonly GUIContent gMinus = new GUIContent("-");
+		public static readonly GUIContent gArrow = new GUIContent(">");
 
 		static QuickEditorViewStyles()
 		{
