@@ -18,7 +18,7 @@ namespace fwp.scenes.feeder
 
         virtual protected bool isSteam()
         {
-#if STEAMWORKS
+#if STEAMWORKS || STEAM
             return true;
 #else
             return false;
@@ -27,7 +27,7 @@ namespace fwp.scenes.feeder
 
         virtual protected bool isSwitch()
         {
-#if UNITY_SWITCH
+#if UNITY_SWITCH || SWITCH
             return true;
 #else
             return false;
