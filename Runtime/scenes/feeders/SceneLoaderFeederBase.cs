@@ -14,7 +14,7 @@ namespace fwp.scenes.feeder
         static public bool IsFeeding => feedings.Count > 0;
 
         [System.Serializable]
-        public struct FeederData
+        public class FeederData
         {
             /// <summary>
             /// categoryUID, prefix of scenes

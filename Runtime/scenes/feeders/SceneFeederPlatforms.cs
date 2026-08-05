@@ -5,16 +5,35 @@ namespace fwp.scenes.feeder
 
     /// <summary>
     /// a feeder that will only work on specific platforms
+    /// +AUTOFEED
     /// </summary>
     public class SceneFeederPlatforms : SceneLoaderFeederBase
     {
+        [System.Serializable]
+        public class FeederSteam : SceneLoaderFeeder.FeederData
+        {
+            public FeederSteam()
+            {
+                category = "steam";
+            }
+        }
+
         [Header("STEAMWORKS")]
         [SerializeField]
-        SceneLoaderFeeder.FeederData feedSteam;
+        FeederSteam feedSteam;
+
+        [System.Serializable]
+        public class FeederSwitch : SceneLoaderFeeder.FeederData
+        {
+            public FeederSwitch()
+            {
+                category = "switch";
+            }
+        }
 
         [Header("UNITY_SWITCH")]
         [SerializeField]
-        SceneLoaderFeeder.FeederData feedSwitch;
+        FeederSwitch feedSwitch;
 
         virtual protected bool isSteam()
         {
