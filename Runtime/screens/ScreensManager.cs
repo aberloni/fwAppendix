@@ -7,6 +7,7 @@ using System.Linq;
 
 namespace fwp.screens
 {
+	using System.Linq.Expressions;
 	using fwp.scenes;
 
 	public class ScreensManager
@@ -16,7 +17,7 @@ namespace fwp.screens
 		/// <summary>
 		/// list of all opened screens
 		/// </summary>
-		static List<ScreenObject> screens = new List<ScreenObject>();
+		static List<ScreenObject> screens = new();
 
 		//usual screen names
 		public enum ScreenNameGenerics
@@ -27,6 +28,28 @@ namespace fwp.screens
 			result, // end of round screen, result of round
 			loading
 		};
+
+		static public bool IsOpened<T>() where T : ScreenObject => IsOpened(typeof(T));
+		static public bool IsOpened(Type st)
+		{
+			foreach (var s in screens)
+			{
+				if (s.IsScreen(st) && s.isOpened()) return true;
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// default is contains
+		/// </summary>
+		static public bool IsOpened(string filter, bool endWidth = false)
+		{
+			foreach (var s in screens)
+			{
+				if (s.IsScreenName(filter, endWidth) && s.isOpened()) return true;
+			}
+			return false;
+		}
 
 		/// <summary>
 		/// called during ScreenObject AWAKE
@@ -322,7 +345,9 @@ namespace fwp.screens
 		{
 			foreach (var s in screens)
 			{
-				if (s.IsScreen(screenType, nameContains)) return s;
+				if (!s.IsScreen(screenType)) continue;
+				if (!s.IsScreenName(nameContains)) continue;
+				return s;
 			}
 
 			if (isVerbose) Debug.Log("no screen <" + screenType + "> & " + nameContains);
@@ -335,7 +360,7 @@ namespace fwp.screens
 		{
 			foreach (var s in screens)
 			{
-				if (s.IsScreen(nameContains)) return s;
+				if (s.IsScreenName(nameContains)) return s;
 			}
 			return null;
 		}

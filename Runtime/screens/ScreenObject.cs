@@ -35,7 +35,7 @@ namespace fwp.screens
 		/// <summary>
 		/// some callback bridge available to react to main events
 		/// </summary>
-		public ScreenCallbacks callbacks;
+		protected ScreenCallbacks callbacks;
 
 		virtual public bool isVerbose => verbose || ScreensManager.isVerbose;
 		public bool verbose = false;
@@ -94,6 +94,16 @@ namespace fwp.screens
 			}
 		}
 
+		public bool IsScreen(Type screenType) => screenType.IsInstanceOfType(this);
+		public bool IsScreen<T>() where T : ScreenObject => IsScreen(typeof(T));
+		// public bool IsScreen(Type screenType) => screenType.IsAssignableFrom(GetType());
+
+		public bool IsScreenName(string filter, bool endWidth = false)
+		{
+			if(endWidth) return name.ToLower().EndsWith(filter);
+			return name.ToLower().Contains(filter.ToLower());
+		}
+		
 		public Scene getScene() => gameObject.scene;
 
 		public bool isSticky() => tags.HasFlag(ScreenTags.stickyVisibility);
@@ -508,40 +518,6 @@ namespace fwp.screens
 			if (tags.HasFlag(ScreenTags.stickyVisibility)) ret += " STICKY"; // can't hide
 			if (tags.HasFlag(ScreenTags.stickyPersistance)) ret += " PERSIST"; // can't unload
 			return ret;
-		}
-
-		public bool IsScreen<T>(string nameContains = "") where T : ScreenObject => IsScreen(typeof(T), nameContains);
-
-		/// <summary>
-		/// name contains in gameobject scene, not transform
-		/// </summary>
-		public bool IsScreen(Type t, string nameContains = "")
-		{
-			if (!string.IsNullOrEmpty(nameContains) && !IsScreen(nameContains))
-			{
-				if (isVerbose) Debug.Log("missmatch name : " + nameContains + " vs " + gameObject.scene.name);
-				return false;
-			}
-
-			//https://learn.microsoft.com/en-us/dotnet/api/system.type.isassignablefrom?view=net-9.0
-			// Determines whether an instance of a specified param type can be assigned to a variable of the current type.
-
-			if (t != null && !t.IsAssignableFrom(GetType()))
-			{
-				if (isVerbose) Debug.Log("missmatch type : " + t + " vs " + GetType());
-				return false;
-			}
-
-			return true;
-		}
-
-		/// <summary>
-		/// scene contains name ?
-		/// </summary>
-		public bool IsScreen(string nameContains)
-		{
-			Debug.Assert(!string.IsNullOrEmpty(nameContains), "must provide a comparator", this);
-			return gameObject.scene.name.ToLower().Contains(nameContains.ToLower());
 		}
 
 		protected void logwScreen(string msg, object tar = null)
