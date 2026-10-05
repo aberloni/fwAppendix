@@ -12,7 +12,7 @@ namespace fwp.settings.editor
 	/// </summary>
 	static public class MgrEdUserSettings
 	{
-		const string ed_user_settings = "Tools/Appendix/User settings verbose";
+		const string ed_user_settings = "Window/Appendix/User settings verbose";
 
 		[MenuItem(ed_user_settings)]
 		static public void toggleUserSettingsVerbose()
