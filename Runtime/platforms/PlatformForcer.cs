@@ -26,10 +26,10 @@ namespace fwp.platforms
         }
 
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("Platform/-reset-")]
+        [UnityEditor.MenuItem("Window/Appendix/Platform/-reset-")]
         static public void miReset() => force(Platform.none);
 
-        [UnityEditor.MenuItem("Platform/switch1")]
+        [UnityEditor.MenuItem("Window/Appendix/Platform/switch1")]
         static void miSwitch() => force(Platform.switch_1);
 #endif
 
