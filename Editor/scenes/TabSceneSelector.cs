@@ -61,8 +61,9 @@ namespace fwp.scenes.ed
 
 			if (force) Debug.Log($"{GetType()}Refresh({force})");
 
-			if (force || sections.Count <= 0)
+			if (force || sections != null && sections.Count <= 0)
 			{
+				// close all foldup
 				if (sections != null)
 				{
 					foreach (var s in sections) s.Toggled = false;
@@ -71,7 +72,6 @@ namespace fwp.scenes.ed
 				sections.Clear();
 				sections = solveTabSubFolders(path);
 			}
-
 		}
 
 		protected override void drawGUI()

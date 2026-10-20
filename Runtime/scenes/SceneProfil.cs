@@ -154,11 +154,13 @@ namespace fwp.scenes
 			if (string.IsNullOrEmpty(filter)) return true;
 			if (!HasLayers) return false;
 
+			// context must contains the filter
 			if (!Context.Contains(filter))
 			{
 				return false;
 			}
 
+			// then we check layers
 			foreach (var l in layers)
 			{
 				if (l.Contains(filter))
@@ -271,7 +273,7 @@ namespace fwp.scenes
 
 			layers.Clear();
 
-			string[] layers_to_ignore = getFilteredLayers();
+			string[] layers_to_ignore = getFiltersOuts();
 
 			foreach (var p in paths)
 			{
@@ -301,6 +303,7 @@ namespace fwp.scenes
 		virtual protected string[] getFiltersOuts() => null;
 
 		/// <summary>
+		/// ISSUE
 		/// list of scene name that should be removed from layers
 		/// </summary>
 		public string[] getFilteredLayers()

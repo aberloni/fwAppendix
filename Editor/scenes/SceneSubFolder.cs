@@ -147,12 +147,16 @@ namespace fwp.scenes.ed
         void sectionLoadAll()
         {
             // Debug.Log("load all");
+            var before = EdScenesUtils.GetOpenedScenes();
+
             foreach (var p in profils)
             {
                 p.editorLoadProfil(
                     replaceContext: false,
                     forceAddBuildSettings: true);
             }
+
+            foldLoadedScenes(before);
         }
 
         virtual protected void logSceneDetails(SceneProfil profil)
@@ -251,14 +255,28 @@ namespace fwp.scenes.ed
         }
 
         public const string _pref_autoAddBuildSettings = "fwp.scenes.build.settings";
+        public const string _pref_foldHierarchyOnLoad = "fwp.scenes.fold.hierarchy";
 
         /// <summary>
         /// additive only for loading
         /// </summary>
         void onEditorSceneCall(SceneProfil profil, bool replaceContext)
         {
+            var before = EdScenesUtils.GetOpenedScenes();
+
             profil.setDirty();
             profil.editorLoadProfil(replaceContext, MgrEdUserSettings.getBool(_pref_autoAddBuildSettings));
+
+            foldLoadedScenes(before);
+        }
+
+        /// <summary>
+        /// fold in hierarchy scenes that were not opened before load
+        /// </summary>
+        void foldLoadedScenes(HashSet<UnityEngine.SceneManagement.Scene> scenesBefore)
+        {
+            if (!MgrEdUserSettings.getBool(_pref_foldHierarchyOnLoad)) return;
+            EdScenesUtils.FoldScenesOpenedSince(scenesBefore);
         }
 
         void onEditorSceneRemoval(SceneProfil profil)

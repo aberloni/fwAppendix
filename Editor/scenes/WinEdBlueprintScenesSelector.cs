@@ -67,6 +67,9 @@ namespace fwp.scenes.ed
 
 			settings.utils.UtilEdUserSettings.drawBool(
 				"+build settings", SceneSubFolder._pref_autoAddBuildSettings, (state) => primeRefresh());
+
+			settings.utils.UtilEdUserSettings.drawBool(
+				"fold hierarchy on load", SceneSubFolder._pref_foldHierarchyOnLoad);
 		}
 
 		public void selectFolder(string path, bool unfold = false) => fwp.utils.editor.GuiHelpers.selectFolder(path, unfold);

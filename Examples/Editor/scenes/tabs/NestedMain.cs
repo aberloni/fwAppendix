@@ -2,7 +2,7 @@ namespace fwp.examples
 {
     public class NestedMain : fwp.utils.editor.tabs.WinEdTabs
     {
-        [UnityEditor.MenuItem("Screen/scenes", false, 1)]
+        [UnityEditor.MenuItem("Window/Appendix/examples/+win tabs")]
         static void init() => GetWindow(typeof(NestedMain));
 
         public override void populateTabsEditor(fwp.utils.editor.tabs.WrapperTabs wt)

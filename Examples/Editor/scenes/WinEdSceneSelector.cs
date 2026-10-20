@@ -14,12 +14,12 @@ namespace fwp.scenes.examples
     /// </summary>
     public class WinEdSceneSelector : WinEdBlueprintScenesSelector
     {
-        //[UnityEditor.MenuItem("Screen/scenes", false, 1)]
+        [UnityEditor.MenuItem("Window/Appendix/examples/+win sceneselector", false, 1)]
         static public void init() => GetWindow(typeof(WinEdSceneSelector));
 
         public override void populateTabsEditor(WrapperTabs wt)
         {
-            wt.addSpecificTab(new TabCustom(this, "scenes/Regions/Biomes"));
+            wt.addSpecificTab(new TabCustom(this, "scenes/Regions"));
             wt.addSpecificTab(new TabCustom(this, "scenes/LDs"));
         }
 
