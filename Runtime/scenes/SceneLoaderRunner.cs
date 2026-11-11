@@ -23,7 +23,7 @@ namespace fwp.scenes
         /// to modify behavior of loading
         /// </summary>
         public RunnerSettings settings;
-        
+
         public class RunnerSettings
         {
             /// <summary>
@@ -93,7 +93,7 @@ namespace fwp.scenes
         private void OnDestroy()
         {
             onCompletion?.Invoke(assocs);
-            
+
             //Debug.Log(EngineObject.getStamp(this) + " destroyed");
             //SceneLoader.loaders.Remove(this);
         }
@@ -101,11 +101,11 @@ namespace fwp.scenes
         public SceneLoaderRunner coroLoadScenes(string[] sceneNames)
         {
             assocs = SceneTargetLoader.solveScenesAssocs(sceneNames, true);
-            StartCoroutine(dequeueScenes());
+            StartCoroutine(execLoadAssocs());
             return this;
         }
 
-        IEnumerator dequeueScenes()
+        IEnumerator execLoadAssocs()
         {
             if (SceneLoader.verbose) SceneLoader.log(" ... processing " + assocs.Length + " scenes", transform);
 
@@ -129,12 +129,10 @@ namespace fwp.scenes
 
             for (int i = 0; i < assocs.Length; i++)
             {
-                //Debug.Log(getStamp() + " what about ? " + sceneName, this);
+                // already loaded ?
+                if (assocs[i].handle.isLoaded) continue;
 
-                if (!assocs[i].handle.isLoaded)
-                {
-                    StartCoroutine(dequeueScene(assocs[i], settings));
-                }
+                StartCoroutine(dequeueScene(assocs[i], settings));
             }
 
             int cnt = countStillLoading();
@@ -195,6 +193,12 @@ namespace fwp.scenes
         {
             string target = assoc.name;
 
+            if (assoc.handle.isLoaded)
+            {
+                if (SceneLoader.verbose) SceneLoader.log("  L <b>" + target + "</b> already loaded");
+                yield break;
+            }
+
             float time = Time.unscaledTime;
             if (SceneLoader.verbose) SceneLoader.log("  L <b>" + target + "</b> loading ... @time:" + time);
 
@@ -202,11 +206,11 @@ namespace fwp.scenes
             // https://docs.unity3d.com/ScriptReference/AsyncOperation.html
             AsyncOperation async = SceneManager.LoadSceneAsync(target, LoadSceneMode.Additive);
 
-            if(settings != null && settings.delay_scene_activation > 0)
+            if (settings != null && settings.delay_scene_activation > 0)
             {
                 async.allowSceneActivation = settings.delay_scene_activation != 0f;
             }
-            
+
             if (!async.allowSceneActivation)
             {
                 //wait for loading to be done
